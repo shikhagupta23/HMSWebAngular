@@ -1,0 +1,190 @@
+		<!-- Main Wrapper -->
+		<div class="main-wrapper">
+            
+			<!-- Breadcrumb -->
+			<div class="breadcrumb-bar-two">
+				<div class="container">
+					<div class="row align-items-center inner-banner">
+					<div class="col-md-2 col-2">
+						<a href="/receptionist" class="menu-logo">
+							<img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+						</a>
+					</div>
+						<div class="col-md-10 col-10 text-center">
+							<h2 class="breadcrumb-title">Past Appointments</h2>
+							<nav aria-label="breadcrumb" class="page-breadcrumb">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+									<li class="breadcrumb-item" aria-current="page">Past Appointments</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Breadcrumb -->
+			
+			<!-- Page Content -->
+			<div class="content">
+				<div class="container">
+
+					<div class="row">	
+						<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+							<app-asidebar></app-asidebar>
+						</div>				
+						<div class="col-lg-8 col-xl-9">
+							<div class="dashboard-header">
+								<h3>Past Appointments</h3>
+								<ul class="header-list-btns">
+									<li>
+										<div class="input-block dash-search-input">
+											<input type="text" class="form-control" placeholder="Search"
+												[(ngModel)]="searchText"
+												(input)="applyFilter(activeTab)">
+											<span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div class="appointment-tab-head">
+								<div class="appointment-tabs">
+									<ul class="nav nav-pills inner-tab " id="pills-tab" role="tablist">
+										<li class="nav-item" role="presentation">
+											<button class="nav-link"
+													[class.active]="activeTab === 'All'"
+													(click)="applyFilter('All')">
+												All <span>{{ masterData.length }}</span>
+											</button>
+										</li>
+																				<li class="nav-item" role="presentation">
+											<!-- <button class="nav-link active" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button" role="tab" aria-controls="pills-upcoming" aria-selected="false">Upcoming<span>21</span></button> -->
+											<button class="nav-link"
+													[class.active]="activeTab === 'Upcoming'"
+													(click)="applyFilter('Upcoming')">
+												Upcoming <span>{{ upcomingCount }}</span>
+											</button>
+										</li>	
+										<li class="nav-item" role="presentation">
+											<!-- <button class="nav-link" id="pills-cancel-tab" data-bs-toggle="pill" data-bs-target="#pills-cancel" type="button" role="tab" aria-controls="pills-cancel" aria-selected="true">Cancelled<span>16</span></button> -->
+											<button class="nav-link"
+													[class.active]="activeTab === 'Cancelled'"
+													(click)="applyFilter('Cancelled')">
+												Cancelled <span>{{ cancelledCount }}</span>
+											</button>
+										</li>
+										<li class="nav-item" role="presentation">
+											<!-- <button class="nav-link" id="pills-complete-tab" data-bs-toggle="pill" data-bs-target="#pills-complete" type="button" role="tab" aria-controls="pills-complete" aria-selected="true">Completed<span>214</span></button> -->
+											<button class="nav-link"
+													[class.active]="activeTab === 'Completed'"
+													(click)="applyFilter('Completed')">
+												Completed <span>{{ completedCount }}</span>
+											</button>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+							<div class="tab-content appointment-tab-content">
+								<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
+									<div class="appointment-wrap" *ngFor="let item of dataList">
+										<ul>
+											<li>
+												<div class="patinet-information">
+													<img src="assets/img/work-img.png">
+													<div class="patient-info">
+														<p>#{{ item.appointmentViewId }}</p>
+
+														<h6>
+															{{ item.patientName }}
+															<span *ngIf="item.isNew" class="badge new-tag">New</span>
+														</h6>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div class="patinet-information">
+													<div class="patient-info">
+														<h6>
+															{{ item.doctorName }}
+														</h6>
+													</div>
+												</div>
+											</li>
+
+											<li class="appointment-info">
+												<p>
+													<i class="fa-solid fa-clock"></i>
+													{{ formatDate(item.appointmentDate) }}
+												</p>
+												<ul class="d-flex apponitment-types">
+													<li>{{ item.visitReason }}</li>
+													<li>Direct Visit</li>
+												</ul>
+											</li>
+
+											<li class="mail-info-patient">
+												<ul>
+													<li><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</li>
+												</ul>
+											</li>
+                                            <!-- Created Date + Status (No Custom CSS Used) -->
+                                            <li class="">
+                                                
+                                                <!-- Created Date -->
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="fa-solid fa-calendar"></i>
+                                                    Created: {{ formatDate(item.createdDate) }}
+                                                </span>
+
+                                                <!-- Status -->
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info"></i>
+
+                                                    <span 
+                                                        class="badge"
+                                                        [ngClass]="{
+                                                            'bg-success' : item.status === 'Completed',
+                                                            'bg-danger'  : item.status === 'Cancelled',
+                                                            'bg-warning' : item.status === 'Pending'
+                                                        }"
+                                                    >
+                                                        {{ item.status }}
+                                                    </span>
+                                                </span>
+
+                                            </li>
+										</ul>
+									</div>
+								</div>
+								<div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
+									<ul>
+										<li>
+										<a class="page-link" (click)="previousPage()">
+											<i class="fa-solid fa-chevron-left"></i>
+										</a>
+										</li>
+
+										<li *ngFor="let p of [].constructor(totalPages); let i = index">
+										<a class="page-link"
+											[class.active]="pageNumber === (i+1)"
+											(click)="goToPage(i+1)">
+											{{ i+1 }}
+										</a>
+										</li>
+
+										<li>
+										<a class="page-link" (click)="nextPage()">
+											<i class="fa-solid fa-chevron-right"></i>
+										</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+					</div>
+
+				</div>
+
+			</div>
+		   
+		</div>
+		<!-- /Main Wrapper -->

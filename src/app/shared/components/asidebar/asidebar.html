@@ -1,0 +1,100 @@
+							
+							<!-- Profile Sidebar -->
+							<div class="profile-sidebar h-100 doctor-sidebar profile-sidebar-new">
+                            <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
+                                <div class="profile-info-widget">
+                                    <a href="javascript:void(0);" class="booking-doc-img">
+                                        <img 
+                                            [src]="doctorDetails.profileImageUrl || 'assets/img/work-img.png'" 
+                                            alt="Doctor Image"
+                                        >
+                                    </a>
+
+                                    <div class="profile-det-info">
+                                        <h3>{{ doctorDetails.doctorName }}</h3>
+
+                                        <div class="patient-details">
+                                            <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
+                                        </div>
+
+                                        <span class="badge doctor-role-badge">
+                                            <i class="fa-solid fa-circle"></i>
+                                            {{ doctorDetails.doctorDepartmentName }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+								<div class="dashboard-widget">
+									<nav class="dashboard-menu">
+										<ul>
+											<li class="active">
+												<a routerLink="/doctor">
+													<span>Dashboard</span>
+												</a>
+											</li>
+
+                                            <li class="has-submenu" [class.active]="activeMenu === 'appointment'">
+                                                <a href="javascript:void(0);" (click)="toggleMenu('appointment')">
+                                                    Appointment 
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </a>
+
+                                                <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'appointment'">
+                                                    <li><a routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
+                                                    <li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
+                                                    <li class="d-none"><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
+                                                    <li class="d-none"><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>
+                                                    <li class="d-none"><a routerLink="/doctor/appointment/followupappointments">Followup Appointment</a></li>
+                                                </ul>
+                                            </li>
+
+											<li class="has-submenu" [class.active]="activeMenu === 'patients'">
+												<a href="javascript:void(0);" (click)="toggleMenu('patients')">
+                                                    Patients
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </a>
+                                                <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'patients'">
+                                                    <li><a routerLink="/doctor/patient/addpatient">Add new Patient</a></li>
+                                                    <li><a routerLink="/doctor/patient/allpatient">Total Patient</a></li>
+                                                </ul>
+											</li>
+
+											<li class="has-submenu" [class.active]="activeMenu === 'prescription'">
+												<a href="javascript:void(0);" (click)="toggleMenu('prescription')">
+													Prescription
+                                                    <i class="fas fa-chevron-down"></i>
+												</a>
+                                                <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'prescription'">
+                                                    <li class=""><a routerLink="/doctor/prescription/add">Add Prescription</a></li>
+                                                </ul>
+											</li>
+
+											<li class="has-submenu" [class.active]="activeMenu === 'medicine'">
+                                                <a href="javascript:void(0);" (click)="toggleMenu('medicine')">
+                                                    Medicine
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </a>
+
+                                                <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'medicine'">
+                                                    <li><a routerLink="/doctor/medicine/addmedicine">Add new Medicine</a></li>
+                                                    <li><a routerLink="/doctor/medicine/allmedicine">View Medicine List</a></li>
+                                                </ul>
+                                            </li>
+
+                                            <li class="has-submenu" [class.active]="activeMenu === 'lab-test'">
+                                                <a href="javascript:void(0);" (click)="toggleMenu('lab-test')">
+                                                    Lab Test
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </a>
+
+                                                <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'lab-test'">
+                                                    <li><a routerLink="/doctor/labtest/addlabtest">Add new Test</a></li>
+                                                    <li><a routerLink="/doctor/labtest/alllabtest">View Test List</a></li>
+                                                </ul>
+                                            </li>
+										</ul>
+									</nav>
+								</div>
+							</div>
+							<!-- /Profile Sidebar -->
+							

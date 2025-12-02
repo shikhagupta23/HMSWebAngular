@@ -1,0 +1,448 @@
+<div class="main-wrapper">
+	   <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-12 col-12 text-center">
+                    <h2 class="breadcrumb-title">Add Prescription</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Add Prescription</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="container">
+
+          <div class="row">	
+						<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+							<app-asidebar></app-asidebar>
+						</div>	
+            <div class="col-lg-8 col-xl-9">
+              
+          <div class="appointment-wrap" *ngFor="let item of dataList; let i = index">
+              <ul>
+                  <!-- Left side: Patient Information -->
+                  <li>
+                      <div class="patinet-information">
+                          <img src="assets/img/work-img.png">
+                          <div class="patient-info">
+                              <p>#{{ (pageNumber - 1) * pageSize + i + 1 }}</p>
+                              <h6>
+                                  {{ item.patientName }}
+                              </h6>
+                          </div>
+                      </div>
+                  </li>
+
+                  <!-- Doctor Name (optional – remove if not needed) -->
+                  <li>
+                      <div class="patinet-information">
+                          <div class="patient-info">
+                              <h6>{{ item.doctorName || '—' }}</h6>
+                          </div>
+                      </div>
+                  </li>
+
+                  <!-- Appointment Date & Visit Reason -->
+                  <li class="appointment-info">
+                      <p>
+                          <i class="fa-solid fa-clock"></i>
+                          {{ formatDate(item.appointmentDate) }}
+                      </p>
+
+                      <ul class="d-flex apponitment-types">
+                          <li>{{ item.visitReason || 'General' }}</li>
+                          <li>Direct Visit</li>
+                      </ul>
+                  </li>
+
+                  <!-- Patient Contact -->
+                  <li class="mail-info-patient">
+                      <ul>
+                          <li>
+                              <i class="fa-solid fa-phone"></i> {{ item.patientPhone }}
+                          </li>
+                      </ul>
+                  </li>
+
+                  <!-- Created Date + Status -->
+                  <li>
+                      <!-- Created Date -->
+                      <span class="d-flex align-items-center gap-1">
+                          <i class="fa-solid fa-calendar"></i>
+                          Created: {{ formatDate(item.createdAt || item.appointmentDate) }}
+                      </span>
+
+                      <!-- Status Badge -->
+                      <span class="d-flex align-items-center gap-1 mt-1">
+                          <i class="fa-solid fa-circle-info"></i>
+
+                          <span 
+                              class="badge"
+                              [ngClass]="{
+                                  'bg-success': item.statusText === 'Completed',
+                                  'bg-primary': item.statusText === 'Ongoing',
+                                  'bg-warning': item.statusText === 'Scheduled',
+                                  'bg-danger': item.statusText === 'Cancelled'
+                              }"
+                          >
+                              {{ item.statusText || 'Scheduled' }}
+                          </span>
+                      </span>
+                  </li>
+
+                  <!-- Actions -->
+                  <li class="appointment-action">
+                      <ul>
+                          <li>
+                              <a (click)="openPrescriptionModal(item)">
+                                  <i class="fa-solid fa-eye"></i>
+                              </a>
+                          </li>
+                      </ul>
+                  </li>
+              </ul>
+          </div>
+
+          <!-- No Data -->
+          <div *ngIf="dataList.length === 0" class="text-center text-muted my-4">
+              No Appointments Found
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
+            <ul>
+                <li>
+                    <a class="page-link" (click)="previousPage()">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                <li *ngFor="let p of [].constructor(totalPages); let i = index">
+                    <a class="page-link"
+                        [class.active]="pageNumber === (i + 1)"
+                        (click)="goToPage(i + 1)">
+                        {{ i + 1 }}
+                    </a>
+                </li>
+
+                <li>
+                    <a class="page-link" (click)="nextPage()">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+<!-- Prescription Modal -->
+<div class="modal fade" id="prescriptionModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Add Prescription</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- CARD -->
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+
+            <div class="row g-4">
+
+              <!-- Symptoms -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Symptoms</label>
+                <div class="input-group">
+                  <textarea class="form-control rounded-pill" rows="2"
+                    [(ngModel)]="prescription.symptoms"
+                    placeholder="Enter symptoms..."></textarea>
+
+                  <span class="input-group-text cursor-pointer"
+                        (click)="openList('Symptoms')">
+                    <i class="fa fa-plus"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Diagnosis -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Diagnosis</label>
+                <div class="input-group">
+                  <textarea class="form-control rounded-pill" rows="2"
+                    [(ngModel)]="prescription.diagnosis"
+                    placeholder="Enter diagnosis..."></textarea>
+
+                  <span class="input-group-text cursor-pointer"
+                        (click)="openList('Diagnosis')">
+                    <i class="fa fa-plus"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Advice -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Advice</label>
+                <div class="input-group">
+                  <textarea class="form-control rounded-pill" rows="2"
+                    [(ngModel)]="prescription.advice"
+                    placeholder="Enter advice..."></textarea>
+
+                  <span class="input-group-text cursor-pointer"
+                        (click)="openList('Advice')">
+                    <i class="fa fa-plus"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Follow Up -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Follow Up</label>
+                <div class="input-group">
+                  <textarea class="form-control rounded-pill" rows="2"
+                    [(ngModel)]="prescription.followUp"
+                    placeholder="Enter follow up..."></textarea>
+
+                  <span class="input-group-text cursor-pointer"
+                        (click)="openList('FollowUp')">
+                    <i class="fa fa-plus"></i>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+            <h5 class="fw-bold mb-1">Medicines</h5>
+
+            <div class="row g-4">
+
+              <!-- Medicine Type -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Medicine Type</label>
+                
+                <select class="form-control rounded-pill"
+                        [(ngModel)]="selectedMedicineType"
+                        (change)="onMedicineTypeChange()">
+
+                  <option value="">Select Type</option>
+
+                  <option *ngFor="let m of medicineTypes" [value]="m.id">
+                    {{ m.typeName }}
+                  </option>
+
+                </select>
+              </div>
+
+
+
+              <!-- Medicine Name -->
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Medicine Name</label>
+                  <select class="form-control rounded-pill" appSelect2 placeholder="-- Select Medicine Name --"
+                          [(ngModel)]="selectedMedicineName">
+                    <option value="">Select Medicine</option>
+
+                    <option *ngFor="let m of medicineNames" [value]="m.value">
+                      {{ m.text }}
+                    </option>
+
+                  </select>
+                </div>
+                <div class="col-md-2 d-flex justify-content-end">
+                  <button class="btn btn-outline-primary" (click)="addMedicine()">
+                    + Add Medicine
+                  </button>
+                </div>
+            </div>
+
+              <div class="card p-3 my-3 rounded-4 shadow-sm"
+                  *ngFor="let m of prescription.medicines; let i = index">
+
+                <div class="d-flex justify-content-between">
+                  <h5 class="text-primary fw-bold">
+                    {{ m.name }} ({{ m.type }})
+                  </h5>
+
+                  <button class="btn btn-sm btn-outline-danger"
+                          (click)="removeMedicine(i)">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <hr>
+
+                <div class="row g-3">
+
+                  <!-- Dosage -->
+                  <div class="col-md-3">
+                    <label class="fw-bold">Dosage (mg/ml) *</label>
+                    <input type="text" class="form-control rounded-pill"
+                          placeholder="e.g. 500mg"
+                          [(ngModel)]="m.dosage">
+                  </div>
+
+                  <!-- Duration -->
+                  <div class="col-md-3">
+                    <label class="fw-bold">Duration (days) *</label>
+                    <input type="text" class="form-control rounded-pill"
+                          placeholder="e.g. 5 days"
+                          [(ngModel)]="m.duration">
+                  </div>
+
+                  <!-- Frequency -->
+              <div class="col-md-6">
+                <label class="fw-bold">Frequency *</label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                <button *ngFor="let f of frequencyOptions"
+                        class="btn"
+                        [ngClass]="m.frequency === f.value ? 'btn-primary' : 'btn-outline-primary'"
+                        (click)="selectFrequency(m, f.value)">
+                  {{ f.label }}
+                </button>
+
+                </div>
+              </div>
+
+
+                  <!-- Timing -->
+              <div class="col-md-6">
+                <label class="fw-bold">Timing *</label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                  <button *ngFor="let t of timingOptions"
+                          class="btn"
+                          [ngClass]="m.timings.includes(t.value) ? 'btn-success' : 'btn-outline-success'"
+                          (click)="toggleTiming(m, t.value)">
+                    {{ t.label }}
+                  </button>
+                </div>
+              </div>
+
+
+                  <!-- Instructions -->
+              <div class="col-md-6">
+                <label class="fw-bold">Instructions *</label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                  <button *ngFor="let ins of instructionOptions"
+                          class="btn"
+                          [ngClass]="m.instruction === ins.value ? 'btn-warning' : 'btn-outline-warning'"
+                          (click)="selectInstruction(m, ins.value)">
+                    {{ ins.label }}
+                  </button>
+                </div>
+              </div>
+
+
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+            <h5 class="fw-bold mb-1">Lab Tests</h5>
+
+            <!-- Lab Test Dropdown -->
+            <div class="row g-4">
+
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Select Lab Test</label>
+                <select class="form-control rounded-pill" appSelect2 placeholder="-- Select Lab Test --" [(ngModel)]="selectedLabTest">
+                  <option value="">Select Test</option>
+                  <option *ngFor="let t of labTests" [value]="t.value">  <!-- IMPORTANT -->
+                    {{ t.text }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-2 d-flex justify-content-end">
+                <button class="btn btn-outline-primary" (click)="addLabTest()">
+                  + Add Test
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Lab Test Table -->
+            <table class="table table-bordered table-sm mt-3" *ngIf="prescription.labTests.length > 0">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Lab Test</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let t of prescription.labTests; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ t.name }}</td>   <!-- ✔ Correct -->
+                  <td>
+                    <button class="btn btn-sm btn-danger" (click)="removeLabTest(i)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" (click)="savePrescription()">Save</button>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>
+<!-- Checklist Modal -->
+<div class="modal fade" id="checklistModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+
+      <div class="modal-header">
+        <h5 class="modal-title">{{ activeField }} Options</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div *ngFor="let item of optionsList">
+          <label class="d-flex align-items-center gap-2">
+            <input type="checkbox" [(ngModel)]="item.selected"
+                   (change)="updateText()" />
+            {{ item.label }}
+          </label>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+

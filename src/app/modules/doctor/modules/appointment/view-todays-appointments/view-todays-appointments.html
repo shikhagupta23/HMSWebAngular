@@ -1,0 +1,197 @@
+		<!-- Main Wrapper -->
+		<div class="main-wrapper">
+	
+            <!-- <app-header></app-header> -->
+            
+			<!-- Breadcrumb -->
+			<div class="breadcrumb-bar-two">
+				<div class="container">
+					<div class="row align-items-center inner-banner">
+						<div class="col-md-2 col-2">
+							<a href="/receptionist" class="menu-logo">
+								<img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+							</a>
+						</div>
+						<div class="col-md-10 col-10 text-center">
+							<h2 class="breadcrumb-title">Today's Appointments</h2>
+							<nav aria-label="breadcrumb" class="page-breadcrumb">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+									<li class="breadcrumb-item" aria-current="page">Today's Appointments</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Breadcrumb -->
+			
+			<!-- Page Content -->
+			<div class="content">
+				<div class="container">
+					<div class="row">	
+						<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+							<app-asidebar></app-asidebar>
+						</div>				
+						<div class="col-lg-8 col-xl-9">
+							<div class="dashboard-header">
+								<h3>Today's Appointments</h3>
+								<ul class="header-list-btns">
+									<li class="me-2">
+										<div class="input-block dash-search-input">
+										<div class="input-block dash-search-input w-100">
+											<input type="text" class="form-control" placeholder="Search"
+												[(ngModel)]="searchText"
+												(input)="onSearchChange()">
+											<span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+										</div>
+										<span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+										</div>
+									</li>
+									<li>
+										<a routerLink="/doctor/appointment/addappointment" class="btn btn-primary">+ Add New</a>
+									</li>
+								</ul>
+							</div>
+							<div class="d-none appointment-tab-head">
+								<div class="appointment-tabs">
+									<ul class="nav nav-pills inner-tab">
+										<li class="nav-item">
+											<button class="nav-link"
+													[class.active]="activeTab === 'All'"
+													(click)="applyFilter('All')">
+											All <span>{{ masterData.length }}</span>
+											</button>
+										</li>
+
+										<li class="nav-item">
+											<button class="nav-link"
+													[class.active]="activeTab === 'Scheduled'"
+													(click)="applyFilter('Scheduled')">
+											Scheduled <span>{{ scheduledCount }}</span>
+											</button>
+										</li>
+
+										<li class="nav-item">
+											<button class="nav-link"
+													[class.active]="activeTab === 'Ongoing'"
+													(click)="applyFilter('Ongoing')">
+											Ongoing <span>{{ ongoingCount }}</span>
+											</button>
+										</li>
+
+										<li class="nav-item">
+											<button class="nav-link"
+													[class.active]="activeTab === 'Completed'"
+													(click)="applyFilter('Completed')">
+											Completed <span>{{ completedCount }}</span>
+											</button>
+										</li>
+
+										<li class="nav-item">
+											<button class="nav-link"
+													[class.active]="activeTab === 'Cancelled'"
+													(click)="applyFilter('Cancelled')">
+											Cancelled <span>{{ cancelledCount }}</span>
+											</button>
+										</li>
+									</ul>
+								</div>
+							</div>
+							<div class="tab-content appointment-tab-content">
+								<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
+									<div class="appointment-wrap" *ngFor="let item of dataList">
+										<ul>
+											<li>
+												<div class="patinet-information">
+													<div class="patient-info">
+														<h6>
+															{{ item.patientName }}
+															<span *ngIf="item.isNew" class="badge new-tag">New</span>
+														</h6>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div class="patinet-information">
+													<div class="patient-info">
+														<h6>
+															{{ item.doctorName }}
+														</h6>
+													</div>
+												</div>
+											</li>
+
+											<li class="appointment-info">
+												<p>
+													<i class="fa-solid fa-clock"></i>
+													{{ formatDate(item.appointmentDate) }}
+												</p>
+												<ul class="d-flex apponitment-types">
+													<li>{{ item.visitReason }}</li>
+													<li>Direct Visit</li>
+												</ul>
+											</li>
+
+											<li class="mail-info-patient">
+												<ul>
+													<li><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</li>
+												</ul>
+											</li>
+
+                                            <li class="">
+                                                
+                                                <!-- Created Date -->
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="fa-solid fa-calendar"></i>
+                                                    Created: {{ formatDate(item.createdAt) }}
+                                                </span>
+
+                                            </li>
+
+											<li class="d-none appointment-action">
+												<ul>
+													<li><a><i class="fa-solid fa-eye"></i></a></li>
+												</ul>
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
+									<ul>
+										<!-- Previous -->
+										<li>
+										<a class="page-link" (click)="previousPage()">
+											<i class="fa-solid fa-chevron-left"></i>
+										</a>
+										</li>
+
+										<!-- Page Numbers -->
+										<li *ngFor="let p of [].constructor(totalPages); let i = index">
+										<a class="page-link"
+											[class.active]="pageNumber === (i+1)"
+											(click)="goToPage(i+1)">
+											{{ i+1 }}
+										</a>
+										</li>
+
+										<!-- Next -->
+										<li>
+										<a class="page-link" (click)="nextPage()">
+											<i class="fa-solid fa-chevron-right"></i>
+										</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+					</div>
+
+				</div>
+
+			</div>		
+			<!-- /Page Content -->
+   
+            <!-- <app-footer></app-footer> -->
+		   
+		</div>
+		<!-- /Main Wrapper -->

@@ -1,0 +1,188 @@
+<!-- Header -->
+			<header class="header header-custom header-fixed header-one">
+				<div class="container">
+					<nav class="navbar navbar-expand-lg header-nav">
+						<div class="navbar-header">
+							<a id="mobile_btn" href="javascript:void(0);">
+								<span class="bar-icon">
+									<span></span>
+									<span></span>
+									<span></span>
+								</span>
+							</a>
+							<a href="/receptionist" class="navbar-brand logo">
+								<img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+							</a>
+						</div>
+						<div class="main-menu-wrapper">
+							<div class="menu-header">
+								<a href="/receptionist" class="menu-logo">
+									<img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+								</a>
+								<a id="menu_close" class="menu-close" href="javascript:void(0);">
+									<i class="fas fa-times"></i>
+								</a>
+							</div>
+							<ul class="main-nav">
+							<li class="megamenu">
+								<a *ngIf="roleService.isDoctor()" href="/doctor">Home <i class="fas fa-chevron-down"></i></a>								
+								<a *ngIf="roleService.isReceptionist()"href="/receptionist">Home <i class="fas fa-chevron-down"></i></a>								
+							</li>
+								<li class="has-submenu active">
+									<a href="javascript:void(0);">Appointment <i class="fas fa-chevron-down"></i></a>
+									<ul class="submenu" *ngIf="roleService.isReceptionist()">
+                                        <li><a routerLink="/receptionist/appointment/addappointment">Add new Appointment</a></li>
+										<li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
+										<li><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
+										<li><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>
+										<li><a routerLink="/doctor/appointment/followupappointments">Followup Appointment</a></li>
+									</ul>
+									<ul class="submenu">
+                                        <li><a routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
+										<li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
+										<li class="d-none"><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
+										<li><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>
+										<li class="d-none"><a routerLink="/doctor/appointment/followupappointments">Followup Appointment</a></li>
+									</ul>
+								</li>
+								<li class="has-submenu">
+									<a href="javascript:void(0);">Patient <i class="fas fa-chevron-down"></i></a>
+									<ul class="submenu">
+                                        <li><a href="/receptionist/appointment">Add new Patient</a></li>
+										<li class="d-none"><a href="/receptionist/appointment">Today's patient</a></li>
+										<li><a href="/receptionist/appointment">Total Patient</a></li>
+									</ul>
+									<ul class="submenu">
+                                        <li><a routerLink="/doctor/patient/addpatient">Add new Patient</a></li>
+										<li><a routerLink="/doctor/patient/allpatient">Total Patient</a></li>
+									</ul>
+								</li>
+								  <li class="has-submenu">
+									<a href="javascript:void(0);">Prescription<i class="fas fa-chevron-down"></i></a>
+									<ul class="submenu">
+                                        <li><a routerLink="/doctor/prescription/add">Add Prescription</a></li>
+									</ul>
+								</li>
+                                <li class="has-submenu">
+									<a href="javascript:void(0);">Medicine <i class="fas fa-chevron-down"></i></a>
+									<ul class="submenu">
+                                        <li><a routerLink="/doctor/medicine/addmedicine">Add new Medicine</a></li>
+										<li><a routerLink="/doctor/medicine/allmedicine">View Medicine List</a></li>
+									</ul>
+									<ul class="submenu" *ngIf="roleService.isReceptionist()">
+                                        <li><a href="/receptionist/appointment">Add new Medicine</a></li>
+										<li><a href="/receptionist/appointment">View Medicine List</a></li>
+									</ul>
+								</li>
+                                   <li class="has-submenu">
+									<a href="javascript:void(0);">Lab Test <i class="fas fa-chevron-down"></i></a>
+									<ul class="submenu" >
+                                        <li><a routerLink="/doctor/labtest/addlabtest">Add new Test</a></li>
+										<li><a routerLink="/doctor/labtest/alllabtest">View Test List</a></li>
+									</ul>
+									<ul class="submenu" *ngIf="roleService.isReceptionist()">
+                                        <li><a href="/receptionist/appointment">Add new Test</a></li>
+										<li><a href="/receptionist/appointment">View Test List</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<ul class="nav header-navbar-rht">
+							<!-- Notifications -->
+							<li class="nav-item dropdown noti-nav me-3 pe-0 d-none">
+								<a href="#" class="dropdown-toggle nav-link p-0" data-bs-toggle="dropdown">
+									<i class="fa-solid fa-bell"></i> <span class="badge">5</span>
+								</a>
+								<div class="dropdown-menu notifications dropdown-menu-end ">
+									<div class="topnav-dropdown-header">
+										<span class="notification-title">Notifications</span>
+									</div>
+									<div class="noti-content">
+										<ul class="notification-list">
+											<li class="notification-message">
+												<a href="#">
+													<div class="notify-block d-flex">
+														<span class="avatar">
+															<img class="avatar-img" alt="Ruby perin" src="assets/img/clients/client-01.jpg">
+														</span>
+														<div class="media-body">
+															<h6>Travis Tremble <span class="notification-time">18.30 PM</span></h6>
+															<p class="noti-details">Sent a amount of $210 for his Appointment  <span class="noti-title">Dr.Ruby perin </span></p>
+														</div>
+													</div>
+												</a>
+											</li>
+											<li class="notification-message">
+												<a href="#">
+													<div class="notify-block d-flex">
+														<span class="avatar">
+															<img class="avatar-img" alt="Hendry Watt" src="assets/img/clients/client-02.jpg">
+														</span>
+														<div class="media-body">
+															<h6>Travis Tremble <span class="notification-time">12 Min Ago</span></h6>
+															<p class="noti-details"> has booked her appointment to  <span class="noti-title">Dr. Hendry Watt</span></p>
+														</div>
+													</div>
+												</a>
+											</li>
+											<li class="notification-message">
+												<a href="#">
+													<div class="notify-block d-flex">
+														<div class="avatar">
+															<img class="avatar-img" alt="Maria Dyen" src="assets/img/clients/client-03.jpg">
+														</div>
+														<div class="media-body">
+															<h6>Travis Tremble <span class="notification-time">6 Min Ago</span></h6>
+															<p class="noti-details"> Sent a amount  $210 for his Appointment   <span class="noti-title">Dr.Maria Dyen</span></p>
+														</div>
+													</div>
+												</a>
+											</li>
+											<li class="notification-message">
+												<a href="#">
+													<div class="notify-block d-flex">
+														<div class="avatar avatar-sm">
+															<img class="avatar-img" alt="client-image" src="assets/img/clients/client-04.jpg">
+														</div>
+														<div class="media-body">
+															<h6>Travis Tremble <span class="notification-time">8.30 AM</span></h6>
+															<p class="noti-details"> Send a message to his doctor</p>
+														</div>
+													</div>
+												</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</li>
+							<!-- /Notifications -->
+
+							<!-- User Menu -->
+							<li class="nav-item dropdown has-arrow logged-item">
+								<a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+									<span class="user-img">
+										<img class="rounded-circle" src="assets/img/doctors-dashboard/doctor-profile-img.jpg" width="31" alt="Darren Elder">
+									</span>
+								</a>
+								<div class="dropdown-menu dropdown-menu-end">
+									<div class="user-header">
+										<div class="avatar avatar-sm">
+											<img src="assets/img/doctors-dashboard/doctor-profile-img.jpg" alt="User Image" class="avatar-img rounded-circle">
+										</div>
+										<div class="user-text">
+											<h6>Dr Edalin Hendry</h6>
+											<p class="text-success mb-0">Available</p>
+										</div>
+									</div>
+									<a class="dropdown-item" href="doctor-dashboard.html">Dashboard</a>
+									<a class="dropdown-item" href="doctor-profile-settings.html">Profile Settings</a>
+									<a class="dropdown-item" href="login.html">Logout</a>
+								</div>
+							</li>
+							<!-- /User Menu -->
+							
+						</ul>
+					</nav>
+				</div>
+			</header>
+			<!-- /Header -->

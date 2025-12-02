@@ -1,0 +1,97 @@
+ /* Custom Form Styling */
+    .form-control {
+        border: 1px solid #e0e0e0;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+    }
+
+    .form-control.rounded-pill {
+        border-radius: 50rem !important;
+    }
+
+    .form-label {
+        color: #5a5c69;
+        margin-bottom: 0.25rem;
+        font-size: 0.813rem;
+    }
+
+    .card {
+        border-radius: 1rem !important;
+    }
+
+    .btn.rounded-pill {
+        border-radius: 50rem !important;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.4);
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+    }
+
+    h6.fw-bold {
+        font-size: 1rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    h6.fw-bold::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 3px;
+        background: currentColor;
+        border-radius: 2px;
+        opacity: 0.3;
+    }
+
+    .text-danger {
+        font-weight: 600;
+    }
+
+    /* Input placeholder styling */
+    .form-control::placeholder {
+        color: #b0b0b0;
+        font-size: 0.813rem;
+    }
+
+    /* Remove spinner from number inputs */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        opacity: 1;
+    }
+
+   .content {
+    min-height: 206px !important;
+    padding: 19px 0 36px !important;
+}
+
+/* Increase modal width */
+#prescriptionModal .modal-dialog {
+    max-width: 90% !important;   /* Wider modal */
+    width: 90% !important;
+}
+
+/* Checklist modal - medium width */
+#checklistModal .modal-dialog {
+    max-width: 500px !important; 
+}

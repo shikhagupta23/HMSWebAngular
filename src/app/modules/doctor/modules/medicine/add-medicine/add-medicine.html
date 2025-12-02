@@ -1,0 +1,104 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-2 col-2">
+                    <a href="/receptionist" class="menu-logo">
+                        <img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+                    </a>
+                </div>
+                <div class="col-md-10 col-10 text-center">
+                    <h2 class="breadcrumb-title">Add Medicine</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Add Medicine</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="content">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+                    <app-asidebar></app-asidebar>
+                </div>
+                <div class="col-lg-8 col-xl-9">
+                    <div class="dashboard-header mb-3">
+                        <h3>Add Medicine</h3>
+                    </div>
+
+                    <form [formGroup]="medicineForm" (ngSubmit)="onSubmit()">
+
+                        <div class="row">
+
+                            <!-- Medicine Type -->
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Medicine Type <span class="text-danger">*</span></label>
+                                    <select class="form-control rounded-pill" appSelect2 placeholder="-- Select Medicine Type --" formControlName="medicineType">
+                                    <option value="">Select Medicine Type</option>
+                                    <option *ngFor="let item of medicineTypes"
+                                            [value]="item.id">
+                                        {{ item.typeName }}
+                                    </option>
+
+                                </select>
+
+                                    <p class="text-danger" *ngIf="isInvalid('medicineType')">Medicine Type is required</p>
+                                </div>
+                            </div>
+
+                            <!-- Medicine Name -->
+                            <div class="col-md-3">
+                                <div class="input-block mb-3">
+                                    <label class="form-label">Medicine Name <span class="text-danger">*</span></label>
+                                    <input type="text" formControlName="medicineName" class="form-control rounded-pill"
+                                        placeholder="Enter medicine name">
+                                    <p class="text-danger" *ngIf="isInvalid('medicineName')">Medicine Name is required</p>
+                                </div>
+                            </div>
+
+                            <!-- Manufacturer Name (Optional) -->
+                            <div class="col-md-3">
+                                <div class="input-block mb-3">
+                                    <label class="form-label">Manufacturer Name</label>
+                                    <input type="text" formControlName="manufacturerName" class="form-control rounded-pill"
+                                        placeholder="Enter manufacturer name (optional)">
+                                </div>
+                            </div>
+
+                            <!-- Quantity (Optional) -->
+                            <div class="col-md-3">
+                                <div class="input-block mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" formControlName="quantity" class="form-control rounded-pill"
+                                        placeholder="Enter quantity (optional)">
+                                </div>
+                                
+                            </div>
+
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Save Medicine</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,134 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-2 col-2">
+                    <a href="/receptionist" class="menu-logo">
+                        <img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+                    </a>
+                </div>
+                <div class="col-md-10 col-10 text-center">
+                    <h2 class="breadcrumb-title">Add Patient</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Add Patient</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="content">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+                    <app-asidebar></app-asidebar>
+                </div>
+
+                <div class="col-lg-8 col-xl-9">
+                    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body p-4">
+
+                                <!-- Personal Info Section -->
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-primary mb-3">
+                                        <i class="fas fa-user-circle me-2"></i>Personal Information
+                                    </h6>
+                                    <div class="row g-3">
+
+                                        <!-- Full Name -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                                <input type="text" formControlName="fullName" class="form-control rounded-pill"
+                                                    placeholder="Enter full name">
+                                                <p class="text-danger" *ngIf="isInvalid('fullName')">Full Name is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                                <select class="form-control rounded-pill" appSelect2 placeholder="-- Select Gender --"  formControlName="gender">
+                                                    <option value="">-- Select Gender --</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <p class="text-danger" *ngIf="isInvalid('gender')">Gender is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- dob -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                                <input type="date" formControlName="dob" class="form-control rounded-pill" [max]="today">
+                                                <p class="text-danger" *ngIf="isInvalid('dob')">Date of Birth is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                                <input type="text" formControlName="phoneNumber" class="form-control rounded-pill" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    placeholder="Enter 10 digit number">
+                                                <p class="text-danger" *ngIf="isInvalid('phoneNumber')">Enter valid 10-digit phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-success mb-3">
+                                        <i class="fas fa-home me-2"></i>Contact Information
+                                    </h6>
+                                    <div class="row g-3">
+
+                                        <!-- Address -->
+                                        <div class="col-md-9">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Address <span class="text-danger">*</span></label>
+                                                <textarea formControlName="address" class="form-control rounded-pill"></textarea>
+                                                <p class="text-danger" *ngIf="isInvalid('address')">Address is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- ABHA ID -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">ABHA ID</label>
+                                                <input type="text" formControlName="abhaId" class="form-control rounded-pill">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-4 pt-3 border-top">
+                                    <button type="button" class="d-none btn btn-outline-secondary rounded-pill px-4 me-2">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        Save Patient
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

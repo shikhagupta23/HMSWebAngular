@@ -1,0 +1,149 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-2 col-2">
+                    <a href="/receptionist" class="menu-logo">
+                        <img src="assets/img/logo.png" class="img-fluid" alt="Logo">
+                    </a>
+                </div>
+                <div class="col-md-10 col-10 text-center">
+                    <h2 class="breadcrumb-title">Total Patients</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Total Patients</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Breadcrumb -->
+
+    <!-- Page Content -->
+    <div class="content">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+                    <app-asidebar></app-asidebar>
+                </div>
+
+                <div class="col-lg-8 col-xl-9">
+                    <div class="dashboard-header">
+                        <h3>Patients</h3>
+                        <ul class="header-list-btns">
+                            <li class="me-2">
+                                <div class="input-block dash-search-input">
+                                    <input type="text" class="form-control" placeholder="Search Patient..."
+                                        [(ngModel)]="searchText"
+                                        (input)="searchPatients()">
+                                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </li>
+                            <li>
+                                <a routerLink="/doctor/patient/addpatient" class="btn btn-primary">+ Add New</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Patient List UI (same card style as appointments) -->
+                    <div class="appointment-tab-content mt-4">
+                        <div class="appointment-wrap" *ngFor="let p of paginatedPatients">
+                            <ul>
+
+                                <!-- Patient Image + Name -->
+                                <li>
+                                    <div class="patinet-information">
+                                        <div class="patient-info">
+                                            <!-- <p>#{{ p.id }}</p> -->
+                                            <h6>{{ p.fullName }}</h6>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <!-- Gender -->
+                                <li>
+                                    <div class="patinet-information">
+                                        <div class="patient-info">
+                                            <h6>{{ p.gender | gender }}</h6>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <!-- DOB & ABHA -->
+                                <li class="appointment-info">
+                                    <p><i class="fa-solid fa-calendar"></i> DOB: {{ p.dob | date:'dd/MM/yyyy'}}</p>
+                                    <ul class="d-flex apponitment-types">
+                                        <li>ABHA: {{ p.abhaId }}</li>
+                                    </ul>
+                                </li>
+
+                                <!-- Phone -->
+                                <li class="mail-info-patient">
+                                    <ul>
+                                        <li><i class="fa-solid fa-phone"></i> {{ p.phone }}</li>
+                                    </ul>
+                                </li>
+
+                                <!-- Address -->
+                                <li>
+                                    <span class="d-flex align-items-center gap-1">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        {{ p.address }}
+                                    </span>
+                                </li>
+
+                                <!-- Actions -->
+                                <li class="d-none appointment-action">
+                                    <ul>
+                                        <li><a><i class="fa-solid fa-eye"></i></a></li>
+                                        <li><a><i class="fa-solid fa-pen"></i></a></li>
+                                        <li><a><i class="fa-solid fa-trash"></i></a></li>
+                                    </ul>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
+                        <ul>
+
+                            <!-- Previous -->
+                            <li>
+                                <a class="page-link" (click)="previousPage()">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Page Numbers -->
+                            <li *ngFor="let p of [].constructor(totalPages); let i = index">
+                                <a class="page-link"
+                                [class.active]="pageNumber === (i + 1)"
+                                (click)="goToPage(i + 1)">
+                                    {{ i + 1 }}
+                                </a>
+                            </li>
+
+                            <!-- Next -->
+                            <li>
+                                <a class="page-link" (click)="nextPage()">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Content -->
+
+</div>
+<!-- /Main Wrapper -->
