@@ -14,25 +14,21 @@ export class Appointment {
     }
 
     
-getAppointments(
-  page: number = 1, 
-  pageSize: number = 10, 
-  status: number = 0, 
-  date?: string, 
-  search?: string
-): Observable<any> {
+  getAppointments(page: number, size: number, status: number, date: string, searchText: string) {
 
-  let params: any = {
-    page,
-    pageSize,
-    status
-  };
+    const params: any = {
+      page: page,
+      pageSize: size,
+      status: status,
+      date: date
+    };
 
-  if (date) params.date = date;
-  if (search) params.searchTerm = search;
+    if (searchText && searchText.trim() !== '') {
+      params.searchTerm = searchText;
+    }
 
-  return this.api.get(ApiEndpoints.APPOINTMENT.GET, { params });
-}
+    return this.api.get(ApiEndpoints.APPOINTMENT.GET, params);
+  }
 
 
     saveAppointment(data: any): Observable<any> {

@@ -49,113 +49,53 @@
 										</div>
 									</li>
 									<li>
-										<a routerLink="/doctor/appointment/addappointment" class="btn btn-primary">+ Add New</a>
+										<a class="btn btn-primary" (click)="openAddAppointmentModal()">+ Add New</a>
 									</li>
 								</ul>
 							</div>
-							<div class="d-none appointment-tab-head">
-								<div class="appointment-tabs">
-									<ul class="nav nav-pills inner-tab">
-										<li class="nav-item">
-											<button class="nav-link"
-													[class.active]="activeTab === 'All'"
-													(click)="applyFilter('All')">
-											All <span>{{ masterData.length }}</span>
-											</button>
-										</li>
-
-										<li class="nav-item">
-											<button class="nav-link"
-													[class.active]="activeTab === 'Scheduled'"
-													(click)="applyFilter('Scheduled')">
-											Scheduled <span>{{ scheduledCount }}</span>
-											</button>
-										</li>
-
-										<li class="nav-item">
-											<button class="nav-link"
-													[class.active]="activeTab === 'Ongoing'"
-													(click)="applyFilter('Ongoing')">
-											Ongoing <span>{{ ongoingCount }}</span>
-											</button>
-										</li>
-
-										<li class="nav-item">
-											<button class="nav-link"
-													[class.active]="activeTab === 'Completed'"
-													(click)="applyFilter('Completed')">
-											Completed <span>{{ completedCount }}</span>
-											</button>
-										</li>
-
-										<li class="nav-item">
-											<button class="nav-link"
-													[class.active]="activeTab === 'Cancelled'"
-													(click)="applyFilter('Cancelled')">
-											Cancelled <span>{{ cancelledCount }}</span>
-											</button>
-										</li>
-									</ul>
-								</div>
-							</div>
 							<div class="tab-content appointment-tab-content">
 								<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
-									<div class="appointment-wrap" *ngFor="let item of dataList">
-										<ul>
-											<li>
-												<div class="patinet-information">
-													<div class="patient-info">
-														<h6>
-															{{ item.patientName }}
-															<span *ngIf="item.isNew" class="badge new-tag">New</span>
-														</h6>
-													</div>
-												</div>
-											</li>
-											<li>
-												<div class="patinet-information">
-													<div class="patient-info">
-														<h6>
-															{{ item.doctorName }}
-														</h6>
-													</div>
-												</div>
-											</li>
+<div class="appointment-wrap p-3 mb-2 border rounded" *ngFor="let item of dataList">
+    <div class="row g-3 align-items-center flex-md-nowrap">
 
-											<li class="appointment-info">
-												<p>
-													<i class="fa-solid fa-clock"></i>
-													{{ formatDate(item.appointmentDate) }}
-												</p>
-												<ul class="d-flex apponitment-types">
-													<li>{{ item.visitReason }}</li>
-													<li>Direct Visit</li>
-												</ul>
-											</li>
+        <!-- Patient Name -->
+        <div class="col-12 col-md">
+            <div class="d-flex align-items-center gap-2">
+                <strong>{{ item.patientName }}</strong>
+            </div>
+        </div>
 
-											<li class="mail-info-patient">
-												<ul>
-													<li><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</li>
-												</ul>
-											</li>
+        <!-- Doctor Name -->
+        <div class="col-12 col-md">
+            <span>{{ item.doctorName }}</span>
+        </div>
 
-                                            <li class="">
-                                                
-                                                <!-- Created Date -->
-                                                <span class="d-flex align-items-center gap-1">
-                                                    <i class="fa-solid fa-calendar"></i>
-                                                    Created: {{ formatDate(item.createdAt) }}
-                                                </span>
+        <!-- Appointment Date -->
+        <div class="col-12 col-md">
+            <span>
+                {{ formatDate(item.appointmentDate) }}
+            </span>
+        </div>
 
-                                            </li>
+        <!-- Visit Reason -->
+        <div class="col-12 col-md">
+            <span class="text-muted">{{ item.visitReason }}</span>
+        </div>
 
-											<li class="d-none appointment-action">
-												<ul>
-													<li><a><i class="fa-solid fa-eye"></i></a></li>
-												</ul>
-											</li>
-										</ul>
-									</div>
+        <!-- Phone -->
+        <div class="col-12 col-md">
+            <span>{{ item.patientPhone }}</span>
+        </div>
+
+        <!-- Created Date -->
+        <div class="col-12 col-md">
+            <span>Created: {{ formatDate(item.createdAt) }}</span>
+        </div>
+
+    </div>
+</div>
+
+
 								</div>
 								<div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
 									<ul>
@@ -190,8 +130,150 @@
 
 			</div>		
 			<!-- /Page Content -->
-   
-            <!-- <app-footer></app-footer> -->
-		   
-		</div>
+			</div>
 		<!-- /Main Wrapper -->
+		</div>
+		<div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content rounded-4 border-0 shadow">
+
+				<div class="modal-header">
+					<h5 class="modal-title">Add Appointment</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body">
+
+					<form [formGroup]="addAppointmentForm" (ngSubmit)="onSubmit()">
+
+					<!-- Your Entire Form ✔ Converted into Modal -->
+					<div class="row g-3">
+
+						<!-- PATIENT INFO CARD -->
+						<div class="col-12">
+						<h6 class="fw-bold mb-3">
+							<i class="fas fa-user-circle me-2"></i>Patient Information
+						</h6>
+
+						<div class="row g-3">
+
+							<div class="col-md-3 position-relative">
+							<label class="form-label small fw-semibold">Full Name <span class="text-danger">*</span></label>
+							<input type="text" class="form-control rounded-pill"
+									formControlName="fullName"
+									(input)="getPatientByTerm()">
+
+							<!-- Auto Suggest -->
+							<ul *ngIf="patientList.length > 0"
+								class="list-group position-absolute w-100 autosuggest-dropdown"
+								style="z-index:1000; max-height:200px; overflow-y:auto; top:100%;">
+								<li class="list-group-item list-group-item-action"
+									*ngFor="let p of patientList"
+									(click)="selectPatient(p)">
+								{{ p.userName }} ({{ p.phone }})
+								</li>
+							</ul>
+							</div>
+
+							<div class="col-md-2">
+							<label class="form-label small fw-semibold">Gender</label>
+							<select class="form-control rounded-pill" formControlName="gender">
+								<option value="">Select</option>
+								<option value="M">Male</option>
+								<option value="F">Female</option>
+								<option value="O">Other</option>
+							</select>
+							</div>
+
+							<div class="col-md-2">
+							<label class="form-label small fw-semibold">Date of Birth</label>
+							<input type="date" class="form-control rounded-pill" formControlName="dob">
+							</div>
+
+							<div class="col-md-2">
+							<label class="form-label small fw-semibold">Phone <span class="text-danger">*</span></label>
+							<input type="text" class="form-control rounded-pill" formControlName="phoneNumber"
+									(input)="checkPhone()">
+							</div>
+
+							<div class="col-md-3">
+							<label class="form-label small fw-semibold">Address</label>
+							<input type="text" class="form-control rounded-pill" formControlName="address">
+							</div>
+
+						</div>
+						</div>
+
+						<!-- VITALS -->
+						<div class="col-12 mt-3">
+						<h6 class="fw-bold mb-3">
+							<i class="fas fa-heartbeat me-2"></i>Vitals
+						</h6>
+						<div class="row g-3">
+							<div class="col-md-2" *ngFor="let field of [
+							{label:'Weight (kg)', name:'weight'},
+							{label:'Height (cm)', name:'height'},
+							{label:'Pulse (bpm)', name:'pulse'},
+							{label:'Oxygen (%)', name:'oxygen'},
+							{label:'Refer Doctor', name:'referDoctor'},
+							{label:'ABHA ID', name:'abhaId'}
+							]">
+							<label class="form-label small fw-semibold">{{field.label}}</label>
+							<input class="form-control rounded-pill" [formControlName]="field.name">
+							</div>
+						</div>
+						</div>
+
+						<!-- APPOINTMENT DETAILS -->
+						<div class="col-12 mt-3">
+						<h6 class="fw-bold mb-3">
+							<i class="fas fa-calendar-check me-2"></i>Appointment Details
+						</h6>
+
+						<div class="row g-3">
+
+							<div class="col-md-3">
+							<label class="form-label small fw-semibold">Appointment Date <span class="text-danger">*</span></label>
+							<input type="datetime-local" class="form-control rounded-pill"
+									formControlName="appointmentDate">
+							</div>
+
+							<div class="col-md-3">
+							<label class="form-label small fw-semibold">Doctor <span class="text-danger">*</span></label>
+							<select class="form-control rounded-pill"
+									formControlName="doctor"
+									(change)="getDoctorFee()">
+								<option value="">Select Doctor</option>
+								<option *ngFor="let doc of doctorList" [value]="doc.userId">
+								{{ doc.fullName }}
+								</option>
+							</select>
+							</div>
+
+							<div class="col-md-2">
+							<label class="form-label small fw-semibold">Fee (₹)</label>
+							<input type="number" class="form-control rounded-pill" formControlName="appointmentFee">
+							</div>
+
+							<div class="col-md-4">
+							<label class="form-label small fw-semibold">Visit Reason</label>
+							<input type="text" class="form-control rounded-pill" formControlName="visitReason">
+							</div>
+
+						</div>
+						</div>
+
+					</div>
+
+					</form>
+
+				</div>
+
+				<div class="modal-footer rounded-bottom-4 border-0">
+					<button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+					<button (click)="onSubmit()" class="btn btn-primary rounded-pill">Save Appointment</button>
+				</div>
+
+				</div>
+			</div>
+		</div>

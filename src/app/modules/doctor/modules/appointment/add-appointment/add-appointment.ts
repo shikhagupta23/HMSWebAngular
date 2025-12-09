@@ -39,29 +39,29 @@ export class AddAppointment implements OnInit {
 
     this.addAppointmentForm = this.fb.group({
        patientId: [''],
-  fullName: ['', Validators.required],
-  email: [''],
-  dob: [''],
-  gender: [''],
-  bloodGroup: [''],
-  phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-  address: [''],
-  weight: [''],
-  height: [''],
-  pulse: [''],
-  oxygen: [''],
-  referDoctor: [''],
-  abhaId: [''],
-  doctorDegree: [''],
-  doctorSpeciality: [''],
-  doctorRegNo: [''],
-  department: [''],
+      fullName: ['', Validators.required],
+      email: [''],
+      dob: [''],
+      gender: [''],
+      bloodGroup: [''],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      address: [''],
+      weight: [''],
+      height: [''],
+      pulse: [''],
+      oxygen: [''],
+      referDoctor: [''],
+      abhaId: [''],
+      doctorDegree: [''],
+      doctorSpeciality: [''],
+      doctorRegNo: [''],
+      department: [''],
 
-  appointmentDate: ['', Validators.required],
-  doctor: ['', Validators.required],
-  appointmentFee: [''],
-  visitReason: ['']
-});
+      appointmentDate: ['', Validators.required],
+      doctor: ['', Validators.required],
+      appointmentFee: [''],
+      visitReason: ['']
+    });
 
   }
 @HostListener('document:click')
@@ -112,7 +112,7 @@ selectPatient(p: any) {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
  
-   onCancel()
+  onCancel()
   {
     this.router.navigate(['/doctor/appointment/todayappointments']);
   }
@@ -154,9 +154,6 @@ onSubmit() {
     this.addAppointmentForm.markAllAsTouched();
     return;
   }
-  debugger;
- 
-
   const form = this.addAppointmentForm.value;
 
   const payload = {

@@ -1,0 +1,29 @@
+.autosuggest-dropdown {
+    margin-top: 2px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+}
+
+.appointment-wrap {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .appointment-wrap .row > div {
+        white-space: nowrap;
+    }
+}
+
+.border-radius{
+    border-radius: 2.375rem !important;
+}
+

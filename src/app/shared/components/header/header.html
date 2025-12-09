@@ -31,14 +31,14 @@
 								<li class="has-submenu active">
 									<a href="javascript:void(0);">Appointment <i class="fas fa-chevron-down"></i></a>
 									<ul class="submenu" *ngIf="roleService.isReceptionist()">
-                                        <li><a routerLink="/receptionist/appointment/addappointment">Add new Appointment</a></li>
+                                        <li><a class="d-none" routerLink="/receptionist/appointment/addappointment">Add new Appointment</a></li>
 										<li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
 										<li><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
 										<li><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>
 										<li><a routerLink="/doctor/appointment/followupappointments">Followup Appointment</a></li>
 									</ul>
 									<ul class="submenu">
-                                        <li><a routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
+                                        <li><a class="d-none" routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
 										<li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
 										<li class="d-none"><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
 										<li><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>

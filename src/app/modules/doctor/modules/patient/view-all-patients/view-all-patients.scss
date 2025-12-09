@@ -1,0 +1,28 @@
+.card-action-btns {
+    position: absolute;
+    top: -10px;
+    right: 0px;
+    a {
+        background-color: #e6e6e6;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 0.5px solid #afafaf;
+
+        i {
+            font-size: 12px;
+        }
+    }
+}
+
+.border-radius{
+    border-radius: 2.375rem !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+}

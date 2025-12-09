@@ -17,7 +17,7 @@ export class ViewAllPatients implements OnInit {
 
   searchText = "";
   pageNumber = 1;
-  pageSize = 10;
+  pageSize = 50;
   totalPages = 0;
 
   ngOnInit() {

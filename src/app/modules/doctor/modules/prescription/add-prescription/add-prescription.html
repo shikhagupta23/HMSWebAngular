@@ -23,90 +23,38 @@
 						</div>	
             <div class="col-lg-8 col-xl-9">
               
-          <div class="appointment-wrap" *ngFor="let item of dataList; let i = index">
-              <ul>
-                  <!-- Left side: Patient Information -->
-                  <li>
-                      <div class="patinet-information">
-                          <img src="assets/img/work-img.png">
-                          <div class="patient-info">
-                              <p>#{{ (pageNumber - 1) * pageSize + i + 1 }}</p>
-                              <h6>
-                                  {{ item.patientName }}
-                              </h6>
-                          </div>
-                      </div>
-                  </li>
+<div class="appointment-wrap p-3 m-2 border " *ngFor="let item of dataList; let i = index">
+  <div class="row g-3 align-items-center">
 
-                  <!-- Doctor Name (optional – remove if not needed) -->
-                  <li>
-                      <div class="patinet-information">
-                          <div class="patient-info">
-                              <h6>{{ item.doctorName || '—' }}</h6>
-                          </div>
-                      </div>
-                  </li>
+    <div class="col-12 col-md-2">
+      <h6>{{ item.patientName }}</h6>
+    </div>
 
-                  <!-- Appointment Date & Visit Reason -->
-                  <li class="appointment-info">
-                      <p>
-                          <i class="fa-solid fa-clock"></i>
-                          {{ formatDate(item.appointmentDate) }}
-                      </p>
+    <div class="col-12 col-md-2">
+      <h6>{{ item.doctorName || '—' }}</h6>
+    </div>
 
-                      <ul class="d-flex apponitment-types">
-                          <li>{{ item.visitReason || 'General' }}</li>
-                          <li>Direct Visit</li>
-                      </ul>
-                  </li>
+    <div class="col-12 col-md-2">
+      <p>{{ formatDate(item.appointmentDate) }}</p>
+    </div>
 
-                  <!-- Patient Contact -->
-                  <li class="mail-info-patient">
-                      <ul>
-                          <li>
-                              <i class="fa-solid fa-phone"></i> {{ item.patientPhone }}
-                          </li>
-                      </ul>
-                  </li>
+    <div class="col-12 col-md-2">
+      <span>{{ item.patientPhone }}</span>
+    </div>
 
-                  <!-- Created Date + Status -->
-                  <li>
-                      <!-- Created Date -->
-                      <span class="d-flex align-items-center gap-1">
-                          <i class="fa-solid fa-calendar"></i>
-                          Created: {{ formatDate(item.createdAt || item.appointmentDate) }}
-                      </span>
+    <div class="col-12 col-md-3">
+      <span>Created: {{ formatDate(item.createdAt || item.appointmentDate) }}</span>
+    </div>
 
-                      <!-- Status Badge -->
-                      <span class="d-flex align-items-center gap-1 mt-1">
-                          <i class="fa-solid fa-circle-info"></i>
+    <div class="col-12 col-md-1 text-center">
+      <a (click)="openPrescriptionModal(item)">
+        <i class="fa-solid fa-eye"></i>
+      </a>
+    </div>
 
-                          <span 
-                              class="badge"
-                              [ngClass]="{
-                                  'bg-success': item.statusText === 'Completed',
-                                  'bg-primary': item.statusText === 'Ongoing',
-                                  'bg-warning': item.statusText === 'Scheduled',
-                                  'bg-danger': item.statusText === 'Cancelled'
-                              }"
-                          >
-                              {{ item.statusText || 'Scheduled' }}
-                          </span>
-                      </span>
-                  </li>
+  </div>
+</div>
 
-                  <!-- Actions -->
-                  <li class="appointment-action">
-                      <ul>
-                          <li>
-                              <a (click)="openPrescriptionModal(item)">
-                                  <i class="fa-solid fa-eye"></i>
-                              </a>
-                          </li>
-                      </ul>
-                  </li>
-              </ul>
-          </div>
 
           <!-- No Data -->
           <div *ngIf="dataList.length === 0" class="text-center text-muted my-4">
@@ -237,9 +185,10 @@
                 
                 <select class="form-control rounded-pill"
                         [(ngModel)]="selectedMedicineType"
-                        (change)="onMedicineTypeChange()">
+                        (change)="onMedicineTypeChange()"
+                        >
 
-                  <option value="">Select Type</option>
+                  <option value="">-- Select Medicine Type --</option>
 
                   <option *ngFor="let m of medicineTypes" [value]="m.id">
                     {{ m.typeName }}
@@ -264,8 +213,8 @@
                   </select>
                 </div>
                 <div class="col-md-2 d-flex justify-content-end">
-                  <button class="btn btn-outline-primary" (click)="addMedicine()">
-                    + Add Medicine
+                  <button class="btn btn-primary rounded-pill" (click)="addMedicine()">
+                    + Add
                   </button>
                 </div>
             </div>
@@ -274,11 +223,11 @@
                   *ngFor="let m of prescription.medicines; let i = index">
 
                 <div class="d-flex justify-content-between">
-                  <h5 class="text-primary fw-bold">
+                  <h5 class=" fw-bold">
                     {{ m.name }} ({{ m.type }})
                   </h5>
 
-                  <button class="btn btn-sm btn-outline-danger"
+                  <button class="btn btn-sm"
                           (click)="removeMedicine(i)">
                     <i class="fa-solid fa-xmark"></i>
                   </button>
@@ -310,7 +259,7 @@
                 <div class="d-flex flex-wrap gap-2 mt-1">
                 <button *ngFor="let f of frequencyOptions"
                         class="btn"
-                        [ngClass]="m.frequency === f.value ? 'btn-primary' : 'btn-outline-primary'"
+                        [ngClass]="m.frequency === f.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
                         (click)="selectFrequency(m, f.value)">
                   {{ f.label }}
                 </button>
@@ -325,7 +274,7 @@
                 <div class="d-flex flex-wrap gap-2 mt-1">
                   <button *ngFor="let t of timingOptions"
                           class="btn"
-                          [ngClass]="m.timings.includes(t.value) ? 'btn-success' : 'btn-outline-success'"
+                          [ngClass]="m.timings.includes(t.value) ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
                           (click)="toggleTiming(m, t.value)">
                     {{ t.label }}
                   </button>
@@ -339,7 +288,7 @@
                 <div class="d-flex flex-wrap gap-2 mt-1">
                   <button *ngFor="let ins of instructionOptions"
                           class="btn"
-                          [ngClass]="m.instruction === ins.value ? 'btn-warning' : 'btn-outline-warning'"
+                          [ngClass]="m.instruction === ins.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
                           (click)="selectInstruction(m, ins.value)">
                     {{ ins.label }}
                   </button>
@@ -371,8 +320,8 @@
               </div>
 
               <div class="col-md-2 d-flex justify-content-end">
-                <button class="btn btn-outline-primary" (click)="addLabTest()">
-                  + Add Test
+                <button class="btn btn-primary rounded-pill" (click)="addLabTest()">
+                  + Add 
                 </button>
               </div>
 
@@ -393,7 +342,7 @@
                   <td>{{ i + 1 }}</td>
                   <td>{{ t.name }}</td>   <!-- ✔ Correct -->
                   <td>
-                    <button class="btn btn-sm btn-danger" (click)="removeLabTest(i)">
+                    <button class="btn btn-sm" (click)="removeLabTest(i)">
                       <i class="fa fa-trash"></i>
                     </button>
                   </td>

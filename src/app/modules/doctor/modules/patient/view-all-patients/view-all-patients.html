@@ -36,12 +36,12 @@
                 <div class="col-lg-8 col-xl-9">
                     <div class="dashboard-header">
                         <h3>Patients</h3>
+
                         <ul class="header-list-btns">
                             <li class="me-2">
                                 <div class="input-block dash-search-input">
                                     <input type="text" class="form-control" placeholder="Search Patient..."
-                                        [(ngModel)]="searchText"
-                                        (input)="searchPatients()">
+                                        [(ngModel)]="searchText" (input)="searchPatients()">
                                     <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                                 </div>
                             </li>
@@ -52,62 +52,65 @@
                     </div>
 
                     <!-- Patient List UI (same card style as appointments) -->
-                    <div class="appointment-tab-content mt-4">
-                        <div class="appointment-wrap" *ngFor="let p of paginatedPatients">
-                            <ul>
-
-                                <!-- Patient Image + Name -->
-                                <li>
+                    <div class="appointment-tab-content ">
+                        <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
+                            <div class="row d-flex align-items-center">
+                                <!-- Gender + Name -->
+                                <div class="col-lg-3">
                                     <div class="patinet-information">
                                         <div class="patient-info">
                                             <!-- <p>#{{ p.id }}</p> -->
-                                            <h6>{{ p.fullName }}</h6>
+                                            <h6>
+                                                <!-- Gender -->
+                                                @if(p.gender.toLowerCase() === 'm' || p.gender.toLowerCase() ===
+                                                'male'){
+                                                <i class="fa-solid fa-mars color-cyan-400 me-1"></i>
+                                                }
+                                                @else if(p.gender.toLowerCase() === 'f' || p.gender.toLowerCase() ===
+                                                'female'){
+                                                <i class="fa-solid fa-venus color-rose-light me-1"></i>
+                                                }
+                                                @else{
+                                                <i class="fa-solid fa-transgender"></i>
+                                                }
+                                                {{ p.fullName }}
+                                            </h6>
                                         </div>
                                     </div>
-                                </li>
+                                </div>
 
-                                <!-- Gender -->
-                                <li>
-                                    <div class="patinet-information">
-                                        <div class="patient-info">
-                                            <h6>{{ p.gender | gender }}</h6>
-                                        </div>
-                                    </div>
-                                </li>
 
                                 <!-- DOB & ABHA -->
-                                <li class="appointment-info">
-                                    <p><i class="fa-solid fa-calendar"></i> DOB: {{ p.dob | date:'dd/MM/yyyy'}}</p>
-                                    <ul class="d-flex apponitment-types">
-                                        <li>ABHA: {{ p.abhaId }}</li>
-                                    </ul>
-                                </li>
+                                <div class="appointment-info col-lg-3">
+                                    <p> DOB: {{ p.dob | date:'dd/MM/yyyy'}}</p>
+                                    <p class="d-flex apponitment-types mb-0">
+                                        <span>ABHA Id: {{ p.abhaId }}</span>
+                                    </p>
+                                </div>
 
                                 <!-- Phone -->
-                                <li class="mail-info-patient">
-                                    <ul>
-                                        <li><i class="fa-solid fa-phone"></i> {{ p.phone }}</li>
-                                    </ul>
-                                </li>
+                                <div class="mail-info-patient col-lg-2">
+                                    <span> {{ p.phone }}</span>
+
+                                </div>
 
                                 <!-- Address -->
-                                <li>
+                                <div class="col-lg-4">
                                     <span class="d-flex align-items-center gap-1">
-                                        <i class="fa-solid fa-location-dot"></i>
                                         {{ p.address }}
                                     </span>
-                                </li>
+                                </div>
 
-                                <!-- Actions -->
-                                <li class="d-none appointment-action">
-                                    <ul>
-                                        <li><a><i class="fa-solid fa-eye"></i></a></li>
-                                        <li><a><i class="fa-solid fa-pen"></i></a></li>
-                                        <li><a><i class="fa-solid fa-trash"></i></a></li>
-                                    </ul>
-                                </li>
+                            </div>
 
-                            </ul>
+                            <!-- Actions -->
+                            <div class="d-none card-action-btns">
+                                <div class="d-flex gap-2">
+                                    <a><i class="fa-solid fa-eye"></i></a>
+                                    <a><i class="fa-solid fa-pen"></i></a>
+                                    <a><i class="fa-solid fa-trash"></i></a>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -123,9 +126,7 @@
 
                             <!-- Page Numbers -->
                             <li *ngFor="let p of [].constructor(totalPages); let i = index">
-                                <a class="page-link"
-                                [class.active]="pageNumber === (i + 1)"
-                                (click)="goToPage(i + 1)">
+                                <a class="page-link" [class.active]="pageNumber === (i + 1)" (click)="goToPage(i + 1)">
                                     {{ i + 1 }}
                                 </a>
                             </li>

@@ -95,3 +95,23 @@
 #checklistModal .modal-dialog {
     max-width: 500px !important; 
 }
+
+.active-btn {
+    background: #f0f0f0;
+    border-color: #444;
+}
+.btn {
+    border-radius: 50px;
+}
+
+.appointment-wrap {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.border-radius{
+    border-radius: 2.375rem !important;
+}
+

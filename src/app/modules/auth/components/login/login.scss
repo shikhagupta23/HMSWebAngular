@@ -1,20 +1,138 @@
-.form-focus {
-    position: relative;
+body {
+    background: linear-gradient(135deg, #5f9cff, #70d7ff);
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.form-control.floating {
-    padding-top: 18px !important;
+.main-wrapper {
+    width: 100%;
+    padding: 20px;
 }
 
-.focus-label {
-    top: -10px !important;
+.account-content {
+    max-width: 1050px;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.text-danger {
-    font-size: 13px;
+/* Left and Right Column Boxes */
+.login-left{
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.login-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+/* Ensuring both left & right are same height */
+.row.align-items-center {
+    display: flex;
+    align-items: stretch !important;
 }
+
+/* Left Image */
+.login-left img {
+    width: 100%;
+    height: 100%;
+    max-height: 350px;
+    border-radius: 18px;
+    object-fit: cover;
+}
+
+/* Heading */
+.login-header h3 {
+    font-weight: 700;
+    font-size: 28px;
+    color: #2b3a55;
+}
+.login-header span {
+    color: #0066ff;
+}
+
+/* Input fields */
+.form-control {
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid #d8d8d8;
+    transition: 0.3s;
+}
+
+.form-control:focus {
+    border-color: #0066ff;
+    box-shadow: 0 0 8px rgba(0,102,255,0.2);
+}
+
+/* Submit Button */
+.login-btn {
+    padding: 5px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #0066ff, #00b7ff);
+    border: none;
+    width: 20%;
+    transition: 0.3s;
+}
+.login-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Forgot */
+.forgot-link {
+    color: #0066ff;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ---------------------------------------
+    RESPONSIVE
+----------------------------------------- */
+
+/* Tablet */
+@media (max-width: 992px) {
+    .account-content {
+        padding: 20px;
+    }
+    .login-left img {
+        max-height: 350px;
+    }
+}
+
+/* Mobile Landscape */
+@media (max-width: 768px) {
+    .login-left {
+        display: none;
+    }
+    .login-right {
+        width: 100%;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 576px) {
+    .login-header h3 {
+        font-size: 22px;
+    }
+    .form-control {
+        padding: 10px;
+        font-size: 15px;
+    }
+    .login-btn {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+

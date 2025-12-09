@@ -1,14 +1,14 @@
 							
 							<!-- Profile Sidebar -->
-							<div class="profile-sidebar h-100 doctor-sidebar profile-sidebar-new">
+							<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
                             <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
                                 <div class="profile-info-widget">
-                                    <a href="javascript:void(0);" class="booking-doc-img">
+                                    <!-- <a href="javascript:void(0);" class="booking-doc-img">
                                         <img 
                                             [src]="doctorDetails.profileImageUrl || 'assets/img/work-img.png'" 
                                             alt="Doctor Image"
                                         >
-                                    </a>
+                                    </a> -->
 
                                     <div class="profile-det-info">
                                         <h3>{{ doctorDetails.doctorName }}</h3>
@@ -40,7 +40,7 @@
                                                 </a>
 
                                                 <ul class="submenu mt-2 ms-4" *ngIf="activeMenu === 'appointment'">
-                                                    <li><a routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
+                                                    <li class="d-none"><a routerLink="/doctor/appointment/addappointment">Add new Appointment</a></li>
                                                     <li><a routerLink="/doctor/appointment/todayappointments">Today's Appointment</a></li>
                                                     <li class="d-none"><a routerLink="/doctor/appointment/upcomingappointments">Upcoming Appointments</a></li>
                                                     <li class="d-none"><a routerLink="/doctor/appointment/pastappointments">Past Appointments</a></li>
