@@ -148,9 +148,9 @@ body.modal-open .main-wrapper {
   height: 100% !important;
 }
 
-.container{
-    max-width: 1240px !important;
-}
+// .container{
+//     min-width: 1240px !important;
+// }
 
 /* GLOBAL PLACEHOLDER STYLING */
 input::placeholder,
@@ -170,7 +170,7 @@ select::placeholder {
 .initial-circle {
     width: 45px;
     height: 45px;
-    background: #545d6945; /* your primary theme */
+    background: #545d6945;
     color: #000000;
     display: flex;
     align-items: center;
@@ -223,7 +223,7 @@ select::placeholder {
 .small-dates .label {
     font-size: 11px;
     font-weight: 600;
-    color: #64748B; /* muted blue-gray */
+    color: #64748B;
     text-transform: uppercase;
     display: block;
     line-height: 1.1;
@@ -235,4 +235,28 @@ select::placeholder {
     font-weight: 500;
     display: block;
     margin-bottom: 6px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.main-wrapper {
+    min-height: 100vh;      /* full screen height */
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;                /* pushes footer down */
+}
+
+.footer {
+    background: #095187;
+    color: #fff;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 14px;
+    margin-top: auto;       /* ensures bottom placement */
 }

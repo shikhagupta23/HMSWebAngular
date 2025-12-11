@@ -55,10 +55,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     	}
 
         .login-left-img {
-            object-fit: cover;
             width: 100%;
-            height: 100vh;
+            height: 100%;
+            object-fit: cover;
+            object-position: center; /* keeps important part centered */
+            max-height: 100vh;       /* prevents overflow */
+            display: block;
         }
+
 
         .logoText{
             color: #1a70cd;
@@ -392,7 +396,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 </label>        
                             </div>
                             <div class="form-group textRight password mb4">
-                                <span><a href="https://md.healthplix.com/forgotPassword.php" class="linkBlue password">Forgot Password</a></span>
+                                <span><a href="" class="linkBlue password">Forgot Password</a></span>
                                 <a style="display: none;" id="extensionKey" href="https://md.healthplix.com/offline/extensionKey.php"><small>Enter Extension Key</small></a>
                             </div>
                             </div> 
