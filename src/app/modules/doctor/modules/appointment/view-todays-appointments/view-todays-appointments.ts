@@ -3,6 +3,7 @@ import { Appointment } from '../services/appointment';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
 declare var bootstrap: any;
 
 
@@ -11,6 +12,7 @@ declare var bootstrap: any;
   standalone: false,
   templateUrl: './view-todays-appointments.html',
   styleUrl: './view-todays-appointments.scss',
+  providers: [DatePipe]
 })
 export class ViewTodaysAppointments implements OnInit {
 
@@ -19,6 +21,7 @@ export class ViewTodaysAppointments implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private selectedPatientId: string | null = null;
+  private datePipe = inject(DatePipe);
 
 
   addAppointmentForm!: FormGroup;
@@ -181,8 +184,8 @@ this.paginate();
     }
   }
 
-  formatDate(date: string) {
-    return new Date(date).toLocaleString();
+  formatDate(date: string): string {
+    return (this.datePipe.transform(date, 'dd MMM yyyy hh.mm a') || '').toUpperCase();
   }
 
   get scheduledCount() {

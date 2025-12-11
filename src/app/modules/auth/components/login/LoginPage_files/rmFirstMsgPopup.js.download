@@ -1,0 +1,11 @@
+function hideMsgPopup(){
+    $("#rmMsgPopup").addClass('dNone')
+    setCookie("rmSupportMsg_"+doctor_role_id_for_seg, "true", 24);
+}
+function hideFirstMsgPopup(){
+    toggleSupportTabs('supportTab');
+    $("#rmFirstMsgPopup").addClass('dNone')
+    var modalBackdrop = document.getElementById("rmPopupBg");
+    modalBackdrop.classList.remove("rm-modal-backdrop");
+    setCookie("rmNotificationPopup_"+doctor_role_id_for_seg, "true", 24);
+}

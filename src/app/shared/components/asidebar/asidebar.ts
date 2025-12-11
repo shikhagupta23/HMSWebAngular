@@ -14,9 +14,9 @@ export class Asidebar {
   activeMenu: string | null = null;
   doctorDetails: any = null;
 
-  toggleMenu(menu: string) {
-    this.activeMenu = this.activeMenu === menu ? null : menu;
-  }
+  // toggleMenu(menu: string) {
+  //   this.activeMenu = this.activeMenu === menu ? null : menu;
+  // }
 
   ngOnInit(): void {
     const role = this.authService.getUserRole();

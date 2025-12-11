@@ -1,0 +1,138 @@
+/*LOGIN*/
+body {font-family: 'Inter' !important;}
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active  {-webkit-box-shadow: 0 0 0 30px #FCFEFF inset !important; }  
+.height100 {height: 100%;} 
+
+.hxLoginsec .lgContent {background-color: #F3F7FD; box-shadow: 0px 4px 44px 13px rgb(0 0 0 / 15%);width: 100%;}
+/* .hxLoginsec .lgLeftsec {background-image: url(../../resources/images/handMobile.svg), url(../../resources/images/mobileBg.svg); background-position: right bottom; background-repeat: no-repeat;background-size: auto, contain; min-height: 600px; padding: 48px 0 0 32px;}  */
+.hxLoginsec .lgLeftsec h1{font-size: 37px; margin-bottom: 40px;padding-right: 25px;}
+.hxLoginsec .lgRightsec {padding-top: 52px;}
+.hxLoginsec .loginPoints{width: 495px; margin-top: 20px; padding-left: 8px; padding-right: 50px;}
+/* .hxLoginsec .lgCard{background-image: url(../../resources/images/cardBg.svg);background-repeat: no-repeat;background-position: bottom 25px left;} */
+.hxLoginsec .lgCard h3 {font-weight: 500; color: #1B6AA4; } 
+.hxLoginsec .lgCard img{padding-left: 15px;}
+.hxLoginsec .lgHeader{font-weight: 700; font-size: 43.45px; line-height: 140.4%; letter-spacing: 0.11632px; color: #1D2939;}
+.hxLoginsec .lgSubHeader{ font-weight: 400;letter-spacing: 0.11632px; font-size: 27px; line-height: 140.4%; letter-spacing: 0.11632px; color: #2D334A;}
+.hxLoginsec .password{margin-top: 4px; margin-left: 30px;}
+.hxLoginsec .supportCall {font-size: 18.127px; font-family: 'Nunito Sans' !important; color: #FFF; font-weight: 600; line-height: 28px;}
+.hxLoginsec .terms {margin-left: 350px; font-size: 18px; color: #FFF;font-family: 'Nunito Sans' !important; font-weight: 600; line-height: 28px;}
+.hxLoginsec .lgSignin .form-group input {height: 44px; border: 1px solid #D0D5DD; box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05); border-radius: 8px; color: #243951;}
+.hxLoginsec .lgSignin .form-group input::placeholder{color: #074058 !important;}
+.hxLoginsec .lgSignin .lgForms {width: 100%; max-width: 300px; }
+.hxLoginsec .lgCopyright span{color: #98A2B3; font-weight: 400; font-size: 14px; position: relative;}
+.hxLoginsec .lgHeadertext {padding: 25px 0 12px; letter-spacing: 0.39px; font-weight: 600; font-size: 30px; line-height: 38px; color: #101828;} 
+.hxLoginsec .lgSignin button {justify-content: center; align-items: center; padding: 10px 18px; gap: 8px; width: 100%; height: 44px;   background: #1570EF;   border: 1px solid #1570EF; box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05); border-radius: 8px; font-weight: 500;}
+.hxLoginsec .lightText {color: #667085; font-weight: 400; font-size: 14px;}
+.hxLoginsec .textFont {color: #1B6AA4; font-weight: 400; font-size: 18px; line-height: 120%;}
+.hxLoginsec .linkBlue {background-color: transparent; color: #175CD3; font-size: 14px; font-weight: 500; ;border: none;  cursor: pointer; }
+/*LOGIN*/
+
+/*CHOOSE BRANCH*/
+
+.chooseBranch .lgHeadertext {padding: 50px 0 32px; letter-spacing: 0.39px; font-weight: bold; color: #243951; line-height: 50px;} 
+.chooseBranch {width: 100%; max-width: 300px; margin: auto;} 
+.chooseBranch .branchCard {border: 1px solid #c8cdd3; border-radius: 5px; padding: 10px 14px; cursor: pointer; } 
+.chooseBranch .branchCard span {color: #B9B9B9; }
+.chooseBranch .branchCard .form-group{margin: 0;}
+.chooseBranch .lgCopyright span{color: #98A2B3; font-weight: 400; font-size: 14px; position: relative;}
+.chooseBranch .textFont {color: #1B6AA4; font-weight: 400; font-size: 18px; line-height: 120%;}
+/*CHOOSE BRANCH*/
+
+/*CUSTOM CHECK BOX*/
+.formCheckbox {display: block; position: relative; padding-left: 30px; font-size: 14px; letter-spacing: 0.39px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+.formCheckbox input {position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+.checkmark {position: absolute; top: 0; left: 0; height: 20px; width: 20px; border: 1px solid #ccc; border-radius: 3px; }
+.formCheckbox input:checked~.checkmark {border: 1px solid transparent; background-color: #233A5B; }
+.checkmark:after {content: ""; position: absolute; display: none; }
+.formCheckbox input:checked~.checkmark:after {display: block; }
+.formCheckbox .checkmark:after {left: 6px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; -webkit-transform: rotate(45deg); -ms-transform: rotate(45deg); transform: rotate(45deg); } 
+/*CUSTOM CHECK BOX*/
+
+
+/*Media Queries*/
+@media only screen and (width: 1440px){
+  .hxLoginsec{zoom: 100% !important;}
+  .chooseBranch{zoom: 100% !important;}
+}
+
+@media only screen and (min-width: 1200px) {
+  .hxLoginsec {position: absolute; zoom: 90%; left: 0; right: 0; height: 100%; top: 0; margin: auto; max-width: 1200px; } 
+  .hxLoginsec .lgContent {max-height: 600px;  border-radius: 12px; } 
+  .hxLoginsec .lgLeftsec {border-radius: 0 0 0 12px; } 
+  .hxLoginsec .lgRightsec {overflow: auto; border-radius: 0 12px 12px 0; } 
+  .hxLoginsec .lgRightsec.signInSec{overflow: initial;}
+  .chooseBranch{ min-height: 475px; zoom: 90%;}
+  .hxLoginsec .signInSec .lgCopyright{position: absolute;bottom: 13px;left: 0;right: 0;padding: 0; font-size: 14px; font-weight: 400;}
+}
+
+@media only screen and (min-width: 1024px) and (max-height: 1366px) and (orientation: portrait){
+  .hxLoginsec .lgInnersec{height: auto;} 
+  .hxLoginsec .lgContent{flex-direction: column;min-height: 93vh;width: 100%;}
+  .hxLoginsec .lgLeftsec{order: 2;padding-top: 20px;}
+  .hxLoginsec .supportCall{bottom: 55px;}
+  .chooseBranch{ min-height: 535px;}
+  .hxLoginsec .lgCopyright{position: absolute;bottom: 13px;left: 0;right: 0;padding: 0;}
+}
+
+@media only screen and (max-width: 1199px) and (max-height: 1199px){
+  body{background: #fff !important;}
+  .hxLoginsec .lgContent{min-height: 93vh;}
+  .hxLoginsec .lgSignin .lgForms{min-height: 470px;}
+  .hxLoginsec .lgInnersec{height: auto;} 
+  .hxLoginsec .lgRightsec{overflow: initial;}
+  .chooseBranch{min-height: 575px;}
+  .hxLoginsec .lgCopyright{position: absolute;bottom: 35px;left: 0;right: 0;padding: 0;}
+}
+
+@media only screen and (max-width: 1023px) {
+  .hxLoginsec .lgContent{display: flex; flex-direction: column; width: 100%;} 
+  .hxLoginsec .lgLeftsec{order: 2;}
+  .chooseBranch .hxBranches{max-height: initial;}
+  .hxLoginsec .lgSignin .lgForms{min-height: 450px;}
+}
+
+@media only screen and (max-width: 991px) {
+  .hxLoginsec .lgCopyright{bottom: 13px;}
+}
+
+@media only screen and (max-width: 767px) {
+  .hxLoginsec .lgLeftsec {padding: 20px 0 0 20px;} 
+  .hxLoginsec .lgLeftsec h1 {font-size: 21px; letter-spacing: 0.17px;line-height: 1.5;}
+  .hxLoginsec .lgLeftsec .lgCard h3 {font-size: 12px; margin-left: 20px !important; } 
+  .hxLoginsec .supportCall {left: 20px; bottom: 20px; font-size: 14px;} 
+  }
+
+@media only screen and (min-width: 561px) and (max-width: 767px) {
+  .hxLoginsec .lgLeftsec{min-height: 525px;background-size: 50%, contain;}
+  .hxLoginsec .lgLeftsec h1 {font-size: 28px;}
+}
+
+@media only screen and (max-width: 560px) {
+  .hxLoginsec .terms {width: 50%; text-align: right; margin-left: 0px; color: #FFF; font-family: 'Nunito Sans' !important; font-weight: 600; line-height: 28px; font-size: 15px;}
+  .hxLoginsec{overflow-x: hidden; height: 100%;}
+  /* .hxLoginsec .mobileBgimg {background-image: url(../LoginPage_files/); min-height: 450px;background-position: bottom -8px right; } */
+  .hxLoginsec .supportCall {color: white; bottom: 0px; left: 0px; position: relative;} 
+  .hxLoginsec .loginPoints{width: 425px; margin-left: -47px;}
+  .hxLoginsec .lgCopyright span{color: #98A2B3; font-weight: 400; font-size: 14px; position: relative;}
+  .hxLoginsec .infothumb{top: 315px !important;}
+  .chooseBranch .loginPoints{width: 425px; margin-left: -47px;}
+  .chooseBranch .infothumb{top: 315px !important;}
+}
+@media only screen and (max-width: 414px) {
+  .hxLoginsec .terms {width: 30%; text-align: right; margin-left: 0px; color: #FFF; font-family: 'Nunito Sans' !important; font-weight: 600; line-height: 28px; font-size: 15px;}
+  .hxLoginsec{overflow-x: hidden;}
+  .hxLoginsec .lgCopyright span{color: #98A2B3; font-weight: 400; font-size: 14px; position: relative;}
+  .hxLoginsec .loginPoints{width: 350px; margin-left: -47px;}
+  .chooseBranch .loginPoints{width: 350px; margin-left: -47px;}
+  .hxLoginsec .supportCall {color: white; bottom: 0px; position: relative; left: 0px;} 
+}
+
+@media only screen and (max-width: 375px){
+  .hxLoginsec .terms {width: 26%; text-align: right; margin-left: 0px; color: #FFF; font-family: 'Nunito Sans' !important; font-weight: 600; line-height: 28px; font-size: 15px;}
+}
+
+@media only screen and (width: 768px){
+  .hxLoginsec .terms {margin-left: 300px; font-size: 18px; color: #FFF;font-family: 'Nunito Sans' !important; font-weight: 600; line-height: 28px;}
+}
+
+

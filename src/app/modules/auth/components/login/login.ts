@@ -7,7 +7,7 @@ import { ToastService } from '../../../../shared/services/toast-service';
 @Component({
   selector: 'app-login',
   standalone: false,
-  templateUrl: './login.html',
+  templateUrl: './LoginPage.html',
   styleUrl: './login.scss',
 })
 export class Login {

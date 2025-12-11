@@ -350,7 +350,7 @@ body {
 
 img {
   max-width: 100%;
-  height: auto;
+  /* height: auto; */
 }
 
 a {
@@ -632,8 +632,8 @@ button:focus {
   border-color: #E2E8F0;
   color: #333333;
   font-size: 15px;
-  min-height: 46px;
-  padding: 11px 15px;
+  /* min-height: 46px;
+  padding: 11px 15px; */
 }
 .form-control:focus {
   border-color: #bbb;
@@ -3290,7 +3290,7 @@ th.table-head-days {
 
 .card {
   border: 1px solid #f0f0f0;
-  margin-bottom: 1.875rem;
+  margin-bottom: 0.875rem;
 }
 @media (max-width: 767.98px) {
   .card {
@@ -3316,7 +3316,7 @@ th.table-head-days {
 }
 
 .card-body {
-  padding: 1.5rem;
+  /* padding: 1.5rem; */
 }
 @media (max-width: 575.98px) {
   .card-body {
@@ -15639,7 +15639,7 @@ html.menu-opened body {
 }
 
 .profile-sidebar.profile-sidebar-new .widget-profile {
-  padding: 70px 24px 24px;
+  /* padding: 70px 24px 24px; */
   position: relative;
   z-index: 1;
 }

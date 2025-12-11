@@ -1,0 +1,17 @@
+var DOMAIN = 'https://api.healthplix.com';
+var HOST_HPLX_SERVER_URL = 'https://'+location.hostname;
+var HOST_HPLX_API_URL = 'https://api.healthplix.com';
+var SEGMENT_API_WRITE_KEY = 'c4gWJMgDMUh6qnvxWYuMElA14dTeuD6E';
+var REWARDS_API_URL = 'https://rewards.healthplix.com/';
+var REFERRAL_API_URL= 'https://referral-service.healthplix.com';
+var OCR_V2_API_URL = 'https://ocr-api.healthplix.com';
+var PRODUCT_UPDATES_API_URL = 'https://api.healthplix.com/api/cms/cms.php';
+var CONSULTATION_SERVICE_API_URL = 'https://emr30-edge.healthplix.com';
+var APOTHECARY_API_URL = 'https://apothecary-api.healthplix.com';
+var SUPPORT_EMAIL = "support@healthplix.com";
+var HOST_DIT_URL = 'https://dit.healthplix.com';
+var IMAGE_REP = "https://media.healthplix.com";
+var APOTHECARY_URL = 'https://commerce-patient-app.healthplix.com';
+var ML_CDS_FETCH_INTERVAL = 20;
+var CRM_URL = "https://crm.healthplix.com";
+var VISITPAD_TOP_AD_REFRESH_INTERVAL = 240

@@ -1,0 +1,1903 @@
+var SUPPORT_API_URL = 'https://pdf-service-stage.healthplix.com';
+// var SUPPORT_API_URL = 'http://10.0.6.91:8080';
+
+if(location.origin.includes('md.healthplix.com')) {
+	SUPPORT_API_URL = 'https://pdf-service.healthplix.com'
+}
+// SUPPORT_API_URL = 'http://localhost:3001';
+
+var support_data = [
+	{
+		module: 'login',
+		text: 'Login',
+		issue_types: [
+			{
+				id: '1',
+				text: 'Unable to login',
+				classification: 'Configuration',
+				priority: 'Highest',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '2',
+				text: 'How to Change Password',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '3',
+				text: 'Login to Second Branch',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '4',
+				text: 'Register with HealthPlix',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'doc_module',
+		text: 'Doctor Module',
+		issue_types: [
+			{
+				id: '1',
+				text: 'Request to create or configure Header/ Footer',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '2',
+				text: 'Print / Printer Issue',
+				classification: 'Troubleshooting',
+				priority: 'Highest',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '3',
+				text: 'Prescription Pad / Print Configuration',
+				classification: 'Configuration',
+				priority: 'Highest',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '4',
+				text: 'Configure the Tests on Prescription Pad',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '5',
+				text: 'Forms Creation and Configuration',
+				classification: 'Configuration',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '6',
+				text: 'Request access for new modules (Case Sheet / Lab Module / IPD/ Pharmacy)',
+				classification: 'Configuration',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '7',
+				text: 'Queries on Data Security',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '8',
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: '9',
+				text: 'Queries on Settlements / Reports',
+				classification: 'Payment',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'oc',
+		text: 'Online Consultation',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Queries on OC Configurations',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'PAN and Bank details Update',
+				classification: 'Payment ',
+				priority: 'High',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Problems with Audio/ Video Consultation',
+				classification: 'Troubleshooting',
+				priority: 'High',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 4,
+				text: 'Request from Doctor to Refund',
+				classification: 'Cancellation ',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 5,
+				text: 'Request from Doctor to Reschedule',
+				classification: 'Reschedule Request',
+				priority: 'High',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 6,
+				text: 'Billing / Refund',
+				classification: 'Payment ',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'front_desk',
+		text: 'Frontdesk / Reception Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Invoice Header Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Addition/ Modification of new Lab Tests',
+				classification: 'Configuration',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 4,
+				text: 'Patient Queue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 5,
+				text: 'Billing Issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 6,
+				text: 'Appointment Status Issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 7,
+				text: 'Appointment Status Issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 8,
+				text: 'Appointment Status Issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 9,
+				text: 'Appointment Status Issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'lab',
+		text: 'Lab Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Lab report Header/ Footer Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Billing issue',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'pharmacy',
+		text: 'Pharmacy Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Inventory',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Pharmacy reports',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Pharmacy Bill Header/ Footer Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 4,
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: '',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 5,
+				text: 'Billing reports',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'ipd',
+		text: 'IPD Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Discharge Summary issue',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'IPD Bill / Discharge Summary Header/ Footer Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 4,
+				text: 'Add Staff / Add doctor',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 5,
+				text: 'IPD Reports',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'branch_admin',
+		text: 'Branch Admin',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Permission Related Queries',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Other',
+				classification: '',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Queries on Reports Module',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'report',
+		text: 'Reports Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'SMS Related Queries',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Data Export',
+				classification: 'Configuration',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'Other',
+				classification: 'Agent will select',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 4,
+				text: 'Queries on Onco Module',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'onco_Module',
+		text: 'Onco Module',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Patients data Import ',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'ptients_data_import',
+		text: 'Patients Data Import',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Other ',
+				classification: 'Agent will select',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Drop Down Ads',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'ads',
+		text: 'Ads',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Banner Ads',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Subscription Based Queries',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'MetSmall Activity',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'initiative',
+		text: 'Initiative',
+		issue_types: [
+			{
+				id: 1,
+				text: 'SVAAS App Queries',
+				classification: 'FAQs',
+				priority: 'Low',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Queries on Settlements / Reports',
+				classification: 'FAQs',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'patient_data',
+		text: 'Patients Data',
+		issue_types: [
+			{
+				id: 1,
+				text: 'Patient Data Import	Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Patient Data Export	Configuration',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+	{
+		module: 'rewards',
+		text: 'HealthPlix Reward',
+		issue_types: [
+			{
+				id: 1,
+				text: 'How to use HealthPlix Rewards?',
+				classification: 'Training',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 2,
+				text: 'Request to disable HealthPlix Rewards',
+				classification: 'Configuration',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+			{
+				id: 3,
+				text: 'How to redeem HealthPlix Rewards Amount',
+				classification: 'Payment',
+				priority: 'Medium',
+				user: 'Doctor/Staff',
+			},
+		],
+	},
+];
+class Support {
+
+	constructor({ module, domId, is_logged_in = true } = {}) {
+		this.domId = domId;
+		this.support_data = support_data;
+		this.module_data = this.get_data(module);
+		this.is_logged_in = is_logged_in;
+
+		this.currentPage = 1;
+		this.limit = 10;
+	}
+
+	get widgetButton() {
+
+		if (this.widgetButtonContainer) {
+			return this.widgetButtonContainer;
+		}
+
+		const button = (this.widgetButtonContainer = document.createElement('div'));
+		button.classList.add('zoho', 'zoho-help-button');
+		// button.classList.add('zoho', 'zoho-help-button', 'col-md-3', 'class_flex', 'fa', 'fa-headphones');
+
+		const supportIcon = document.createElement("img");
+		supportIcon.setAttribute("src", "../resources2/img/svg/Support.svg");
+		supportIcon.setAttribute("width", "24");
+		supportIcon.setAttribute("height", "24");
+
+		button.appendChild(supportIcon);
+
+		if (!this.is_logged_in) {
+			button.classList.add('zoho-help-nonlogged');
+		}
+
+		const closeRmPopup = document.querySelector('#rmclosePopup');
+		const okayRmPopup = document.querySelector('#rmokayPopup');
+
+		const open_support_form =  async (e) => {
+			e.stopPropagation();
+			e.preventDefault();
+
+			this.form.classList.toggle('support_show');
+			
+			if (this.is_logged_in && this.form.classList.contains('support_show')) {
+				await this.fetchTickets({ page: this.currentPage, limit: this.limit, email: window.doctor_email_for_seg });
+			}
+			else {
+				this.form.querySelector('.prev-query').style.display = 'none';
+			}
+		};
+
+		window.onload = function() {
+			const newVPSupport = document.querySelector('#newVPSupport');
+			if (newVPSupport) {
+				newVPSupport.addEventListener('click', open_support_form);
+			}
+		};
+		closeRmPopup.addEventListener('click', open_support_form)
+		okayRmPopup.addEventListener('click', open_support_form)
+		button.addEventListener('click', open_support_form);
+
+		document.body.addEventListener('click', () => {
+			this.form.classList.remove('support_show');
+		});
+
+		return button;
+	}
+
+	get_data(active_module) {
+		const result = [];
+
+		for (const data of this.support_data) {
+			if (active_module.includes(data.module)) {
+				result.push(data);
+			}
+		}
+
+		return result;
+	}
+
+	async getSupportToken() {
+		const lastSupportTokenRequest = window.localStorage.lastSupportTokenRequest;
+		const supportTokenRespose = window.localStorage.supportTokenRes;
+
+		if (lastSupportTokenRequest && supportTokenRespose) {
+			const now = Math.floor(Date.now() / 1000);
+
+			if (now - lastSupportTokenRequest < 3300) {
+				try {
+					const access_response = JSON.parse(supportTokenRespose);
+
+					if (access_response.access_token) {
+						return access_response;
+					}
+				} catch (e) {
+					console.log('Support response missing');
+				}
+			}
+		}
+
+		let response = {};
+
+		try {
+			response = await fetch(SUPPORT_API_URL + '/api/supportDetails');
+			response = await response.json();
+
+			window.localStorage.lastSupportTokenRequest = Math.floor(Date.now() / 1000);
+			window.localStorage.supportTokenRes = JSON.stringify(response);
+		} catch (e) {
+			console.log('Failed to fetch Support token');
+			throw e;
+		}
+
+		return response;
+	}
+
+	async createTicket({callback, external_call = false, payload = {}, msg = ""} = {}) {
+
+		let button = this.form.querySelector('.support-submit-btn');
+
+		if(callback) {
+			button = this.form.querySelector('.req_callback');
+		}
+
+		button.disabled = true;
+		button.textContent = 'Submitting.';
+		let i = 1;
+
+		const interval = setInterval(() => {
+			
+			let text = 'Submitting.'
+			
+			if(i == 2) {
+				text = 'Submitting..'
+			}
+			else if(i == 3) {
+				text = 'Submitting...';
+				i=0;
+			}
+
+			i++;
+
+			button.textContent = text
+		}, 500)
+
+		const response = await this.getSupportToken();
+		
+		if (!response.access_token) {
+			button.disabled = false;
+			
+			button.textContent = 'Submit';
+			clearInterval(interval);
+			return;
+		}
+
+		const _payload = external_call ? payload : this.payload;
+		_payload.cf.cf_subscription_plan = typeof ehr_subs_plan_lower_case !== "undefined" ? ehr_subs_plan_lower_case : "";
+		const properties = {
+			source_module:window.location.href.split('/')[3],
+			request_type:"ticket_raised",
+			ticket_issue_module:this.payload.subject.toLowerCase(),
+			ticket_issue_type:this.payload.cf.cf_issue_type.toLowerCase(),
+			is_media_attached:this.attachments ? true : false
+		}
+		if(!hadmin_login){
+			typeof triggerAmplitudeEvent !== 'undefined' &&	triggerAmplitudeEvent(doctor_role_id_for_seg,"SUPPORT_REQUEST_SUCCESS",properties);
+		}
+		const parameter = {
+			access_token: response.access_token,
+			data: _payload
+		}
+
+		try {
+			let createTicket = await fetch(SUPPORT_API_URL + '/api/createTicket', {
+				method: 'POST', 
+				headers: {
+					'Content-type': 'application/json'
+				},
+				body: JSON.stringify(parameter)
+			});
+			
+			createTicket = await createTicket.json();
+
+			if( !external_call ) {
+
+				try {
+	
+					if(this.attachments && this.attachments.size) {
+		
+						const attachReq = [];
+						for(const file of this.attachments.fileList) {
+							attachReq.push(this.upLoadFile(file, createTicket.id))
+						}
+		
+						await Promise.all(attachReq);
+	
+						this.attachments.remove();
+					}
+	
+					try {
+	
+						toasted('success', 'Document uploaded Successfully', 2000);
+					}
+					catch(e) {
+						this.form.querySelector('.toastmsg').innerHTML = '';
+						this.form.querySelector('.toastmsg').insertAdjacentHTML('beforeend', '<span class="success">Document uploaded Successfully !!</span>')
+		
+						setTimeout(() => {
+							this.form.querySelector('.toastmsg').innerHTML = '';
+						}, 3000);
+					}
+				}
+				catch(e) {
+	
+					toasted('error', 'Uploading ticket attachment failed', 2000);
+					console.log('Upload attachmend failed', e);
+				}
+			}
+			// !hadmin_login && analytics.track('TAP_SUPPORT', {
+		    //     'platform'          : getCookie('platform') || 'NA',
+		    //     'doc_login_id'      : doctor_role_id_for_seg,
+		    //     'zoho_deal_id'      : zoho_deal_id_for_seg,
+		    //     'browser_name'      : getCookie('browser_name') || 'NA',
+		    //     'os'                : getCookie('os_name') || 'NA',
+		    //     'screen_name'       : window.location.href,
+		    //     'event_date_time'   : Date(),
+		    //     'click_option'      : 'Support Requested'
+		    // });
+
+			// supportSegmentEvents('TAP_SUPPORT', {'click_option': 'Support Requested', 'zoho_deal_id': zoho_deal_id_for_seg,})
+			this.form.reset();
+
+			if(createTicket.errorCode) {
+				throw 'error';
+			}
+
+			if(callback) {
+				button.disabled = true;
+			} else{
+				button.disabled = true;
+				document.querySelector('.support_disabled_message ').classList.add('active');
+				setTimeout(()=>{
+					button.disabled = false;
+					document.querySelector('.support_disabled_message ').classList.remove('active');
+				},300000)
+			}
+			
+			button.textContent = callback ? 'Request a Callback' : 'Raise a Support Request';
+			clearInterval(interval);
+			
+			let _msg = "Ticket created Successfully";
+			let time = 2000;
+
+			if(external_call) {
+				_msg = msg;
+				time = 5000;
+			}
+
+			try {
+
+				toasted('success', _msg, time);
+
+			}
+			catch(e) {
+				this.form.querySelector('.toastmsg').innerHTML = '';
+				this.form.querySelector('.toastmsg').insertAdjacentHTML('beforeend', `<span class="success">${_msg} !!</span>`)
+
+				setTimeout(() => {
+					this.form.querySelector('.toastmsg').innerHTML = '';
+				}, time);
+			}
+		}
+		catch(e) {
+
+			button.disabled = false;
+			button.textContent = callback ? 'Request a Callback' : 'Raise a Support Request';
+			clearInterval(interval);
+
+			try {
+
+				toasted('error', 'Failed to create ticket', 2000)
+			}
+			catch(e) {
+				this.form.querySelector('.toastmsg').innerHTML = '';
+				this.form.querySelector('.toastmsg').insertAdjacentHTML('beforeend', '<span class="error">Failed to create ticket.</span>')
+
+				setTimeout(() => {
+					this.form.querySelector('.toastmsg').innerHTML = '';
+				}, 3000);
+			}
+			console.log('failed to create ticket', e);
+		}
+	}
+	
+	async fetchTickets({page, email, limit} = {}) {
+
+		const response = await this.getSupportToken();
+
+		if (!response.access_token) {
+			return;
+		}
+
+		const urlSearchParam = new URLSearchParams();
+
+		urlSearchParam.set('access_token', response.access_token);
+
+		if(email) {
+			urlSearchParam.set('email', email);
+		}
+
+		if(page) {
+			urlSearchParam.set('from', page);
+		}
+
+		if(limit) {
+			urlSearchParam.set('limit', limit);
+		}
+
+		try {
+			
+			let ticketsResp2 = await fetch(
+				SUPPORT_API_URL + '/api/tickets?' + urlSearchParam.toString(), {
+					headers: {
+						'Content-type': 'application/json'
+					}
+				}
+			);
+
+			if(ticketsResp2.status != 200) {
+				throw {
+					msg: 'Failed to fetch data',
+					error: true
+				}
+			}
+
+			ticketsResp2 = await ticketsResp2.json();
+			const ticketData = ticketsResp2.data;
+			this.tickets = new Tickets(this, ticketData);
+			this.tickets.render();
+			
+			this.totalTickets = ticketsResp2.count;
+			this.maxAvailPage = Math.ceil(ticketsResp2.count / this.limit);
+			this.maxPage = this.maxAvailPage;
+			// this.form.appendChild(this.paginationContainer);
+			const prevNextPage = document.getElementById("prevNextPage")
+			prevNextPage.appendChild(this.paginationContainer)
+		}
+		catch(e) {
+			
+			this.tickets = new Tickets(this, []);
+			this.tickets.render();
+			
+			console.log('Fetching ticket failed', e);
+		}
+	}
+
+	async upLoadFile(file, ticket_id) {
+
+		const response = await this.getSupportToken();
+
+		if (!response.access_token) {
+			return;
+		}
+
+		console.log('file', file);
+
+		let formData = new FormData();
+		formData.append('file', file, file.name);
+		formData.append('access_token', response.access_token)
+		formData.append('ticket_id', ticket_id);
+
+		let reqOptions = {
+			method: 'POST',
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+			},
+			body: formData,
+		};
+		
+		let ticketsResp = await fetch(SUPPORT_API_URL + '/api/fileUpload', reqOptions);
+		
+		ticketsResp = await ticketsResp.json();
+	}
+
+	validateField(val, className, fieldName) {
+		let errorNode = document.getElementById(`error-msg-${className}`);
+		if (!val || (val == 'none' && (className == 'module' || className == 'issue_type'))) {
+			const eachfields = this.form.querySelector(`.${className}`);
+			if (!errorNode) {
+				let errorMsg = document.createElement('div');
+				errorMsg.classList.add('error-msg');
+				errorMsg.id = `error-msg-${className}`;
+				errorMsg.innerText = `Please enter the ${fieldName}`;
+				eachfields.appendChild(errorMsg);
+			}
+		} else if (errorNode) {
+			errorNode.innerText = '';
+		}
+	}
+
+	validateForm() {
+		let isEnable = true;
+
+		if (!this.is_logged_in) {
+			this.validateField(this.form.name.value, 'name_field', 'name');
+			this.validateField(this.form.phone.value, 'phone_field', 'phone number');
+			this.validateField(this.form.email.value, 'email_field', 'email address');
+		}
+
+		this.validateField(this.modules.value, 'module', 'module');
+		this.validateField(this.issueTypes.value, 'issue_type', 'issue type');
+		let issuTypesText = '';
+		for (const info of this.module_data[0].issue_types) {
+			if (info.id == this.issueTypes.value) {
+				issuTypesText = info.text;
+			}
+		}
+		if (issuTypesText && issuTypesText.toLowerCase() == 'other') {
+			if (!this.form.description.value) {
+				isEnable = false;
+			}
+			this.validateField(this.form.description.value, 'description_text', 'description');
+		} else if (document.getElementById('error-msg-description_text')) {
+			document.getElementById('error-msg-description_text').innerText = '';
+		}
+
+		if (!this.is_logged_in && (!this.form.name.value || !this.form.phone.value || !this.form.email.value)) {
+			isEnable = false;
+		}
+		if (this.modules.value == 'none' || this.issueTypes.value == 'none') {
+			isEnable = false;
+		}
+
+		return isEnable;
+	}
+
+	get blockCallback() {
+
+		if(this.blockCallbackElement) {
+			return this.blockCallbackElement;
+		}
+
+		const container = this.blockCallbackElement = document.createElement('div');
+		container.classList.add('block-callback-blanket');
+
+		container.innerHTML = `
+			<div class="block-callback">
+				<span>Your callback request will be answered soon. You will be able to make another callback request in 
+					<span class="time_left">10:00</span>
+				</span>
+				<span class="close_cb_req"><i class="fa fa-times"></i></span>
+			</div>
+		`;
+
+		container.querySelector('.close_cb_req').addEventListener('click', () => {
+			container.classList.remove('active');
+		});
+
+		return container;
+	}
+
+	get reqCallbackContainer() {
+
+		if(this.reqCallbackContainerElement) {
+			return this.reqCallbackContainerElement;
+		}
+
+		const container = this.reqCallbackContainerElement = document.createElement('div');
+		container.classList.add('reqCB');
+		const {allowCall, time} = this.getLastCallRequestMade();
+		const subs_support_contact_num = 
+		typeof ehr_subs_plan_lower_case !== "undefined" && ehr_subs_plan_lower_case === "elite" 
+			? "1800 8913 803" 
+			: "1800 1020 127";
+			container.innerHTML = `
+			<span class="support_call_info">Contact us at ${subs_support_contact_num}</span>
+			<button class="req_callback" type="button" ${!allowCall ? "disabled":""}>Request a Callback</button>
+			<span class="req_call_disabled_message ${!allowCall ?"active":""}">Please wait for 5 mins to raise a new request</span>
+			<span class="or">-- or --</span>
+		`;
+		
+		container.querySelector('.req_callback').addEventListener('click', () => {
+
+			const {allowCall, time} = this.getLastCallRequestMade();
+			const properties = {
+				source_module:window.location.href.split('/')[3],
+				request_type:"callback_requested",
+				ticket_issue_module:"",
+				ticket_issue_type:"",
+				is_media_attached:""
+			}
+			if(!hadmin_login){
+			typeof triggerAmplitudeEvent !== 'undefined' && triggerAmplitudeEvent(doctor_role_id_for_seg,"SUPPORT_REQUEST_SUCCESS",properties);
+			}
+			if(allowCall) {
+
+				this.requestCallback();
+				this.setLastCallRequestMade();
+			}
+			else {
+
+				this.blockCallback.classList.add('active');
+				
+				const interval = this.countDownTimer({time});
+				const active_timer = setTimeout(() => {
+					this.blockCallback.classList.remove('active');
+
+					clearInterval(interval);
+					clearTimeout(active_timer)
+				}, 10000);
+
+			}
+		});
+
+		return container;
+	}
+
+	countDownTimer({time} = {}) {
+		
+		if(!time) {
+			return;
+		}
+
+		time = 300000 - (time * 1000);
+		
+		var countDownDate = new Date(Date.now() + time).getTime();
+		this.timeCounter(countDownDate);
+		
+		return setInterval(() => {
+
+			this.timeCounter(countDownDate);
+		}, 1000);
+	}
+
+	timeCounter(countDownDate) {
+
+		var now = new Date().getTime();
+		var distance = countDownDate - now;
+		
+		var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+		this.blockCallback.querySelector('.time_left').innerHTML = minutes + "m " + seconds + "s ";
+	}
+
+	getLastCallRequestMade() {
+
+		const doc_id = window.doctor_role_id_for_seg;
+
+		if(!doc_id || !localStorage.hasOwnProperty('last_req_callback')) {
+			return {allowCall: true};
+		}
+
+		let last_req_callback = localStorage.getItem('last_req_callback');
+
+		try{
+
+			last_req_callback = JSON.parse(last_req_callback);
+
+			if(!last_req_callback[doc_id]) {
+				return {allowCall: true};
+			}
+
+			const now = Math.floor(Date.now() / 1000);
+			const doc_last_time = last_req_callback[doc_id];
+
+			if(now - doc_last_time <= 300) {
+				return {allowCall: false, time: now - doc_last_time};
+			}
+			else {
+				return {allowCall: true};
+			}
+		}
+		catch(e) {
+
+			console.log('Failed to access localstorage to check for last request to callback made.', e);
+			return {allowCall: true};
+		}
+	}
+
+	setLastCallRequestMade() {
+
+		const doc_id = window.doctor_role_id_for_seg;
+
+		if(!localStorage.hasOwnProperty('last_req_callback')) {
+			localStorage.setItem('last_req_callback', JSON.stringify({}))
+		}
+
+		let lastCallData = localStorage.getItem('last_req_callback');
+
+		try {
+
+			lastCallData = JSON.parse(lastCallData);
+
+			lastCallData[doc_id] = Math.floor(Date.now() / 1000);
+
+			localStorage.setItem('last_req_callback', JSON.stringify(lastCallData));
+			document.querySelector('.req_callback').disabled=true;
+			document.querySelector('.req_call_disabled_message').classList.add('active');
+			const active_timer = setTimeout(() => {
+				document.querySelector('.req_callback').disabled=false;
+				document.querySelector('.req_call_disabled_message ').classList.remove('active');
+			}, 300000);
+		}
+		catch(e) {
+
+			console.log('Failed to set localstorage');
+		}
+	}
+
+	get form() {
+
+		if (this.formElement) {
+			return this.formElement;
+		}
+
+		const form = (this.formElement = document.createElement('form'));
+		form.classList.add('support-form');
+
+		form.innerHTML = `
+			<div class="support-form-header">
+			  <h5>
+			      Support HealthPlix form
+		      </h5>
+			  <span class="close">&times;</span>
+			</div>
+			<div class="fields">
+
+				<label class="module support-form-field">
+					<span>Module</span>
+				</label>
+
+				<label class="issue_type support-form-field">
+					<span>Issue type</span>
+				</label>
+
+				<label class="description_text support-form-field">
+					<span>Description</span>
+					<textarea name="description"></textarea>
+				</label>
+			</div>
+			<div class="toastmsg"></div>
+			<div class="support-attachments">
+				<div class="title-div">
+					<h5>Attachments</h5>
+					<span class="format-info">(only image/pdf format)</span>
+					<span class="add-attachment"><i class="hx_attachment"></i></span>
+				</div>
+				<div id="fileList"></div>
+			</div>
+			<div class="support-btn-wrapper">				
+				<button class="support-submit-btn" type="submit">Raise a Support Request</button>
+				
+			</div>
+			<span class="support_disabled_message">Please wait for 5 mins to raise a new request</span>
+			<h4 class="d-flex align-items-center prev-query" id="prevNextPage">
+					Previous Queries
+				</h4>
+			<div class="ticket-list-container"></div>
+			
+			<div id="rmContainer" class="rmContainer ${rmDetails}">
+				<div class="flex flexAlignItemCenter mt4">
+					<div class="rmHeading">Relationship Manager</div>
+					<div class="rmNewBadge ml4">New</div>
+				</div>
+				<div class="flex flexAlignItemCenter">
+					<i class="hx_person"></i>
+					<div class="rmName">${rm_name}</div>
+				</div>
+				<div class="flex flexAlignItemCenter">
+					<i class="hx_mail"></i>
+					<a class="rmMail" href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>
+				</div>
+				<div class="flex flexAlignItemCenter">
+					<i class="hx_phone mb4"></i>
+					<div class="rmContact">${rm_phone}</div>
+				</div>
+			</div>		
+		`;
+
+		form.querySelector('.add-attachment').addEventListener('click', () => {
+
+			if(!this.attachments) {
+				this.attachments = new Attachments(this);
+			}
+
+			this.attachments.addNew();
+		});
+
+		const fields = form.querySelector('.fields');
+
+		if (!this.is_logged_in) {
+			fields.insertAdjacentElement('afterbegin', this.notLoggedInFields);
+		}
+
+		fields.querySelector('.module').appendChild(this.modules);
+		fields.querySelector('.issue_type').appendChild(this.issueTypes);
+
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			
+			const valid = this.validateForm();
+			this.preparePayload({reqCallback: false});
+			
+			if (valid) {
+				this.createTicket();
+			}
+		});
+
+		form.addEventListener('click', (e) => {
+			e.stopPropagation();
+		});
+
+		form.querySelector('.close').addEventListener('click', () => {
+			form.classList.remove('support_show');
+		});
+
+		if(this.is_logged_in) {
+			form.querySelector('.support-form-header').insertAdjacentElement('afterend', this.reqCallbackContainer);
+		}
+
+		return form;
+	}
+
+	get notLoggedInFields() {
+		if (this.notLoggedInFieldsElements) {
+			return this.notLoggedInFieldsElements;
+		}
+
+		const container = (this.notLoggedInFieldsElements = document.createElement('div'));
+
+		container.innerHTML = `
+			<label class="name_field support-form-field">
+				<span>Name</span>
+				<input type="text" name="name" placeholder="Enter your name"/>
+			</label>
+				
+			<label class="email_field support-form-field">
+				<span>Email</span>
+				<input type="text" name="email" placeholder="Enter youe email" />
+			</label>
+
+			<label class="phone_field support-form-field">
+				<span>Contact</span>
+				<input type="text" name="phone" placeholder="+01 9000000001" />
+			</label>
+		`;
+
+		return container;
+	}
+
+	get modules() {
+		if (this.moduleContainer) {
+			return this.moduleContainer;
+		}
+
+		const select = (this.moduleContainer = document.createElement('select'));
+
+		select.innerHTML = `<option value="none">Select</option>`;
+
+		for (const d of this.module_data) {
+			const option = document.createElement('option');
+			option.classList.add('support-select-opt');
+			option.value = d.module;
+			option.textContent = d.text;
+
+			select.appendChild(option);
+		}
+
+		select.addEventListener('change', () => {
+			const value = select.value;
+
+			const moduleData = this.module_data.filter((m) => m.module == value)[0];
+
+			this.issueTypes = moduleData?.issue_types || [];
+		});
+
+		return select;
+	}
+
+	get issueTypes() {
+		if (this.issueTypesContainer) {
+			return this.issueTypesContainer;
+		}
+
+		const select = (this.issueTypesContainer = document.createElement('select'));
+		select.classList.add('issuetype');
+		select.disabled = true;
+
+		select.innerHTML = `
+			<option value="none">Select</option>
+		`;
+
+		return select;
+	}
+
+	set issueTypes(value) {
+
+		this.issueTypes.innerHTML = '<option value="none">Select</option>';
+
+		for (const data of value) {
+			const option = document.createElement('option');
+			option.value = data.id;
+			option.textContent = data.text;
+
+			this.issueTypes.appendChild(option);
+		}
+		
+
+		if(value.length) {
+			this.issueTypes.disabled = false;
+		}
+		else {
+			this.issueTypes.disabled = true;
+		}
+	}
+
+	get paginationContainer() {
+
+		if(this.paginationContainerElement) {
+			return this.paginationContainerElement
+		}
+
+		const container = this.paginationContainerElement = document.createElement('div');
+		container.classList.add('ticket-pagination');
+
+		container.innerHTML = `
+			<span class="prev"><i class="hx_left"></i></span>
+			<span class="page"></span>
+			<span class="next"><i class="hx_right"></i></span>
+		`;
+
+		container.querySelector('.prev').addEventListener('click', async () => {
+
+			if(this.currentPage  == 1) {
+				return
+			}
+
+			this.currentPage = this.currentPage - 1;
+
+			await this.fetchTickets({ page: this.currentPage, email: window.doctor_email_for_seg, limit: this.limit})
+			this.pageNumber = this.currentPage;
+		});
+
+		container.querySelector('.next').addEventListener('click', async () => {
+
+			if(this.currentPage  == this.maxAvailPage) {
+				return
+			}
+
+			this.currentPage = this.currentPage + 1;
+
+			await this.fetchTickets({ page: this.currentPage, email: window.doctor_email_for_seg, limit: this.limit})
+			this.pageNumber = this.currentPage;
+		});
+
+		return container;
+	}
+
+	set pageNumber(val) {
+
+		this.paginationContainer.querySelector('.page').innerHTML = `${val} of ${this.maxAvailPage}`;
+	}
+ 
+	set maxPage(val) {
+		this.paginationContainer.querySelector('.page').innerHTML = `${this.currentPage} of ${val}`;
+	}
+
+	async renderEnlarged() {
+
+		await this.fetchTickets({page: this.currentPage, limit: this.limit, email: window.doctor_email_for_seg});
+		this.form.classList.add('support-expanded-form-view');
+		this.form.classList.remove('support-form');
+
+		document.body.appendChild(this.form);
+	}
+
+	get newBadge() {
+
+		if(this.newBadgeContainer) {
+			return this.newBadgeContainer;
+		}
+
+		const container = this.newBadgeContainer = document.createElement('span');
+		container.classList.add('zoho-new-badge');
+
+		container.textContent = 'NEW';
+
+		return container;
+	}
+
+	render() {
+
+		const container = document.querySelector(this.domId);
+
+		if (container) {
+			container.appendChild(this.widgetButton);
+			// container.appendChild(this.newBadge);
+		} else {
+			document.body.appendChild(this.widgetButton);
+		}
+
+		if(this.is_logged_in) {
+
+			document.body.appendChild(this.blockCallback);
+		}
+		
+		document.body.appendChild(this.form);
+	}
+
+	update({ module, domId }) {
+		this.module = module;
+		this.dom_id = domId;
+
+		this.render();
+	}
+
+	preparePayload({reqCallback, external_call = false, delete_staff = false, update_phone = false, subject} = {}) {
+		
+		this.payload = {};
+
+		let lastName, email, phone;
+
+		if (this.is_logged_in || external_call) {
+			lastName = window.userName;
+			email = window.doctor_email_for_seg;
+			phone = window.doctor_phone_for_seg;
+		}
+		else {
+			lastName = this.form.name.value;
+			email = this.form.email.value;
+			phone = this.form.phone.value;
+		}
+
+		let description = this.form.description.value;
+
+		if(reqCallback) {
+			description = "Doctor Requested for a callback";
+		}
+		else if(external_call) {
+
+			description = delete_staff ? "Account Delete request" : update_phone ? "Request to change phone number" : ""
+		}
+
+		let _subject = this.modules.value;
+
+		if(reqCallback) {
+
+			_subject = "Callback"
+
+		} else if(external_call) {
+
+			_subject = subject 
+		}
+
+		this.payload = {
+			contact: {
+				lastName,
+				email,
+			},
+			subject: _subject,
+			email,
+            departmentId: '38876000000010772',
+			channel: 'Web',
+			statusType: 'Open',
+			description: description,
+			phone,
+			status: 'Received / In queue',
+			cf: {
+				cf_specialization: window.doctor_speciality,
+				cf_doctor_code: window.doctor_code,
+				cf_doctor_id: window.person_id_for_seg,
+				cf_doctor_name: window.userName,
+			}
+		};
+
+		if(this.is_logged_in || external_call) {
+			this.payload.cf.cf_bid = window.orgBranchId || window.org_branch_id_for_seg
+		}
+
+		if (reqCallback) {
+			
+			this.payload.subject = 'Callback';
+			this.payload.classification = 'Request For a callback';
+			this.payload.priority = 'High';
+
+			this.payload.cf.cf_modules = '';
+			this.payload.cf.cf_product = 'EMR';
+			this.payload.cf.cf_issue_type = '';
+			this.payload.cf.cf_type_of_contact_name = 'Doctor';
+
+		} else if(external_call) {
+
+			this.payload.priority = 'High';
+			this.payload.classification = 'none';
+			this.payload.cf.cf_modules = _subject;
+			
+			this.payload.cf.cf_product = 'EMR';
+			this.payload.cf.cf_issue_type = 'Other';
+			this.payload.cf.cf_type_of_contact_name = 'Doctor';
+		} 
+		else {
+			for(const mod of this.module_data) {
+
+				if(mod.module != this.modules.value) {
+					continue;
+				}
+
+				this.payload.subject = mod.text;
+				this.payload.cf.cf_modules = mod.text;
+				this.payload.cf.cf_product = 'EMR';
+								
+
+				let usrType = 'Staff';
+
+				if(window.person_type == '11') {
+					usrType = 'Doctor'
+				}
+				else if(window.person_type == '1') {
+					usrType = 'Patient'
+				}
+
+				for (const info of mod.issue_types) {
+					if (info.id == this.issueTypes.value) {
+						this.payload.cf.cf_issue_type = info.text;
+						this.payload.classification = info.classification || 'none';
+						this.payload.priority = info.priority;
+						this.payload.cf.cf_type_of_contact_name = usrType ;
+					}
+				}
+			}
+		}
+
+		if(external_call) {
+			return this.payload
+		}
+	}
+
+	async requestCallback() {
+
+		this.preparePayload({reqCallback: true});
+		await this.createTicket({callback: true});
+	}
+}
+const rmDifferenceInDays = (new Date() - new Date(first_created_at))/86400000;
+if (rmDifferenceInDays <= 3) {
+	const rmSignal = document.createElement('div');
+	rmSignal.classList.add('rmSignal');
+	document.getElementById("zoho-support-button")?.appendChild(rmSignal)
+}
+if (getCookie("rmData_"+doctor_role_id_for_seg) === "null" || !getCookie("rmData_"+doctor_role_id_for_seg)){
+	var rmDetails = 'dNone';
+}
+else{
+	var rmDetails = '';
+}
+
+class Attachments extends Set {
+
+	constructor(page) {
+
+		super();
+		this.page = page;
+		this.container = this.page.form.querySelector('#fileList');
+	}
+
+	addNew(id) {
+
+		const newAttachment = new Attachment(this);
+		newAttachment.render();
+
+		this.add(newAttachment);
+	}
+
+	get fileList() {
+
+		let files = [];
+		
+		for(const attachment of this) {
+			files = [...files, ...attachment.fileList]
+		}
+
+		return files;
+	}
+
+	remove() {
+
+		for(const attachment of this) {
+			attachment.delete();
+		}
+	}
+}
+
+class Attachment {
+
+	constructor(attachments) {
+		
+		this.attachments = attachments;
+	}
+
+	get fileLabel() {
+
+		if(this.fileLabelContainer) {
+			return this.fileLabelContainer;
+		}
+
+		const fileLabel = this.fileLabelContainer = document.createElement('div');
+		const input = this.container.querySelector('input');
+	
+		let text = '';
+
+		for(const file of input.files) {
+			
+			if(text) {
+				text += ', ';
+			}
+
+			text += file.name;
+		}
+
+		fileLabel.classList.add('file-list');
+
+		fileLabel.innerHTML = `
+			<span>${text}</span>
+			<div class="remove-list"><i class="fa fa-times"></i></div>
+		`;
+
+		fileLabel.querySelector('.remove-list').addEventListener('click', () => {
+			this.delete();
+		});
+
+		return fileLabel;
+	}
+
+	delete() {
+		this.container.remove();
+		this.attachments.delete(this);
+	}
+
+	get container() {
+
+		if(this.containerElement) {
+			return this.containerElement;
+		}
+
+		const container = this.containerElement = document.createElement('div');
+
+		const id = 'support-file' + Math.floor(Math.random() * 1000);
+
+		container.innerHTML = `
+			<div class="upload-container">
+				<input 
+					type="file"
+					name="file"
+					class="custom-file-input" 
+					id=${id}
+					multiple 						 
+					placeholder="Attachment"
+					accept="image/x-png,image/jpeg,application/pdf"
+				/>
+				<label class="support-form-label" for=${id}>
+					Click to Select file(s)
+				</label>
+			</div>
+		`;
+
+		container.addEventListener('click', (e) => {
+			e.stopPropagation();
+		});
+
+		container.querySelector('input').addEventListener('change', () => {
+
+			container.querySelector('.upload-container').style.display = 'none';
+			container.appendChild(this.fileLabel);
+		});
+
+		return container;
+	}
+
+	get fileList() {
+
+		return this.container.querySelector('input').files;
+	}
+
+	render() {
+
+		this.attachments.container.appendChild(this.container);
+
+	}
+}
+class Tickets extends Map {
+
+	constructor(support, tickets) {
+		super();
+		this.support = support;
+
+		for (const ticket of tickets) {
+			this.set(ticket.id, new Ticket(this, ticket));
+		}
+	}
+
+	get container() {
+		if (this.containerElement) {
+			return this.containerElement;
+		}
+
+		const container = (this.containerElement = document.createElement('div'));
+		container.classList.add('tickets-container');
+
+		return container;
+	}
+
+	render() {
+		
+		const container = this.support.form.querySelector('.ticket-list-container');
+		container.textContent = '';
+
+		for (const [key, ticket] of this.entries()) {
+			container.appendChild(ticket.container);
+		}
+		
+		if(!this.size) {
+			container.insertAdjacentHTML('beforeend', '<span class="NA">No previous ticket found</span>')
+		}
+	}
+}
+
+class Ticket {
+
+	constructor(tickets, ticket) {
+		this.tickets = tickets;
+
+		Object.assign(this, ticket);
+	}
+
+	getPriority(val) {
+		if (val) {
+			if (val.toLowerCase() == 'high') return 1;
+			else if (val.toLowerCase() == 'medium') return 2;
+			return 3;
+		}
+	}
+
+	get container() {
+		if (this.containerElement) {
+			return this.containerElement;
+		}
+
+		const container = (this.containerElement = document.createElement('div'));
+		container.classList.add('support-ticket');
+
+		container.innerHTML = `
+			<div class ="support-tkt-left">
+				<div class="support-subject">${this.subject}</div>
+				<div class="support-tkt-wrapper">
+					<div>${new Intl.DateTimeFormat('en-GB', { dateStyle: 'full' }).format(new Date(this.createdTime))}</div>
+				</div>
+				<div class="support-tkt-wrapper">
+					<div class="support-tkt-no">#${this.ticketNumber}</div>
+					<div class="support-circle"></div>
+					<div class="support-status">${this.status}</div>
+					<div class="more"><span class="more-less">More</span> <i class="fa fa-angle-down"></i></div>
+				</div>
+				<div class="more-details ticket-hidden">
+					<div class="detail">
+						<span class="key">Issue type: </span>
+						<span class="value">${this.customFields['Issue Type']} </span>
+					</div>	
+					<div class="detail desc">
+						<span class="key">Description: </span>
+						<span class="value">${this.description} </span>
+					</div>
+				</div>
+			</div>
+		`;
+
+		container.querySelector('.more').addEventListener('click', () => {
+			
+			container.querySelector('.more-details').classList.toggle('ticket-hidden');
+			container.querySelector('.more').classList.toggle('up');
+			
+			if(container.querySelector('.more').classList.contains('up')) {
+				container.querySelector('.more .more-less').textContent = 'Less';
+			}
+			else {
+				container.querySelector('.more .more-less').textContent = 'More';
+			}
+		});
+
+		return container;
+	}
+}
+
+const FROM_TYPES = {};
+
+const MODULES = {
+	doctor: [
+		'doc_module',
+		'oc',
+		'front_desk',
+		'lab',
+		'pharmacy',
+		'ipd',
+		'branch_admin',
+		'report',
+		'onco_Module',
+		'ptients_data_import',
+		'ads',
+		'initiative',
+		'patient_data',
+		'rewards'
+	],
+	frontdesk: ['front_desk'],
+	lab: ['lab'],
+	pharmacy: ['pharmacy'],
+	ipd: ['ipd'],
+	report: ['report'],
+	branch_admin: ['branch_admin'],
+	login: ['login'],
+};
+
+
+window.addEventListener('DOMContentLoaded', async () => {
+
+	const script = document.querySelector('script#zoho-support-script');
+	const searchParam = script.src.split('?')[1];
+
+	const urlSearchParam = new URLSearchParams(searchParam);
+
+	if(['login', 'branch_admin', 'report'].includes(urlSearchParam.get('module'))) {
+		document.head.insertAdjacentHTML('beforeend', '<link href="../resources/font-awesome/css/font-awesome.css" rel="stylesheet"></link>')
+		document.head.insertAdjacentHTML('beforeend', '<style>.zoho-help-button {display: flex}</style>')
+	}
+
+	if(['login'].includes(urlSearchParam.get('module'))) {
+		document.head.insertAdjacentHTML('beforeend', '<style>.support-form {top: 0 !important}</style>')
+	}
+
+	const loggedIn = urlSearchParam.has('logged_in') && urlSearchParam.get('logged_in') == '0' ? false : true;
+
+	let _module = MODULES[urlSearchParam.get('module')];
+
+	if(location.pathname.includes('help.php')) {
+		_module = MODULES['doctor'];
+	}
+
+	window.zohosupport = new Support({
+		module: _module,
+		domId: '#zoho-support-button',
+		is_logged_in: loggedIn,
+	});
+
+	if(urlSearchParam.get('type') == 'enlarged') {
+
+		await zohosupport.renderEnlarged();
+	}
+	else {
+
+		zohosupport.render();
+	}
+});
+function toggleSupportTabs(tab) {
+	if ($('#' + tab).hasClass('active')) {
+		return
+	}
+ 	if (tab == 'supportTab') {
+		$('#support_form_container').removeClass('dNone')
+		// $('#retraining_form_container_temp').addClass('dNone')
+		$('#supportTab').addClass('active')
+	}
+}
+
+$(() => {
+	$('.zoho-help-button').on('click', function () {
+		toggleSupportTabs('supportTab')
+	})
+})

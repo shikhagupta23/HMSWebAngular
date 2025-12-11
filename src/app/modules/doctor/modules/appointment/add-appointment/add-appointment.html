@@ -47,7 +47,7 @@
                                         <!-- Row 1 -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small mb-1">Full Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="fullName" placeholder="Enter full name" (input)="getPatientByTerm()">
+                                            <input type="text" class="form-control " formControlName="fullName" placeholder="Enter full name" (input)="getPatientByTerm()">
                                             <ul *ngIf="patientList.length > 0"
                                                 class="list-group position-absolute w-40"
                                                 style="z-index: 1000; max-height: 200px; overflow-y: auto; cursor:pointer;">
@@ -63,7 +63,7 @@
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Gender</label>
-                                            <select class="form-control rounded-pill" formControlName="gender">
+                                            <select class="form-control " formControlName="gender">
                                                 <option value="">Select</option>
                                                 <option value="M">Male</option>
                                                 <option value="F">Female</option>
@@ -73,17 +73,17 @@
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Date of Birth</label>
-                                            <input type="date" class="form-control rounded-pill" formControlName="dob" [max]="todayDate">
+                                            <input type="date" class="form-control " formControlName="dob" [max]="todayDate">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Phone Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="phoneNumber" placeholder="Phone number" (input)="checkPhone()">
+                                            <input type="text" class="form-control " formControlName="phoneNumber" placeholder="Phone number" (input)="checkPhone()">
                                         </div>
                                         
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small mb-1">Address</label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="address" placeholder="Enter address">
+                                            <input type="text" class="form-control " formControlName="address" placeholder="Enter address">
                                         </div>
                                     </div>
                                 </div>
@@ -98,32 +98,32 @@
                                         <!-- Row 2 -->
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Weight (kg)</label>
-                                            <input type="number" class="form-control rounded-pill" formControlName="weight" placeholder="kg">
+                                            <input type="number" class="form-control " formControlName="weight" placeholder="kg">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Height (cm)</label>
-                                            <input type="number" class="form-control rounded-pill" formControlName="height" placeholder="cm">
+                                            <input type="number" class="form-control " formControlName="height" placeholder="cm">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Pulse (bpm)</label>
-                                            <input type="number" class="form-control rounded-pill" formControlName="pulse" placeholder="bpm">
+                                            <input type="number" class="form-control " formControlName="pulse" placeholder="bpm">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Oxygen (%)</label>
-                                            <input type="number" class="form-control rounded-pill" formControlName="oxygen" placeholder="%">
+                                            <input type="number" class="form-control " formControlName="oxygen" placeholder="%">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Refer Doctor</label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="referDoctor" placeholder="Doctor name">
+                                            <input type="text" class="form-control " formControlName="referDoctor" placeholder="Doctor name">
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">ABHA ID</label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="abhaId" placeholder="ABHA ID">
+                                            <input type="text" class="form-control " formControlName="abhaId" placeholder="ABHA ID">
                                         </div>
                                     </div>
                                 </div>
@@ -138,12 +138,12 @@
                                         <!-- Row 3 -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small mb-1">Appointment Date <span class="text-danger">*</span></label>
-                                            <input type="datetime-local" class="form-control rounded-pill" formControlName="appointmentDate" [min]="TodayDateTime">
+                                            <input type="datetime-local" class="form-control " formControlName="appointmentDate" [min]="TodayDateTime">
                                         </div>
                                         
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small mb-1">Doctor <span class="text-danger">*</span></label>
-                                            <select class="form-control rounded-pill" formControlName="doctor" (change)="getDoctorFee()">
+                                            <select class="form-control " formControlName="doctor" (change)="getDoctorFee()">
                                                 <option value="" >Select Doctors</option>
                                                 <option *ngFor="let doc of doctorList" [value]="doc.userId">{{ doc.fullName }}</option>
                                             </select>
@@ -151,22 +151,22 @@
                                         
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small mb-1">Fee (₹)</label>
-                                            <input type="number" class="form-control rounded-pill" formControlName="appointmentFee" placeholder="Amount">
+                                            <input type="number" class="form-control " formControlName="appointmentFee" placeholder="Amount">
                                         </div>
                                         
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small mb-1">Visit Reason</label>
-                                            <input type="text" class="form-control rounded-pill" formControlName="visitReason" placeholder="Reason for visit">
+                                            <input type="text" class="form-control " formControlName="visitReason" placeholder="Reason for visit">
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <div class="text-end mt-4 pt-3 border-top">
-                                    <button type="button" class="d-none btn btn-outline-secondary rounded-pill px-4 me-2 cancelAppointmentBtn" (click)="onCancel()">
+                                    <button type="button" class="d-none btn btn-outline-secondary  px-4 me-2 cancelAppointmentBtn" (click)="onCancel()">
                                         Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                    <button type="submit" class="btn btn-primary px-4">
                                         Save Appointment
                                     </button>
                                 </div>
