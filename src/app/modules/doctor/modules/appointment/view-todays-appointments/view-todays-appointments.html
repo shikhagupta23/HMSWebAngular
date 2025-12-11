@@ -59,38 +59,46 @@
 									<div class="row g-3 align-items-center flex-md-nowrap">
 
 										<!-- Patient Name -->
-										<div class="col-12 col-lg-3 ">
-												<!-- <p>#{{ item.appointmentViewId }}</p>
-												<strong>{{ item.patientName }}</strong> -->
-											<div class="patient-info d-flex align-items-center gap-2">
+										<div class="col-12 col-lg-3">
 
+											<div class="patient-info d-flex align-items-center gap-2">
 												<!-- Initial Circle -->
 												<div class="initial-circle">
 													{{ item.patientName?.charAt(0).toUpperCase() }}
 												</div>
-
 												<!-- Patient Details -->
 												<div>
-													<p class="mb-0">#{{ item.appointmentViewId }}</p>
-													<h6 class="mb-0">{{ item.patientName }}</h6>
+													<p class="m-0 appointment-view-id">#{{ item.appointmentViewId }}</p>
+													<p class="m-0 patient-name">{{ item.patientName }}</p>
 												</div>
 
 											</div>
 										</div>
 
 										<!-- Doctor Name -->
-										<div class="col-12 col-lg-3">
+										<div class="d-none col-12 col-lg-3">
 											<span>{{ item.doctorName }}</span>
 										</div>
 
 										<!-- Appointment Date -->
 										<div class="col-12 col-lg-3">
-											<span> <i class="fa-solid fa-clock"></i> {{ formatDate(item.appointmentDate) }}</span>
+											<span class="appointment-info"> <i class="fa-solid fa-clock"></i> {{ formatDate(item.appointmentDate) }}</span>
+											<span class="appointment-info"> <i class="fa-solid fa-clock"></i> {{ formatDate(item.createdAt) }}</span>
 										</div>
 
 										<!-- Phone -->
 										<div class="col-12 col-lg-3">
-											<span class="text-end"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
+											<span class="appointment-info"><i class="fa-solid fa-envelope"></i> {{ "patient@gmail.com" }}</span>
+											<span class="appointment-info"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
+										</div>
+
+										<div class="col-12 col-lg-3">
+											<div class="d-flex align-items-center gap-2">
+												<a class="appointment-action"><i class="fa-solid fa-eye"></i></a>
+												<a class="appointment-action"><i class="fa-solid fa-xmark"></i></a>
+												<a class="appointment-start start-link">Start Now</a>
+
+											</div>
 										</div>
 									</div>
 								</div>
