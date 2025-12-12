@@ -53,6 +53,25 @@
 									</li>
 								</ul>
 							</div>
+								<div class="appointment-tabs">
+									<ul class="nav nav-pills inner-tab " id="pills-tab" role="tablist">
+										<li class="nav-item" role="presentation">
+											<button class="nav-link" id="pills-complete-tab" data-bs-toggle="pill" data-bs-target="#pills-complete" type="button" role="tab" aria-controls="pills-complete" aria-selected="true" (click)="changeStatus(3)">All<span>214</span></button>
+										</li>
+										<li class="nav-item" role="presentation">
+											<button class="nav-link active" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button" role="tab" aria-controls="pills-upcoming" aria-selected="false" (click)="changeStatus(0)">Scheduled<span>21</span></button>
+										</li>	
+										<li class="nav-item" role="presentation">
+											<button class="nav-link" id="pills-complete-tab" data-bs-toggle="pill" data-bs-target="#pills-complete" type="button" role="tab" aria-controls="pills-complete" aria-selected="true" (click)="changeStatus(1)">Pending<span>214</span></button>
+										</li>
+										<li class="nav-item" role="presentation">
+											<button class="nav-link" id="pills-complete-tab" data-bs-toggle="pill" data-bs-target="#pills-complete" type="button" role="tab" aria-controls="pills-complete" aria-selected="true" (click)="changeStatus(2)">Completed<span>214</span></button>
+										</li>
+										<li class="nav-item" role="presentation">
+											<button class="nav-link" id="pills-cancel-tab" data-bs-toggle="pill" data-bs-target="#pills-cancel" type="button" role="tab" aria-controls="pills-cancel" aria-selected="true" (click)="changeStatus(4)">Cancelled<span>16</span></button>
+										</li>
+									</ul>
+								</div>
 							<div class="tab-content appointment-tab-content">
 								<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
 								<div class="appointment-wrap p-3 mb-2 border rounded" *ngFor="let item of dataList">
@@ -61,7 +80,7 @@
 										<!-- Patient Name -->
 										<div class="col-12 col-lg-3">
 
-											<div class="patient-info d-flex align-items-center gap-2">
+											<div class="patient-info d-flex align-items-center gap-2 date-tag">
 												<!-- Initial Circle -->
 												<div class="initial-circle">
 													{{ item.patientName?.charAt(0).toUpperCase() }}
@@ -82,24 +101,40 @@
 
 										<!-- Appointment Date -->
 										<div class="col-12 col-lg-3">
-											<span class="appointment-info"> <i class="fa-solid fa-clock"></i> {{ formatDate(item.appointmentDate) }}</span>
-											<span class="appointment-info"> <i class="fa-solid fa-clock"></i> {{ formatDate(item.createdAt) }}</span>
+											<span class="appointment-info date-tag" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
+											<span class="appointment-info date-tag" title="Created On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
 										</div>
 
 										<!-- Phone -->
-										<div class="col-12 col-lg-3">
-											<span class="appointment-info"><i class="fa-solid fa-location-dot"></i> {{item.patientAddress}}</span>
-											<span class="appointment-info"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
+										<div class="col-12 col-lg-4">
+											<span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{item.address}}</span>
+											<span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
 										</div>
 
-										<div class="col-12 col-lg-3">
+										<div class="col-12 col-lg-2">
 											<div class="d-flex align-items-center gap-2">
-												<a class="appointment-action"><i class="fa-solid fa-eye"></i></a>
-												<a class="appointment-action"><i class="fa-solid fa-xmark"></i></a>
-												<a class="appointment-start start-link">Start Now</a>
+
+												<!-- Eye icon when appointmentStatus = 2 -->
+												<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2" class="appointment-action">
+													<i class="fa-solid fa-eye"></i>
+												</a>
+
+												<!-- Cross + Start Now when appointmentStatus = 0 or 1 -->
+												<ng-container *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1">
+
+													<a class="appointment-action" (click)="cancelAppointment(item)">
+														<i class="fa-solid fa-xmark"></i>
+													</a>
+
+													<a (click)="openPrescriptionModal(item, 'start')" class="appointment-start start-link date-tag">
+														Start Now
+													</a>
+
+												</ng-container>
 
 											</div>
 										</div>
+
 									</div>
 								</div>
 
@@ -284,4 +319,305 @@
 
 				</div>
 			</div>
+		</div>
+
+		<div class="modal fade" id="prescriptionModal" tabindex="-1">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content rounded-4">
+
+			<div class="modal-header">
+				<h5 class="modal-title">Add Prescription</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<div class="modal-body">
+
+				<!-- CARD -->
+				<div class="card shadow-sm border-0 rounded-4">
+				<div class="card-body">
+
+					<div class="row g-4">
+
+					<!-- Symptoms -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Symptoms</label>
+						<div class="input-group">
+						<textarea class="form-control" rows="1"
+							[(ngModel)]="prescription.symptoms"
+							placeholder="Enter symptoms..."></textarea>
+
+						<span class="input-group-text cursor-pointer"
+								(click)="openList('Symptoms')">
+							<i class="fa fa-plus"></i>
+						</span>
+						</div>
+					</div>
+
+					<!-- Diagnosis -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Diagnosis</label>
+						<div class="input-group">
+						<textarea class="form-control" rows="1"
+							[(ngModel)]="prescription.diagnosis"
+							placeholder="Enter diagnosis..."></textarea>
+
+						<span class="input-group-text cursor-pointer"
+								(click)="openList('Diagnosis')">
+							<i class="fa fa-plus"></i>
+						</span>
+						</div>
+					</div>
+
+					<!-- Advice -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Advice</label>
+						<div class="input-group">
+						<textarea class="form-control" rows="1"
+							[(ngModel)]="prescription.advice"
+							placeholder="Enter advice..."></textarea>
+
+						<span class="input-group-text cursor-pointer"
+								(click)="openList('Advice')">
+							<i class="fa fa-plus"></i>
+						</span>
+						</div>
+					</div>
+
+					<!-- Follow Up -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Follow Up</label>
+						<div class="input-group">
+						<textarea class="form-control" rows="1"
+							[(ngModel)]="prescription.followUp"
+							placeholder="Enter follow up..."></textarea>
+
+						<span class="input-group-text cursor-pointer"
+								(click)="openList('FollowUp')">
+							<i class="fa fa-plus"></i>
+						</span>
+						</div>
+					</div>
+
+					</div>
+				</div>
+				</div>
+
+				<div class="card shadow-sm border-0 rounded-4">
+				<div class="card-body">
+					<div class="row g-4">
+
+					<!-- Medicine Type -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Medicine Type</label>
+						
+						<select class="form-control"
+								[(ngModel)]="selectedMedicineType"
+								(change)="onMedicineTypeChange()"
+								>
+
+						<option value="">-- Select Medicine Type --</option>
+
+						<option *ngFor="let m of medicineTypes" [value]="m.id">
+							{{ m.typeName }}
+						</option>
+
+						</select>
+					</div>
+
+
+
+					<!-- Medicine Name -->
+						<div class="col-md-3">
+						<label class="form-label fw-bold">Medicine Name</label>
+						<select class="form-control" appSelect2 placeholder="-- Select Medicine Name --"
+								[(ngModel)]="selectedMedicineName">
+							<option value="">Select Medicine</option>
+
+							<option *ngFor="let m of medicineNames" [value]="m.value">
+							{{ m.text }}
+							</option>
+
+						</select>
+						</div>
+						<div class="col-md-2 d-flex justify-content-end">
+						<button class="btn btn-primary" (click)="addMedicine()">
+							+ Add
+						</button>
+						</div>
+					</div>
+
+					<div class="card p-3 my-3 rounded-4 shadow-sm"
+						*ngFor="let m of prescription.medicines; let i = index">
+
+						<div class="d-flex justify-content-between">
+						<h5 class=" fw-bold">
+							{{ m.name }} ({{ m.type }})
+						</h5>
+
+						<button class="btn btn-sm"
+								(click)="removeMedicine(i)">
+							<i class="fa-solid fa-xmark"></i>
+						</button>
+						</div>
+
+						<hr>
+
+						<div class="row g-3">
+
+						<!-- Dosage -->
+						<div class="col-md-3">
+							<label class="fw-bold">Dosage (mg/ml)</label>
+							<input type="text" class="form-control"
+								placeholder="e.g. 500mg"
+								[(ngModel)]="m.dosage">
+						</div>
+
+						<!-- Duration -->
+						<div class="col-md-3">
+							<label class="fw-bold">Duration (days)</label>
+							<input type="text" class="form-control"
+								placeholder="e.g. 5 days"
+								[(ngModel)]="m.duration">
+						</div>
+
+						<!-- Frequency -->
+					<div class="col-md-6">
+						<label class="fw-bold">Frequency</label>
+						<div class="d-flex flex-wrap gap-2 mt-1">
+						<button *ngFor="let f of frequencyOptions"
+								class="btn"
+								[ngClass]="m.frequency === f.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
+								(click)="selectFrequency(m, f.value)">
+						{{ f.label }}
+						</button>
+
+						</div>
+					</div>
+
+
+						<!-- Timing -->
+					<div class="col-md-6">
+						<label class="fw-bold">Timing</label>
+						<div class="d-flex flex-wrap gap-2 mt-1">
+						<button *ngFor="let t of timingOptions"
+								class="btn"
+								[ngClass]="m.timings.includes(t.value) ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
+								(click)="toggleTiming(m, t.value)">
+							{{ t.label }}
+						</button>
+						</div>
+					</div>
+
+
+						<!-- Instructions -->
+					<div class="col-md-6">
+						<label class="fw-bold">Instructions *</label>
+						<div class="d-flex flex-wrap gap-2 mt-1">
+						<button *ngFor="let ins of instructionOptions"
+								class="btn"
+								[ngClass]="m.instruction === ins.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
+								(click)="selectInstruction(m, ins.value)">
+							{{ ins.label }}
+						</button>
+						</div>
+					</div>
+
+
+						</div>
+					</div>
+
+				</div>
+				</div>
+
+				<div class="card shadow-sm border-0 rounded-4">
+				<div class="card-body">
+
+					<!-- Lab Test Dropdown -->
+					<div class="row g-4">
+
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Select Lab Test</label>
+						<select class="form-control" appSelect2 placeholder="-- Select Lab Test --" [(ngModel)]="selectedLabTest">
+						<option value="">Select Test</option>
+						<option *ngFor="let t of labTests" [value]="t.value">  <!-- IMPORTANT -->
+							{{ t.text }}
+						</option>
+						</select>
+					</div>
+
+					<div class="col-md-2 d-flex justify-content-end">
+						<button class="btn btn-primary" (click)="addLabTest()">
+						+ Add 
+						</button>
+					</div>
+
+					</div>
+
+					<!-- Lab Test Table -->
+					<table class="table table-bordered table-sm mt-3" *ngIf="prescription.labTests.length > 0">
+					<thead class="table-light">
+						<tr>
+						<th>#</th>
+						<th>Lab Test</th>
+						<th>Action</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr *ngFor="let t of prescription.labTests; let i = index">
+						<td>{{ i + 1 }}</td>
+						<td>{{ t.name }}</td>   <!-- ✔ Correct -->
+						<td>
+							<button class="btn btn-sm" (click)="removeLabTest(i)">
+							<i class="fa fa-trash"></i>
+							</button>
+						</td>
+						</tr>
+					</tbody>
+					</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button class="btn btn-primary" (click)="savePrescription()">
+				{{ isViewMode ? 'Update' : 'Save' }}
+				</button>
+			</div>
+			</div>
+
+
+
+		</div>
+		</div>
+
+		<!-- Checklist Modal -->
+		<div class="modal fade" id="checklistModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content rounded-4">
+
+			<div class="modal-header">
+				<h5 class="modal-title">{{ activeField }} Options</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<div class="modal-body">
+
+				<div *ngFor="let item of optionsList">
+				<label class="d-flex align-items-center gap-2">
+					<input type="checkbox" [(ngModel)]="item.selected"
+						(change)="updateText()" />
+					{{ item.label }}
+				</label>
+				</div>
+
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+			</div>
+
+			</div>
+		</div>
 		</div>

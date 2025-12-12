@@ -20,12 +20,12 @@ export class AddPrescription implements OnInit {
   optionsList: any[] = [];
   medicineTypes: any[] = [];
   medicineNames: any[] = [];
-labTests: any[] = [];
-selectedLabTest: string = '';
-frequencyOptions: any[] = [];
-timingOptions: any[] = [];
-instructionOptions: any[] = [];
-selectedAppointment: any = null; 
+  labTests: any[] = [];
+  selectedLabTest: string = '';
+  frequencyOptions: any[] = [];
+  timingOptions: any[] = [];
+  instructionOptions: any[] = [];
+  selectedAppointment: any = null; 
 
 
   // Form data
@@ -63,8 +63,6 @@ getFrequencyId(freqName: string): number {
   Injection: ['Insulin', 'Diclofenac']
 };
 
-
-  // Option lists
   symptomOptions = [
     { label: 'Fever', selected: false },
     { label: 'Cough', selected: false },
@@ -88,7 +86,6 @@ getFrequencyId(freqName: string): number {
     { label: 'Return if symptoms worsen', selected: false },
   ];
 
-  // Pagination variables
   dataList: any[] = [];
   searchText: string = "";
 
