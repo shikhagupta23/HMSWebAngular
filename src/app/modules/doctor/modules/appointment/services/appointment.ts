@@ -66,6 +66,17 @@ getPatientAsPerDoctor(page: number, pageSize: number, searchText: string, status
   return this.api.get(`${ApiEndpoints.DOCTOR.GetPatientAsPerDoctor}`, { params });
 }
 
+getAllPatientAsPerDoctor(page: number, pageSize: number, searchText: string, status: number ) {
+  const params: any = {
+    page: page,
+    pageSize: pageSize,
+    status: status
+  };
+    if (searchText && searchText.trim() !== '') {
+      params.searchTerm = searchText;
+    }
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetAllPatientAsPerDoctor}`, { params });
+}
 
 getMedicineType(): Observable<any> {
   return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
@@ -104,4 +115,16 @@ updateAppointmentStatus(appointmentId: string, status: number = 2): Observable<a
   const url = `${ApiEndpoints.DOCTOR.UpdateAppointment}?status=${status}&AppointmentId=${appointmentId}`;
   return this.http.get(url);
 }
+
+// GET PRESCRIPTION MASTER LIST
+getPrescriptionMaster(): Observable<any> {
+  return this.api.get(ApiEndpoints.PRESCRIPTION.GET_MASTER);
+}
+
+// GET VALUE LIST USING MASTER ID
+getPrescriptionValues(masterId: string): Observable<any> {
+  const url = `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`;
+  return this.api.get(url);
+}
+
 }

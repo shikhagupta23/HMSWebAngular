@@ -42,6 +42,7 @@ export const ApiEndpoints = {
     GET:`${API_BASE_URL}/SelectAPI/getUserList?role=doctor`,
     GETFee : `${API_BASE_URL}/DoctorAPI/getDoctorFee?DoctorId=`,
     GetPatientAsPerDoctor : `${API_BASE_URL}/DoctorAPI/getPatientAsPerDoctorId`,
+    GetAllPatientAsPerDoctor : `${API_BASE_URL}/DoctorAPI/getALLPatientByDoctorId`,
     GetDoctorById:`${API_BASE_URL}/DoctorAPI/getDoctorsById?id=`,
     GetMedicineType: `${API_BASE_URL}/MedicineAPI/getMedicineType`,
     GetMedicineList: `${API_BASE_URL}/MedicineAPI/getMedicine?medicineTypeId=`,
@@ -52,11 +53,15 @@ export const ApiEndpoints = {
     SavePrescription: `${API_BASE_URL}/DoctorAPI/savePrescription`,
     GetPrescriptionByAppointmentId: `${API_BASE_URL}/DoctorAPI/getPrescription`,
     UpdateAppointment: `${API_BASE_URL}/Hub/UpdateAppointmentStatus`
-
   },
   DASHBOARD :
   {
     GETDASHBOARDDATA:`${API_BASE_URL}/DashboardAPI/todayappointments`,
-  }
+  },
+
+  PRESCRIPTION: {
+    GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
+    GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/` // + masterId
+  },
  
 };

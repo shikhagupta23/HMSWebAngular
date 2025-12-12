@@ -291,3 +291,23 @@ body {
 //     background: #e6f4ea; /* soft green */
 //     color: #1e8e3e;
 // }
+
+.customBtn{
+    background: #0E82FD !important;
+    color: #ffffff !important;
+    border-color: #0E82FD !important;
+    border-radius: 10px !important;
+}
+
+.customBtn a{
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+button {
+  background: #0E82FD;
+  color: #ffffff;
+  border-color: #0E82FD;
+  border-radius: 10px;
+}

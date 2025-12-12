@@ -8,15 +8,14 @@ import { AsidebarService } from '../../../../../shared/components/asidebar/servi
 import { AuthService } from '../../../../auth/services/auth-service';
 declare var bootstrap: any;
 
-
 @Component({
-  selector: 'app-view-todays-appointments',
+  selector: 'app-view-all-appointments',
   standalone: false,
-  templateUrl: './view-todays-appointments.html',
-  styleUrl: './view-todays-appointments.scss',
+  templateUrl: './view-all-appointments.html',
+  styleUrl: './view-all-appointments.scss',
   providers: [DatePipe]
 })
-export class ViewTodaysAppointments implements OnInit {
+export class ViewAllAppointments implements OnInit  {
 
   private appointmentService = inject(Appointment);
   private toast = inject(ToastService);
@@ -92,7 +91,6 @@ export class ViewTodaysAppointments implements OnInit {
     };
 
   ngOnInit(): void {
-    // this.loadFullData();
     this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
@@ -140,7 +138,6 @@ changeStatus(status: number) {
   this.loadAppointments();
 }
 
-
 loadAllDoctors() {
       this.appointmentService.getDoctor().subscribe({
         next: (res) => {
@@ -156,18 +153,15 @@ loadDoctorDetails() {
   this.isDoctorRole = (role?.toLowerCase() === 'doctor');
 
   if (this.isDoctorRole) {
-    // Load logged-in doctor details
     this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
       next: (response: any) => {
         if (response.isSuccess) {
           this.doctorDetails = response.data;
           console.log(response.data);
-          // ⚡ Set doctor userId directly in the form
           this.addAppointmentForm.patchValue({
             doctor: response.data.doctorId
           });
 
-          // ⚡ Set doctor fee automatically
           this.addAppointmentForm.patchValue({
             appointmentFee: response.data.consultationFee
           });
@@ -177,7 +171,6 @@ loadDoctorDetails() {
     });
   } 
   else {
-    // For receptionist → load all doctors
     this.loadAllDoctors();
   }
 }
@@ -185,8 +178,7 @@ loadDoctorDetails() {
 
 loadAppointments() {
   this.appointmentService
-    .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
-    // .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText )
+    .getAllPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
     .subscribe({
       next: (response: any) => {
         console.log("API Response:", response);
@@ -204,7 +196,6 @@ loadAppointments() {
         this.totalCancelled = this.masterData.filter(x => x.appointmentStatus === 4).length;
 
 
-
         if (this.selectedStatus !== 3) {   // 3 = ALL
           this.filteredData = this.masterData.filter(
             x => x.appointmentStatus === this.selectedStatus
@@ -212,7 +203,6 @@ loadAppointments() {
         } else {
           this.filteredData = [...this.masterData];
         }
-
 
         const start = (this.pageNumber - 1) * this.pageSize;
 
@@ -277,7 +267,6 @@ switch (tab) {
     break;
 
   default:
-    // 🔥 "All" tab – DO NOT check status
     this.filteredData = this.masterData;
     break;
 }

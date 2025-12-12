@@ -6,6 +6,7 @@ import { ViewFollowupAppointments } from './view-followup-appointments/view-foll
 import { ViewUpcomingAppointments } from './view-upcoming-appointments/view-upcoming-appointments';
 import { FormsModule } from '@angular/forms';
 import { AddAppointment } from './add-appointment/add-appointment';
+import { ViewAllAppointments } from './view-all-appointments/view-all-appointments';
 
 const routes: Routes = [
   {path: 'todayappointments', component:ViewTodaysAppointments},
@@ -13,6 +14,7 @@ const routes: Routes = [
   {path: 'followupappointments', component:ViewFollowupAppointments},
   {path: 'upcomingappointments', component:ViewUpcomingAppointments},
   {path: 'addappointment', component:AddAppointment},
+  {path: 'allappointments', component:ViewAllAppointments},
 ];
 
 @NgModule({
