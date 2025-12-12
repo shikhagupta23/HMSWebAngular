@@ -1,4 +1,4 @@
-/* drug-duration.component.css */
+/* drug.component.css */
 
 :host {
   display: block;
@@ -78,16 +78,93 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* ===== LIST VIEW ===== */
+
 /* Header Section */
-.d-flex.justify-content-between {
-  padding-bottom: 1.5rem;
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
   border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  gap: 20px;
 }
 
-.d-flex.justify-content-between h1 {
+.list-header h1 {
   font-size: 1.875rem;
   font-weight: 600;
   color: #1f2937;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.header-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-control label {
+  color: #1f2937;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-control .form-select {
+  min-width: 150px;
+}
+
+/* Controls Row */
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.entries-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entries-control .form-select-sm {
+  min-width: 80px;
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.entries-control .text-muted {
+  color: #6b7280 !important;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.search-control {
+  flex: 1;
+  max-width: 350px;
+}
+
+.search-control .form-control {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.search-control .form-control::placeholder {
+  color: #9ca3af;
 }
 
 /* Button Styles */
@@ -97,7 +174,9 @@
   color: white;
   font-weight: 500;
   padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-primary:hover {
@@ -106,281 +185,416 @@
   color: white;
 }
 
-.btn-primary:disabled {
-  background-color: #d1d5db;
-  border-color: #d1d5db;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #6b7280;
-  border-color: #6b7280;
-  font-weight: 500;
-}
-
-.btn-secondary:hover {
-  background-color: #4b5563;
-  border-color: #4b5563;
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 .btn-danger {
   background-color: #dc2626;
   border-color: #dc2626;
-  font-weight: 500;
+  color: white;
 }
 
 .btn-danger:hover {
   background-color: #b91c1c;
-  border-color: #b91c1c;
-}
-
-.btn-sm {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
 }
 
 .btn i {
   margin-right: 0.25rem;
 }
 
-/* Filter and Controls */
-.row.mb-4 {
-  padding: 1rem 0;
-}
-
-.form-select-sm {
-  font-size: 0.875rem;
-  padding: 0.375rem 2rem 0.375rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-}
-
-.form-select-sm:focus {
-  border-color: #0f172a;
-  box-shadow: 0 0 0 0.2rem rgba(15, 23, 42, 0.25);
-}
-
-.gap-3 {
-  gap: 1rem;
-}
-
-.text-muted {
-  color: #6b7280 !important;
-  font-size: 0.875rem;
-}
-
-.input-group {
-  margin-top: 0;
-}
-
-.input-group-text {
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-}
-
-.form-control {
-  border: 1px solid #d1d5db;
-  font-size: 0.875rem;
-}
-
-.form-control:focus {
-  border-color: #0f172a;
-  box-shadow: 0 0 0 0.2rem rgba(15, 23, 42, 0.25);
-}
-
-/* Table Section */
-.table-responsive {
+/* Drugs Table */
+.drugs-table {
+  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   overflow: hidden;
 }
 
-.table {
-  margin-bottom: 0;
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 4fr 2fr;
+  gap: 16px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #374151;
   font-size: 0.875rem;
 }
 
-.table-light {
-  background-color: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
+.col-number {
+  width: 100%;
 }
 
-.table-light th {
-  color: #374151;
-  font-weight: 600;
-  padding: 1rem 0.75rem;
-  white-space: nowrap;
+.col-trade {
+  width: 100%;
 }
 
-.table tbody tr {
+.col-variations {
+  width: 100%;
+}
+
+.col-actions {
+  width: 100%;
+}
+
+.table-body {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 4fr 2fr;
+  gap: 16px;
+  padding: 16px;
   border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
+  align-items: flex-start;
+  transition: background-color 0.2s;
 }
 
-.table tbody tr:hover {
+.table-row:hover {
   background-color: #fafafa;
 }
 
-.table tbody td {
-  padding: 1rem 0.75rem;
-  vertical-align: middle;
-  color: #1f2937;
+.table-row:nth-child(even) {
+  background-color: #fafafa;
 }
 
-.table tbody td:first-child {
-  color: #6b7280;
-  font-weight: 500;
-  width: 5%;
+.table-row.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem;
 }
 
-.badge {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 0.25rem;
+/* Drug Details */
+.drug-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.badge.bg-success {
-  background-color: #10b981 !important;
-  color: white;
+.detail-item {
+  display: flex;
+  gap: 6px;
+  font-size: 0.875rem;
 }
 
-.badge.bg-warning {
-  background-color: #f59e0b !important;
-  color: white;
-}
-
-.badge.bg-danger {
-  background-color: #ef4444 !important;
-  color: white;
-}
-
-/* Modal Styles */
-.modal {
-  z-index: 1050;
-}
-
-.modal.show {
-  display: block;
-  padding-right: 17px;
-}
-
-.modal-dialog {
-  max-width: 600px;
-  margin: 3rem auto;
-}
-
-.modal-content {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1.25rem;
-}
-
-.modal-title {
-  font-size: 1.125rem;
+.detail-item .label {
   font-weight: 600;
   color: #1f2937;
 }
 
-.btn-close {
-  width: 1.5rem;
-  height: 1.5rem;
+.detail-item .value {
+  color: #4b5563;
 }
 
-.modal-body {
-  padding: 1.5rem;
+/* Variations List */
+.variations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.variation-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 10px;
+  background-color: #f9fafb;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.variation-detail {
+  color: #1f2937;
+}
+
+.variation-detail strong {
+  color: #374151;
+}
+
+.variation-advice {
+  color: #059669;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Actions */
+.col-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.col-actions .btn {
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== FORM VIEW ===== */
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+.form-header h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-back {
+  background-color: #0f172a;
+  border-color: #0f172a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background-color: #1e293b;
+}
+
+.btn-back i {
+  margin-right: 0;
+  font-size: 1.125rem;
+}
+
+.form-content {
+  padding: 24px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
 .form-label {
   color: #374151;
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   font-size: 0.875rem;
 }
 
-.form-check {
-  padding-left: 1.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.form-check-input {
-  width: 1rem;
-  height: 1rem;
+.form-control {
+  padding: 10px 12px;
   border: 1px solid #d1d5db;
-  margin-top: 0.125rem;
-}
-
-.form-check-input:checked {
-  background-color: #0f172a;
-  border-color: #0f172a;
-}
-
-.form-check-label {
-  color: #374151;
-  margin-left: 0.5rem;
-  user-select: none;
-}
-
-.modal-footer {
-  background-color: #f9fafb;
-  border-top: 1px solid #e5e7eb;
-  padding: 1rem 1.25rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.modal-backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
-}
-
-/* Empty State */
-.text-center.text-muted.py-4 {
-  padding: 2rem 0;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+.form-control textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Variations Section */
+.variations-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.variations-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 20px;
+}
+
+.variation-form {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.variation-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 2fr auto;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  align-items: flex-start;
+}
+
+.variation-inputs .form-control {
+  margin: 0;
+  width: 100%;
+}
+
+.variation-inputs textarea {
+  min-height: 60px;
+  grid-column: 5;
+}
+
+.btn-remove {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0;
+}
+
+.btn-remove:hover {
+  background-color: #b91c1c;
+}
+
+.btn-remove i {
+  margin: 0;
+}
+
+.btn-add-more {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  margin-top: 16px;
+}
+
+.btn-add-more:hover {
+  background-color: #15803d;
+}
+
+.btn-add-more i {
+  font-size: 1.125rem;
+}
+
+.btn-save {
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.btn-save:hover {
+  background-color: #1e293b;
+}
+
+/* Form Footer */
+.form-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .form-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .variation-inputs {
+    grid-template-columns: 1fr 1fr 1fr auto;
+  }
+
+  .variation-inputs textarea {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 768px) {
-  .container-fluid {
-    padding: 1rem;
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
   }
 
-  .d-flex.justify-content-between {
+  .list-header {
     flex-direction: column;
-    gap: 1rem;
+    align-items: stretch;
   }
 
-  .d-flex.justify-content-between h1 {
-    font-size: 1.5rem;
-  }
-
-  .row.mb-4 {
+  .header-controls {
     flex-direction: column;
-    gap: 1rem;
   }
 
-  .col-md-6 {
-    flex: 0 0 100%;
+  .filter-control {
+    flex-direction: column;
   }
 
-  .modal-dialog {
-    margin: 1rem;
-    max-width: calc(100% - 2rem);
+  .filter-control .form-select {
+    min-width: 100%;
   }
 
-  .table {
-    font-size: 0.75rem;
+  .controls-row {
+    flex-direction: column;
   }
 
-  .btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+  .search-control {
+    max-width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .variation-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-remove {
+    width: 100%;
+  }
+
+  .col-actions {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .col-actions .btn {
+    flex: 1;
   }
 }
