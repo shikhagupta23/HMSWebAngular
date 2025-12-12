@@ -4,6 +4,11 @@ import { environment } from "../../../environment/environment.delvelopment";
 const API_BASE_URL=environment.baseUrl
  
 export const ApiEndpoints = {
+  HOSPITAL: {
+    GET: (page: number, pageSize: number, search: string) =>
+      `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&search=${search}`,
+    ADD: `${API_BASE_URL}/HospitalAPI/Post`
+  },
   AUTH: {
     LOGIN: `${API_BASE_URL}/Auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { AsidebarService } from './services/asidebar-service';
+import { MENU_ITEMS, MenuItem } from '../../constants/menu.config';
 
 @Component({
   selector: 'app-asidebar',
@@ -13,21 +14,17 @@ export class Asidebar {
   private asidebarService = inject(AsidebarService);
   activeMenu: string | null = null;
   doctorDetails: any = null;
-
-  // toggleMenu(menu: string) {
-  //   this.activeMenu = this.activeMenu === menu ? null : menu;
-  // }
-
+  menu:MenuItem[] = [];
+  role: string='';
   ngOnInit(): void {
-    const role = this.authService.getUserRole();
-    console.log('Role:', role);
+    this.role = this.authService.getUserRole() ?? '';
+    this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
     this.loadDoctorDetails();
   }
 
   loadDoctorDetails(){
-      const role = this.authService.getUserRole();
       const doctorId = this.authService.getLoggedInUserId();
-      if(role?.toLowerCase() === 'doctor'){
+      if(this.role?.toLowerCase() === 'doctor'){
 
         this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
           next:(response: any) => {
@@ -41,7 +38,11 @@ export class Asidebar {
           }
         })
       }
-    
   }
-
+  handleMenuAction(action: string) {
+    
+  if (action === 'logout') {
+    this.authService.logout();
+  }
+}
 }

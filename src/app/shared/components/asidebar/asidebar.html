@@ -1,79 +1,39 @@
-							
-							<!-- Profile Sidebar -->
-							<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
-                            <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
-                                <div class="profile-info-widget">
+<!-- Profile Sidebar -->
+<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
+  <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
+    <div class="profile-info-widget">
+      <div class="profile-det-info">
+        <h3>{{ doctorDetails.doctorName }}</h3>
 
-                                    <div class="profile-det-info">
-                                        <h3>{{ doctorDetails.doctorName }}</h3>
+        <div class="patient-details">
+          <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
+        </div>
 
-                                        <div class="patient-details">
-                                            <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
-                                        </div>
+        <span class="badge doctor-role-badge">
+          <i class="fa-solid fa-circle"></i>
+          {{ doctorDetails.doctorDepartmentName }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard-widget">
+    <nav class="dashboard-menu">
+      <ul>
+        <li *ngFor="let item of menu" routerLinkActive="active">
+          <!-- If menu item has a route -->
+          <a *ngIf="item.route" [routerLink]="item.route">
+            <i [class]="item.icon"></i>
+            <span>&nbsp; {{ item.label }}</span>
+          </a>
 
-                                        <span class="badge doctor-role-badge">
-                                            <i class="fa-solid fa-circle"></i>
-                                            {{ doctorDetails.doctorDepartmentName }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                                <div class="dashboard-widget">
-									<nav class="dashboard-menu">
-                                        <ul>
-                                            <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                                                <a routerLink="/doctor">
-                                                    <i class="fa-solid fa-shapes"></i>
-                                                    <span>Dashboard</span>
-                                                </a>
-                                            </li>
-
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/appointment/todayappointments">
-                                                    <i class="fa-solid fa-calendar-days"></i>
-                                                    <span>Today's Appointments</span>
-                                                </a>
-                                            </li>
-
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/appointment/allappointments">
-                                                    <i class="fa-solid fa-calendar-check"></i>
-                                                    <span>All Appointments</span>
-                                                </a>
-                                            </li>
-
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/patient/allpatient">
-                                                    <i class="fa-solid fa-user-injured"></i>
-                                                    <span>My Patients</span>
-                                                </a>
-                                            </li>
-
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/prescription/add">
-                                                    <i class="fa-solid fa-file-medical"></i>
-                                                    <span>Prescriptions</span>
-                                                </a>
-                                            </li>
-
-                                            <li class="d-none" routerLinkActive="active">
-                                                <a routerLink="/doctor/medicine/allmedicine">
-                                                    <i class="fas fa-pills"></i>
-                                                    <span> Medicines</span>
-                                                </a>
-                                            </li>
-
-                                            <li class="d-none" routerLinkActive="active">
-                                                <a routerLink="/doctor/labtest/alllabtest">
-                                                    <i class="fa-solid fa-flask-vial"></i>
-                                                    <span>  LabTests</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-
-									</nav>
-								</div>
-
-							</div>
-							<!-- /Profile Sidebar -->
-							
+          <!-- If menu item is an action (like Logout) -->
+          <a *ngIf="item.action" (click)="handleMenuAction(item.action)">
+            <i [class]="item.icon"></i>
+            <span>&nbsp; {{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+<!-- /Profile Sidebar -->
