@@ -6,6 +6,12 @@ import { Medicine } from './components/medicine/medicine';
 import { Labtest } from './components/labtest/labtest';
 import { Profile } from './components/profile/profile';
 import { FormsModule } from '@angular/forms';
+import { DrugdoseComponent } from '../../shared/components/drugmanagement/drugdose/drugdose';
+import { DrugAdviceComponent } from '../../shared/components/drugmanagement/drugadvice/drugadvice';
+import { DrugStrengthComponent } from '../../shared/components/drugmanagement/drugstrength/drugstrength';
+import { DrugTypeComponent } from '../../shared/components/drugmanagement/drugtype/drugtype';
+import { DrugDurationComponent } from '../../shared/components/drugmanagement/drugduration/drugduration';
+import { DrugComponent } from '../../shared/components/drugmanagement/drug/drug';
 
 const routes: Routes = [
   {path: '', component: Dashboard},
@@ -31,7 +37,32 @@ const routes: Routes = [
    {path: 'prescription',
     loadChildren: () =>
     import('../doctor/modules/prescription/prescription-module').then(m => m.PrescriptionModule),
+  },
+  {
+    path: 'drugmanagement/drugdose',
+    component: DrugdoseComponent
+  },
+  {
+    path: 'drugmanagement/drugadvice',
+    component: DrugAdviceComponent
+  },
+  {
+    path: 'drugmanagement/drugstrength',
+    component: DrugStrengthComponent
+  },
+  {
+    path: 'drugmanagement/drugtype',
+    component: DrugTypeComponent
+  },
+  {
+    path: 'drugmanagement/drugduration',
+    component: DrugDurationComponent
+  },
+  {
+    path: 'drugmanagement/drug',
+    component: DrugComponent
   }
+
 ];
 
 @NgModule({

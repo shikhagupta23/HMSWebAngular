@@ -1,0 +1,235 @@
+<!-- drug.component.html -->
+<div class="main-wrapper">
+    <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-2 col-2">
+                    <a href="/doctor" class="menu-logo">
+                        <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+                    </a>
+                </div>
+                <div class="d-none col-md-10 col-10 text-center">
+                    <h2 class="breadcrumb-title">Drug</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Drug</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+                    <app-asidebar class="h-100"></app-asidebar>
+                </div>
+                <div class="col-lg-8 col-xl-9">
+                    <!-- List View -->
+                    <div *ngIf="!showCreateForm" class="container-fluid p-4">
+                        <!-- Header Section -->
+                        <div class="list-header">
+                            <h1 class="mb-0">Drug List</h1>
+                            <div class="header-controls">
+                                <div class="filter-control">
+                                    <label>Filter:</label>
+                                    <select class="form-select" [(ngModel)]="selectedFilterType" (change)="onFilterChange()">
+                                        <option value="">All Types</option>
+                                        <option *ngFor="let type of filterTypes" [value]="type">{{ type }}</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" (click)="openCreateForm()">
+                                    <span class="me-2">+</span>Create Drug
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filter and Controls Section -->
+                        <div class="controls-row">
+                            <div class="entries-control">
+                                <select class="form-select form-select-sm" [(ngModel)]="entriesPerPage">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="text-muted">entries per page</span>
+                            </div>
+                            <div class="search-control">
+                                <input type="text" class="form-control" placeholder="Search..."
+                                    [(ngModel)]="searchTerm" (input)="onSearch()" />
+                            </div>
+                        </div>
+
+                        <!-- Drug List Table -->
+                        <div class="drugs-table">
+                            <div class="table-header">
+                                <div class="col-number">#</div>
+                                <div class="col-trade">Trade name</div>
+                                <div class="col-variations">Variations</div>
+                                <div class="col-actions">Actions</div>
+                            </div>
+
+                            <div class="table-body">
+                                <div *ngFor="let drug of filteredDrugList; let i = index" class="table-row">
+                                    <div class="col-number">{{ i + 1 }}</div>
+                                    <div class="col-trade">
+                                        <div class="drug-details">
+                                            <div class="detail-item">
+                                                <span class="label">Trade name:</span>
+                                                <span class="value">{{ drug.tradeName }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="label">Generic name:</span>
+                                                <span class="value">{{ drug.genericName }}</span>
+                                            </div>
+                                            <div class="detail-item" *ngIf="drug.warning">
+                                                <span class="label">Warning:</span>
+                                                <span class="value">{{ drug.warning }}</span>
+                                            </div>
+                                            <div class="detail-item" *ngIf="drug.note">
+                                                <span class="label">Note:</span>
+                                                <span class="value">{{ drug.note }}</span>
+                                            </div>
+                                            <div class="detail-item" *ngIf="drug.sideEffect">
+                                                <span class="label">Side effect:</span>
+                                                <span class="value">{{ drug.sideEffect }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-variations">
+                                        <div class="variations-list">
+                                            <div *ngFor="let variation of drug.variations" class="variation-item">
+                                                <div class="variation-detail">
+                                                    <strong>Type:</strong> {{ variation.type }}
+                                                    <strong>Strength:</strong> [ {{ variation.strength.join('", "') }} ]
+                                                    <strong>Dose:</strong> [ {{ variation.dose.join('", "') }} ]
+                                                    <strong>Duration:</strong> [ {{ variation.duration.join('", "') }} ]
+                                                </div>
+                                                <div *ngIf="variation.advice" class="variation-advice">
+                                                    <strong>Advice:</strong> {{ variation.advice }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-actions">
+                                        <button class="btn btn-sm btn-primary" (click)="openEditForm(drug.id)" title="Edit">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" (click)="deleteDrug(drug.id)" title="Delete">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="filteredDrugList.length === 0" class="table-row empty-state">
+                                    <div class="col-span">No drugs found</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create/Edit Form View -->
+                    <div *ngIf="showCreateForm" class="container-fluid p-4">
+                        <div class="form-header">
+                            <h1 class="mb-0">{{ isEditMode ? 'Edit' : 'Create' }} Drug</h1>
+                            <button class="btn btn-back" (click)="closeForm()">
+                                <i class="bi bi-chevron-left"></i> Back
+                            </button>
+                        </div>
+
+                        <div class="form-content">
+                            <!-- Basic Info Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Trade name</label>
+                                    <input type="text" class="form-control" placeholder="Trade name"
+                                        [(ngModel)]="formData.tradeName" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Generic name</label>
+                                    <input type="text" class="form-control" placeholder="Generic name"
+                                        [(ngModel)]="formData.genericName" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Note</label>
+                                    <input type="text" class="form-control" placeholder="Note"
+                                        [(ngModel)]="formData.note" />
+                                </div>
+                            </div>
+
+                            <!-- Second Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Warning</label>
+                                    <input type="text" class="form-control" placeholder="Warning"
+                                        [(ngModel)]="formData.warning" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Side effect</label>
+                                    <input type="text" class="form-control" placeholder="Side effect"
+                                        [(ngModel)]="formData.sideEffect" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Additional advice</label>
+                                    <textarea class="form-control" placeholder="Additional advice"
+                                        [(ngModel)]="formData.additionalAdvice"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Drug Variations Section -->
+                            <div class="variations-section">
+                                <h2>Drug Variations</h2>
+
+                                <div *ngFor="let variation of formData.variations; let i = index" class="variation-form">
+                                    <div class="variation-inputs">
+                                        <select class="form-control" [(ngModel)]="variation.type" placeholder="Please select">
+                                            <option value="">Please select</option>
+                                            <option value="Tab.">Tab.</option>
+                                            <option value="Syrup">Syrup</option>
+                                            <option value="Injection">Injection</option>
+                                            <option value="Gel">Gel</option>
+                                            <option value="Ointment">Ointment</option>
+                                        </select>
+
+                                        <input type="text" class="form-control" placeholder="Strength, like: 3mg, 5mg"
+                                            [ngModel]="formatArray(variation.strength)"
+                                            (ngModelChange)="variation.strength = parseArray($event)" />
+
+                                        <input type="text" class="form-control" placeholder="Dose, like: 1+1+1, 1+0+1, 0+1+1"
+                                            [ngModel]="formatArray(variation.dose)"
+                                            (ngModelChange)="variation.dose = parseArray($event)" />
+
+                                        <input type="text" class="form-control" placeholder="Duration, like: 7 days, 15 days"
+                                            [ngModel]="formatArray(variation.duration)"
+                                            (ngModelChange)="variation.duration = parseArray($event)" />
+
+                                        <textarea class="form-control" placeholder="Advice"
+                                            [(ngModel)]="variation.advice"></textarea>
+
+                                        <button class="btn btn-remove" (click)="removeVariation(i)" title="Remove">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-add-more" (click)="addVariation()">
+                                    <i class="bi bi-plus"></i> Add More
+                                </button>
+                            </div>
+
+                            <!-- Save Button -->
+                            <div class="form-footer">
+                                <button class="btn btn-save" (click)="saveDrug()">
+                                    <i class="bi bi-lock"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

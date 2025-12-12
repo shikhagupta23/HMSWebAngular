@@ -14,6 +14,12 @@ import { FormsModule } from '@angular/forms';
 import { PrescriptionModule } from './modules/prescription/prescription-module';
 import { AddAppointment } from './modules/appointment/add-appointment/add-appointment';
 import { AddPrescription } from './modules/prescription/add-prescription/add-prescription';
+import { DrugdoseComponent } from '../../shared/components/drugmanagement/drugdose/drugdose';
+import { DrugAdviceComponent } from '../../shared/components/drugmanagement/drugadvice/drugadvice';
+import { DrugStrengthComponent } from '../../shared/components/drugmanagement/drugstrength/drugstrength';
+import { DrugTypeComponent } from '../../shared/components/drugmanagement/drugtype/drugtype';
+import { DrugDurationComponent } from '../../shared/components/drugmanagement/drugduration/drugduration';
+import { DrugComponent } from '../../shared/components/drugmanagement/drug/drug';
 
 
 
@@ -25,7 +31,13 @@ import { AddPrescription } from './modules/prescription/add-prescription/add-pre
     Labtest,
     Profile,
     Header,
-    Footer
+    Footer,
+    DrugdoseComponent,
+    DrugAdviceComponent,
+    DrugStrengthComponent,
+    DrugTypeComponent,
+    DrugDurationComponent,
+    DrugComponent
   ],
   imports: [
     CommonModule,

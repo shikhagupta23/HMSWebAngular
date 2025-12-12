@@ -1,0 +1,217 @@
+<div class="main-wrapper">
+	   <div class="breadcrumb-bar-two">
+        <div class="container">
+            <div class="row align-items-center inner-banner">
+                <div class="col-md-2 col-2">
+                    <a href="/receptionist" class="menu-logo">
+                        <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+                    </a>
+                </div>
+                <div class="d-none col-md-10 col-10 text-center">
+                    <h2 class="breadcrumb-title">Add Prescription</h2>
+                    <nav aria-label="breadcrumb" class="page-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+                            <li class="breadcrumb-item">Add Prescription</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="container">
+
+          <div class="row">	
+						<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+							<app-asidebar class="h-100"></app-asidebar>
+						</div>	
+            <div class="col-lg-8 col-xl-9">
+              
+
+
+
+          <!-- dose-list.component.html -->
+<div class="container-fluid p-4">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Dose List</h1>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <span class="me-2">+</span>Create Dose
+    </button>
+  </div>
+
+  <!-- Filter and Controls Section -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select form-select-sm" style="max-width: 120px;" [(ngModel)]="entriesPerPage">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span class="text-muted">entries per page</span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input 
+          type="text" 
+          class="form-control border-start-0" 
+          placeholder="Search..." 
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="mb-4">
+    <select class="form-select" [(ngModel)]="filterType">
+      <option value="">Filter: Please select</option>
+      <option *ngFor="let type of drugTypes" [value]="type">{{ type }}</option>
+    </select>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Dose</th>
+          <th>Drug type</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dose of filteredDoses; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ dose.dose }}</td>
+          <td>{{ dose.drugType }}</td>
+          <td>
+            <span class="badge bg-success">{{ dose.status }}</span>
+          </td>
+          <td>
+            <button 
+              class="btn btn-sm btn-primary me-2" 
+              (click)="editDose(dose.id)"
+              title="Edit"
+            >
+              <i class="bi bi-pencil-square"></i> Edit
+            </button>
+            <button 
+              class="btn btn-sm btn-danger" 
+              (click)="deleteDose(dose.id)"
+              title="Delete"
+            >
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div 
+    class="modal" 
+    [class.show]="showModal" 
+    [style.display]="showModal ? 'block' : 'none'"
+    tabindex="-1"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create Dose</h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="closeModal()"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="dose" class="form-label">Dose</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="dose"
+              [(ngModel)]="formData.dose"
+              placeholder="Enter dose"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="drugType" class="form-label">Drug Type</label>
+            <select 
+              class="form-select" 
+              id="drugType"
+              [(ngModel)]="formData.drugType"
+            >
+              <option value="">Select One</option>
+              <option *ngFor="let type of drugTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <div class="form-check">
+              <input 
+                class="form-check-input" 
+                type="radio" 
+                id="active"
+                value="Active"
+                [(ngModel)]="formData.status"
+                name="status"
+              />
+              <label class="form-check-label" for="active">Active</label>
+            </div>
+            <div class="form-check">
+              <input 
+                class="form-check-input" 
+                type="radio" 
+                id="inactive"
+                value="Inactive"
+                [(ngModel)]="formData.status"
+                name="status"
+              />
+              <label class="form-check-label" for="inactive">Inactive</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeModal()"
+          >
+            Back
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary" 
+            (click)="createDose()"
+          >
+            <i class="bi bi-check-lg me-2"></i>Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div 
+    class="modal-backdrop fade" 
+    [class.show]="showModal"
+    [style.display]="showModal ? 'block' : 'none'"
+  ></div>
+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
