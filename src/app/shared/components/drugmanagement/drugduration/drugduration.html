@@ -20,14 +20,15 @@
             </div>
         </div>
     </div>
+
     <div class="content">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 col-xl-3 theiaStickySidebar">
                     <app-asidebar class="h-100"></app-asidebar>
                 </div>
+                
                 <div class="col-lg-8 col-xl-9">
-                    <!-- drug-duration.component.html -->
                     <div class="container-fluid p-4">
                         <!-- Header Section -->
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -67,15 +68,15 @@
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 5%;">#</th>
-                                        <th style="width: 60%;">Duration</th>
+                                        <th style="width: 8%;">#</th>
+                                        <th style="width: 55%;">Duration</th>
                                         <th style="width: 15%;">Status</th>
-                                        <th style="width: 20%;">Actions</th>
+                                        <th style="width: 22%;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let drugDuration of filteredDrugDurationList; let i = index">
-                                        <td>{{ i + 1 }}</td>
+                                    <tr *ngFor="let drugDuration of paginatedDrugDurationList; let i = index">
+                                        <td>{{ getStartIndex() + i }}</td>
                                         <td>{{ drugDuration.duration }}</td>
                                         <td>
                                             <span class="badge bg-success">{{ drugDuration.status }}</span>
@@ -91,7 +92,7 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr *ngIf="filteredDrugDurationList.length === 0">
+                                    <tr *ngIf="paginatedDrugDurationList.length === 0">
                                         <td colspan="4" class="text-center text-muted py-4">
                                             No drug duration found
                                         </td>
@@ -100,59 +101,87 @@
                             </table>
                         </div>
 
-                        <!-- Modal -->
-                        <div class="modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"
-                            tabindex="-1">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Drug Duration</h5>
-                                        <button type="button" class="btn-close" (click)="closeModal()"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label for="duration" class="form-label">Duration</label>
-                                            <input 
-                                                type="text" 
-                                                class="form-control" 
-                                                id="duration"
-                                                [(ngModel)]="formData.duration" 
-                                                placeholder="Enter duration (e.g., 7 Days, 1 Month)"
-                                            />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Status</label>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" id="active" value="Active"
-                                                    [(ngModel)]="formData.status" name="status" />
-                                                <label class="form-check-label" for="active">Active</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" id="inactive"
-                                                    value="Inactive" [(ngModel)]="formData.status" name="status" />
-                                                <label class="form-check-label" for="inactive">Inactive</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" (click)="closeModal()">
-                                            Back
-                                        </button>
-                                        <button type="button" class="btn btn-primary" (click)="saveDrugDuration()"
-                                            [disabled]="!formData.duration.trim()">
-                                            <i class="bi bi-check-lg me-2"></i>Save
-                                        </button>
-                                    </div>
-                                </div>
+                        <!-- Pagination Section -->
+                        <div class="pagination-wrapper" *ngIf="filteredDrugDurationList.length > 0">
+                            <div class="pagination-info">
+                                Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ filteredDrugDurationList.length }} entries
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-pagination" 
+                                        [disabled]="currentPage === 1" 
+                                        (click)="goToPage(currentPage - 1)">
+                                    Previous
+                                </button>
+                                
+                                <button *ngFor="let page of getPageNumbers()" 
+                                        class="btn btn-pagination" 
+                                        [class.active]="page === currentPage"
+                                        [disabled]="page === -1"
+                                        (click)="page !== -1 && goToPage(page)">
+                                    {{ page === -1 ? '...' : page }}
+                                </button>
+                                
+                                <button class="btn btn-pagination" 
+                                        [disabled]="currentPage === totalPages" 
+                                        (click)="goToPage(currentPage + 1)">
+                                    Next
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Modal Backdrop -->
-                        <div class="modal-backdrop fade" [class.show]="showModal"
-                            [style.display]="showModal ? 'block' : 'none'"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"
+        tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Drug Duration</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="duration"
+                            [(ngModel)]="formData.duration" 
+                            placeholder="Enter duration (e.g., 7 Days, 1 Month)"
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="active" value="Active"
+                                [(ngModel)]="formData.status" name="status" />
+                            <label class="form-check-label" for="active">Active</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="inactive"
+                                value="Inactive" [(ngModel)]="formData.status" name="status" />
+                            <label class="form-check-label" for="inactive">Inactive</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+                        Back
+                    </button>
+                    <button type="button" class="btn btn-primary" (click)="saveDrugDuration()"
+                        [disabled]="!formData.duration.trim()">
+                        <i class="bi bi-check-lg me-2"></i>Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop fade" [class.show]="showModal"
+        [style.display]="showModal ? 'block' : 'none'"></div>
 </div>

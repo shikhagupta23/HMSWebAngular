@@ -27,7 +27,6 @@
                     <app-asidebar class="h-100"></app-asidebar>
                 </div>
                 <div class="col-lg-8 col-xl-9">
-                    <!-- drug-strength.component.html -->
                     <div class="container-fluid p-4">
                         <!-- Header Section -->
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -74,8 +73,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let drug of filteredDrugList; let i = index">
-                                        <td>{{ i + 1 }}</td>
+                                    <tr *ngFor="let drug of paginatedDrugList; let i = index">
+                                        <td>{{ getStartIndex() + i }}</td>
                                         <td>{{ drug.strength }}</td>
                                         <td>
                                             <span class="badge bg-success">{{ drug.status }}</span>
@@ -91,13 +90,44 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr *ngIf="filteredDrugList.length === 0">
+                                    <tr *ngIf="paginatedDrugList.length === 0">
                                         <td colspan="4" class="text-center text-muted py-4">
                                             No drug strength found
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="pagination-wrapper" *ngIf="filteredDrugList.length > 0">
+                            <div class="pagination-info">
+                                Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ filteredDrugList.length }} entries
+                            </div>
+                            <div class="pagination-controls">
+                                <button 
+                                    class="btn-pagination" 
+                                    (click)="goToPage(currentPage - 1)"
+                                    [disabled]="currentPage === 1">
+                                    Previous
+                                </button>
+                                
+                                <button 
+                                    *ngFor="let page of getPageNumbers()"
+                                    class="btn-pagination"
+                                    [class.active]="page === currentPage"
+                                    [disabled]="page === -1"
+                                    (click)="page !== -1 && goToPage(page)">
+                                    {{ page === -1 ? '...' : page }}
+                                </button>
+                                
+                                <button 
+                                    class="btn-pagination"
+                                    (click)="goToPage(currentPage + 1)"
+                                    [disabled]="currentPage === totalPages">
+                                    Next
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Modal -->

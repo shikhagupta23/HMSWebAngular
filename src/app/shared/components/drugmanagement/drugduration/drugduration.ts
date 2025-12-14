@@ -24,11 +24,16 @@ interface FormData {
 export class DrugDurationComponent implements OnInit {
   drugDurationList: DrugDuration[] = [];
   filteredDrugDurationList: DrugDuration[] = [];
+  paginatedDrugDurationList: DrugDuration[] = [];
   entriesPerPage: number = 20;
   searchTerm: string = '';
   showModal: boolean = false;
   isEditMode: boolean = false;
   editingDrugDurationId: number | null = null;
+  
+  // Pagination properties
+  currentPage: number = 1;
+  totalPages: number = 1;
   
   formData: FormData = {
     duration: '',
@@ -50,17 +55,24 @@ export class DrugDurationComponent implements OnInit {
       { id: 7, duration: '50', status: 'Active' },
       { id: 8, duration: '৫ দিন', status: 'Active' },
       { id: 9, duration: '1 Year', status: 'Active' },
-      { id: 10, duration: '6 Month', status: 'Active' }
+      { id: 10, duration: '6 Month', status: 'Active' },
+      { id: 11, duration: '3 Months', status: 'Active' },
+      { id: 12, duration: '1 Month', status: 'Active' },
+      { id: 13, duration: '2 Weeks', status: 'Active' },
+      { id: 14, duration: '10 Days', status: 'Active' },
+      { id: 15, duration: '14 Days', status: 'Active' }
     ];
-    this.filteredDrugDurationList = [...this.drugDurationList];
+    this.filterDrugDurationList();
   }
 
   onSearch(): void {
+    this.currentPage = 1;
     this.filterDrugDurationList();
   }
 
   onEntriesChange(): void {
-    console.log(`Entries per page: ${this.entriesPerPage}`);
+    this.currentPage = 1;
+    this.updatePagination();
   }
 
   filterDrugDurationList(): void {
@@ -71,6 +83,67 @@ export class DrugDurationComponent implements OnInit {
     } else {
       this.filteredDrugDurationList = [...this.drugDurationList];
     }
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredDrugDurationList.length / this.entriesPerPage);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
+    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
+    const endIndex = startIndex + this.entriesPerPage;
+    this.paginatedDrugDurationList = this.filteredDrugDurationList.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push(-1);
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push(-1);
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.entriesPerPage + 1;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.entriesPerPage, this.filteredDrugDurationList.length);
   }
 
   openCreateModal(): void {
@@ -113,14 +186,12 @@ export class DrugDurationComponent implements OnInit {
     }
 
     if (this.isEditMode && this.editingDrugDurationId !== null) {
-      // Update existing drug duration
       const drugDuration = this.drugDurationList.find(d => d.id === this.editingDrugDurationId);
       if (drugDuration) {
         drugDuration.duration = this.formData.duration;
         drugDuration.status = this.formData.status;
       }
     } else {
-      // Create new drug duration
       const newId = Math.max(...this.drugDurationList.map(d => d.id), 0) + 1;
       this.drugDurationList.push({
         id: newId,
