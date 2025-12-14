@@ -1,107 +1,127 @@
-							
-							<!-- Profile Sidebar -->
-							<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
-                            <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
-                                <div class="profile-info-widget">
+<!-- Profile Sidebar -->
+<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
+    <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
+        <div class="profile-info-widget">
+            <div class="profile-det-info">
+                <h3>{{ doctorDetails.doctorName }}</h3>
+                <div class="patient-details">
+                    <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
+                </div>
+                <span class="badge doctor-role-badge">
+                    <i class="fa-solid fa-circle"></i>
+                    {{ doctorDetails.doctorDepartmentName }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-widget">
+        <nav class="dashboard-menu">
+            <ul>
+                <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <a routerLink="/doctor">
+                        <i class="fa-solid fa-shapes"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-                                    <div class="profile-det-info">
-                                        <h3>{{ doctorDetails.doctorName }}</h3>
+                <li routerLinkActive="active">
+                    <a routerLink="/doctor/appointment/todayappointments">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Today's Appointments</span>
+                    </a>
+                </li>
 
-                                        <div class="patient-details">
-                                            <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
-                                        </div>
+                <li routerLinkActive="active">
+                    <a routerLink="/doctor/appointment/allappointments">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>All Appointments</span>
+                    </a>
+                </li>
 
-                                        <span class="badge doctor-role-badge">
-                                            <i class="fa-solid fa-circle"></i>
-                                            {{ doctorDetails.doctorDepartmentName }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                                <div class="dashboard-widget">
-									<nav class="dashboard-menu">
-                                        <ul>
-                                            <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                                                <a routerLink="/doctor">
-                                                    <i class="fa-solid fa-shapes"></i>
-                                                    <span>Dashboard</span>
-                                                </a>
-                                            </li>
+                <li routerLinkActive="active">
+                    <a routerLink="/doctor/patient/allpatient">
+                        <i class="fa-solid fa-user-injured"></i>
+                        <span>My Patients</span>
+                    </a>
+                </li>
 
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/appointment/todayappointments">
-                                                    <i class="fa-solid fa-calendar-days"></i>
-                                                    <span>Today's Appointments</span>
-                                                </a>
-                                            </li>
+                <li routerLinkActive="active">
+                    <a routerLink="/doctor/prescription/add">
+                        <i class="fa-solid fa-file-medical"></i>
+                        <span>Prescriptions</span>
+                    </a>
+                </li>
 
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/appointment/allappointments">
-                                                    <i class="fa-solid fa-calendar-check"></i>
-                                                    <span>All Appointments</span>
-                                                </a>
-                                            </li>
+                <!-- Drug Management Collapsible Menu -->
+                <li [ngClass]="{'has-submenu': true, 'submenu-open': activeMenu === 'drugManagement'}">
+                    <a (click)="toggleMenu('drugManagement'); $event.preventDefault()" href="javascript:void(0)">
+                        <i class="fa-solid fa-pills"></i>
+                        <span>Drug Management</span>
+                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                    </a>
+                    
+                    <!-- Submenu -->
+                    <ul class="submenu" *ngIf="activeMenu === 'drugManagement'" [@slideDown]>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drugdose">
+                                <i class="fa-solid fa-syringe"></i>
+                                <span>Drug Doses</span>
+                            </a>
+                        </li>
 
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/patient/allpatient">
-                                                    <i class="fa-solid fa-user-injured"></i>
-                                                    <span>My Patients</span>
-                                                </a>
-                                            </li>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drugadvice">
+                                <i class="fa-solid fa-comment-medical"></i>
+                                <span>Drug Advice</span>
+                            </a>
+                        </li>
 
-                                            <li routerLinkActive="active">
-                                                <a routerLink="/doctor/prescription/add">
-                                                    <i class="fa-solid fa-file-medical"></i>
-                                                    <span>Prescriptions</span>
-                                                </a>
-                                              </li>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drugstrength">
+                                <i class="fa-solid fa-weight-hanging"></i>
+                                <span>Drug Strength</span>
+                            </a>
+                        </li>
 
-                                            <li routerLinkActive="active">
-                                               <a routerLink="/doctor/drugmanagement/drugdose">
-                                                  <i class="fa-solid fa-pills"></i>
-                                                   <span>Drug Dose</span>
-                                                </a>
-                                            </li>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drugtype">
+                                <i class="fa-solid fa-capsules"></i>
+                                <span>Drug Type</span>
+                            </a>
+                        </li>
 
-                                            <li routerLinkActive="active">
-                                               <a routerLink="/doctor/drugmanagement/drugadvice">
-                                                  <i class="fa-solid fa-pills"></i>
-                                                   <span>Drug Advice</span>
-                                                </a>
-                                            </li>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drugduration">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>Drug Duration</span>
+                            </a>
+                        </li>
 
-                                            <li routerLinkActive="active">
-                                               <a routerLink="/doctor/drugmanagement/drugstrength">
-                                                  <i class="fa-solid fa-pills"></i>
-                                                   <span>Drug Strength</span>
-                                                </a>
-                                            </li>
+                        <li routerLinkActive="active">
+                            <a routerLink="/doctor/drugmanagement/drug">
+                                <i class="fa-solid fa-pills"></i>
+                                <span>Drugs</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                                             <li routerLinkActive="active">
-                                               <a routerLink="/doctor/drugmanagement/drugtype">
-                                                  <i class="fa-solid fa-pills"></i>
-                                                   <span>Drug Type</span>
-                                                </a>
-                                            </li>
+                <li class="d-none" routerLinkActive="active">
+                    <a routerLink="/doctor/medicine/allmedicine">
+                        <i class="fas fa-pills"></i>
+                        <span>Medicines</span>
+                    </a>
+                </li>
 
-                                            <li class="d-none" routerLinkActive="active">
-                                                <a routerLink="/doctor/medicine/allmedicine">
-                                                    <i class="fas fa-pills"></i>
-                                                    <span> Medicines</span>
-                                                </a>
-                                            </li>
-
-                                            <li class="d-none" routerLinkActive="active">
-                                                <a routerLink="/doctor/labtest/alllabtest">
-                                                    <i class="fa-solid fa-flask-vial"></i>
-                                                    <span>  LabTests</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-
-									</nav>
-								</div>
-
-							</div>
-							<!-- /Profile Sidebar -->
-							
+                <li class="d-none" routerLinkActive="active">
+                    <a routerLink="/doctor/labtest/alllabtest">
+                        <i class="fa-solid fa-flask-vial"></i>
+                        <span>LabTests</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- /Profile Sidebar -->

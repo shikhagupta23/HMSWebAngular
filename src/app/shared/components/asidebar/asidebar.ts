@@ -14,9 +14,9 @@ export class Asidebar {
   activeMenu: string | null = null;
   doctorDetails: any = null;
 
-  // toggleMenu(menu: string) {
-  //   this.activeMenu = this.activeMenu === menu ? null : menu;
-  // }
+  toggleMenu(menu: string) {
+    this.activeMenu = this.activeMenu === menu ? null : menu;
+  }
 
   ngOnInit(): void {
     const role = this.authService.getUserRole();
@@ -24,24 +24,21 @@ export class Asidebar {
     this.loadDoctorDetails();
   }
 
-  loadDoctorDetails(){
-      const role = this.authService.getUserRole();
-      const doctorId = this.authService.getLoggedInUserId();
-      if(role?.toLowerCase() === 'doctor'){
-
-        this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
-          next:(response: any) => {
-            console.log("Doctor Details : ", response );
-              if (response.isSuccess) {
-                this.doctorDetails = response.data;
-              }
-          },
-          error: (err) => {
-            console.error("API Error:", err);
+  loadDoctorDetails() {
+    const role = this.authService.getUserRole();
+    const doctorId = this.authService.getLoggedInUserId();
+    if (role?.toLowerCase() === 'doctor') {
+      this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
+        next: (response: any) => {
+          console.log("Doctor Details : ", response);
+          if (response.isSuccess) {
+            this.doctorDetails = response.data;
           }
-        })
-      }
-    
+        },
+        error: (err) => {
+          console.error("API Error:", err);
+        }
+      });
+    }
   }
-
 }
