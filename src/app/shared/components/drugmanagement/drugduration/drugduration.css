@@ -92,18 +92,20 @@
 
 /* Button Styles */
 .btn-primary {
-  background-color: #0f172a;
-  border-color: #0f172a;
-  color: white;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  transition: all 0.2s ease;
+  background-color: #0A0167;
+  border-color: #0A0167;
 }
 
 .btn-primary:hover {
-  background-color: #1e293b;
-  border-color: #1e293b;
-  color: white;
+  background-color: #080152;
+  border-color: #080152;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #060140;
+  border-color: #060140;
+  box-shadow: 0 0 0 0.2rem rgba(10, 1, 103, 0.25);
 }
 
 .btn-primary:disabled {

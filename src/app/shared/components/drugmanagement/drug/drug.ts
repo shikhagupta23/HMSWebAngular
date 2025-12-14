@@ -42,12 +42,17 @@ interface FormData {
 export class DrugComponent implements OnInit {
   drugList: Drug[] = [];
   filteredDrugList: Drug[] = [];
+  paginatedDrugList: Drug[] = [];
   entriesPerPage: number = 20;
   searchTerm: string = '';
   selectedFilterType: string = '';
   showCreateForm: boolean = false;
   isEditMode: boolean = false;
   editingDrugId: number | null = null;
+
+  // Pagination properties
+  currentPage: number = 1;
+  totalPages: number = 1;
 
   filterTypes = ['Tab.', 'Syrup', 'Injection', 'Gel', 'Ointment'];
 
@@ -147,11 +152,18 @@ export class DrugComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.currentPage = 1;
     this.filterDrugList();
   }
 
   onFilterChange(): void {
+    this.currentPage = 1;
     this.filterDrugList();
+  }
+
+  onEntriesPerPageChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
   }
 
   filterDrugList(): void {
@@ -171,6 +183,67 @@ export class DrugComponent implements OnInit {
     }
 
     this.filteredDrugList = filtered;
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredDrugList.length / this.entriesPerPage);
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
+    }
+    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
+    const endIndex = startIndex + this.entriesPerPage;
+    this.paginatedDrugList = this.filteredDrugList.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // ellipsis
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push(1);
+        pages.push(-1); // ellipsis
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push(-1); // ellipsis
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // ellipsis
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.entriesPerPage + 1;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.entriesPerPage, this.filteredDrugList.length);
   }
 
   openCreateForm(): void {

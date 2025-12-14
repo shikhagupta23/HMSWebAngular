@@ -21,13 +21,11 @@
     </div>
     <div class="content">
         <div class="container">
-
             <div class="row">
                 <div class="col-lg-4 col-xl-3 theiaStickySidebar">
                     <app-asidebar class="h-100"></app-asidebar>
                 </div>
                 <div class="col-lg-8 col-xl-9">
-
                     <!-- drug-advice.component.html -->
                     <div class="container-fluid p-4">
                         <!-- Header Section -->
@@ -43,7 +41,7 @@
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center gap-3">
                                     <select class="form-select form-select-sm" style="max-width: 120px;"
-                                        [(ngModel)]="entriesPerPage">
+                                        [(ngModel)]="entriesPerPage" (change)="onEntriesPerPageChange()">
                                         <option value="10">10</option>
                                         <option value="20">20</option>
                                         <option value="50">50</option>
@@ -58,7 +56,7 @@
                                         <i class="bi bi-search"></i>
                                     </span>
                                     <input type="text" class="form-control border-start-0" placeholder="Search..."
-                                        [(ngModel)]="searchTerm" />
+                                        [(ngModel)]="searchTerm" (input)="onSearch()" />
                                 </div>
                             </div>
                         </div>
@@ -75,8 +73,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let advice of filteredAdvices; let i = index">
-                                        <td>{{ i + 1 }}</td>
+                                    <tr *ngFor="let advice of paginatedAdvices; let i = index">
+                                        <td>{{ getStartIndex() + i }}</td>
                                         <td>{{ advice.advice }}</td>
                                         <td>
                                             <span class="badge bg-success">{{ advice.status }}</span>
@@ -92,13 +90,41 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr *ngIf="filteredAdvices.length === 0">
+                                    <tr *ngIf="paginatedAdvices.length === 0">
                                         <td colspan="4" class="text-center text-muted py-4">
                                             No drug advice found
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Pagination Section -->
+                        <div class="pagination-wrapper" *ngIf="filteredAdvices.length > 0">
+                            <div class="pagination-info">
+                                Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ filteredAdvices.length }} entries
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-pagination" 
+                                        [disabled]="currentPage === 1" 
+                                        (click)="goToPage(currentPage - 1)">
+                                    Previous
+                                </button>
+                                
+                                <button *ngFor="let page of getPageNumbers()" 
+                                        class="btn btn-pagination" 
+                                        [class.active]="page === currentPage"
+                                        [disabled]="page === -1"
+                                        (click)="page !== -1 && goToPage(page)">
+                                    {{ page === -1 ? '...' : page }}
+                                </button>
+                                
+                                <button class="btn btn-pagination" 
+                                        [disabled]="currentPage === totalPages" 
+                                        (click)="goToPage(currentPage + 1)">
+                                    Next
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Modal -->

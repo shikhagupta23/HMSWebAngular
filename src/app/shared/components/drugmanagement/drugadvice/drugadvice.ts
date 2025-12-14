@@ -25,20 +25,97 @@ export class DrugAdviceComponent implements OnInit {
     { id: 9, advice: 'Shake the bottle well before each use if it is a suspension.', status: 'Active' }
   ];
 
+  filteredAdvices: DrugAdvice[] = [];
+  paginatedAdvices: DrugAdvice[] = [];
   showModal = false;
   isEditMode = false;
   formData: DrugAdvice = { id: 0, advice: '', status: 'Active' };
   entriesPerPage = 20;
   searchTerm = '';
 
-  get filteredAdvices(): DrugAdvice[] {
-    return this.advices.filter(advice =>
-      advice.advice.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
-  }
+  // Pagination properties
+  currentPage: number = 1;
+  totalPages: number = 1;
 
   ngOnInit(): void {
-    // Initialize component
+    this.filterAdvices();
+  }
+
+  filterAdvices(): void {
+    this.filteredAdvices = this.advices.filter(advice =>
+      advice.advice.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+    this.updatePagination();
+  }
+
+  onSearch(): void {
+    this.currentPage = 1;
+    this.filterAdvices();
+  }
+
+  onEntriesPerPageChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredAdvices.length / this.entriesPerPage);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
+    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
+    const endIndex = startIndex + this.entriesPerPage;
+    this.paginatedAdvices = this.filteredAdvices.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // ellipsis
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push(1);
+        pages.push(-1); // ellipsis
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push(-1); // ellipsis
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // ellipsis
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.entriesPerPage + 1;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.entriesPerPage, this.filteredAdvices.length);
   }
 
   openCreateModal(): void {
@@ -80,12 +157,14 @@ export class DrugAdviceComponent implements OnInit {
         this.advices.push(newAdvice);
       }
       this.closeModal();
+      this.filterAdvices();
     }
   }
 
   deleteAdvice(id: number): void {
     if (confirm('Are you sure you want to delete this advice?')) {
       this.advices = this.advices.filter(a => a.id !== id);
+      this.filterAdvices();
     }
   }
 }
