@@ -160,5 +160,9 @@ export class Users implements OnInit {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
+  onPageSizeChange() {
+    this.pageNumber = 1;
+    this.loadUsers();
+  }
 
 }

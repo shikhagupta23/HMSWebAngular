@@ -7,7 +7,8 @@ import { SharedModule } from '../../shared/shared-module';
 import { Hospital } from './components/hospital/hospital';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Users } from './components/users/users';
-import { Features } from './components/features/features';
+import { CreateFeature } from './components/create-feature/create-feature';
+import { FeatureAssignment } from './components/feature-assignment/feature-assignment';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { Features } from './components/features/features';
     Dashboard,
     Hospital,
     Users,
-    Features,
+    CreateFeature,
+    FeatureAssignment,
   ],
   imports: [
     CommonModule,

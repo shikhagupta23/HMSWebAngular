@@ -62,13 +62,18 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/superadmin/user",
     roles: ["SuperAdmin"]
   },
-  {
-    label: "Feature",
-    icon: "fa-solid fa-wrench",
-    route: "demo",
-    roles: ["SuperAdmin"]
-  },
- 
+ {
+  label: "Create Feature",
+  icon: "fa-solid fa-square-plus",
+  route: "/superadmin/create-feature",
+  roles: ["SuperAdmin"]
+},
+{
+  label: "Feature Assignment",
+  icon: "fa-solid fa-user-gear",
+  route: "demo",
+  roles: ["SuperAdmin"]
+},
   {
   label: "Logout",
   icon: "fa-solid fa-right-from-bracket",

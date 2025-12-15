@@ -74,6 +74,12 @@ export class Hospital implements OnInit {
     this.loadHospitals();
   }
 
+  onPageSizeChange() {
+    // reset to first page on page size change and reload with new pageSize
+    this.pageNumber = 1;
+    this.loadHospitals();
+  }
+
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
     this.pageNumber = page;
