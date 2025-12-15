@@ -1,0 +1,158 @@
+
+<!-- Main Wrapper -->
+		<div class="main-wrapper">
+
+			<div class="menu-header">
+			</div>
+			<!-- Breadcrumb -->
+			<div class="breadcrumb-bar-two">
+				<div class="container">
+					<div class="row align-items-center inner-banner">
+						<div class="col-md-2 col-2">
+							<a href="/receptionist" class="menu-logo">
+								<img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+							</a>
+						</div>
+						<div class="d-none col-md-10 col-10 text-center">
+							<h2 class="breadcrumb-title">Dashboard</h2>
+							<nav aria-label="breadcrumb" class="page-breadcrumb">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item" aria-current="page">Dashboard</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Breadcrumb -->
+			
+			<!-- Page Content -->
+			<div class="content">
+				<div class="container">
+
+					<div class="row">
+						<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+							<app-asidebar style="position: fixed;
+    width: 22%;
+    height: 60%;"></app-asidebar>
+						</div>
+						<div class="col-lg-8 col-xl-9">
+				      
+                    <div class="dashboard-header">
+                        <h3>Hospitals</h3>
+
+                        <ul class="header-list-btns">
+                            <li class="me-2">
+                                <div class="input-block dash-search-input">
+                                    <input type="text" class="form-control" placeholder="Search Patient..."
+                                        [(ngModel)]="searchTerm" (input)="onSearch()">
+                                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHospitalModal">+ Add New</a>
+                            </li>
+                        </ul>
+                    </div>
+
+						<div class="hospital-list">
+							<div *ngFor="let h of dataList" class="hospital-card card mb-3">
+								<div class="card-body d-flex align-items-center">
+									<div class="avatar me-3"> <i class="fa fa-hospital fa-2x"></i> </div>
+									<div class="flex-fill">
+										<div class="d-flex align-items-start">
+											<h5 class="mb-1 me-4">{{ h.hospitalName || h.HospitalName || h.name }}</h5>
+										</div>
+										<div class="row mt-2 w-100">
+											<div class="col-md-4 small text-muted">
+												<span class="d-block">Registration: <strong class="text-dark">{{ h.hospitalRegistrationNumber || h.HospitalRegistrationNumber }}</strong></span>
+											</div>
+											<div class="col-md-4 small text-muted text-center">
+												<span class="d-block">Phone</span>
+												<strong class="text-dark">{{ h.hospitalPhoneNumber || h.HospitalPhoneNumber || h.phone }}</strong>
+											</div>
+											<div class="col-md-4 small text-muted text-end">
+												<span class="d-block">Address</span>
+												<strong class="text-dark">{{ h.hospitalAddress || h.HospitalAddress || h.address }}</strong>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Pagination -->
+						<div class="d-flex justify-content-between align-items-center mt-3">
+							<div class="text-muted">Showing page {{ pageNumber }} of {{ totalPages }}</div>
+							<ul class="pagination mb-0">
+								<li class="page-item"><a class="page-link" (click)="previousPage()">&laquo;</a></li>
+								<li class="page-item" *ngFor="let p of pages" [class.active]="pageNumber===p"><a class="page-link" (click)="goToPage(p)">{{ p }}</a></li>
+								<li class="page-item"><a class="page-link" (click)="nextPage()">&raquo;</a></li>
+							</ul>
+						</div>
+					
+						</div>
+						</div>
+					</div>
+
+			<!-- Add Hospital Modal -->
+			<div class="modal fade" id="addHospitalModal" tabindex="-1" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+					<div class="modal-content rounded-4 border-0 shadow">
+
+						<div class="modal-header">
+							<h5 class="modal-title">Add Hospital</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+
+						<div class="modal-body">
+							<form [formGroup]="addHospitalForm" (ngSubmit)="onSubmit()">
+								<div class="row g-3">
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Hospital Name <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" formControlName="HospitalName">
+									</div>
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Phone <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" formControlName="HospitalPhoneNumber">
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Registration Number</label>
+										<input type="text" class="form-control" formControlName="HospitalRegistrationNumber">
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Email</label>
+										<input type="email" class="form-control" formControlName="HospitalEmail">
+									</div>
+
+									<div class="col-12">
+										<label class="form-label small fw-semibold">Address</label>
+										<textarea class="form-control" rows="2" formControlName="HospitalAddress"></textarea>
+									</div>
+
+									<div class="col-12">
+										<label class="form-label small fw-semibold">Image</label>
+										<input type="file" class="form-control" (change)="onFileChange($event)">
+									</div>
+
+									
+								</div>
+                                <div class="mt-3 d-flex justify-content-end">
+										<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+										<button type="submit" class="btn btn-primary">Save Hospital</button>
+									</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+				</div>
+
+			</div>		
+			<!-- /Page Content -->
+   
+		
+		<!-- /Main Wrapper -->

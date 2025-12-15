@@ -38,6 +38,13 @@ const routes: Routes = [
             (m) => m.ReceptionistModule
           ),
       },
+       {
+        path: 'superadmin',
+        loadChildren: () =>
+          import('./modules/superadmin/superadmin-module').then(
+            (m) => m.SuperadminModule
+          ),
+      },
     ],
   },
 ];

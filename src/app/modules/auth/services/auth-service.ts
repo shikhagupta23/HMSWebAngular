@@ -4,12 +4,14 @@ import { ApiEndpoints } from '../../../shared/constants/api-endpoints';
 import { ApiService } from '../../../shared/services/api-service';
 import { AuthResponse } from '../models/auth.model';
 import { safeStorage } from '../../../shared/utils/storage.util';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private api = inject(ApiService);
+  private router = inject(Router);
   private TOKEN_KEY = 'auth_token';
   private REFRESH_KEY = 'refresh_token';
   private USER_KEY = 'auth_user';
@@ -52,6 +54,7 @@ export class AuthService {
     safeStorage.remove(this.TOKEN_KEY);
     safeStorage.remove(this.REFRESH_KEY);
     safeStorage.remove(this.USER_KEY);
+    this.router.navigate(['/auth']);
   }
 
   isLoggedIn(): boolean {

@@ -71,7 +71,9 @@ private handleRoleNavigation(role: string) {
 
   const roleRoutes: Record<string, string> = {
     doctor: '/doctor',
-    receptionist: '/receptionist'
+    receptionist: '/receptionist',
+    superadmin: '/superadmin',
+    admin: '/superadmin'
   };
 
   if (roleRoutes[normalizedRole]) {
@@ -80,10 +82,7 @@ private handleRoleNavigation(role: string) {
     return;
   }
 
-  if (['superadmin', 'admin'].includes(normalizedRole)) {
-     this.toast.error("Admin login is not allowed from here.");
-    return;
-  }
+  
 
   this.toast.error("Unauthorized role or invalid credentials.");
 
