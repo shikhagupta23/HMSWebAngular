@@ -19,9 +19,9 @@
   <div class="dashboard-widget">
     <nav class="dashboard-menu">
       <ul>
-        <li *ngFor="let item of menu" routerLinkActive="active"  [routerLinkActiveOptions]="{ exact: item.route === '/doctor' }">
+        <li *ngFor="let item of menu" routerLinkActive="active"  [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
           <!-- If menu item has a route -->
-          <a *ngIf="item.route" [routerLink]="item.route">
+          <a *ngIf="item.route" [routerLink]="resolveRoute(item)">
             <i [class]="item.icon"></i>
             <span>&nbsp; {{ item.label }}</span>
           </a>

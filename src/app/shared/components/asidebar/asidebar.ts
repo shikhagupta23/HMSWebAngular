@@ -45,4 +45,17 @@ export class Asidebar {
     this.authService.logout();
   }
 }
+
+  resolveRoute(item: MenuItem): string | readonly any[] | null | undefined {
+    if (!item || !item.route) return null;
+    if (typeof item.route === 'function') {
+      return item.route(this.role || '');
+    }
+    return item.route as string | readonly any[] | null | undefined;
+  }
+
+  isExactRoute(item: MenuItem): boolean {
+    const r = this.resolveRoute(item);
+    return r === '/doctor';
+  }
 }

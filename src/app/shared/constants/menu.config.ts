@@ -14,24 +14,37 @@ export const MENU_ITEMS: MenuItem[] = [
   roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"]
 }
 ,
-  {
-    label: "Today's Appointments",
-    icon: "fa-solid fa-calendar-days",
-    route: "/appointment/todayappointments",
-    roles: ["Doctor", "Receptionist"]
+{
+    label: "Hospital",
+    icon: "fa-solid fa-hospital",
+    route: "/superadmin/hospital",
+    roles: ["SuperAdmin", "Admin"]
   },
-  {
-    label: "All Appointments",
-    icon: "fa-solid fa-calendar-check",
-    route: "/appointment/allappointments",
-    roles: ["Doctor", "Receptionist"]
+   {
+    label: "Users",
+    icon: "fa-solid fa-users",
+    route: "/superadmin/user",
+    roles: ["SuperAdmin", "Admin"]
   },
   {
     label: "My Patients",
     icon: "fa-solid fa-user-injured",
     route: "/patient/allpatient",
-    roles: ["Doctor", "Receptionist"]
+    roles: ["Doctor", "Receptionist", "Admin"]
   },
+  {
+    label: "Today's Appointments",
+    icon: "fa-solid fa-calendar-days",
+    route: "/appointment/todayappointments",
+    roles: ["Doctor", "Receptionist", "Admin"]
+  },
+  {
+    label: "All Appointments",
+    icon: "fa-solid fa-calendar-check",
+    route: "/appointment/allappointments",
+    roles: ["Doctor", "Receptionist", "Admin"]
+  },
+  
   {
     label: "Prescriptions",
     icon: "fa-solid fa-file-medical",
@@ -50,18 +63,8 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/doctor/labtest/alllabtest",
     roles: []
   },
-  {
-    label: "Hospital",
-    icon: "fa-solid fa-hospital",
-    route: "/superadmin/hospital",
-    roles: ["SuperAdmin"]
-  },
-  {
-    label: "Users",
-    icon: "fa-solid fa-users",
-    route: "/superadmin/user",
-    roles: ["SuperAdmin"]
-  },
+  
+ 
  {
   label: "Create Feature",
   icon: "fa-solid fa-square-plus",

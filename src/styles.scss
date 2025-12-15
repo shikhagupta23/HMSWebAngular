@@ -4,10 +4,10 @@
 @import 'assets/css/feather.css';
 @import 'assets/css/custom.css';
 @import '@ngxpert/hot-toast/styles.css';
-
+ 
 .select2-container--bootstrap-5 .select2-selection {
   // border-radius: 50px !important; /* fully rounded like rounded-pill */
-
+ 
   // min-height: calc(2.0em + .75rem + 2px) !important;
 }
 .select2-container--bootstrap-5
@@ -26,7 +26,7 @@
 //     overflow: hidden;
 //     animation: fadeInDown 0.25s ease-in-out;
 // }
-
+ 
 // /* Submenu list items */
 // .dashboard-menu .submenu li a {
 //     display: block;
@@ -36,31 +36,31 @@
 //     border-radius: 4px;
 //     transition: background-color .2s ease, padding-left .2s ease;
 // }
-
+ 
 // /* Hover effect */
 // .dashboard-menu .submenu li a:hover {
 //     background: #e9ecef;
 //     padding-left: 18px;
 //     color: #0d6efd;
 // }
-
+ 
 // /* Active main menu highlight */
 // .dashboard-menu li.active > a {
 //     background: #e7f1ff !important;
 //     color: #0d6efd !important;
 //     font-weight: 600;
 // }
-
+ 
 /* Rotate the arrow */
 .dashboard-menu li.active > a i.fas.fa-chevron-down {
   transform: rotate(180deg);
 }
-
+ 
 /* Smooth rotation */
 .dashboard-menu a i.fas.fa-chevron-down {
   transition: transform 0.3s ease;
 }
-
+ 
 /* Fade + slide animation */
 @keyframes fadeInDown {
   0% {
@@ -72,31 +72,31 @@
     transform: translateY(0px);
   }
 }
-
+ 
 // .dashboard-menu li > a {
 //     display: flex !important;
 //     justify-content: space-between !important;
 //     align-items: center !important;
 // }
-
+ 
 /* Space between text and arrow */
 // .dashboard-menu li > a i.fa-chevron-down {
 //     margin-left: auto !important;
 //     margin-right: 5px !important;
 // }
-
+ 
 /* Rotate arrow on active */
 // .dashboard-menu li.active > a i.fa-chevron-down {
 //     transform: rotate(180deg) !important;
 // }
-
+ 
 .dashboard-menu li > a i.fa-chevron-down {
   transition: transform 0.3s ease !important;
 }
 .profile-sidebar {
   height: 100% !important;
 }
-
+ 
 .dashboard-widget-box {
   display: flex;
   justify-content: space-between;
@@ -109,51 +109,51 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   // cursor: pointer;
 }
-
+ 
 /* Hover Effect */
 .dashboard-widget-box:hover {
   transform: translateY(-5px) scale(1.03); /* Slight lift and scale */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Bigger shadow */
 }
-
+ 
 /* Optional: make all cards in a row equal height using flex */
 .row > [class*='col-'] {
   display: flex;
   flex-direction: column;
 }
-
+ 
 .row > [class*='col-'] .dashboard-widget-box {
   flex: 1;
 }
-
+ 
 .content {
   padding: 19px 0 36px !important;
 }
-
+ 
 .input-group-text {
   margin-left: 7px !important;
 }
-
+ 
 /* Remove blur overlay */
 .modal-backdrop.show {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   opacity: 0.3 !important;
 }
-
+ 
 /* Prevent main screen blur */
 body.modal-open .main-wrapper {
   filter: none !important;
 }
-
+ 
 .h-100 {
   height: 100% !important;
 }
-
+ 
 // .container{
 //     min-width: 1240px !important;
 // }
-
+ 
 /* GLOBAL PLACEHOLDER STYLING */
 input::placeholder,
 textarea::placeholder,
@@ -162,13 +162,13 @@ select::placeholder {
   font-size: 14px !important; /* Change to your desired size */
   opacity: 1 !important; /* ensures color shows properly */
 }
-
+ 
 /* Select2 placeholder fix */
 .select2-selection__placeholder {
   color: #6c757d !important;
   font-size: 14px !important;
 }
-
+ 
 .initial-circle {
   width: 45px;
   height: 45px;
@@ -181,25 +181,25 @@ select::placeholder {
   font-size: 18px;
   font-weight: 600;
 }
-
+ 
 .img-fluid-header {
   max-width: 100%;
   height: 75px !important;
 }
-
+ 
 .patient-name {
   color: #0f172a;
   font-weight: bold;
 }
-
+ 
 .appointment-info {
   color: #1e293b;
 }
-
+ 
 .appointment-view-id {
   color: #1d7ed8;
 }
-
+ 
 .appointment-action {
   width: 32px;
   height: 32px;
@@ -210,18 +210,18 @@ select::placeholder {
   align-items: center;
   justify-content: center;
 }
-
+ 
 .appointment-action:hover {
   background: #0e82fd;
   color: #ffffff;
 }
-
+ 
 .appointment-start {
   color: #18181b;
   font-weight: 600;
   text-decoration: underline;
 }
-
+ 
 .small-dates .label {
   font-size: 11px;
   font-weight: 600;
@@ -230,7 +230,7 @@ select::placeholder {
   display: block;
   line-height: 1.1;
 }
-
+ 
 .small-dates .value {
   font-size: 14px;
   color: #0f172a;
@@ -238,23 +238,23 @@ select::placeholder {
   display: block;
   margin-bottom: 6px;
 }
-
+ 
 html,
 body {
   height: 100%;
   margin: 0;
 }
-
+ 
 .main-wrapper {
   min-height: 100vh; /* full screen height */
   display: flex;
   flex-direction: column;
 }
-
+ 
 .content {
   flex: 1; /* pushes footer down */
 }
-
+ 
 .footer {
   background: #095187;
   color: #fff;
@@ -263,7 +263,7 @@ body {
   font-size: 14px;
   margin-top: auto; /* ensures bottom placement */
 }
-
+ 
 @media (min-width: 1200px) {
   .container-xl,
   .container-lg,
@@ -273,7 +273,7 @@ body {
     max-width: 97% !important;
   }
 }
-
+ 
 .date-tag {
     display: inline-block;
     padding: 3px 8px;
@@ -281,37 +281,41 @@ body {
     font-size: 13px;
     margin-right: 6px;
 }
-
+ 
 // .appointment-date {
 //     background: #e8f0fe; /* soft blue */
 //     color: #1a73e8;
 // }
-
+ 
 // .created-date {
 //     background: #e6f4ea; /* soft green */
 //     color: #1e8e3e;
 // }
-
+ 
 .customBtn{
     background: #0E82FD !important;
     color: #ffffff !important;
     border-color: #0E82FD !important;
     border-radius: 10px !important;
 }
-
+ 
 .customBtn a{
   color: #ffffff;
   font-weight: 500;
   font-size: 16px;
 }
 
-button {
-  background: #0E82FD;
-  color: #ffffff;
-  border-color: #0E82FD;
-  border-radius: 10px;
+.page-item.active .page-link {
+    background-color: #224abe !important;
+    border-color: #224abe !important;
 }
-
+.pagination > li > a, .pagination > li > span {
+    color: #224abe !important;
+}
+.active > .page-link, .page-link.active {
+    z-index: 3;
+    color: var(--bs-pagination-active-color) !important;
+}
 .page-item.active .page-link {
     background-color: #224abe !important;
     border-color: #224abe !important;
