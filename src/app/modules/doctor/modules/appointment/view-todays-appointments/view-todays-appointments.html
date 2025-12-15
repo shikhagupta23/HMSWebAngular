@@ -132,22 +132,22 @@
 											<div class="d-flex align-items-center gap-2">
 
 												<!-- Eye icon when appointmentStatus = 2 -->
-												<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2" class="appointment-action">
+												<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 || isReceptionist" class="appointment-action">
 													<i class="fa-solid fa-eye"></i>
 												</a>
 
 												<!-- Cross + Start Now when appointmentStatus = 0 or 1 -->
-												<ng-container *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1">
+												<!-- <ng-container *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1"> -->
 
-													<a class="appointment-action" (click)="cancelAppointment(item)">
+													<a class="appointment-action" *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1" (click)="cancelAppointment(item)">
 														<i class="fa-solid fa-xmark"></i>
 													</a>
 
-													<a (click)="openPrescriptionModal(item, 'start')" class="appointment-start start-link date-tag">
+													<a (click)="openPrescriptionModal(item, 'start')"  *ngIf="(item.appointmentStatus == 0 || item.appointmentStatus == 1) && isDoctor" class="appointment-start start-link date-tag">
 														Start Now
 													</a>
 
-												</ng-container>
+												<!-- </ng-container> -->
 
 											</div>
 										</div>
@@ -156,15 +156,15 @@
 								</div>
 								</ng-container>
 
-    <ng-template #noRecords>
-      <div class="text-center py-5 text-muted">
-        <i class="fa-solid fa-folder-open fa-2x mb-2"></i>
-        <p class="mb-0 fw-semibold">No records found</p>
-        <small *ngIf="searchText">
-          for "<b>{{ searchText }}</b>"
-        </small>
-      </div>
-    </ng-template>
+								<ng-template #noRecords>
+								<div class="text-center py-5 text-muted">
+									<i class="fa-solid fa-folder-open fa-2x mb-2"></i>
+									<p class="mb-0 fw-semibold">No records found</p>
+									<small *ngIf="searchText">
+									for "<b>{{ searchText }}</b>"
+									</small>
+								</div>
+								</ng-template>
 								</div>
 								<div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
 									<ul>
@@ -383,6 +383,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.symptoms"
+							[readonly]="isViewMode"
 							placeholder="Enter symptoms..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -398,6 +399,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.diagnosis"
+							[readonly]="isViewMode"
 							placeholder="Enter diagnosis..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -413,6 +415,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.advice"
+							[readonly]="isViewMode"
 							placeholder="Enter advice..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -428,6 +431,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.followUp"
+							[readonly]="isViewMode"
 							placeholder="Enter follow up..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -451,6 +455,7 @@
 						
 						<select class="form-control"
 								[(ngModel)]="selectedMedicineType"
+								[disabled]="isViewMode"
 								(change)="onMedicineTypeChange()"
 								>
 
@@ -463,13 +468,11 @@
 						</select>
 					</div>
 
-
-
 					<!-- Medicine Name -->
 						<div class="col-md-3">
 						<label class="form-label fw-bold">Medicine Name</label>
 						<select class="form-control" appSelect2 placeholder="-- Select Medicine Name --"
-								[(ngModel)]="selectedMedicineName">
+								[(ngModel)]="selectedMedicineName" [disabled]="isViewMode">
 							<option value="">Select Medicine</option>
 
 							<option *ngFor="let m of medicineNames" [value]="m.value">
@@ -478,7 +481,7 @@
 
 						</select>
 						</div>
-						<div class="col-md-2 d-flex justify-content-end">
+						<div class="col-md-2 d-flex justify-content-end" *ngIf="isDoctor">
 						<button class="btn customBtn" (click)="addMedicine()">
 							+ Add
 						</button>
@@ -508,7 +511,7 @@
 							<label class="fw-bold">Dosage (mg/ml)</label>
 							<input type="text" class="form-control"
 								placeholder="e.g. 500mg"
-								[(ngModel)]="m.dosage">
+								[(ngModel)]="m.dosage" [disabled]="isViewMode">
 						</div>
 
 						<!-- Duration -->
@@ -516,7 +519,7 @@
 							<label class="fw-bold">Duration (days)</label>
 							<input type="text" class="form-control"
 								placeholder="e.g. 5 days"
-								[(ngModel)]="m.duration">
+								[(ngModel)]="m.duration" [disabled]="isViewMode">
 						</div>
 
 						<!-- Frequency -->
@@ -526,7 +529,7 @@
 						<button *ngFor="let f of frequencyOptions"
 								class="btn"
 								[ngClass]="m.frequency === f.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="selectFrequency(m, f.value)">
+								(click)="selectFrequency(m, f.value)" [disabled]="isViewMode">
 						{{ f.label }}
 						</button>
 
@@ -541,7 +544,7 @@
 						<button *ngFor="let t of timingOptions"
 								class="btn"
 								[ngClass]="m.timings.includes(t.value) ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="toggleTiming(m, t.value)">
+								(click)="toggleTiming(m, t.value)" [disabled]="isViewMode">
 							{{ t.label }}
 						</button>
 						</div>
@@ -555,7 +558,7 @@
 						<button *ngFor="let ins of instructionOptions"
 								class="btn"
 								[ngClass]="m.instruction === ins.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="selectInstruction(m, ins.value)">
+								(click)="selectInstruction(m, ins.value)" [disabled]="isViewMode">
 							{{ ins.label }}
 						</button>
 						</div>
@@ -576,7 +579,7 @@
 
 					<div class="col-md-3">
 						<label class="form-label fw-bold">Select Lab Test</label>
-						<select class="form-control" appSelect2 placeholder="-- Select Lab Test --" [(ngModel)]="selectedLabTest">
+						<select class="form-control" appSelect2 placeholder="-- Select Lab Test --" [(ngModel)]="selectedLabTest" [disabled]="isViewMode">
 						<option value="">Select Test</option>
 						<option *ngFor="let t of labTests" [value]="t.value">  <!-- IMPORTANT -->
 							{{ t.text }}
@@ -584,7 +587,7 @@
 						</select>
 					</div>
 
-					<div class="col-md-2 d-flex justify-content-end">
+					<div class="col-md-2 d-flex justify-content-end" *ngIf="isDoctor">
 						<button class="btn customBtn" (click)="addLabTest()">
 						+ Add 
 						</button>
@@ -618,7 +621,7 @@
 				</div>
 			</div>
 
-			<div class="modal-footer">
+			<div class="modal-footer" *ngIf="isDoctor">
 				<button class="btn customBtn" (click)="savePrescription()">
 				{{ isViewMode ? 'Update' : 'Save' }}
 				</button>

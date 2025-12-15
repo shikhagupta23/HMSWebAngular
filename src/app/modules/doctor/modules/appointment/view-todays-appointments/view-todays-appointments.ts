@@ -64,6 +64,9 @@ export class ViewTodaysAppointments implements OnInit {
     totalCancelled: number = 0;
     isDoctorRole: boolean = false;
     doctorDetails: any = null;
+    userRole: string = '';
+    isReceptionist: boolean = false;
+    isDoctor: boolean = false;
 
     masterIds = {
       Symptoms: '',
@@ -92,8 +95,8 @@ export class ViewTodaysAppointments implements OnInit {
     };
 
   ngOnInit(): void {
-    this.loadFullData();
-    // this.loadAppointments();
+    // this.loadFullData();
+    this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
     this.loadMedicineOptions(); 
@@ -123,6 +126,10 @@ export class ViewTodaysAppointments implements OnInit {
       visitReason: [''],
       doctorId: [''],  
     });
+
+    this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
+    this.isReceptionist = this.userRole === 'receptionist';
+    this.isDoctor = this.userRole === 'doctor';
   }
   
 @HostListener('document:click')
@@ -535,7 +542,12 @@ allMedicineNames: any = {
   // 🔥 OPEN MAIN MODAL
   // --------------------------
 openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
-  this.isViewMode = mode === 'view'; 
+    if (this.isReceptionist) {
+    this.isViewMode = true;
+  } else {
+    this.isViewMode = mode === 'view';
+  }
+  // this.isViewMode = mode === 'view'; 
   this.selectedAppointment = item;
 
   this.resetPrescription();
