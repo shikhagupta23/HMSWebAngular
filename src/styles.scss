@@ -304,3 +304,22 @@ body {
   font-weight: 500;
   font-size: 16px;
 }
+
+button {
+  background: #0E82FD;
+  color: #ffffff;
+  border-color: #0E82FD;
+  border-radius: 10px;
+}
+
+.page-item.active .page-link {
+    background-color: #224abe !important;
+    border-color: #224abe !important;
+}
+.pagination > li > a, .pagination > li > span {
+    color: #224abe !important;
+}
+.active > .page-link, .page-link.active {
+    z-index: 3;
+    color: var(--bs-pagination-active-color) !important;
+}
