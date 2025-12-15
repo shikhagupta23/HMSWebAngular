@@ -18,7 +18,7 @@ export class PatientService {
     }
 
     getRoleId(roleName: string):Observable<any>{
-      return this.api.get(ApiEndpoints.USER.GET_ROLE_ID);
+      return this.api.get(ApiEndpoints.USER.GET_ROLE_ID(roleName));
     }
 
     postPatient(payload: any): Observable<any> {

@@ -1,1 +1,146 @@
-<p>feature-assignment works!</p>
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+	<div class="breadcrumb-bar-two">
+		<div class="container">
+			<div class="row align-items-center inner-banner">
+				<div class="col-md-2 col-2">
+					<a href="/superadmin" class="menu-logo">
+						<img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="content">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+					<app-asidebar style="position: fixed; width: 22%; height: 60%;"></app-asidebar>
+				</div>
+				<div class="col-lg-8 col-xl-9">
+
+					<div class="dashboard-header">
+						<h3>Feature Assignment</h3>
+					</div>
+
+					<div class="table-controls d-flex justify-content-between align-items-center mb-3">
+						<div>
+							<label class="form-label small me-2">Show</label>
+							<select class="form-select d-inline-block w-auto" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+								<option *ngFor="let s of [5,10,25,50]" [value]="s">{{s}}</option>
+							</select>
+							<span class="small ms-2">entries</span>
+						</div>
+						<div class="d-flex align-items-center">
+							<div class="input-block dash-search-input">
+								<input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearch()">
+								<span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+							</div>
+							<a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#featureAssignModal">+ Add New</a>
+						</div>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>SR. NO.</th>
+									<th>Feature Name</th>
+									<th>Hospital Name</th>
+									<th>User Name</th>
+									<th>Is Extend</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let f of dataList; let i = index">
+									<td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+									<td>{{ f.featureName || f.FeatureName || f.feature?.name }}</td>
+									<td>{{ f.hospitalName || f.HospitalName || f.hospital?.name || f.hospitalNameDisplay }}</td>
+									<td>{{ f.userName || f.UserName || (f.user?.firstName ? (f.user.firstName + ' ' + (f.user.lastName||'')) : '') }}</td>
+									<td>
+										<div class="form-check form-switch">
+											<input class="form-check-input" type="checkbox"
+												[checked]="(f.isExtend ?? f.isExtended ?? f.IsExtend ?? f.IsExtended)"
+												(change)="onToggleExtend(f, $event.target.checked)"
+												[disabled]="f._updatingExtend">
+										</div>
+									</td>
+									<td>
+										<a class="btn btn-sm btn-primary me-2" (click)="onEdit(f)">Edit</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="d-flex justify-content-between align-items-center mt-3">
+						<div class="text-muted">Showing page {{ pageNumber }} of {{ totalPages }}</div>
+						<ul class="pagination mb-0">
+							<li class="page-item"><a class="page-link" (click)="previousPage()">&laquo;</a></li>
+							<li class="page-item" *ngFor="let p of pages" [class.active]="pageNumber===p"><a class="page-link" (click)="goToPage(p)">{{ p }}</a></li>
+							<li class="page-item"><a class="page-link" (click)="nextPage()">&raquo;</a></li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Feature Assign Modal -->
+			<div class="modal fade" id="featureAssignModal" tabindex="-1" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+					<div class="modal-content rounded-4 border-0 shadow">
+
+						<div class="modal-header">
+							<h5 class="modal-title">Add / Edit Feature Assignment</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+
+						<div class="modal-body">
+							<form [formGroup]="assignForm" (ngSubmit)="onSubmit()">
+								<div class="row g-3">
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Feature <span class="text-danger">*</span></label>
+										<select class="form-select" formControlName="featureId">
+											<option [ngValue]="null">Select Feature</option>
+											<option *ngFor="let ft of featureList" [value]="ft.value">{{ ft.text }}</option>
+										</select>
+									</div>
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Hospital <span class="text-danger">*</span></label>
+										<select class="form-select" formControlName="hospitalId">
+											<option [ngValue]="null">Select Hospital</option>
+											<option *ngFor="let h of hospitalList" [value]="h.id || h.hospitalId || h.HospitalId">{{ h.name || h.hospitalName || h.HospitalName }}</option>
+										</select>
+									</div>
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">User <span class="text-danger">*</span></label>
+										<select class="form-select" formControlName="userId">
+											<option [ngValue]="null">Select User</option>
+											<option *ngFor="let u of userList" [value]="u.id || u.userId || u.UserId">{{ u.name || (u.firstName ? (u.firstName + ' ' + (u.lastName||'')) : u.UserName || u.userName) }}</option>
+										</select>
+									</div>
+									<div class="col-md-6">
+										<div class="form-check mt-2">
+											<input class="form-check-input" type="checkbox" id="canAddAnotherUser" formControlName="canAddAnotherUser">
+											<label class="form-check-label small ms-2" for="canAddAnotherUser">Can add another user</label>
+										</div>
+									</div>
+									
+								</div>
+								<div class="mt-3 d-flex justify-content-end">
+									<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+									<button type="submit" class="btn btn-primary">Save</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</div>

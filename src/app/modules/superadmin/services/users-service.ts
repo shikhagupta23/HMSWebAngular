@@ -13,8 +13,8 @@ export class UsersService {
     return this.api.get(ApiEndpoints.User.GET(page, pageSize, search));
   }
 
-  getRoleId(): Observable<any> {
-    return this.api.get(ApiEndpoints.USER.GET_ROLE_ID);
+  getRoleId(roleName?: string): Observable<any> {
+    return this.api.get(ApiEndpoints.USER.GET_ROLE_ID(roleName));
   }
 
   addUser(body: any): Observable<any> {

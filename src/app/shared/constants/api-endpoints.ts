@@ -30,8 +30,8 @@ export const ApiEndpoints = {
     GET_BY_NAME_OR_PHONE: `${API_BASE_URL}/SelectAPI/getUserListbyTerm`
   },
   USER: {
-    GET_ROLE_ID: 
-      `${API_BASE_URL}/ApplicationUserAPI/getRoleId`,
+    GET_ROLE_ID: (roleName?: string) =>
+      `${API_BASE_URL}/ApplicationUserAPI/getRoleId${roleName ? '?roleName=' + encodeURIComponent(roleName) : ''}`,
 
     CREATE: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`
   },
@@ -77,6 +77,18 @@ export const ApiEndpoints = {
     GET: (page: number, pageSize: number, search?: string) =>
       `${API_BASE_URL}/FeatureAPI/getFeatures?page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`,
     SAVE: `${API_BASE_URL}/FeatureAPI/save`
+  },
+  FEATURE_ACCESS: {
+    GET: (page: number, pageSize: number, search?: string) =>
+      `${API_BASE_URL}/FeatureAccessAPI/getFeatureAccess?page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`,
+    SAVE: `${API_BASE_URL}/FeatureAccessAPI/saveFeatureAccess`
+    ,
+    UPDATE_STATUS: `${API_BASE_URL}/FeatureAccessAPI/updateStatus`
+  },
+  SELECT: {
+    GET_FEATURE_LIST: `${API_BASE_URL}/SelectAPI/getFeatureList`,
+    GET_USER_LIST: (role: string, page: number, pageSize: number, search?: string) =>
+      `${API_BASE_URL}/SelectAPI/getUserList?role=${role}&page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`
   },
  
 };

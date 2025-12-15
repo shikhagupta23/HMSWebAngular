@@ -71,7 +71,7 @@ export const MENU_ITEMS: MenuItem[] = [
 {
   label: "Feature Assignment",
   icon: "fa-solid fa-user-gear",
-  route: "demo",
+  route: "/superadmin/feature-assignment",
   roles: ["SuperAdmin"]
 },
   {
