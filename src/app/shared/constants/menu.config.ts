@@ -36,19 +36,19 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Prescriptions",
     icon: "fa-solid fa-file-medical",
     route: "/doctor/prescription/add",
-    roles: ["Doctor", "Receptionist"]
+    roles: ["Receptionist"]
   },
   {
     label: "Medicines",
     icon: "fas fa-pills",
     route: "/doctor/medicine/allmedicine",
-    roles: ["Doctor", "Receptionist"]
+    roles: ["Receptionist"]
   },
   {
     label: "Lab Tests",
     icon: "fa-solid fa-flask-vial",
     route: "/doctor/labtest/alllabtest",
-    roles: ["Doctor", "Receptionist"]
+    roles: ["Receptionist"]
   },
   {
     label: "Hospital",

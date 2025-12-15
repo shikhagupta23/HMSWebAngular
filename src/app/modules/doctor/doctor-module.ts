@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { PrescriptionModule } from './modules/prescription/prescription-module';
 import { AddAppointment } from './modules/appointment/add-appointment/add-appointment';
 import { AddPrescription } from './modules/prescription/add-prescription/add-prescription';
+import { GenderPipe } from '../../shared/pipe/gender-pipe';
 
 
 
