@@ -1,0 +1,163 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+	<div class="menu-header">
+	</div>
+	<!-- Breadcrumb -->
+	<div class="breadcrumb-bar-two">
+		<div class="container">
+			<div class="row align-items-center inner-banner">
+				<div class="col-md-2 col-2">
+					<a href="/superadmin" class="menu-logo">
+						<img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Breadcrumb -->
+
+	<!-- Page Content -->
+	<div class="content">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-4 col-xl-3 theiaStickySidebar">
+					<app-asidebar style="position: fixed; width: 22%; height: 60%;"></app-asidebar>
+				</div>
+				<div class="col-lg-8 col-xl-9">
+
+					<div class="dashboard-header">
+						<h3>Users</h3>
+
+						<ul class="header-list-btns">
+							<li class="me-2">
+								<div class="input-block dash-search-input">
+									<input type="text" class="form-control" placeholder="Search User..." [(ngModel)]="searchTerm" (input)="onSearch()">
+									<span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+								</div>
+							</li>
+							<li>
+								<a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New</a>
+							</li>
+						</ul>
+					</div>
+
+					<div class="user-list">
+						<div *ngFor="let u of dataList" class="card mb-3">
+							<div class="card-body d-flex align-items-center">
+								<div class="avatar me-3"> <i class="fa fa-user fa-2x"></i> </div>
+								<div class="flex-fill">
+									<div class="d-flex align-items-start">
+										<h5 class="mb-1 me-4">{{ u.fullName || u.FullName || u.userName || u.UserName }}</h5>
+										<small class="text-muted ms-auto">{{ formatDate(u.dateOfBirth || u.DateOfBirth) }}</small>
+									</div>
+									<div class="row mt-2 w-100">
+										<div class="col-md-4 small text-muted">
+											<span class="d-block">Role: <strong class="text-dark">{{ u.roleName || u.RoleName || u.role }}</strong></span>
+										</div>
+										<div class="col-md-4 small text-muted text-center">
+											<span class="d-block">Phone</span>
+											<strong class="text-dark">{{ u.phoneNumber || u.PhoneNumber || u.phone }}</strong>
+										</div>
+										<div class="col-md-4 small text-muted text-end">
+											<span class="d-block">Hospital</span>
+											<strong class="text-dark">{{ u.hospitalName || u.HospitalName || u.hospital }}</strong>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Pagination -->
+					<div class="d-flex justify-content-between align-items-center mt-3">
+						<div class="text-muted">Showing page {{ pageNumber }} of {{ totalPages }}</div>
+						<ul class="pagination mb-0">
+							<li class="page-item"><a class="page-link" (click)="previousPage()">&laquo;</a></li>
+							<li class="page-item" *ngFor="let p of pages" [class.active]="pageNumber===p"><a class="page-link" (click)="goToPage(p)">{{ p }}</a></li>
+							<li class="page-item"><a class="page-link" (click)="nextPage()">&raquo;</a></li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Add User Modal -->
+			<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+					<div class="modal-content rounded-4 border-0 shadow">
+
+						<div class="modal-header">
+							<h5 class="modal-title">Add User</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+
+						<div class="modal-body">
+							<form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
+								<div class="row g-3">
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Full Name <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" formControlName="FullName">
+									</div>
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Select Gender <span class="text-danger">*</span></label>
+										<select class="form-control" formControlName="Gender">
+											<option value="">-- Select --</option>
+											<option value="Male">Male</option>
+											<option value="Female">Female</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Date of Birth</label>
+										<input type="date" class="form-control" formControlName="DateOfBirth">
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Select Role <span class="text-danger">*</span></label>
+										<select class="form-control" formControlName="RoleId">
+											<option value="">-- Select Role --</option>
+											<option *ngFor="let r of roles" [value]="r.id || r.roleId || r.value">{{ r.name || r.roleName || r.text || r }}</option>
+										</select>
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Select Hospital</label>
+										<select class="form-control" formControlName="HospitalId">
+											<option value="">-- Select Hospital --</option>
+											<option *ngFor="let h of hospitals" [value]="h.id || h.hospitalId || h.HospitalId">{{ h.hospitalName || h.HospitalName || h.name }}</option>
+										</select>
+									</div>
+
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Phone Number <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" formControlName="PhoneNumber">
+									</div>
+
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Password <span class="text-danger">*</span></label>
+										<input type="password" class="form-control" formControlName="Password">
+									</div>
+
+									<div class="col-md-4">
+										<label class="form-label small fw-semibold">Address</label>
+										<input type="text" class="form-control" formControlName="Address">
+									</div>
+
+								</div>
+								<div class="mt-3 d-flex justify-content-end">
+									<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+									<button type="submit" class="btn btn-primary">Save User</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- /Page Content -->
+
+</div>

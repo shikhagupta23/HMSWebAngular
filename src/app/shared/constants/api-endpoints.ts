@@ -9,6 +9,11 @@ export const ApiEndpoints = {
       `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&search=${search}`,
     ADD: `${API_BASE_URL}/HospitalAPI/Post`
   },
+  User: {
+    GET: (page: number, pageSize: number, search: string) =>
+      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&search=${search}`,
+    ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`
+  },
   AUTH: {
     LOGIN: `${API_BASE_URL}/Auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,
@@ -25,8 +30,8 @@ export const ApiEndpoints = {
     GET_BY_NAME_OR_PHONE: `${API_BASE_URL}/SelectAPI/getUserListbyTerm`
   },
   USER: {
-    GET_ROLE_ID: (roleName: string) =>
-      `${API_BASE_URL}/ApplicationUserAPI/getRoleId?roleName=${roleName}`,
+    GET_ROLE_ID: 
+      `${API_BASE_URL}/ApplicationUserAPI/getRoleId`,
 
     CREATE: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`
   },

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HospitalService } from './services/hospital-service';
+import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
 
 declare const bootstrap: any;

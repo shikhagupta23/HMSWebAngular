@@ -6,12 +6,16 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { SharedModule } from '../../shared/shared-module';
 import { Hospital } from './components/hospital/hospital';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Users } from './components/users/users';
+import { Features } from './components/features/features';
 
 
 @NgModule({
   declarations: [
     Dashboard,
     Hospital,
+    Users,
+    Features,
   ],
   imports: [
     CommonModule,

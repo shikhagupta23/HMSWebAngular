@@ -59,7 +59,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     label: "Users",
     icon: "fa-solid fa-users",
-    route: "demo",
+    route: "/superadmin/user",
     roles: ["SuperAdmin"]
   },
   {
