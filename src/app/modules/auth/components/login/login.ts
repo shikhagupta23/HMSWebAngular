@@ -70,8 +70,8 @@ private handleRoleNavigation(role: string) {
   const normalizedRole = role.toLowerCase();
 
   const roleRoutes: Record<string, string> = {
-    doctor: '/doctor',
-    receptionist: '/receptionist',
+    doctor: '/dashboard',
+    receptionist: '/dashboard',
     superadmin: '/superadmin',
     admin: '/superadmin'
   };

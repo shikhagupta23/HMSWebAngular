@@ -1,14 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Dashboard } from './components/dashboard/dashboard';
+// import { Dashboard } from './components/dashboard/dashboard';
 import { Appointment } from './components/appointment/appointment';
 import { Medicine } from './components/medicine/medicine';
 import { Labtest } from './components/labtest/labtest';
 import { Profile } from './components/profile/profile';
 import { FormsModule } from '@angular/forms';
+import { Dashboard } from '../../shared/components/dashboard/dashboard';
 
 const routes: Routes = [
-  {path: '', component: Dashboard},
+  {path: 'dashboard', component: Dashboard},
   {path: 'medicine', component: Medicine},
   {path: 'labtest', component: Labtest},
   {path: 'profile', component: Profile},

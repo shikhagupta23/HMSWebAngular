@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthLayout } from './Layout/auth-layout/auth-layout';
 import { MainLayout } from './Layout/main-layout/main-layout';
 import { authGuard } from './shared/guards/auth.guard';
+import { Dashboard } from './shared/components/dashboard/dashboard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -23,21 +24,21 @@ const routes: Routes = [
   // MAIN LAYOUT (WITH HEADER/FOOTER)
   {
     path: '',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     component: MainLayout,
     children: [
       {
-        path: 'doctor',
+        path: '',
         loadChildren: () =>
           import('./modules/doctor/doctor-module').then((m) => m.DoctorModule),
       },
-      {
-        path: 'receptionist',
-        loadChildren: () =>
-          import('./modules/receptionist/receptionist-module').then(
-            (m) => m.ReceptionistModule
-          ),
-      },
+      // {
+      //   path: 'receptionist',
+      //   loadChildren: () =>
+      //     import('./modules/doctor/doctor-module').then(
+      //       (m) => m.DoctorModule
+      //     ),
+      // },
        {
         path: 'superadmin',
         loadChildren: () =>
@@ -47,6 +48,10 @@ const routes: Routes = [
       },
     ],
   },
+  {
+    path:'dashboard',
+    component:Dashboard
+  }
 ];
 
 

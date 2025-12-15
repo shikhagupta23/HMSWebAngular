@@ -90,8 +90,8 @@ getFrequencyId(freqName: string): number {
   searchText: string = "";
 
   pageNumber = 1;
-  pageSize = 50;               // UI page size
-  apiPageSize = 100;          // API mandatory page size
+  pageSize = 50;
+  apiPageSize = 100;
 
   totalCount = 0;
   totalPages = 0;

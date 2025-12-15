@@ -66,6 +66,8 @@
 												<div>
 													<!-- <p class="m-0 appointment-view-id">#{{ p.patientViewId }}</p> -->
 													<p class="m-0 patient-name">{{ p.fullName }}</p>
+													<p class="m-0 appointment-view-id">{{ p.gender | gender }}</p>
+
 												</div>
 
 										</div>
@@ -74,18 +76,20 @@
 
                                 <!-- DOB & ABHA -->
                                 <div class="col-12 col-lg-3">
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> DOB: {{ formatDate(p.dob)}}</span>
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> ABHA Id: {{ p.abhaId }}</span>
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-cake-candles"></i> DOB: {{ formatDate(p.dob)}}</span>
+                                    <!-- <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> ABHA Id: {{ p.abhaId }}</span> -->
 	
                                 </div>
 
                                 <!-- Phone -->
                                 <div class="col-12 col-lg-4">
                                     <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
+                                    <!-- <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span> -->
                                 </div>
                                 
                                 <div class="col-12 col-lg-2">
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
+
                                 </div>
 
                             </div>

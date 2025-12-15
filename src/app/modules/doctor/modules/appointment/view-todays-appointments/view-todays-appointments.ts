@@ -92,8 +92,8 @@ export class ViewTodaysAppointments implements OnInit {
     };
 
   ngOnInit(): void {
-    // this.loadFullData();
-    this.loadAppointments();
+    this.loadFullData();
+    // this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
     this.loadMedicineOptions(); 
@@ -186,7 +186,6 @@ loadDoctorDetails() {
 loadAppointments() {
   this.appointmentService
     .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
-    // .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText )
     .subscribe({
       next: (response: any) => {
         console.log("API Response:", response);
@@ -203,16 +202,24 @@ loadAppointments() {
         this.totalCompleted = this.masterData.filter(x => x.appointmentStatus === 2).length;
         this.totalCancelled = this.masterData.filter(x => x.appointmentStatus === 4).length;
 
+        // TEXT WISE FILTRATION
+        if (this.searchText && this.searchText.trim() !== '') {
+          const text = this.searchText.trim().toLowerCase();
 
-
-        if (this.selectedStatus !== 3) {   // 3 = ALL
-          this.filteredData = this.masterData.filter(
-            x => x.appointmentStatus === this.selectedStatus
+          this.filteredData = this.filteredData.filter(x =>
+            x.patientName?.toLowerCase().includes(text) ||
+            x.mobileNo?.includes(text) ||
+            x.uhid?.toLowerCase().includes(text) ||
+            x.appointmentNo?.toLowerCase().includes(text)
           );
-        } else {
-          this.filteredData = [...this.masterData];
         }
 
+        // TAB WISE FILTRATION
+        if (this.selectedStatus !== 3) {   // 3 = ALL
+          this.filteredData = this.filteredData.filter(
+            x => x.appointmentStatus === this.selectedStatus
+          );
+        }
 
         const start = (this.pageNumber - 1) * this.pageSize;
 
