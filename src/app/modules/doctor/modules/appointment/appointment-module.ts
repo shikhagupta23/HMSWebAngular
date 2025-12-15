@@ -9,6 +9,7 @@ import { ViewUpcomingAppointments } from './view-upcoming-appointments/view-upco
 import { ViewFollowupAppointments } from './view-followup-appointments/view-followup-appointments';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddAppointment } from './add-appointment/add-appointment';
+import { ViewAllAppointments } from './view-all-appointments/view-all-appointments';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { AddAppointment } from './add-appointment/add-appointment';
     ViewPastAppointments,
     ViewUpcomingAppointments,
     ViewFollowupAppointments,
-    AddAppointment
+    AddAppointment,
+    ViewAllAppointments
   ],
   imports: [
     CommonModule,

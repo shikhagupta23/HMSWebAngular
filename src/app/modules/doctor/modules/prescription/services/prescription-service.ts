@@ -24,12 +24,12 @@ getPatientAsPerDoctor(page: number, pageSize: number, search: string) {
 }
 
 
-  getMedicineType(): Observable<any> {
-    return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
-  }
+getMedicineType(): Observable<any> {
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
+}
 
-  getMedicineList(typeId: number): Observable<any> {
-    return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineList}${typeId}`);
+getMedicineList(typeId: number): Observable<any> {
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineList}${typeId}`);
 }
 getLabTest(): Observable<any> {
   return this.api.get(`${ApiEndpoints.DOCTOR.GetLabTest}`);

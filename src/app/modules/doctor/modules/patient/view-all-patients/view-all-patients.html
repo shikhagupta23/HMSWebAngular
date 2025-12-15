@@ -46,7 +46,7 @@
                                 </div>
                             </li>
                             <li>
-                                <a routerLink="/doctor/patient/addpatient" class="btn btn-primary">+ Add New</a>
+                                <a class="btn customBtn" (click)="openAddPatientModal()">+ Add New</a>
                             </li>
                         </ul>
                     </div>
@@ -56,49 +56,36 @@
                         <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
                             <div class="row d-flex align-items-center">
                                 <!-- Gender + Name -->
-                                <div class="col-lg-3">
-                                    <div class="patinet-information">
-                                        <div class="patient-info">
-                                            <!-- <p>#{{ p.id }}</p> -->
-                                            <h6>
-                                                <!-- Gender -->
-                                                @if(p.gender.toLowerCase() === 'm' || p.gender.toLowerCase() ===
-                                                'male'){
-                                                <i class="fa-solid fa-mars color-cyan-400 me-1"></i>
-                                                }
-                                                @else if(p.gender.toLowerCase() === 'f' || p.gender.toLowerCase() ===
-                                                'female'){
-                                                <i class="fa-solid fa-venus color-rose-light me-1"></i>
-                                                }
-                                                @else{
-                                                <i class="fa-solid fa-transgender"></i>
-                                                }
-                                                {{ p.fullName }}
-                                            </h6>
-                                        </div>
-                                    </div>
+                                <div class="col-12 col-lg-3">
+                                    	<div class="patient-info mt-0 d-flex align-items-center gap-2 date-tag">
+												<!-- Initial Circle -->
+												<div class="initial-circle">
+													{{ p.fullName?.charAt(0).toUpperCase() }}
+												</div>
+												<!-- Patient Details -->
+												<div>
+													<!-- <p class="m-0 appointment-view-id">#{{ p.patientViewId }}</p> -->
+													<p class="m-0 patient-name">{{ p.fullName }}</p>
+												</div>
+
+										</div>
                                 </div>
 
 
                                 <!-- DOB & ABHA -->
-                                <div class="appointment-info col-lg-3">
-                                    <p> DOB: {{ p.dob | date:'dd/MM/yyyy'}}</p>
-                                    <p class="d-flex apponitment-types mb-0">
-                                        <span>ABHA Id: {{ p.abhaId }}</span>
-                                    </p>
+                                <div class="col-12 col-lg-3">
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> DOB: {{ formatDate(p.dob)}}</span>
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> ABHA Id: {{ p.abhaId }}</span>
+	
                                 </div>
 
                                 <!-- Phone -->
-                                <div class="mail-info-patient col-lg-2">
-                                    <span> {{ p.phone }}</span>
-
+                                <div class="col-12 col-lg-4">
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
+                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
                                 </div>
-
-                                <!-- Address -->
-                                <div class="col-lg-4">
-                                    <span class="d-flex align-items-center gap-1">
-                                        {{ p.address }}
-                                    </span>
+                                
+                                <div class="col-12 col-lg-2">
                                 </div>
 
                             </div>
@@ -148,3 +135,109 @@
 
 </div>
 <!-- /Main Wrapper -->
+
+		<div class="modal fade" id="addPatientModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content rounded-4 border-0 shadow">
+
+				<div class="modal-header">
+					<h5 class="modal-title">Add Patient</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body">
+                    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body p-4">
+
+                                <!-- Personal Info Section -->
+                                <div class="mb-4">
+                                    <h6 class="fw-bold mb-3">
+                                        <i class="fas fa-user-circle me-2"></i>Personal Information
+                                    </h6>
+                                    <div class="row g-3">
+
+                                        <!-- Full Name -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                                <input type="text" formControlName="fullName" class="form-control "
+                                                    placeholder="Enter full name">
+                                                <p class="text-danger" *ngIf="isInvalid('fullName')">Full Name is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                                <select class="form-control " appSelect2 placeholder="-- Select Gender --"  formControlName="gender">
+                                                    <option value="">-- Select Gender --</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <p class="text-danger" *ngIf="isInvalid('gender')">Gender is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- dob -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                                <input type="date" formControlName="dob" class="form-control " [max]="today">
+                                                <p class="text-danger" *ngIf="isInvalid('dob')">Date of Birth is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                                <input type="text" formControlName="phoneNumber" class="form-control " oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    placeholder="Enter 10 digit number">
+                                                <p class="text-danger" *ngIf="isInvalid('phoneNumber')">Enter valid 10-digit phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h6 class="fw-bold mb-3">
+                                        <i class="fas fa-home me-2"></i>Contact Information
+                                    </h6>
+                                    <div class="row g-3">
+
+                                        <!-- Address -->
+                                        <div class="col-md-9">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">Address <span class="text-danger">*</span></label>
+                                                <input formControlName="address" class="form-control"/>
+                                                <p class="text-danger" *ngIf="isInvalid('address')">Address is required</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- ABHA ID -->
+                                        <div class="col-md-3">
+                                            <div class="input-block mb-3">
+                                                <label class="form-label">ABHA ID</label>
+                                                <input type="text" formControlName="abhaId" class="form-control ">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-4 pt-3 border-top">
+                                    <button type="button" class="d-none btn btn-outline-secondary  px-4 me-2">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn customBtn">
+                                        Save Patient
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
