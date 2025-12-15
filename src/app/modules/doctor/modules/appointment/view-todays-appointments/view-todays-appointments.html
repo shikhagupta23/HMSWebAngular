@@ -90,6 +90,7 @@
 
 							<div class="tab-content appointment-tab-content">
 								<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
+								<ng-container *ngIf="dataList.length > 0; else noRecords">
 								<div class="appointment-wrap p-3 mb-2" *ngFor="let item of dataList">
 									<div class="row g-3 align-items-center flex-md-nowrap">
 
@@ -153,8 +154,17 @@
 
 									</div>
 								</div>
+								</ng-container>
 
-
+    <ng-template #noRecords>
+      <div class="text-center py-5 text-muted">
+        <i class="fa-solid fa-folder-open fa-2x mb-2"></i>
+        <p class="mb-0 fw-semibold">No records found</p>
+        <small *ngIf="searchText">
+          for "<b>{{ searchText }}</b>"
+        </small>
+      </div>
+    </ng-template>
 								</div>
 								<div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
 									<ul>
