@@ -16,15 +16,18 @@ export class Appointment {
     }
 
     
-  getAppointments(page: number, size: number, status: number, date: string, searchText: string) {
+  getAppointments(page: number, size: number, status: number, date: string | null, searchText: string) {
 
     const params: any = {
       page: page,
       pageSize: size,
       status: status,
-      date: date
+      // date: date
     };
 
+      if (date) {
+    params.date = date;
+  }
     if (searchText && searchText.trim() !== '') {
       params.searchTerm = searchText;
     }
