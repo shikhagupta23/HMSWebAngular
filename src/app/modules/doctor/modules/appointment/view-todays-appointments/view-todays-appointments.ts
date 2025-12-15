@@ -92,8 +92,8 @@ export class ViewTodaysAppointments implements OnInit {
     };
 
   ngOnInit(): void {
-    // this.loadFullData();
-    this.loadAppointments();
+    this.loadFullData();
+    // this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
     this.loadMedicineOptions(); 
@@ -186,7 +186,6 @@ loadDoctorDetails() {
 loadAppointments() {
   this.appointmentService
     .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
-    // .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText )
     .subscribe({
       next: (response: any) => {
         console.log("API Response:", response);

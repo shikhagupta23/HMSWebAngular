@@ -17,7 +17,8 @@ import { Asidebar } from './components/asidebar/asidebar';
     Addappointment,
     Select2Directive,
     GenderPipe,
-    Asidebar
+    Asidebar,
+    
   ],
   imports: [
     CommonModule,
