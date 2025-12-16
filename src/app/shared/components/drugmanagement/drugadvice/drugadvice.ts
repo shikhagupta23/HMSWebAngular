@@ -4,17 +4,32 @@ import { environment } from '../../../../../environment/environment.delvelopment
 
 // Updated interface to match API response
 interface DrugAdvice {
-  drugAdviceId: string;  // Changed from 'id: number' to match API
+  drugAdviceId: string;
   advice: string;
-  isActive: boolean;     // Changed from 'status: string' to match API
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
-// Updated response interface
+// Updated response interface to match backend PagedResponse
 interface DrugAdviceResponse {
-  dataList: DrugAdvice[];  // Changed from 'data' to 'dataList'
-  totalCount: number;
-  page: number;
+  dataList: DrugAdvice[];
+  pageNumber: number;
   pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  isSuccess: boolean;
+  message: string;
+  id?: string;
+}
+
+// API Response for Create/Update/Delete operations
+interface ApiResponse {
+  isSuccess: boolean;
+  message: string;
+  id?: string;
 }
 
 @Component({
@@ -34,7 +49,7 @@ export class DrugAdviceComponent implements OnInit {
     advice: '', 
     isActive: true 
   };
-  entriesPerPage = 20;
+  entriesPerPage = 10;
   searchTerm = '';
   isLoading = false;
   error = '';
@@ -44,12 +59,12 @@ export class DrugAdviceComponent implements OnInit {
   totalPages: number = 1;
   totalCount: number = 0;
 
-  // API Endpoints
+  // API Endpoints - Updated to match backend routes
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/GetAll',
-    CREATE: '/api/DrugManagement',
-    UPDATE: '/api/DrugManagement',
-    DELETE: '/api/DrugManagement'
+    CREATE: '/DrugManagement/createDrugAdvices',
+    UPDATE: '/DrugManagement/updateDrugAdvice',
+    DELETE: '/DrugManagement/deleteDrugAdvice'
   };
 
   constructor(private http: HttpClient) {}
@@ -62,54 +77,58 @@ export class DrugAdviceComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', this.currentPage.toString())
       .set('pageSize', this.entriesPerPage.toString());
+
+    // Add search term if it exists
+    if (this.searchTerm && this.searchTerm.trim()) {
+      params = params.set('searchTerm', this.searchTerm.trim());
+    }
 
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
 
     this.http.get<DrugAdviceResponse>(apiUrl, { params })
       .subscribe({
         next: (response) => {
-          console.log('API Response:', response); // Debug log
+          console.log('API Response:', response);
           
-          // Use 'dataList' instead of 'data'
-          this.advices = response.dataList || [];
-          this.paginatedAdvices = response.dataList || [];
-          this.totalCount = response.totalCount;
-          this.totalPages = Math.ceil(this.totalCount / this.entriesPerPage);
-          this.filteredAdvices = response.dataList || [];
+          if (response.isSuccess) {
+            this.advices = response.dataList || [];
+            this.paginatedAdvices = response.dataList || [];
+            this.totalCount = response.totalCount;
+            this.totalPages = response.totalPages;
+            this.filteredAdvices = response.dataList || [];
+          } else {
+            this.error = response.message || 'Failed to load drug advice data';
+            this.advices = [];
+            this.paginatedAdvices = [];
+            this.filteredAdvices = [];
+          }
+          
           this.isLoading = false;
         },
         error: (err) => {
           this.error = 'Failed to load drug advice data';
           console.error('API Error:', err);
+          this.advices = [];
+          this.paginatedAdvices = [];
+          this.filteredAdvices = [];
           this.isLoading = false;
         }
       });
   }
 
-  filterAdvices(): void {
-    this.filteredAdvices = this.advices.filter(advice =>
-      advice.advice.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
-    this.updateLocalPagination();
-  }
-
   onSearch(): void {
+    // Reset to page 1 when searching
     this.currentPage = 1;
-    this.filterAdvices();
+    // Server-side search through API
+    this.loadDrugAdvices();
   }
 
   onEntriesPerPageChange(): void {
     this.currentPage = 1;
     this.loadDrugAdvices();
-  }
-
-  updateLocalPagination(): void {
-    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
-    const endIndex = startIndex + this.entriesPerPage;
-    this.paginatedAdvices = this.filteredAdvices.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -155,7 +174,7 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   getStartIndex(): number {
-    return (this.currentPage - 1) * this.entriesPerPage + 1;
+    return this.totalCount === 0 ? 0 : (this.currentPage - 1) * this.entriesPerPage + 1;
   }
 
   getEndIndex(): number {
@@ -192,50 +211,84 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   saveAdvice(): void {
-    if (this.formData.advice.trim()) {
-      if (this.isEditMode) {
-        // Update existing advice via API
-        const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}/${this.formData.drugAdviceId}`;
-        this.http.put<DrugAdvice>(updateUrl, this.formData)
-          .subscribe({
-            next: () => {
+    if (!this.formData.advice || !this.formData.advice.trim()) {
+      alert('Please enter advice text');
+      return;
+    }
+
+    if (this.isEditMode) {
+      // Update existing advice via API
+      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
+      
+      this.http.put<ApiResponse>(updateUrl, this.formData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Update success:', response.message);
               this.closeModal();
               this.loadDrugAdvices();
-            },
-            error: (err) => {
-              console.error('Update error:', err);
-              alert('Failed to update advice');
+            } else {
+              alert(response.message || 'Failed to update advice');
             }
-          });
-      } else {
-        // Create new advice via API
-        const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
-        this.http.post<DrugAdvice>(createUrl, this.formData)
-          .subscribe({
-            next: () => {
+          },
+          error: (err) => {
+            console.error('Update error:', err);
+            alert('Failed to update advice. Please try again.');
+          }
+        });
+    } else {
+      // Create new advice via API
+      const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+      
+      // Don't send drugAdviceId for new records
+      const createData = {
+        advice: this.formData.advice,
+        isActive: this.formData.isActive
+      };
+      
+      this.http.post<ApiResponse>(createUrl, createData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Create success:', response.message);
               this.closeModal();
               this.loadDrugAdvices();
-            },
-            error: (err) => {
-              console.error('Create error:', err);
-              alert('Failed to create advice');
+            } else {
+              alert(response.message || 'Failed to create advice');
             }
-          });
-      }
+          },
+          error: (err) => {
+            console.error('Create error:', err);
+            alert('Failed to create advice. Please try again.');
+          }
+        });
     }
   }
 
   deleteAdvice(drugAdviceId: string): void {
     if (confirm('Are you sure you want to delete this advice?')) {
-      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}/${drugAdviceId}`;
-      this.http.delete(deleteUrl)
+      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}`;
+      
+      const advice = this.advices.find(a => a.drugAdviceId === drugAdviceId);
+      if (!advice) {
+        alert('Advice not found');
+        return;
+      }
+      
+      // Send the entire DrugAdvice object as the backend expects
+      this.http.delete<ApiResponse>(deleteUrl, { body: advice })
         .subscribe({
-          next: () => {
-            this.loadDrugAdvices();
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Delete success:', response.message);
+              this.loadDrugAdvices();
+            } else {
+              alert(response.message || 'Failed to delete advice');
+            }
           },
           error: (err) => {
             console.error('Delete error:', err);
-            alert('Failed to delete advice');
+            alert('Failed to delete advice. Please try again.');
           }
         });
     }
