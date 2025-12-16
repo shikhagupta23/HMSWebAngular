@@ -1,15 +1,35 @@
-// drug-strength.component.ts
 import { Component, OnInit } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../../../environment/environment.delvelopment';
 
+// Updated interface to match API response
 interface DrugStrength {
-  id: number;
+  drugStrengthId: string;
   strength: string;
-  status: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
-interface FormData {
-  strength: string;
-  status: string;
+// Updated response interface to match backend PagedResponse
+interface DrugStrengthResponse {
+  dataList: DrugStrength[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  isSuccess: boolean;
+  message: string;
+  id?: string;
+}
+
+// API Response for Create/Update/Delete operations
+interface ApiResponse {
+  isSuccess: boolean;
+  message: string;
+  id?: string;
 }
 
 @Component({
@@ -19,85 +39,102 @@ interface FormData {
   styleUrls: ['./drugstrength.css']
 })
 export class DrugStrengthComponent implements OnInit {
-  drugList: DrugStrength[] = [];
-  filteredDrugList: DrugStrength[] = [];
-  paginatedDrugList: DrugStrength[] = [];  // ADD THIS
-  entriesPerPage: number = 20;
-  searchTerm: string = '';
-  showModal: boolean = false;
-  isEditMode: boolean = false;
-  editingDrugId: number | null = null;
-  
-  // ADD THESE PAGINATION PROPERTIES
+  drugStrengths: DrugStrength[] = [];
+  filteredDrugStrengths: DrugStrength[] = [];
+  paginatedDrugStrengths: DrugStrength[] = [];
+  showModal = false;
+  isEditMode = false;
+  formData: DrugStrength = { 
+    drugStrengthId: '', 
+    strength: '', 
+    isActive: true 
+  };
+  entriesPerPage = 10;
+  searchTerm = '';
+  isLoading = false;
+  error = '';
+
+  // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
-  
-  formData: FormData = {
-    strength: '',
-    status: 'Active'
+  totalCount: number = 0;
+
+  // API Endpoints
+  private readonly API_ENDPOINTS = {
+    GET_ALL: '/DrugManagement/getAllDrugStrength',
+    CREATE: '/DrugManagement/createDrugStrength',
+    UPDATE: '/DrugManagement/updateDrugStrength',
+    DELETE: '/DrugManagement/deleteDrugStrength'
   };
 
+  constructor(private http: HttpClient) {}
+
   ngOnInit(): void {
-    this.loadDrugData();
+    this.loadDrugStrengths();
   }
 
-  loadDrugData(): void {
-    this.drugList = [
-      { id: 1, strength: '40 mg', status: 'Active' },
-      { id: 2, strength: '20 mg', status: 'Active' },
-      { id: 3, strength: '600mg', status: 'Active' },
-      { id: 4, strength: '500mg', status: 'Active' },
-      { id: 5, strength: '450mg', status: 'Active' },
-      { id: 6, strength: '400mg', status: 'Active' },
-      { id: 7, strength: '350mg', status: 'Active' },
-      { id: 8, strength: '300mg', status: 'Active' },
-      { id: 9, strength: '250mg', status: 'Active' },
-      { id: 10, strength: '200mg', status: 'Active' },
-      { id: 11, strength: '150mg', status: 'Active' },
-      { id: 12, strength: '100mg', status: 'Active' },
-      { id: 13, strength: '50mg', status: 'Active' },
-      { id: 14, strength: '25mg', status: 'Active' },
-      { id: 15, strength: '10mg', status: 'Active' }
-    ];
-    this.filterDrugList();
+  loadDrugStrengths(): void {
+    this.isLoading = true;
+    this.error = '';
+
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.entriesPerPage.toString());
+
+    // Add search term if it exists
+    if (this.searchTerm && this.searchTerm.trim()) {
+      params = params.set('searchTerm', this.searchTerm.trim());
+    }
+
+    const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
+
+    this.http.get<DrugStrengthResponse>(apiUrl, { params })
+      .subscribe({
+        next: (response) => {
+          console.log('API Response:', response);
+          
+          if (response.isSuccess) {
+            this.drugStrengths = response.dataList || [];
+            this.paginatedDrugStrengths = response.dataList || [];
+            this.totalCount = response.totalCount;
+            this.totalPages = response.totalPages;
+            this.filteredDrugStrengths = response.dataList || [];
+          } else {
+            this.error = response.message || 'Failed to load drug strength data';
+            this.drugStrengths = [];
+            this.paginatedDrugStrengths = [];
+            this.filteredDrugStrengths = [];
+          }
+          
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load drug strength data';
+          console.error('API Error:', err);
+          this.drugStrengths = [];
+          this.paginatedDrugStrengths = [];
+          this.filteredDrugStrengths = [];
+          this.isLoading = false;
+        }
+      });
   }
 
   onSearch(): void {
-    this.currentPage = 1;  // RESET TO PAGE 1
-    this.filterDrugList();
+    // Reset to page 1 when searching
+    this.currentPage = 1;
+    // Server-side search through API
+    this.loadDrugStrengths();
   }
 
-  onEntriesChange(): void {
-    this.currentPage = 1;  // RESET TO PAGE 1
-    this.updatePagination();
-  }
-
-  filterDrugList(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredDrugList = this.drugList.filter(drug =>
-        drug.strength.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredDrugList = [...this.drugList];
-    }
-    this.updatePagination();  // ADD THIS
-  }
-
-  // ADD ALL THESE PAGINATION METHODS
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredDrugList.length / this.entriesPerPage);
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = 1;
-    }
-    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
-    const endIndex = startIndex + this.entriesPerPage;
-    this.paginatedDrugList = this.filteredDrugList.slice(startIndex, endIndex);
+  onEntriesPerPageChange(): void {
+    this.currentPage = 1;
+    this.loadDrugStrengths();
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.updatePagination();
+      this.loadDrugStrengths();
     }
   }
 
@@ -137,77 +174,122 @@ export class DrugStrengthComponent implements OnInit {
   }
 
   getStartIndex(): number {
-    return (this.currentPage - 1) * this.entriesPerPage + 1;
+    return this.totalCount === 0 ? 0 : (this.currentPage - 1) * this.entriesPerPage + 1;
   }
 
   getEndIndex(): number {
-    return Math.min(this.currentPage * this.entriesPerPage, this.filteredDrugList.length);
+    return Math.min(this.currentPage * this.entriesPerPage, this.totalCount);
   }
 
   openCreateModal(): void {
     this.isEditMode = false;
-    this.editingDrugId = null;
-    this.formData = {
-      strength: '',
-      status: 'Active'
+    this.formData = { 
+      drugStrengthId: '', 
+      strength: '', 
+      isActive: true 
     };
     this.showModal = true;
   }
 
-  openEditModal(id: number): void {
-    const drug = this.drugList.find(d => d.id === id);
-    if (drug) {
+  openEditModal(drugStrengthId: string): void {
+    const drugStrength = this.drugStrengths.find(ds => ds.drugStrengthId === drugStrengthId);
+    if (drugStrength) {
       this.isEditMode = true;
-      this.editingDrugId = id;
-      this.formData = {
-        strength: drug.strength,
-        status: drug.status
-      };
+      this.formData = { ...drugStrength };
       this.showModal = true;
     }
   }
 
   closeModal(): void {
     this.showModal = false;
-    this.isEditMode = false;
-    this.editingDrugId = null;
-    this.formData = {
-      strength: '',
-      status: 'Active'
+    this.formData = { 
+      drugStrengthId: '', 
+      strength: '', 
+      isActive: true 
     };
+    this.isEditMode = false;
   }
 
   saveDrugStrength(): void {
-    if (!this.formData.strength.trim()) {
+    if (!this.formData.strength || !this.formData.strength.trim()) {
       alert('Please enter strength');
       return;
     }
 
-    if (this.isEditMode && this.editingDrugId !== null) {
-      const drug = this.drugList.find(d => d.id === this.editingDrugId);
-      if (drug) {
-        drug.strength = this.formData.strength;
-        drug.status = this.formData.status;
-      }
-    } else {
-      const newId = Math.max(...this.drugList.map(d => d.id), 0) + 1;
-      this.drugList.push({
-        id: newId,
+    if (this.isEditMode) {
+      // Update existing drug strength via API - id in URL path
+      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}/${this.formData.drugStrengthId}`;
+      
+      // Prepare update data without drugStrengthId (it's in the URL)
+      const updateData = {
         strength: this.formData.strength,
-        status: this.formData.status
-      });
+        isActive: this.formData.isActive
+      };
+      
+      this.http.put<ApiResponse>(updateUrl, updateData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Update success:', response.message);
+              this.closeModal();
+              this.loadDrugStrengths();
+            } else {
+              alert(response.message || 'Failed to update drug strength');
+            }
+          },
+          error: (err) => {
+            console.error('Update error:', err);
+            alert('Failed to update drug strength. Please try again.');
+          }
+        });
+    } else {
+      // Create new drug strength via API
+      const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+      
+      // Don't send drugStrengthId for new records
+      const createData = {
+        strength: this.formData.strength,
+        isActive: this.formData.isActive
+      };
+      
+      this.http.post<ApiResponse>(createUrl, createData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Create success:', response.message);
+              this.closeModal();
+              this.loadDrugStrengths();
+            } else {
+              alert(response.message || 'Failed to create drug strength');
+            }
+          },
+          error: (err) => {
+            console.error('Create error:', err);
+            alert('Failed to create drug strength. Please try again.');
+          }
+        });
     }
-
-    this.filterDrugList();
-    this.closeModal();
-    alert(this.isEditMode ? 'Drug strength updated successfully!' : 'Drug strength created successfully!');
   }
 
-  deleteDrugStrength(id: number): void {
+  deleteDrugStrength(drugStrengthId: string): void {
     if (confirm('Are you sure you want to delete this drug strength?')) {
-      this.drugList = this.drugList.filter(drug => drug.id !== id);
-      this.filterDrugList();
-      alert('Drug strength deleted successfully!');
+      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}/${drugStrengthId}`;
+      
+      this.http.delete<ApiResponse>(deleteUrl)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Delete success:', response.message);
+              this.loadDrugStrengths();
+            } else {
+              alert(response.message || 'Failed to delete drug strength');
+            }
+          },
+          error: (err) => {
+            console.error('Delete error:', err);
+            alert('Failed to delete drug strength. Please try again.');
+          }
+        });
     }
   }
 }

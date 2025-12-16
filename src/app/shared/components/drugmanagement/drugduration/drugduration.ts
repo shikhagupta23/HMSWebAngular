@@ -1,18 +1,35 @@
-// drug-duration.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../../../environment/environment.delvelopment';
 
+// Updated interface to match API response
 interface DrugDuration {
-  id: number;
+  drugDurationId: string;
   duration: string;
-  status: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
-interface FormData {
-  duration: string;
-  status: string;
+// Updated response interface to match backend PagedResponse
+interface DrugDurationResponse {
+  dataList: DrugDuration[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  isSuccess: boolean;
+  message: string;
+  id?: string;
+}
+
+// API Response for Create/Update/Delete operations
+interface ApiResponse {
+  isSuccess: boolean;
+  message: string;
+  id?: string;
 }
 
 @Component({
@@ -22,84 +39,102 @@ interface FormData {
   styleUrls: ['./drugduration.css']
 })
 export class DrugDurationComponent implements OnInit {
-  drugDurationList: DrugDuration[] = [];
-  filteredDrugDurationList: DrugDuration[] = [];
-  paginatedDrugDurationList: DrugDuration[] = [];
-  entriesPerPage: number = 20;
-  searchTerm: string = '';
-  showModal: boolean = false;
-  isEditMode: boolean = false;
-  editingDrugDurationId: number | null = null;
-  
+  drugDurations: DrugDuration[] = [];
+  filteredDrugDurations: DrugDuration[] = [];
+  paginatedDrugDurations: DrugDuration[] = [];
+  showModal = false;
+  isEditMode = false;
+  formData: DrugDuration = { 
+    drugDurationId: '', 
+    duration: '', 
+    isActive: true 
+  };
+  entriesPerPage = 10;
+  searchTerm = '';
+  isLoading = false;
+  error = '';
+
   // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
-  
-  formData: FormData = {
-    duration: '',
-    status: 'Active'
+  totalCount: number = 0;
+
+  // API Endpoints
+  private readonly API_ENDPOINTS = {
+    GET_ALL: '/DrugManagement/getAllDrugDuration',
+    CREATE: '/DrugManagement/createDrugDuration',
+    UPDATE: '/DrugManagement/updateDrugDuration',
+    DELETE: '/DrugManagement/deleteDrugDuration'
   };
 
+  constructor(private http: HttpClient) {}
+
   ngOnInit(): void {
-    this.loadDrugDurationData();
+    this.loadDrugDurations();
   }
 
-  loadDrugDurationData(): void {
-    this.drugDurationList = [
-      { id: 1, duration: '30 Daya', status: 'Active' },
-      { id: 2, duration: '7 Dias', status: 'Active' },
-      { id: 3, duration: '30 dias', status: 'Active' },
-      { id: 4, duration: '30', status: 'Active' },
-      { id: 5, duration: '7', status: 'Active' },
-      { id: 6, duration: '7 dias', status: 'Active' },
-      { id: 7, duration: '50', status: 'Active' },
-      { id: 8, duration: '৫ দিন', status: 'Active' },
-      { id: 9, duration: '1 Year', status: 'Active' },
-      { id: 10, duration: '6 Month', status: 'Active' },
-      { id: 11, duration: '3 Months', status: 'Active' },
-      { id: 12, duration: '1 Month', status: 'Active' },
-      { id: 13, duration: '2 Weeks', status: 'Active' },
-      { id: 14, duration: '10 Days', status: 'Active' },
-      { id: 15, duration: '14 Days', status: 'Active' }
-    ];
-    this.filterDrugDurationList();
+  loadDrugDurations(): void {
+    this.isLoading = true;
+    this.error = '';
+
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.entriesPerPage.toString());
+
+    // Add search term if it exists
+    if (this.searchTerm && this.searchTerm.trim()) {
+      params = params.set('searchTerm', this.searchTerm.trim());
+    }
+
+    const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
+
+    this.http.get<DrugDurationResponse>(apiUrl, { params })
+      .subscribe({
+        next: (response) => {
+          console.log('API Response:', response);
+          
+          if (response.isSuccess) {
+            this.drugDurations = response.dataList || [];
+            this.paginatedDrugDurations = response.dataList || [];
+            this.totalCount = response.totalCount;
+            this.totalPages = response.totalPages;
+            this.filteredDrugDurations = response.dataList || [];
+          } else {
+            this.error = response.message || 'Failed to load drug duration data';
+            this.drugDurations = [];
+            this.paginatedDrugDurations = [];
+            this.filteredDrugDurations = [];
+          }
+          
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load drug duration data';
+          console.error('API Error:', err);
+          this.drugDurations = [];
+          this.paginatedDrugDurations = [];
+          this.filteredDrugDurations = [];
+          this.isLoading = false;
+        }
+      });
   }
 
   onSearch(): void {
+    // Reset to page 1 when searching
     this.currentPage = 1;
-    this.filterDrugDurationList();
+    // Server-side search through API
+    this.loadDrugDurations();
   }
 
-  onEntriesChange(): void {
+  onEntriesPerPageChange(): void {
     this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  filterDrugDurationList(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredDrugDurationList = this.drugDurationList.filter(drugDuration =>
-        drugDuration.duration.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredDrugDurationList = [...this.drugDurationList];
-    }
-    this.updatePagination();
-  }
-
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredDrugDurationList.length / this.entriesPerPage);
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = 1;
-    }
-    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
-    const endIndex = startIndex + this.entriesPerPage;
-    this.paginatedDrugDurationList = this.filteredDrugDurationList.slice(startIndex, endIndex);
+    this.loadDrugDurations();
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.updatePagination();
+      this.loadDrugDurations();
     }
   }
 
@@ -139,77 +174,122 @@ export class DrugDurationComponent implements OnInit {
   }
 
   getStartIndex(): number {
-    return (this.currentPage - 1) * this.entriesPerPage + 1;
+    return this.totalCount === 0 ? 0 : (this.currentPage - 1) * this.entriesPerPage + 1;
   }
 
   getEndIndex(): number {
-    return Math.min(this.currentPage * this.entriesPerPage, this.filteredDrugDurationList.length);
+    return Math.min(this.currentPage * this.entriesPerPage, this.totalCount);
   }
 
   openCreateModal(): void {
     this.isEditMode = false;
-    this.editingDrugDurationId = null;
-    this.formData = {
-      duration: '',
-      status: 'Active'
+    this.formData = { 
+      drugDurationId: '', 
+      duration: '', 
+      isActive: true 
     };
     this.showModal = true;
   }
 
-  openEditModal(id: number): void {
-    const drugDuration = this.drugDurationList.find(d => d.id === id);
+  openEditModal(drugDurationId: string): void {
+    const drugDuration = this.drugDurations.find(dd => dd.drugDurationId === drugDurationId);
     if (drugDuration) {
       this.isEditMode = true;
-      this.editingDrugDurationId = id;
-      this.formData = {
-        duration: drugDuration.duration,
-        status: drugDuration.status
-      };
+      this.formData = { ...drugDuration };
       this.showModal = true;
     }
   }
 
   closeModal(): void {
     this.showModal = false;
-    this.isEditMode = false;
-    this.editingDrugDurationId = null;
-    this.formData = {
-      duration: '',
-      status: 'Active'
+    this.formData = { 
+      drugDurationId: '', 
+      duration: '', 
+      isActive: true 
     };
+    this.isEditMode = false;
   }
 
   saveDrugDuration(): void {
-    if (!this.formData.duration.trim()) {
-      alert('Please enter drug duration');
+    if (!this.formData.duration || !this.formData.duration.trim()) {
+      alert('Please enter duration');
       return;
     }
 
-    if (this.isEditMode && this.editingDrugDurationId !== null) {
-      const drugDuration = this.drugDurationList.find(d => d.id === this.editingDrugDurationId);
-      if (drugDuration) {
-        drugDuration.duration = this.formData.duration;
-        drugDuration.status = this.formData.status;
-      }
-    } else {
-      const newId = Math.max(...this.drugDurationList.map(d => d.id), 0) + 1;
-      this.drugDurationList.push({
-        id: newId,
+    if (this.isEditMode) {
+      // Update existing drug duration via API - id in URL path
+      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}/${this.formData.drugDurationId}`;
+      
+      // Prepare update data without drugDurationId (it's in the URL)
+      const updateData = {
         duration: this.formData.duration,
-        status: this.formData.status
-      });
+        isActive: this.formData.isActive
+      };
+      
+      this.http.put<ApiResponse>(updateUrl, updateData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Update success:', response.message);
+              this.closeModal();
+              this.loadDrugDurations();
+            } else {
+              alert(response.message || 'Failed to update drug duration');
+            }
+          },
+          error: (err) => {
+            console.error('Update error:', err);
+            alert('Failed to update drug duration. Please try again.');
+          }
+        });
+    } else {
+      // Create new drug duration via API
+      const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+      
+      // Don't send drugDurationId for new records
+      const createData = {
+        duration: this.formData.duration,
+        isActive: this.formData.isActive
+      };
+      
+      this.http.post<ApiResponse>(createUrl, createData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Create success:', response.message);
+              this.closeModal();
+              this.loadDrugDurations();
+            } else {
+              alert(response.message || 'Failed to create drug duration');
+            }
+          },
+          error: (err) => {
+            console.error('Create error:', err);
+            alert('Failed to create drug duration. Please try again.');
+          }
+        });
     }
-
-    this.filterDrugDurationList();
-    this.closeModal();
-    alert(this.isEditMode ? 'Drug duration updated successfully!' : 'Drug duration created successfully!');
   }
 
-  deleteDrugDuration(id: number): void {
+  deleteDrugDuration(drugDurationId: string): void {
     if (confirm('Are you sure you want to delete this drug duration?')) {
-      this.drugDurationList = this.drugDurationList.filter(drugDuration => drugDuration.id !== id);
-      this.filterDrugDurationList();
-      alert('Drug duration deleted successfully!');
+      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}/${drugDurationId}`;
+      
+      this.http.delete<ApiResponse>(deleteUrl)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Delete success:', response.message);
+              this.loadDrugDurations();
+            } else {
+              alert(response.message || 'Failed to delete drug duration');
+            }
+          },
+          error: (err) => {
+            console.error('Delete error:', err);
+            alert('Failed to delete drug duration. Please try again.');
+          }
+        });
     }
   }
 }
