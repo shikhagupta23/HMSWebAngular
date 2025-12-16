@@ -52,10 +52,34 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: []
   },
   {
-    label: "Medicines",
+    label: "drugdose",
     icon: "fas fa-pills",
-    route: "/doctor/medicine/allmedicine",
-    roles: []
+    route: "/drugmanagement/drugdose",
+    roles: ["Receptionist"]
+  },
+  {
+    label: "drugadvice",
+    icon: "fas fa-pills",
+    route: "/drugmanagement/drugadvice",
+    roles: ["Receptionist"]
+  },
+  {
+    label: "drugstrength",
+    icon: "fas fa-pills",
+    route: "/drugmanagement/drugstrength",
+    roles: ["Receptionist"]
+  },
+  {
+    label: "drugtype",
+    icon: "fas fa-pills",
+    route: "/drugmanagement/drugtype",
+    roles: ["Receptionist"]
+  },
+   {
+    label: "drugduration",
+    icon: "fas fa-pills",
+    route: "/drugmanagement/drugduration",
+    roles: ["Receptionist"]
   },
   {
     label: "Lab Tests",
