@@ -19,6 +19,18 @@ export class Dashboard implements OnInit{
   completedAppointments: number = 0;
   cancelledAppointments: number = 0;
   revenue: number = 0;
+  todayAppointments: number = 0;
+  totalPatients: number = 0;
+  totalTodayPatients: number = 0;
+  todayRevenue: number = 0;
+  todayCompletedAppointments: number = 0;
+  todayPendingAppointments: number = 0;
+  todayCancelledAppointments: number = 0;
+  todayScheduledAppointments: number = 0;
+  totalScheduledAppointments: number = 0;
+  activeTab: 'today' | 'overall' = 'today';
+
+  
 
   private router = inject(Router);
   private dashboardService = inject(DashboardService);

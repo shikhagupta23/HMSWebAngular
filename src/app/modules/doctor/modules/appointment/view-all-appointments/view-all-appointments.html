@@ -70,7 +70,7 @@
 
 								<li class="nav-item">
 								<button class="nav-link" [class.active]="selectedStatus===1" (click)="changeStatus(1)">
-									Pending <span>{{ totalPending }}</span>
+									OnGoing <span>{{ totalPending }}</span>
 								</button>
 								</li>
 
@@ -132,7 +132,7 @@
 											<div class="d-flex align-items-center gap-2">
 
 												<!-- Eye icon when appointmentStatus = 2 -->
-												<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 || isReceptionist" class="appointment-action">
+												<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor || isReceptionist)" class="appointment-action">
 													<i class="fa-solid fa-eye"></i>
 												</a>
 
@@ -383,7 +383,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.symptoms"
-							[readonly]="isViewMode"
+							[readonly]="!canEdit"
 							placeholder="Enter symptoms..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -399,7 +399,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.diagnosis"
-							[readonly]="isViewMode"
+							[readonly]="!canEdit"
 							placeholder="Enter diagnosis..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -415,7 +415,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.advice"
-							[readonly]="isViewMode"
+							[readonly]="!canEdit"
 							placeholder="Enter advice..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -431,7 +431,7 @@
 						<div class="input-group">
 						<textarea class="form-control" rows="1"
 							[(ngModel)]="prescription.followUp"
-							[readonly]="isViewMode"
+							[readonly]="!canEdit"
 							placeholder="Enter follow up..."></textarea>
 
 						<span class="input-group-text cursor-pointer"
@@ -447,7 +447,7 @@
 
 				<div class="card shadow-sm border-0 rounded-4">
 				<div class="card-body">
-					<div class="row g-4">
+					<div class="row g-4" *ngIf="isDoctor">
 
 					<!-- Medicine Type -->
 					<div class="col-md-3">
@@ -499,7 +499,7 @@
 						</h5>
 
 						<button class="btn btn-sm"
-								(click)="removeMedicine(i)">
+								(click)="removeMedicine(i)" *ngIf="isDoctor">
 							<i class="fa-solid fa-xmark"></i>
 						</button>
 						</div>
@@ -513,7 +513,7 @@
 							<label class="fw-bold">Dosage (mg/ml)</label>
 							<input type="text" class="form-control"
 								placeholder="e.g. 500mg"
-								[(ngModel)]="m.dosage" [disabled]="isViewMode">
+								[(ngModel)]="m.dosage" [disabled]="!canEdit">
 						</div>
 
 						<!-- Duration -->
@@ -521,7 +521,7 @@
 							<label class="fw-bold">Duration (days)</label>
 							<input type="text" class="form-control"
 								placeholder="e.g. 5 days"
-								[(ngModel)]="m.duration" [disabled]="isViewMode">
+								[(ngModel)]="m.duration" [disabled]="!canEdit">
 						</div>
 
 						<!-- Frequency -->
@@ -531,7 +531,7 @@
 						<button *ngFor="let f of frequencyOptions"
 								class="btn"
 								[ngClass]="m.frequency === f.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="selectFrequency(m, f.value)" [disabled]="isViewMode">
+								(click)="selectFrequency(m, f.value)" [disabled]="!canEdit">
 						{{ f.label }}
 						</button>
 
@@ -546,7 +546,7 @@
 						<button *ngFor="let t of timingOptions"
 								class="btn"
 								[ngClass]="m.timings.includes(t.value) ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="toggleTiming(m, t.value)" [disabled]="isViewMode">
+								(click)="toggleTiming(m, t.value)" [disabled]="!canEdit">
 							{{ t.label }}
 						</button>
 						</div>
@@ -560,7 +560,7 @@
 						<button *ngFor="let ins of instructionOptions"
 								class="btn"
 								[ngClass]="m.instruction === ins.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-								(click)="selectInstruction(m, ins.value)" [disabled]="isViewMode">
+								(click)="selectInstruction(m, ins.value)" [disabled]="!canEdit">
 							{{ ins.label }}
 						</button>
 						</div>
@@ -577,7 +577,7 @@
 				<div class="card-body">
 
 					<!-- Lab Test Dropdown -->
-					<div class="row g-4">
+					<div class="row g-4" *ngIf="isDoctor">
 
 					<div class="col-md-3">
 						<label class="form-label fw-bold">Select Lab Test</label>
@@ -603,7 +603,7 @@
 						<tr>
 						<th>#</th>
 						<th>Lab Test</th>
-						<th>Action</th>
+						<th *ngIf="isDoctor">Action</th>
 						</tr>
 					</thead>
 
@@ -612,7 +612,7 @@
 						<td>{{ i + 1 }}</td>
 						<td>{{ t.name }}</td> 
 						<td>
-							<button class="btn btn-sm" (click)="removeLabTest(i)">
+							<button class="btn btn-sm" (click)="removeLabTest(i)" *ngIf="isDoctor">
 							<i class="fa fa-trash"></i>
 							</button>
 						</td>

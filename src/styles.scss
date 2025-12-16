@@ -101,7 +101,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 150px;
+  min-height: 125px;
   padding: 20px;
   border-radius: 10px;
   background-color: #fff;
@@ -327,3 +327,25 @@ body {
     z-index: 3;
     color: var(--bs-pagination-active-color) !important;
 }
+
+.dashboard-tabs {
+  gap: 10px;
+
+  .nav-link {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+  .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+}
+
+.breadcrumb-bar-two,
+.inner-banner {
+  overflow: visible !important;
+}
+

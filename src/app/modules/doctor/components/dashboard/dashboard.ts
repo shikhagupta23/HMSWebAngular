@@ -19,6 +19,9 @@ export class Dashboard implements OnInit{
   completedAppointments: number = 0;
   cancelledAppointments: number = 0;
   revenue: number = 0;
+  todayAppointments: number = 0;
+  todayPatients: number = 0;
+  todayRevenue: number = 0;
 
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
