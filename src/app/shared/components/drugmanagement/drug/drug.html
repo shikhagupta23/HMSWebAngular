@@ -119,21 +119,22 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- FIXED VARIATIONS DISPLAY SECTION -->
                                         <div class="col-variations">
                                             <div class="variations-list">
                                                 <div *ngFor="let variation of drug.variations" class="variation-item">
                                                     <div class="variation-detail">
                                                         <strong>Type:</strong> {{ getDrugTypeName(variation.drugTypeId)
                                                         }}
-                                                        <strong>Strength:</strong> [ {{
-                                                        getDrugStrengthNames(variation.drugStrengthIds) }} ]
-                                                        <strong>Dose:</strong> [ {{
-                                                        getDrugDoseNames(variation.drugDoseIds) }} ]
-                                                        <strong>Duration:</strong> [ {{
-                                                        getDrugDurationNames(variation.drugDurationIds) }} ]
+                                                        <!-- FIXED: Use singular field names from API response -->
+                                                        <strong>Strength:</strong> {{
+                                                        getStrengthName(variation.drugStrengthId) }}
+                                                        <strong>Dose:</strong> {{ getDoseName(variation.doseId) }}
+                                                        <strong>Duration:</strong> {{
+                                                        getDurationName(variation.drugDurationId) }}
                                                     </div>
-                                                    <div *ngIf="variation.advice" class="variation-advice">
-                                                        <strong>Advice:</strong> {{ variation.advice }}
+                                                    <div *ngIf="variation.variationNote" class="variation-advice">
+                                                        <strong>Advice:</strong> {{ variation.variationNote }}
                                                     </div>
                                                 </div>
                                             </div>

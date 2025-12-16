@@ -8,14 +8,25 @@ interface DropdownDto {
   name: string;
 }
 
-interface DrugVariation {
+// API Response Variation (SINGULAR fields from backend)
+interface ApiDrugVariation {
   drugVariationId?: string;
   drugTypeId: string;
-  drugStrengthIds: string[];
-  drugDoseIds: string[];
-  drugDurationIds: string[];
+  drugStrengthId: string;      // SINGULAR
+  doseId: string;               // SINGULAR
+  drugDurationId: string;       // SINGULAR
+  variationNote?: string;
+  isActive?: boolean;
+}
+
+// Form Variation (ARRAY fields for multi-select UI)
+interface FormDrugVariation {
+  drugVariationId?: string;
+  drugTypeId: string;
+  drugStrengthIds: string[];    // ARRAY for UI
+  drugDoseIds: string[];        // ARRAY for UI
+  drugDurationIds: string[];    // ARRAY for UI
   advice?: string;
-  // Search and dropdown state
   strengthSearch?: string;
   doseSearch?: string;
   durationSearch?: string;
@@ -31,11 +42,11 @@ interface Drug {
   drugId: string;
   tradeName: string;
   genericName: string;
-  warning: string;
-  note: string;
-  sideEffect: string;
+  warning?: string;
+  note?: string;
+  sideEffect?: string;
   isActive: boolean;
-  variations: DrugVariation[];
+  variations: ApiDrugVariation[];  // API returns singular fields
   createdAt?: string;
   updatedAt?: string;
 }
@@ -65,7 +76,42 @@ interface FormData {
   sideEffect: string;
   additionalAdvice: string;
   isActive: boolean;
-  variations: DrugVariation[];
+  variations: FormDrugVariation[];  // Form uses array fields
+}
+
+// Backend DTO interfaces
+interface DrugVariationCreateDto {
+  drugTypeId: string;
+  drugStrengthIds: string[];
+  doseIds: string[];
+  drugDurationIds: string[];
+  drugAdviceId?: string | null;
+  variationNote?: string;
+  isActive?: boolean;           // Added for consistency
+}
+
+interface DrugCreateDto {
+  tradeName: string;
+  genericName: string;
+  warning?: string;
+  note?: string;
+  sideEffect?: string;
+  additionalAdvice?: string;
+  createdBy: string;
+  variations: DrugVariationCreateDto[];
+}
+
+interface DrugUpdateDto {
+  drugId: string;               // REQUIRED for backend
+  tradeName: string;
+  genericName: string;
+  warning?: string;
+  note?: string;
+  sideEffect?: string;
+  additionalAdvice?: string;
+  isActive: boolean;
+  updatedBy: string;            // REQUIRED for backend
+  variations: DrugVariationCreateDto[];
 }
 
 @Component({
@@ -87,12 +133,10 @@ export class DrugComponent implements OnInit {
   isLoading = false;
   error = '';
 
-  // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
   totalCount: number = 0;
 
-  // Dropdown data
   drugTypes: DropdownDto[] = [];
   drugStrengths: DropdownDto[] = [];
   drugDoses: DropdownDto[] = [];
@@ -109,7 +153,6 @@ export class DrugComponent implements OnInit {
     variations: []
   };
 
-  // API Endpoints
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrug',
     CREATE: '/DrugManagement/createDrug',
@@ -137,57 +180,33 @@ export class DrugComponent implements OnInit {
 
   loadDrugTypes(): void {
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DROPDOWN_TYPE}`;
-    
     this.http.get<DropdownDto[]>(apiUrl).subscribe({
-      next: (response) => {
-        this.drugTypes = response || [];
-      },
-      error: (err) => {
-        console.error('Error loading drug types:', err);
-        this.drugTypes = [];
-      }
+      next: (response) => { this.drugTypes = response || []; },
+      error: (err) => { console.error('Error loading drug types:', err); this.drugTypes = []; }
     });
   }
 
   loadDrugStrengths(): void {
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DROPDOWN_STRENGTH}`;
-    
     this.http.get<DropdownDto[]>(apiUrl).subscribe({
-      next: (response) => {
-        this.drugStrengths = response || [];
-      },
-      error: (err) => {
-        console.error('Error loading drug strengths:', err);
-        this.drugStrengths = [];
-      }
+      next: (response) => { this.drugStrengths = response || []; },
+      error: (err) => { console.error('Error loading drug strengths:', err); this.drugStrengths = []; }
     });
   }
 
   loadDrugDoses(): void {
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DROPDOWN_DOSE}`;
-    
     this.http.get<DropdownDto[]>(apiUrl).subscribe({
-      next: (response) => {
-        this.drugDoses = response || [];
-      },
-      error: (err) => {
-        console.error('Error loading drug doses:', err);
-        this.drugDoses = [];
-      }
+      next: (response) => { this.drugDoses = response || []; },
+      error: (err) => { console.error('Error loading drug doses:', err); this.drugDoses = []; }
     });
   }
 
   loadDrugDurations(): void {
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DROPDOWN_DURATION}`;
-    
     this.http.get<DropdownDto[]>(apiUrl).subscribe({
-      next: (response) => {
-        this.drugDurations = response || [];
-      },
-      error: (err) => {
-        console.error('Error loading drug durations:', err);
-        this.drugDurations = [];
-      }
+      next: (response) => { this.drugDurations = response || []; },
+      error: (err) => { console.error('Error loading drug durations:', err); this.drugDurations = []; }
     });
   }
 
@@ -202,7 +221,6 @@ export class DrugComponent implements OnInit {
     if (this.searchTerm && this.searchTerm.trim()) {
       params = params.set('searchTerm', this.searchTerm.trim());
     }
-
     if (this.selectedFilterType) {
       params = params.set('drugTypeId', this.selectedFilterType);
     }
@@ -223,7 +241,6 @@ export class DrugComponent implements OnInit {
           this.paginatedDrugList = [];
           this.filteredDrugList = [];
         }
-        
         this.isLoading = false;
       },
       error: (err) => {
@@ -290,7 +307,6 @@ export class DrugComponent implements OnInit {
         pages.push(this.totalPages);
       }
     }
-    
     return pages;
   }
 
@@ -323,16 +339,42 @@ export class DrugComponent implements OnInit {
     if (drug) {
       this.isEditMode = true;
       this.editingDrugId = drugId;
+      
+      // Group variations by common properties to reconstruct original multi-select form
+      const groupedVariations = this.groupVariationsByType(drug.variations);
+      
+      // FIXED: Properly bind all optional fields with fallback to empty string
       this.formData = {
-        tradeName: drug.tradeName,
-        genericName: drug.genericName,
-        warning: drug.warning,
-        note: drug.note,
-        sideEffect: drug.sideEffect,
-        additionalAdvice: '',
-        isActive: drug.isActive,
-        variations: JSON.parse(JSON.stringify(drug.variations)).map((v: DrugVariation) => ({
-          ...v,
+        tradeName: drug.tradeName || '',
+        genericName: drug.genericName || '',
+        warning: drug.warning ?? '',           // Use nullish coalescing
+        note: drug.note ?? '',                 // Use nullish coalescing
+        sideEffect: drug.sideEffect ?? '',     // Use nullish coalescing
+        additionalAdvice: '',                   // Always empty on edit (as per your requirement)
+        isActive: drug.isActive ?? true,       // Default to true if undefined
+        variations: groupedVariations
+      };
+      
+      console.log('Edit Form Data:', this.formData); // Debug log
+      this.showCreateForm = true;
+    }
+  }
+
+  // Group variations back into form format for editing
+  private groupVariationsByType(apiVariations: ApiDrugVariation[]): FormDrugVariation[] {
+    // Group by drugTypeId and advice
+    const groups = new Map<string, FormDrugVariation>();
+    
+    for (const v of apiVariations) {
+      const key = `${v.drugTypeId}_${v.variationNote || ''}`;
+      
+      if (!groups.has(key)) {
+        groups.set(key, {
+          drugTypeId: v.drugTypeId,
+          drugStrengthIds: [],
+          drugDoseIds: [],
+          drugDurationIds: [],
+          advice: v.variationNote || '',
           strengthSearch: '',
           doseSearch: '',
           durationSearch: '',
@@ -342,10 +384,22 @@ export class DrugComponent implements OnInit {
           filteredStrengths: [],
           filteredDoses: [],
           filteredDurations: []
-        }))
-      };
-      this.showCreateForm = true;
+        });
+      }
+      
+      const group = groups.get(key)!;
+      if (v.drugStrengthId && !group.drugStrengthIds.includes(v.drugStrengthId)) {
+        group.drugStrengthIds.push(v.drugStrengthId);
+      }
+      if (v.doseId && !group.drugDoseIds.includes(v.doseId)) {
+        group.drugDoseIds.push(v.doseId);
+      }
+      if (v.drugDurationId && !group.drugDurationIds.includes(v.drugDurationId)) {
+        group.drugDurationIds.push(v.drugDurationId);
+      }
     }
+    
+    return Array.from(groups.values());
   }
 
   closeForm(): void {
@@ -379,7 +433,6 @@ export class DrugComponent implements OnInit {
 
   // ========== SEARCHABLE DROPDOWN METHODS ==========
 
-  // Strength Methods
   filterStrengths(index: number): void {
     const variation = this.formData.variations[index];
     const searchTerm = (variation.strengthSearch || '').toLowerCase();
@@ -422,7 +475,6 @@ export class DrugComponent implements OnInit {
     this.filterStrengths(index);
   }
 
-  // Dose Methods
   filterDoses(index: number): void {
     const variation = this.formData.variations[index];
     const searchTerm = (variation.doseSearch || '').toLowerCase();
@@ -465,7 +517,6 @@ export class DrugComponent implements OnInit {
     this.filterDoses(index);
   }
 
-  // Duration Methods
   filterDurations(index: number): void {
     const variation = this.formData.variations[index];
     const searchTerm = (variation.durationSearch || '').toLowerCase();
@@ -508,7 +559,7 @@ export class DrugComponent implements OnInit {
     this.filterDurations(index);
   }
 
-  // ========== END SEARCHABLE DROPDOWN METHODS ==========
+  // ========== SAVE DRUG METHOD ==========
 
   saveDrug(): void {
     if (!this.formData.tradeName.trim() || !this.formData.genericName.trim()) {
@@ -521,7 +572,6 @@ export class DrugComponent implements OnInit {
       return;
     }
 
-    // Validate variations
     for (let i = 0; i < this.formData.variations.length; i++) {
       const variation = this.formData.variations[i];
       if (!variation.drugTypeId) {
@@ -530,27 +580,31 @@ export class DrugComponent implements OnInit {
       }
     }
 
-    // Clean up variations before sending
-    const cleanedVariations = this.formData.variations.map(v => ({
-      drugVariationId: v.drugVariationId,
-      drugTypeId: v.drugTypeId,
-      drugStrengthIds: v.drugStrengthIds,
-      drugDoseIds: v.drugDoseIds,
-      drugDurationIds: v.drugDurationIds,
-      advice: v.advice
-    }));
+    // Generate all combinations (Cartesian product)
+    const transformedVariations: DrugVariationCreateDto[] = [];
+    
+    for (const variation of this.formData.variations) {
+      const combinations = this.generateVariationCombinations(variation);
+      transformedVariations.push(...combinations);
+    }
+
+    console.log(`Generated ${transformedVariations.length} variation combinations`);
 
     if (this.isEditMode && this.editingDrugId) {
-      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}/${this.editingDrugId}`;
+      // FIXED: Backend expects body, not URL param
+      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
       
-      const updateData = {
-        tradeName: this.formData.tradeName,
-        genericName: this.formData.genericName,
-        warning: this.formData.warning,
-        note: this.formData.note,
-        sideEffect: this.formData.sideEffect,
+      const updateData: DrugUpdateDto = {
+        drugId: this.editingDrugId,                      // Required in body
+        tradeName: this.formData.tradeName.trim(),
+        genericName: this.formData.genericName.trim(),
+        warning: this.formData.warning?.trim() || '',
+        note: this.formData.note?.trim() || '',
+        sideEffect: this.formData.sideEffect?.trim() || '',
+        additionalAdvice: this.formData.additionalAdvice?.trim() || '',
         isActive: this.formData.isActive,
-        variations: cleanedVariations
+        updatedBy: this.getCurrentUserId(),              // Required in body
+        variations: transformedVariations
       };
       
       this.http.put<ApiResponse>(updateUrl, updateData).subscribe({
@@ -565,20 +619,23 @@ export class DrugComponent implements OnInit {
         },
         error: (err) => {
           console.error('Update error:', err);
-          alert('Failed to update drug. Please try again.');
+          const errorMessage = err.error?.message || err.message || 'Failed to update drug. Please try again.';
+          alert(errorMessage);
         }
       });
     } else {
       const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+      const currentUserId = this.getCurrentUserId();
       
-      const createData = {
-        tradeName: this.formData.tradeName,
-        genericName: this.formData.genericName,
-        warning: this.formData.warning,
-        note: this.formData.note,
-        sideEffect: this.formData.sideEffect,
-        isActive: this.formData.isActive,
-        variations: cleanedVariations
+      const createData: DrugCreateDto = {
+        tradeName: this.formData.tradeName.trim(),
+        genericName: this.formData.genericName.trim(),
+        warning: this.formData.warning?.trim() || '',
+        note: this.formData.note?.trim() || '',
+        sideEffect: this.formData.sideEffect?.trim() || '',
+        additionalAdvice: this.formData.additionalAdvice?.trim() || '',
+        createdBy: currentUserId,
+        variations: transformedVariations
       };
       
       this.http.post<ApiResponse>(createUrl, createData).subscribe({
@@ -593,10 +650,45 @@ export class DrugComponent implements OnInit {
         },
         error: (err) => {
           console.error('Create error:', err);
-          alert('Failed to create drug. Please try again.');
+          const errorMessage = err.error?.message || err.message || 'Failed to create drug. Please try again.';
+          alert(errorMessage);
         }
       });
     }
+  }
+
+  private getCurrentUserId(): string {
+    return '00000000-0000-0000-0000-000000000000';
+  }
+
+  /**
+   * Generate all combinations (Cartesian product)
+   * Example: 2 strengths × 2 doses × 2 durations = 8 combinations
+   */
+  private generateVariationCombinations(variation: FormDrugVariation): DrugVariationCreateDto[] {
+    const combinations: DrugVariationCreateDto[] = [];
+    
+    const strengths = variation.drugStrengthIds.length > 0 ? variation.drugStrengthIds : [''];
+    const doses = variation.drugDoseIds.length > 0 ? variation.drugDoseIds : [''];
+    const durations = variation.drugDurationIds.length > 0 ? variation.drugDurationIds : [''];
+    
+    for (const strengthId of strengths) {
+      for (const doseId of doses) {
+        for (const durationId of durations) {
+          combinations.push({
+            drugTypeId: variation.drugTypeId,
+            drugStrengthIds: strengthId ? [strengthId] : [],
+            doseIds: doseId ? [doseId] : [],
+            drugDurationIds: durationId ? [durationId] : [],
+            drugAdviceId: null,
+            variationNote: variation.advice || '',
+            isActive: true                                    // Set all variations as active
+          });
+        }
+      }
+    }
+    
+    return combinations;
   }
 
   deleteDrug(drugId: string): void {
@@ -620,7 +712,6 @@ export class DrugComponent implements OnInit {
     }
   }
 
-  // Multi-select helper methods
   isSelected(selectedIds: string[], id: string): boolean {
     return selectedIds.includes(id);
   }
@@ -632,7 +723,6 @@ export class DrugComponent implements OnInit {
     }
   }
 
-  // Helper methods to get name by ID (for tags display)
   getStrengthName(id: string): string {
     const item = this.drugStrengths.find(s => s.id === id);
     return item ? item.name : 'Unknown';
@@ -648,31 +738,34 @@ export class DrugComponent implements OnInit {
     return item ? item.name : 'Unknown';
   }
 
-  // Helper methods to get names from IDs for display in list view
   getDrugTypeName(id: string): string {
     const type = this.drugTypes.find(t => t.id === id);
     return type ? type.name : 'N/A';
   }
 
-  getDrugStrengthNames(ids: string[]): string {
-    if (!ids || ids.length === 0) return 'N/A';
-    return ids.map(id => {
+  // FIXED: These methods now handle SINGULAR fields from API
+  getDrugStrengthNames(ids: string | string[]): string {
+    const idArray = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+    if (idArray.length === 0) return 'N/A';
+    return idArray.map(id => {
       const strength = this.drugStrengths.find(s => s.id === id);
       return strength ? strength.name : '';
     }).filter(n => n).join(', ');
   }
 
-  getDrugDoseNames(ids: string[]): string {
-    if (!ids || ids.length === 0) return 'N/A';
-    return ids.map(id => {
+  getDrugDoseNames(ids: string | string[]): string {
+    const idArray = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+    if (idArray.length === 0) return 'N/A';
+    return idArray.map(id => {
       const dose = this.drugDoses.find(d => d.id === id);
       return dose ? dose.name : '';
     }).filter(n => n).join(', ');
   }
 
-  getDrugDurationNames(ids: string[]): string {
-    if (!ids || ids.length === 0) return 'N/A';
-    return ids.map(id => {
+  getDrugDurationNames(ids: string | string[]): string {
+    const idArray = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+    if (idArray.length === 0) return 'N/A';
+    return idArray.map(id => {
       const duration = this.drugDurations.find(d => d.id === id);
       return duration ? duration.name : '';
     }).filter(n => n).join(', ');
