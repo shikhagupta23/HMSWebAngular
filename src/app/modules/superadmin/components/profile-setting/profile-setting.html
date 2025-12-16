@@ -1,0 +1,93 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+  <div class="breadcrumb-bar-two">
+    <div class="container">
+      <div class="row align-items-center inner-banner">
+        <div class="col-md-2 col-2">
+          <a href="/superadmin" class="menu-logo">
+            <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+          <app-asidebar></app-asidebar>
+          <!-- style="position: fixed; width: 22%; height: 60%;" -->
+        </div>
+        <div class="col-lg-8 col-xl-9">
+         <div class="profile-setting container">
+	<div class="card">
+		<div class="card-body">
+			<h4 class="card-title">Profile Settings</h4>
+
+			<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+				<input formControlName="id" type="hidden">
+				<input formControlName="hospitalId" type="hidden">
+
+				<div class="mb-3">
+					<label class="form-label">User Name</label>
+					<input class="form-control" formControlName="userName" placeholder="Enter user name">
+					<div *ngIf="f['userName'].touched && f['userName'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['userName'].errors?.['required']">User name is required</div>
+					</div>
+				</div>
+
+                <div class="row">
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Email</label>
+					<input class="form-control" formControlName="email" placeholder="Enter email">
+					<div *ngIf="f['email'].touched && f['email'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['email'].errors?.['required']">Email is required</div>
+						<div *ngIf="f['email'].errors?.['email']">Enter a valid email</div>
+					</div>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Phone Number</label>
+					<input class="form-control" formControlName="phoneNumber" placeholder="Enter phone number">
+					<div *ngIf="f['phoneNumber'].touched && f['phoneNumber'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['phoneNumber'].errors?.['required']">Phone number is required</div>
+					</div>
+					</div>
+				</div>
+
+                	<div class="row">
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Date of Birth</label>
+						<input type="date" class="form-control" formControlName="dateOfBirth">
+					</div>
+					<div class="col-md-6 mb-3">
+						<label class="form-label">Gender</label>
+						<select class="form-control" formControlName="gender">
+							<option value="">Select gender</option>
+							<option value="Male">Male</option>
+							<option value="Female">Female</option>
+							<option value="Other">Other</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Address</label>
+					<textarea class="form-control" formControlName="address" rows="3"></textarea>
+				</div>
+
+			
+
+				<div class="d-flex justify-content-end">
+					<button class="btn btn-primary" type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save Changes' }}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

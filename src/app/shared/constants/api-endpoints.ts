@@ -6,12 +6,12 @@ const API_BASE_URL=environment.baseUrl
 export const ApiEndpoints = {
   HOSPITAL: {
     GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&search=${search}`,
+      `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/HospitalAPI/Post`
   },
   User: {
     GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&search=${search}`,
+      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`
   },
   AUTH: {
@@ -26,7 +26,7 @@ export const ApiEndpoints = {
   },
   PATIENT: {
     GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/SelectAPI/getUserList?role=patient&page=${page}&pageSize=${pageSize}&search=${search}`,
+      `${API_BASE_URL}/SelectAPI/getUserList?role=patient&page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     GET_BY_NAME_OR_PHONE: `${API_BASE_URL}/SelectAPI/getUserListbyTerm`
   },
   USER: {
@@ -34,6 +34,8 @@ export const ApiEndpoints = {
       `${API_BASE_URL}/ApplicationUserAPI/getRoleId${roleName ? '?roleName=' + encodeURIComponent(roleName) : ''}`,
 
     CREATE: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`
+    ,
+    CHANGE_PASSWORD: `${API_BASE_URL}/ApplicationUserAPI/ChangePassword`
   },
   MEDICINE: {
     GET: `${API_BASE_URL}/MedicineAPI/getMedicineAsPerHospitalId`,
@@ -69,26 +71,32 @@ export const ApiEndpoints = {
     GETDASHBOARDDATA:`${API_BASE_URL}/DashboardAPI/todayappointments`,
   },
 
+  PROFILE: {
+    GETPROFILE: `${API_BASE_URL}/ProfileAPI/getProfile`,
+    UPDATEPROFILE: `${API_BASE_URL}/ProfileAPI/updateProfile`
+  },
+
   PRESCRIPTION: {
     GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
     GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/` // + masterId
   },
   FEATURE: {
     GET: (page: number, pageSize: number, search?: string) =>
-      `${API_BASE_URL}/FeatureAPI/getFeatures?page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`,
+      `${API_BASE_URL}/FeatureAPI/getFeatures?page=${page}&pageSize=${pageSize}${search ? '&searchTerm=' + encodeURIComponent(search) : ''}`,
     SAVE: `${API_BASE_URL}/FeatureAPI/save`
   },
   FEATURE_ACCESS: {
     GET: (page: number, pageSize: number, search?: string) =>
-      `${API_BASE_URL}/FeatureAccessAPI/getFeatureAccess?page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`,
+      `${API_BASE_URL}/FeatureAccessAPI/getFeatureAccess?page=${page}&pageSize=${pageSize}${search ? '&searchTerm=' + encodeURIComponent(search) : ''}`,
     SAVE: `${API_BASE_URL}/FeatureAccessAPI/saveFeatureAccess`
     ,
     UPDATE_STATUS: `${API_BASE_URL}/FeatureAccessAPI/updateStatus`
   },
   SELECT: {
     GET_FEATURE_LIST: `${API_BASE_URL}/SelectAPI/getFeatureList`,
+    GET_SYSTEM_ROLE: `${API_BASE_URL}/SelectAPI/getSystemRole`,
     GET_USER_LIST: (role: string, page: number, pageSize: number, search?: string) =>
-      `${API_BASE_URL}/SelectAPI/getUserList?role=${role}&page=${page}&pageSize=${pageSize}${search ? '&search=' + encodeURIComponent(search) : ''}`
+      `${API_BASE_URL}/SelectAPI/getUserList?role=${role}&page=${page}&pageSize=${pageSize}${search ? '&searchTerm=' + encodeURIComponent(search) : ''}`
   },
  
 };

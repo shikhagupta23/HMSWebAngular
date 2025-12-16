@@ -9,6 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Users } from './components/users/users';
 import { CreateFeature } from './components/create-feature/create-feature';
 import { FeatureAssignment } from './components/feature-assignment/feature-assignment';
+import { ChangePassword } from './components/change-password/change-password';
+import { ProfileSetting } from './components/profile-setting/profile-setting';
 
 
 @NgModule({
@@ -18,6 +20,8 @@ import { FeatureAssignment } from './components/feature-assignment/feature-assig
     Users,
     CreateFeature,
     FeatureAssignment,
+    ChangePassword,
+    ProfileSetting,
   ],
   imports: [
     CommonModule,

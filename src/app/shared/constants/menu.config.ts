@@ -18,7 +18,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Hospital",
     icon: "fa-solid fa-hospital",
     route: "/superadmin/hospital",
-    roles: ["SuperAdmin", "Admin"]
+    roles: ["SuperAdmin"]
   },
    {
     label: "Users",
@@ -76,6 +76,18 @@ export const MENU_ITEMS: MenuItem[] = [
   icon: "fa-solid fa-user-gear",
   route: "/superadmin/feature-assignment",
   roles: ["SuperAdmin"]
+},
+{
+  label: "Profile Setting",
+  icon: "fa-solid fa-user",
+  route: "/superadmin/profile-setting",
+  roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
+},
+{
+  label: "Change Password",
+  icon: "fa-solid fa-lock",
+  route: "/superadmin/change-password",
+  roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
 },
   {
   label: "Logout",

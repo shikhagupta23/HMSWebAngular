@@ -68,9 +68,10 @@ export class Users implements OnInit {
   }
 
   loadRoles() {
-    this.api.getRoleId().subscribe({
+    this.api.getSystemRoles().subscribe({
       next: (res: any) => {
-        this.roles = res.dataList ?? res.items ?? res ?? [];
+        // API may return { dataList:null, data: { ... } } or array
+        this.roles = res.dataList ;
       },
       error: (err) => {
         console.error(err);
