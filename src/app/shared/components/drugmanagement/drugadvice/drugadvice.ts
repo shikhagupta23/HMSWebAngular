@@ -61,7 +61,7 @@ export class DrugAdviceComponent implements OnInit {
 
   // API Endpoints - Updated to match backend routes
   private readonly API_ENDPOINTS = {
-    GET_ALL: '/DrugManagement/GetAll',
+    GET_ALL: '/DrugManagement/getAllDrugAdvice',
     CREATE: '/DrugManagement/createDrugAdvices',
     UPDATE: '/DrugManagement/updateDrugAdvice',
     DELETE: '/DrugManagement/deleteDrugAdvice'

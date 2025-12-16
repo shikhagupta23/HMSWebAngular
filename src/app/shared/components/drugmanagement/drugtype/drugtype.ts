@@ -1,18 +1,36 @@
-// drug-type.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../../../environment/environment.delvelopment';
 
+// Updated interface to match API response
 interface DrugType {
-  id: number;
-  type: string;
-  status: string;
+  drugTypeId: string;
+  typeName: string;
+  description: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
-interface FormData {
-  type: string;
-  status: string;
+// Updated response interface to match backend PagedResponse
+interface DrugTypeResponse {
+  dataList: DrugType[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  isSuccess: boolean;
+  message: string;
+  id?: string;
+}
+
+// API Response for Create/Update/Delete operations
+interface ApiResponse {
+  isSuccess: boolean;
+  message: string;
+  id?: string;
 }
 
 @Component({
@@ -22,84 +40,103 @@ interface FormData {
   styleUrls: ['./drugtype.css']
 })
 export class DrugTypeComponent implements OnInit {
-  drugTypeList: DrugType[] = [];
-  filteredDrugTypeList: DrugType[] = [];
-  paginatedDrugTypeList: DrugType[] = [];
-  entriesPerPage: number = 20;
-  searchTerm: string = '';
-  showModal: boolean = false;
-  isEditMode: boolean = false;
-  editingDrugTypeId: number | null = null;
-  
+  drugTypes: DrugType[] = [];
+  filteredDrugTypes: DrugType[] = [];
+  paginatedDrugTypes: DrugType[] = [];
+  showModal = false;
+  isEditMode = false;
+  formData: DrugType = { 
+    drugTypeId: '', 
+    typeName: '', 
+    description: '',
+    isActive: true 
+  };
+  entriesPerPage = 10;
+  searchTerm = '';
+  isLoading = false;
+  error = '';
+
   // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
-  
-  formData: FormData = {
-    type: '',
-    status: 'Active'
+  totalCount: number = 0;
+
+  // API Endpoints - Updated to match backend routes
+  private readonly API_ENDPOINTS = {
+    GET_ALL: '/DrugManagement/getAllDrugType',
+    CREATE: '/DrugManagement/createDrugType',
+    UPDATE: '/DrugManagement/updateDrugType',
+    DELETE: '/DrugManagement/deleteDrugType'
   };
 
+  constructor(private http: HttpClient) {}
+
   ngOnInit(): void {
-    this.loadDrugTypeData();
+    this.loadDrugTypes();
   }
 
-  loadDrugTypeData(): void {
-    this.drugTypeList = [
-      { id: 1, type: 'Comprimido', status: 'Active' },
-      { id: 2, type: 'Suppository', status: 'Active' },
-      { id: 3, type: 'Gel', status: 'Active' },
-      { id: 4, type: 'Suspension', status: 'Active' },
-      { id: 5, type: 'Nasal Drop', status: 'Active' },
-      { id: 6, type: 'Drop', status: 'Active' },
-      { id: 7, type: 'Eye Drop', status: 'Active' },
-      { id: 8, type: 'Eye Ointment', status: 'Active' },
-      { id: 9, type: 'Ointment', status: 'Active' },
-      { id: 10, type: 'Inj.', status: 'Active' },
-      { id: 11, type: 'Syrup', status: 'Active' },
-      { id: 12, type: 'Tablet', status: 'Active' },
-      { id: 13, type: 'Capsule', status: 'Active' },
-      { id: 14, type: 'Cream', status: 'Active' },
-      { id: 15, type: 'Lotion', status: 'Active' }
-    ];
-    this.filterDrugTypeList();
+  loadDrugTypes(): void {
+    this.isLoading = true;
+    this.error = '';
+
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.entriesPerPage.toString());
+
+    // Add search term if it exists
+    if (this.searchTerm && this.searchTerm.trim()) {
+      params = params.set('searchTerm', this.searchTerm.trim());
+    }
+
+    const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
+
+    this.http.get<DrugTypeResponse>(apiUrl, { params })
+      .subscribe({
+        next: (response) => {
+          console.log('API Response:', response);
+          
+          if (response.isSuccess) {
+            this.drugTypes = response.dataList || [];
+            this.paginatedDrugTypes = response.dataList || [];
+            this.totalCount = response.totalCount;
+            this.totalPages = response.totalPages;
+            this.filteredDrugTypes = response.dataList || [];
+          } else {
+            this.error = response.message || 'Failed to load drug type data';
+            this.drugTypes = [];
+            this.paginatedDrugTypes = [];
+            this.filteredDrugTypes = [];
+          }
+          
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load drug type data';
+          console.error('API Error:', err);
+          this.drugTypes = [];
+          this.paginatedDrugTypes = [];
+          this.filteredDrugTypes = [];
+          this.isLoading = false;
+        }
+      });
   }
 
   onSearch(): void {
+    // Reset to page 1 when searching
     this.currentPage = 1;
-    this.filterDrugTypeList();
+    // Server-side search through API
+    this.loadDrugTypes();
   }
 
-  onEntriesChange(): void {
+  onEntriesPerPageChange(): void {
     this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  filterDrugTypeList(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredDrugTypeList = this.drugTypeList.filter(drugType =>
-        drugType.type.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredDrugTypeList = [...this.drugTypeList];
-    }
-    this.updatePagination();
-  }
-
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredDrugTypeList.length / this.entriesPerPage);
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = 1;
-    }
-    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
-    const endIndex = startIndex + this.entriesPerPage;
-    this.paginatedDrugTypeList = this.filteredDrugTypeList.slice(startIndex, endIndex);
+    this.loadDrugTypes();
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.updatePagination();
+      this.loadDrugTypes();
     }
   }
 
@@ -139,77 +176,126 @@ export class DrugTypeComponent implements OnInit {
   }
 
   getStartIndex(): number {
-    return (this.currentPage - 1) * this.entriesPerPage + 1;
+    return this.totalCount === 0 ? 0 : (this.currentPage - 1) * this.entriesPerPage + 1;
   }
 
   getEndIndex(): number {
-    return Math.min(this.currentPage * this.entriesPerPage, this.filteredDrugTypeList.length);
+    return Math.min(this.currentPage * this.entriesPerPage, this.totalCount);
   }
 
   openCreateModal(): void {
     this.isEditMode = false;
-    this.editingDrugTypeId = null;
-    this.formData = {
-      type: '',
-      status: 'Active'
+    this.formData = { 
+      drugTypeId: '', 
+      typeName: '', 
+      description: '',
+      isActive: true 
     };
     this.showModal = true;
   }
 
-  openEditModal(id: number): void {
-    const drugType = this.drugTypeList.find(d => d.id === id);
+  openEditModal(drugTypeId: string): void {
+    const drugType = this.drugTypes.find(dt => dt.drugTypeId === drugTypeId);
     if (drugType) {
       this.isEditMode = true;
-      this.editingDrugTypeId = id;
-      this.formData = {
-        type: drugType.type,
-        status: drugType.status
-      };
+      this.formData = { ...drugType };
       this.showModal = true;
     }
   }
 
   closeModal(): void {
     this.showModal = false;
-    this.isEditMode = false;
-    this.editingDrugTypeId = null;
-    this.formData = {
-      type: '',
-      status: 'Active'
+    this.formData = { 
+      drugTypeId: '', 
+      typeName: '', 
+      description: '',
+      isActive: true 
     };
+    this.isEditMode = false;
   }
 
   saveDrugType(): void {
-    if (!this.formData.type.trim()) {
-      alert('Please enter drug type');
+    if (!this.formData.typeName || !this.formData.typeName.trim()) {
+      alert('Please enter drug type name');
       return;
     }
 
-    if (this.isEditMode && this.editingDrugTypeId !== null) {
-      const drugType = this.drugTypeList.find(d => d.id === this.editingDrugTypeId);
-      if (drugType) {
-        drugType.type = this.formData.type;
-        drugType.status = this.formData.status;
-      }
+    if (this.isEditMode) {
+      // Update existing drug type via API
+      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
+      
+      this.http.put<ApiResponse>(updateUrl, this.formData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Update success:', response.message);
+              this.closeModal();
+              this.loadDrugTypes();
+            } else {
+              alert(response.message || 'Failed to update drug type');
+            }
+          },
+          error: (err) => {
+            console.error('Update error:', err);
+            alert('Failed to update drug type. Please try again.');
+          }
+        });
     } else {
-      const newId = Math.max(...this.drugTypeList.map(d => d.id), 0) + 1;
-      this.drugTypeList.push({
-        id: newId,
-        type: this.formData.type,
-        status: this.formData.status
-      });
+      // Create new drug type via API
+      const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+      
+      // Don't send drugTypeId for new records
+      const createData = {
+        typeName: this.formData.typeName,
+        description: this.formData.description,
+        isActive: this.formData.isActive
+      };
+      
+      this.http.post<ApiResponse>(createUrl, createData)
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Create success:', response.message);
+              this.closeModal();
+              this.loadDrugTypes();
+            } else {
+              alert(response.message || 'Failed to create drug type');
+            }
+          },
+          error: (err) => {
+            console.error('Create error:', err);
+            alert('Failed to create drug type. Please try again.');
+          }
+        });
     }
-
-    this.filterDrugTypeList();
-    this.closeModal();
-    alert(this.isEditMode ? 'Drug type updated successfully!' : 'Drug type created successfully!');
   }
 
-  deleteDrugType(id: number): void {
+  deleteDrugType(drugTypeId: string): void {
     if (confirm('Are you sure you want to delete this drug type?')) {
-      this.drugTypeList = this.drugTypeList.filter(drugType => drugType.id !== id);
-      this.filterDrugTypeList();
-      alert('Drug type deleted successfully!');
+      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}`;
+      
+      const drugType = this.drugTypes.find(dt => dt.drugTypeId === drugTypeId);
+      if (!drugType) {
+        alert('Drug type not found');
+        return;
+      }
+      
+      // Send the entire DrugType object as the backend expects
+      this.http.delete<ApiResponse>(deleteUrl, { body: drugType })
+        .subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log('Delete success:', response.message);
+              this.loadDrugTypes();
+            } else {
+              alert(response.message || 'Failed to delete drug type');
+            }
+          },
+          error: (err) => {
+            console.error('Delete error:', err);
+            alert('Failed to delete drug type. Please try again.');
+          }
+        });
     }
   }
 }
