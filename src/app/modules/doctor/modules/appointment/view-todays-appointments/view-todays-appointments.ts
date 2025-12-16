@@ -52,7 +52,7 @@ export class ViewTodaysAppointments implements OnInit {
     selectedMedicineName = '';
     medicineQty: number = 1;  
     selectedUnit: string = '';
-    selectedStatus: number = 0;
+    selectedStatus: number = 3;
     prescriptionHelperMaster: any[] = [];
     symptomOptions: any[] = [];
     diagnosisOptions: any[] = [];
@@ -201,28 +201,33 @@ loadDoctorDetails() {
 
 loadAppointments() {
   const today = this.getTodayDate();
+
   this.appointmentService
-    .getAllPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus, today )
+    .getAllPatientAsPerDoctor(
+      this.pageNumber,
+      this.pageSize,
+      this.searchText,
+      this.selectedStatus,
+      today
+    )
     .subscribe({
       next: (response: any) => {
-        console.log("API Response:", response);
-        console.log("Search Text : ", this.searchText);
 
-        this.masterData = response.dataList;
+        this.masterData = response.dataList ?? [];
         this.filteredData = [...this.masterData];
 
-        // Count status wise
-        this.totalAll = this.masterData.length;
+        /* ✅ CALCULATE COUNTS ONLY WHEN ALL TAB */
+        if (this.selectedStatus === 3) {
+          this.totalAll = this.masterData.length;
+          this.totalScheduled = this.masterData.filter(x => x.appointmentStatus === 0).length;
+          this.totalPending   = this.masterData.filter(x => x.appointmentStatus === 1).length;
+          this.totalCompleted = this.masterData.filter(x => x.appointmentStatus === 2).length;
+          this.totalCancelled = this.masterData.filter(x => x.appointmentStatus === 4).length;
+        }
 
-        this.totalScheduled = this.masterData.filter(x => x.appointmentStatus === 0).length;
-        this.totalPending = this.masterData.filter(x => x.appointmentStatus === 1).length;
-        this.totalCompleted = this.masterData.filter(x => x.appointmentStatus === 2).length;
-        this.totalCancelled = this.masterData.filter(x => x.appointmentStatus === 4).length;
-
-        // TEXT WISE FILTRATION
-        if (this.searchText && this.searchText.trim() !== '') {
+        /* ✅ TEXT FILTER */
+        if (this.searchText?.trim()) {
           const text = this.searchText.trim().toLowerCase();
-
           this.filteredData = this.filteredData.filter(x =>
             x.patientName?.toLowerCase().includes(text) ||
             x.mobileNo?.includes(text) ||
@@ -231,23 +236,19 @@ loadAppointments() {
           );
         }
 
-        // TAB WISE FILTRATION
-        if (this.selectedStatus !== 3) {   // 3 = ALL
-          this.filteredData = this.filteredData.filter(
-            x => x.appointmentStatus === this.selectedStatus
-          );
-        }
+        /* ❌ NO TAB FILTER HERE (API already did it) */
 
-        const start = (this.pageNumber - 1) * this.pageSize;
-
-        this.dataList = this.filteredData.slice(start, start + this.pageSize);
-
+        /* ✅ PAGINATION */
         this.totalCount = this.filteredData.length;
         this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+
+        const start = (this.pageNumber - 1) * this.pageSize;
+        this.dataList = this.filteredData.slice(start, start + this.pageSize);
       },
       error: () => this.toast.error("Failed to load appointments")
     });
 }
+
 
 
 loadFullData() {
@@ -279,47 +280,47 @@ onSearchChange() {
   this.loadAppointments();
 }
 
-applyFilter(tab: string) {
-this.activeTab = tab;
-this.pageNumber = 1;
+// applyFilter(tab: string) {
+// this.activeTab = tab;
+// this.pageNumber = 1;
 
-switch (tab) {
-  case "Scheduled":
-    this.filteredData = this.masterData.filter(x => x.status === 0);
-    break;
+// switch (tab) {
+//   case "Scheduled":
+//     this.filteredData = this.masterData.filter(x => x.status === 0);
+//     break;
 
-  case "Ongoing":
-    this.filteredData = this.masterData.filter(x => x.status === 1);
-    break;
+//   case "Ongoing":
+//     this.filteredData = this.masterData.filter(x => x.status === 1);
+//     break;
 
-  case "Completed":
-    this.filteredData = this.masterData.filter(x => x.status === 2);
-    break;
+//   case "Completed":
+//     this.filteredData = this.masterData.filter(x => x.status === 2);
+//     break;
 
-  case "Cancelled":
-    this.filteredData = this.masterData.filter(x => x.status === 4);
-    break;
+//   case "Cancelled":
+//     this.filteredData = this.masterData.filter(x => x.status === 4);
+//     break;
 
-  default:
-    // 🔥 "All" tab – DO NOT check status
-    this.filteredData = this.masterData;
-    break;
-}
+//   default:
+//     // 🔥 "All" tab – DO NOT check status
+//     this.filteredData = this.masterData;
+//     break;
+// }
 
-if (this.searchText.trim() !== "") {
-  const s = this.searchText.toLowerCase();
-  this.filteredData = this.filteredData.filter(x =>
-    x.patientName.toLowerCase().includes(s) ||
-    x.doctorName.toLowerCase().includes(s) ||
-    x.patientPhone.includes(s) ||
-    x.visitReason.toLowerCase().includes(s)
-  );
-}
+// if (this.searchText.trim() !== "") {
+//   const s = this.searchText.toLowerCase();
+//   this.filteredData = this.filteredData.filter(x =>
+//     x.patientName.toLowerCase().includes(s) ||
+//     x.doctorName.toLowerCase().includes(s) ||
+//     x.patientPhone.includes(s) ||
+//     x.visitReason.toLowerCase().includes(s)
+//   );
+// }
 
-this.totalCount = this.filteredData.length;
-this.totalPages = Math.ceil(this.totalCount / this.pageSize);
-this.paginate();
-}
+// this.totalCount = this.filteredData.length;
+// this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+// this.paginate();
+// }
 
   paginate() {
     const start = (this.pageNumber - 1) * this.pageSize;
@@ -350,21 +351,21 @@ this.paginate();
     return (this.datePipe.transform(date, 'dd MMM yyyy hh.mm a') || '').toUpperCase();
   }
 
-  get scheduledCount() {
-    return this.masterData.filter(x => x.status === 0).length;
-  }
+  // get scheduledCount() {
+  //   return this.masterData.filter(x => x.status === 0).length;
+  // }
 
-  get ongoingCount() {
-    return this.masterData.filter(x => x.status === 1).length;
-  }
+  // get ongoingCount() {
+  //   return this.masterData.filter(x => x.status === 1).length;
+  // }
 
-  get completedCount() {
-    return this.masterData.filter(x => x.status === 2).length;
-  }
+  // get completedCount() {
+  //   return this.masterData.filter(x => x.status === 2).length;
+  // }
 
-  get cancelledCount() {
-    return this.masterData.filter(x => x.status === 4).length;
-  }
+  // get cancelledCount() {
+  //   return this.masterData.filter(x => x.status === 4).length;
+  // }
 
 
   getPatientByTerm()
