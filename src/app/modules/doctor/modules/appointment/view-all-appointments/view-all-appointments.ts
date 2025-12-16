@@ -27,6 +27,8 @@ export class ViewAllAppointments implements OnInit  {
   private authService = inject(AuthService);
   
   isViewMode: boolean = false;
+  canEdit: boolean = false; 
+
 
   addAppointmentForm!: FormGroup;
 
@@ -50,7 +52,7 @@ export class ViewAllAppointments implements OnInit  {
     selectedMedicineName = '';
     medicineQty: number = 1;  
     selectedUnit: string = '';
-    selectedStatus: number = 0;
+    selectedStatus: number = 3;
     prescriptionHelperMaster: any[] = [];
     symptomOptions: any[] = [];
     diagnosisOptions: any[] = [];
@@ -66,6 +68,10 @@ export class ViewAllAppointments implements OnInit  {
     userRole: string = '';
     isReceptionist: boolean = false;
     isDoctor: boolean = false;
+
+    appointments: any[] = [];
+allAppointments: any[] = [];   // 🔥 store all data once
+
 
     masterIds = {
       Symptoms: '',
@@ -185,27 +191,31 @@ loadDoctorDetails() {
 
 loadAppointments() {
   this.appointmentService
-    .getAllPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
+    .getAllPatientAsPerDoctor(
+      this.pageNumber,
+      this.pageSize,
+      this.searchText,
+      3  // always fetch "All"
+    )
     .subscribe({
       next: (response: any) => {
-        console.log("API Response:", response);
-        console.log("Search Text : ", this.searchText);
+        this.allAppointments = response.dataList ?? [];
+        
+        // Calculate total counts from ALL appointments
+        this.totalAll = this.allAppointments.length;
+        this.totalScheduled = this.allAppointments.filter(x => x.appointmentStatus === 0).length;
+        this.totalPending   = this.allAppointments.filter(x => x.appointmentStatus === 1).length;
+        this.totalCompleted = this.allAppointments.filter(x => x.appointmentStatus === 2).length;
+        this.totalCancelled = this.allAppointments.filter(x => x.appointmentStatus === 4).length;
 
-        this.masterData = response.dataList;
-        this.filteredData = [...this.masterData];
+        // Filter data based on selectedStatus
+        this.filteredData = this.selectedStatus === 3 
+          ? [...this.allAppointments] 
+          : this.allAppointments.filter(x => x.appointmentStatus === this.selectedStatus);
 
-        // Count status wise
-        this.totalAll = this.masterData.length;
-
-        this.totalScheduled = this.masterData.filter(x => x.appointmentStatus === 0).length;
-        this.totalPending = this.masterData.filter(x => x.appointmentStatus === 1).length;
-        this.totalCompleted = this.masterData.filter(x => x.appointmentStatus === 2).length;
-        this.totalCancelled = this.masterData.filter(x => x.appointmentStatus === 4).length;
-
-        // TEXT WISE FILTRATION
-        if (this.searchText && this.searchText.trim() !== '') {
-          const text = this.searchText.trim().toLowerCase();
-
+        // Search filter
+        if (this.searchText?.trim()) {
+          const text = this.searchText.toLowerCase();
           this.filteredData = this.filteredData.filter(x =>
             x.patientName?.toLowerCase().includes(text) ||
             x.mobileNo?.includes(text) ||
@@ -214,23 +224,16 @@ loadAppointments() {
           );
         }
 
-        // TAB WISE FILTRATION
-        if (this.selectedStatus !== 3) {   // 3 = ALL
-          this.filteredData = this.filteredData.filter(
-            x => x.appointmentStatus === this.selectedStatus
-          );
-        }
-        const start = (this.pageNumber - 1) * this.pageSize;
-
-        this.dataList = this.filteredData.slice(start, start + this.pageSize);
-
+        // Pagination
         this.totalCount = this.filteredData.length;
         this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+
+        const start = (this.pageNumber - 1) * this.pageSize;
+        this.dataList = this.filteredData.slice(start, start + this.pageSize);
       },
       error: () => this.toast.error("Failed to load appointments")
     });
 }
-
 
 loadFullData() {
   const today = this.getTodayDate();
@@ -260,46 +263,46 @@ onSearchChange() {
   this.loadAppointments();
 }
 
-applyFilter(tab: string) {
-this.activeTab = tab;
-this.pageNumber = 1;
+// applyFilter(tab: string) {
+// this.activeTab = tab;
+// this.pageNumber = 1;
 
-switch (tab) {
-  case "Scheduled":
-    this.filteredData = this.masterData.filter(x => x.status === 0);
-    break;
+// switch (tab) {
+//   case "Scheduled":
+//     this.filteredData = this.masterData.filter(x => x.status === 0);
+//     break;
 
-  case "Ongoing":
-    this.filteredData = this.masterData.filter(x => x.status === 1);
-    break;
+//   case "Ongoing":
+//     this.filteredData = this.masterData.filter(x => x.status === 1);
+//     break;
 
-  case "Completed":
-    this.filteredData = this.masterData.filter(x => x.status === 2);
-    break;
+//   case "Completed":
+//     this.filteredData = this.masterData.filter(x => x.status === 2);
+//     break;
 
-  case "Cancelled":
-    this.filteredData = this.masterData.filter(x => x.status === 4);
-    break;
+//   case "Cancelled":
+//     this.filteredData = this.masterData.filter(x => x.status === 4);
+//     break;
 
-  default:
-    this.filteredData = this.masterData;
-    break;
-}
+//   default:
+//     this.filteredData = this.masterData;
+//     break;
+// }
 
-if (this.searchText.trim() !== "") {
-  const s = this.searchText.toLowerCase();
-  this.filteredData = this.filteredData.filter(x =>
-    x.patientName.toLowerCase().includes(s) ||
-    x.doctorName.toLowerCase().includes(s) ||
-    x.patientPhone.includes(s) ||
-    x.visitReason.toLowerCase().includes(s)
-  );
-}
+// if (this.searchText.trim() !== "") {
+//   const s = this.searchText.toLowerCase();
+//   this.filteredData = this.filteredData.filter(x =>
+//     x.patientName.toLowerCase().includes(s) ||
+//     x.doctorName.toLowerCase().includes(s) ||
+//     x.patientPhone.includes(s) ||
+//     x.visitReason.toLowerCase().includes(s)
+//   );
+// }
 
-this.totalCount = this.filteredData.length;
-this.totalPages = Math.ceil(this.totalCount / this.pageSize);
-this.paginate();
-}
+// this.totalCount = this.filteredData.length;
+// this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+// this.paginate();
+// }
 
   paginate() {
     const start = (this.pageNumber - 1) * this.pageSize;
@@ -330,21 +333,21 @@ this.paginate();
     return (this.datePipe.transform(date, 'dd MMM yyyy hh.mm a') || '').toUpperCase();
   }
 
-  get scheduledCount() {
-    return this.masterData.filter(x => x.status === 0).length;
-  }
+  // get scheduledCount() {
+  //   return this.masterData.filter(x => x.status === 0).length;
+  // }
 
-  get ongoingCount() {
-    return this.masterData.filter(x => x.status === 1).length;
-  }
+  // get ongoingCount() {
+  //   return this.masterData.filter(x => x.status === 1).length;
+  // }
 
-  get completedCount() {
-    return this.masterData.filter(x => x.status === 2).length;
-  }
+  // get completedCount() {
+  //   return this.masterData.filter(x => x.status === 2).length;
+  // }
 
-  get cancelledCount() {
-    return this.masterData.filter(x => x.status === 4).length;
-  }
+  // get cancelledCount() {
+  //   return this.masterData.filter(x => x.status === 4).length;
+  // }
 
 
   getPatientByTerm()
@@ -373,10 +376,10 @@ selectPatient(p: any) {
     phoneNumber: p.phone,
     address: p.address,
 
-    weight: p.weight,
-    height: p.height,
-    pulse: p.pulse,
-    oxygen: p.oxygen,
+    // weight: p.weight,
+    // height: p.height,
+    // pulse: p.pulse,
+    // oxygen: p.oxygen,
     abhaId: p.abhaId
   });
 
@@ -534,8 +537,11 @@ allMedicineNames: any = {
 openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
   if (this.isReceptionist) {
     this.isViewMode = true;
-  } else {
-    this.isViewMode = mode === 'view';
+    this.canEdit = false;
+  } else if (this.isDoctor) {
+    // Doctor
+    this.isViewMode = (mode === 'view');
+    this.canEdit = true;
   }
   // this.isViewMode = mode === 'view';
   this.selectedAppointment = item;
@@ -947,7 +953,7 @@ Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
 }
 
 cancelAppointment(item: any) {
-  const appointmentId = this.selectedAppointment?.appointmentId;
+  const appointmentId = item?.appointmentId;
 
   if (!appointmentId) return;
 

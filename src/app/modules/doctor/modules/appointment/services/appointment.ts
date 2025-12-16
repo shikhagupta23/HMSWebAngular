@@ -69,16 +69,19 @@ getPatientAsPerDoctor(page: number, pageSize: number, searchText: string, status
   return this.api.get(`${ApiEndpoints.DOCTOR.GetPatientAsPerDoctor}`, { params });
 }
 
-getAllPatientAsPerDoctor(page: number, pageSize: number, searchText: string, status: number ) {
+getAllPatientAsPerDoctor(page: number, pageSize: number, searchText: string, status: number, date?: string ) {
   const params: any = {
     page: page,
     pageSize: pageSize,
     status: status
   };
+    if (date) {
+    params.date = date; // yyyy-MM-dd
+  }
     if (searchText && searchText.trim() !== '') {
       params.searchTerm = searchText;
     }
-  return this.api.get(`${ApiEndpoints.DOCTOR.GetAllPatientAsPerDoctor}`, { params });
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetAllPatientAsPerDoctor}`,params );
 }
 
 getMedicineType(): Observable<any> {

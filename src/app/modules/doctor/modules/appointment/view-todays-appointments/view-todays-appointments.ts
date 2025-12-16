@@ -28,6 +28,7 @@ export class ViewTodaysAppointments implements OnInit {
   private authService = inject(AuthService);
   
   isViewMode: boolean = false;
+  canEdit: boolean = false; 
 
   addAppointmentForm!: FormGroup;
 
@@ -94,7 +95,15 @@ export class ViewTodaysAppointments implements OnInit {
       labTests: [] as { name: string; value: string }[]  
     };
 
+//     getTodayDate(): string {
+//   const today = new Date();
+//   const year = today.getFullYear();
+//   const month = String(today.getMonth() + 1).padStart(2, '0');
+//   const day = String(today.getDate()).padStart(2, '0');
+//   return `${year}-${month}-${day}`;
+// }
   ngOnInit(): void {
+    
     // this.loadFullData();
     this.loadAppointments();
     this.loadMedicineTypes();
@@ -191,8 +200,9 @@ loadDoctorDetails() {
 
 
 loadAppointments() {
+  const today = this.getTodayDate();
   this.appointmentService
-    .getPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus )
+    .getAllPatientAsPerDoctor(this.pageNumber, this.pageSize, this.searchText, this.selectedStatus, today )
     .subscribe({
       next: (response: any) => {
         console.log("API Response:", response);
@@ -383,10 +393,10 @@ selectPatient(p: any) {
     phoneNumber: p.phone,
     address: p.address,
 
-    weight: p.weight,
-    height: p.height,
-    pulse: p.pulse,
-    oxygen: p.oxygen,
+    // weight: p.weight,
+    // height: p.height,
+    // pulse: p.pulse,
+    // oxygen: p.oxygen,
     abhaId: p.abhaId
   });
 
@@ -544,10 +554,13 @@ allMedicineNames: any = {
 openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
     if (this.isReceptionist) {
     this.isViewMode = true;
-  } else {
-    this.isViewMode = mode === 'view';
+    this.canEdit = false;
+
+  }  else if (this.isDoctor) {
+    // Doctor
+    this.isViewMode = (mode === 'view');
+    this.canEdit = true;
   }
-  // this.isViewMode = mode === 'view'; 
   this.selectedAppointment = item;
 
   this.resetPrescription();
@@ -957,7 +970,7 @@ Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
 }
 
 cancelAppointment(item: any) {
-  const appointmentId = this.selectedAppointment?.appointmentId;
+  const appointmentId = item?.appointmentId;
 
   if (!appointmentId) return;
 
