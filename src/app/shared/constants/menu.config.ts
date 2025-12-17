@@ -12,15 +12,14 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "fa-solid fa-shapes",
     route: "/dashboard",
     roles: [ "Doctor", "Receptionist"]
-  }
-  ,
+  },
   {
-  label: "Dashboard",
-  icon: "fa-solid fa-shapes",
-   route: "/superadmin",
-  roles: ["Admin", "SuperAdmin"]
-},
-{
+    label: "Dashboard",
+    icon: "fa-solid fa-shapes",
+    route: "/superadmin",
+    roles: ["Admin", "SuperAdmin"]
+  },
+  {
     label: "Hospital",
     icon: "fa-solid fa-hospital",
     route: "/superadmin/hospital",
@@ -50,7 +49,12 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/appointment/allappointments",
     roles: ["Doctor", "Receptionist", "Admin"]
   },
-  
+  {
+    label: "FollowUp Appointments",
+    icon: "fa-solid fa-clock-rotate-left",
+    route: "/superadmin/upcoming-followup",
+    roles: ["Admin", "Receptionist", "Doctor"]
+  },  
   {
     label: "Prescriptions",
     icon: "fa-solid fa-file-medical",
@@ -61,43 +65,43 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Drug Dose",
     icon: "fas fa-syringe",
     route: "/drugmanagement/drugdose",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Drug Advice",
     icon: "fas fa-notes-medical",
     route: "/drugmanagement/drugadvice",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Drug Strength",
     icon: "fas fa-weight-hanging",
     route: "/drugmanagement/drugstrength",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Drug Type",
     icon: "fas fa-capsules",
     route: "/drugmanagement/drugtype",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Drug Duration",
     icon: "fas fa-hourglass-half",
     route: "/drugmanagement/drugduration",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Drug",
     icon: "fas fa-pills",
     route: "/drugmanagement/drug",
-    roles: ["Receptionist"]
+    roles: ["Receptionist", "Doctor"]
   },
   {
     label: "Lab Tests",
-    icon: "fas fa-pills",
+    icon: "fas fa-flask",
     route: "/superadmin/labtest",
-    roles: ["SuperAdmin"]
+    roles: ["SuperAdmin", "Admin", "Receptionist"]
   }, 
   {
     label: "Create Feature",
@@ -112,23 +116,17 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ["SuperAdmin"]
   },
   {
-  label: "FollowUp Appointments",
-  icon: "fa-solid fa-clock-rotate-left",
-  route: "/superadmin/upcoming-followup",
-  roles: ["Admin"]
-},
-{
-  label: "Profile Setting",
-  icon: "fa-solid fa-user",
-  route: "/superadmin/profile-setting",
-  roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
-},
-{
-  label: "Change Password",
-  icon: "fa-solid fa-lock",
-  route: "/superadmin/change-password",
-  roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
-},
+    label: "Profile Setting",
+    icon: "fa-solid fa-user",
+    route: "/superadmin/profile-setting",
+    roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
+  },
+  {
+    label: "Change Password",
+    icon: "fa-solid fa-lock",
+    route: "/superadmin/change-password",
+    roles: ["SuperAdmin", "Admin", "Doctor", "Receptionist"]
+  },
   {
     label: "Logout",
     icon: "fa-solid fa-right-from-bracket",

@@ -24,31 +24,28 @@ export class ViewAllPatients implements OnInit {
   patientList: any[] = [];
   filteredPatients: any[] = [];
   paginatedPatients: any[] = [];
-
-      patientForm!: FormGroup;
-
-
+  patientForm!: FormGroup;
   today: string = new Date().toISOString().split('T')[0];
   searchText = "";
   pageNumber = 1;
-  pageSize = 50;
+  pageSize = 10;
   totalPages = 0;
 
   formatDate(date: string): string {
     return (this.datePipe.transform(date, 'dd MMM yyyy') || '').toUpperCase();
   }
 
-  ngOnInit() {
-    this.loadPatients();
-        this.patientForm = this.fb.group({
-      fullName: ['', Validators.required],
-      gender: ['', Validators.required],
-      dob: ['', Validators.required],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      address: ['', Validators.required],
-      abhaId: ['']
-    });
-  }
+ngOnInit() {
+  this.loadPatients();
+  this.patientForm = this.fb.group({
+    fullName: ['', Validators.required],
+    gender: ['', Validators.required],
+    dob: ['', Validators.required],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    address: ['', Validators.required],
+    abhaId: ['']
+  });
+}
 
   loadPatients() {
     this.patientService.getPatients(
@@ -66,12 +63,21 @@ export class ViewAllPatients implements OnInit {
           age: this.calculateAge(p.dob)
         }));
 
-        this.filteredPatients = [...this.patientList];
+        if (this.searchText) {
+            const search = this.searchText.toLowerCase();
 
-        // Update pagination based on API response
-        this.totalPages = response.totalPages;
+            this.filteredPatients = this.patientList.filter(p =>
+              p.fullName?.toLowerCase().includes(search) ||
+              p.phoneNumber?.includes(search) ||
+              p.abhaId?.toLowerCase().includes(search)
+            );
+          } else {
+            this.filteredPatients = [...this.patientList];
+          }
 
-        this.paginatedPatients = this.filteredPatients; // API already gives paginated data
+          this.paginatedPatients = this.filteredPatients;
+          this.totalPages = response.totalPages;
+
       },
       error: (err) => {
         console.error("API Error:", err);
@@ -79,13 +85,11 @@ export class ViewAllPatients implements OnInit {
     });
   }
 
-  // 🔎 Search — call API again with search text
   searchPatients() {
     this.pageNumber = 1;
     this.loadPatients();
   }
 
-  // ⏭ Next Page
   nextPage() {
     if (this.pageNumber < this.totalPages) {
       this.pageNumber++;
@@ -93,7 +97,6 @@ export class ViewAllPatients implements OnInit {
     }
   }
 
-  // ⏮ Previous Page
   previousPage() {
     if (this.pageNumber > 1) {
       this.pageNumber--;
@@ -101,7 +104,6 @@ export class ViewAllPatients implements OnInit {
     }
   }
 
-  // Go to a page
   goToPage(page: number) {
     this.pageNumber = page;
     this.loadPatients();
@@ -177,18 +179,15 @@ calculateAge(dob: string): string {
 
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  // 👶 Less than 1 month → show days
   if (diffDays < 30) {
     return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
   }
 
-  // 👶 Less than 1 year → show months
   if (diffDays < 365) {
     const months = Math.floor(diffDays / 30);
     return `${months} month${months > 1 ? 's' : ''}`;
   }
 
-  // 👨 Adult → show years
   const years = Math.floor(diffDays / 365);
   return `${years} yr${years > 1 ? 's' : ''}`;
 }
