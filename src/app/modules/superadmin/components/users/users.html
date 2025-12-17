@@ -114,11 +114,11 @@
 						<div class="modal-body">
 							<form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
 								<div class="row g-3">
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<label class="form-label small fw-semibold">Full Name <span class="text-danger">*</span></label>
 										<input type="text" class="form-control" formControlName="FullName">
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<label class="form-label small fw-semibold">Select Gender <span class="text-danger">*</span></label>
 										<select class="form-control" formControlName="Gender">
 											<option value="">-- Select --</option>
@@ -127,7 +127,7 @@
 											<option value="Other">Other</option>
 										</select>
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<label class="form-label small fw-semibold">Date of Birth</label>
 										<input type="date" class="form-control" formControlName="DateOfBirth">
 									</div>
@@ -140,7 +140,8 @@
 										</select>
 									</div>
 
-									<div class="col-md-6">
+									
+									<div class="col-md-6" *ngIf="showHospitalSelect">
 										<label class="form-label small fw-semibold">Select Hospital</label>
 										<select class="form-control" formControlName="HospitalId">
 											<option value="">-- Select Hospital --</option>
@@ -148,17 +149,22 @@
 										</select>
 									</div>
 
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<label class="form-label small fw-semibold">Phone Number <span class="text-danger">*</span></label>
 										<input type="text" class="form-control" formControlName="PhoneNumber">
 									</div>
 
-									<div class="col-md-4">
+									<div class="col-md-6">
+										<label class="form-label small fw-semibold">Email</label>
+										<input type="email" class="form-control" formControlName="Email">
+									</div>
+
+									<div class="col-md-6">
 										<label class="form-label small fw-semibold">Password <span class="text-danger">*</span></label>
 										<input type="password" class="form-control" formControlName="Password">
 									</div>
 
-									<div class="col-md-4">
+									<div [ngClass]="showHospitalSelect ?   'col-12': 'col-md-6'">
 										<label class="form-label small fw-semibold">Address</label>
 										<input type="text" class="form-control" formControlName="Address">
 									</div>

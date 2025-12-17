@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users-service';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { AuthService } from '../../../auth/services/auth-service';
 
 declare const bootstrap: any;
 
@@ -24,13 +25,31 @@ export class Users implements OnInit {
   addUserForm!: FormGroup;
   roles: any[] = [];
   hospitals: any[] = [];
+  loggedInHospitalId: any = null;
+  loggedInUserRole: string | null = null;
 
   private fb = inject(FormBuilder);
   private api = inject(UsersService);
   private hospitalApi = inject(HospitalService);
   private toast = inject(ToastService);
+  private auth = inject(AuthService);
 
   ngOnInit(): void {
+    // read logged in user's hospitalId from localStorage
+    try {
+      const authRaw = localStorage.getItem('auth_user');
+      const authObj = authRaw ? JSON.parse(authRaw) : null;
+      this.loggedInHospitalId = authObj?.hospitalId ?? authObj?.HospitalId ?? null;
+    } catch (e) {
+      this.loggedInHospitalId = null;
+    }
+    // determine logged-in user's role from token
+    try {
+      this.loggedInUserRole = this.auth.getUserRole();
+    } catch (e) {
+      this.loggedInUserRole = null;
+    }
+
     this.initForm();
     this.loadUsers();
     this.loadRoles();
@@ -43,12 +62,13 @@ export class Users implements OnInit {
       Gender: ['', Validators.required],
       DateOfBirth: [''],
       RoleId: ['', Validators.required],
-      HospitalId: [''],
+      HospitalId: [this.loggedInHospitalId || ''],
+      Email: ['', Validators.email],
       PhoneNumber: ['', Validators.required],
       Password: ['', Validators.required],
       Address: ['']
     });
-  }
+ }
 
   loadUsers() {
     this.api.getUsers(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
@@ -119,6 +139,7 @@ export class Users implements OnInit {
   onSubmit() {
     if (this.addUserForm.invalid) {
       this.addUserForm.markAllAsTouched();
+      console.log(this.addUserForm)
       return;
     }
 
@@ -129,7 +150,8 @@ export class Users implements OnInit {
       Gender: v.Gender,
       DateOfBirth: v.DateOfBirth,
       RoleId: v.RoleId,
-      HospitalId: v.HospitalId || null,
+      HospitalId: v.HospitalId || this.loggedInHospitalId || null,
+      Email: v.Email,
       PhoneNumber: v.PhoneNumber,
       Password: v.Password,
       Address: v.Address,
@@ -138,7 +160,12 @@ export class Users implements OnInit {
 
     this.api.addUser(payload).subscribe({
       next: (res) => {
-        this.toast.success('User added successfully');
+        console.log(res);
+        if(res.isSuccess === false){
+          this.toast.error(res.message ||'Failed to add user');
+          return;
+        }
+        this.toast.success(res.message ||'User added successfully');
         const modalEl = document.getElementById('addUserModal');
         if (modalEl) {
           const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
@@ -149,9 +176,17 @@ export class Users implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.toast.error('Failed to add user');
+        this.toast.error(err.message ||'Failed to add user');
       }
     });
+  }
+  get showHospitalSelect(): boolean {
+    try {
+      const role = (this.loggedInUserRole || '').toLowerCase();
+      return role.includes('super') && role.includes('admin') || role === 'superadmin';
+    } catch (e) {
+      return false;
+    }
   }
 
   formatDate(date: string) {

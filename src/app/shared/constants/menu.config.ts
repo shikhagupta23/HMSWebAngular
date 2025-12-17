@@ -11,9 +11,15 @@ export const MENU_ITEMS: MenuItem[] = [
   label: "Dashboard",
   icon: "fa-solid fa-shapes",
    route: "/dashboard",
-  roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"]
+  roles: [ "Doctor", "Receptionist"]
 }
 ,
+{
+  label: "Dashboard",
+  icon: "fa-solid fa-shapes",
+   route: "/superadmin/dashboard",
+  roles: ["Admin", "SuperAdmin"]
+},
 {
     label: "Hospital",
     icon: "fa-solid fa-hospital",
@@ -87,8 +93,6 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/doctor/labtest/alllabtest",
     roles: []
   },
-  
- 
  {
   label: "Create Feature",
   icon: "fa-solid fa-square-plus",
@@ -100,6 +104,12 @@ export const MENU_ITEMS: MenuItem[] = [
   icon: "fa-solid fa-user-gear",
   route: "/superadmin/feature-assignment",
   roles: ["SuperAdmin"]
+},
+{
+  label: "FollowUp Appointments",
+  icon: "fa-solid fa-clock-rotate-left",
+  route: "/superadmin/upcoming-followup",
+  roles: ["Admin"]
 },
 {
   label: "Profile Setting",

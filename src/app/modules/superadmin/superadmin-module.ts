@@ -11,6 +11,7 @@ import { CreateFeature } from './components/create-feature/create-feature';
 import { FeatureAssignment } from './components/feature-assignment/feature-assignment';
 import { ChangePassword } from './components/change-password/change-password';
 import { ProfileSetting } from './components/profile-setting/profile-setting';
+import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { ProfileSetting } from './components/profile-setting/profile-setting';
     FeatureAssignment,
     ChangePassword,
     ProfileSetting,
+    UpcomingFollowup,
   ],
   imports: [
     CommonModule,
