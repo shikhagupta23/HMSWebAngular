@@ -7,20 +7,20 @@ route?: string | ((role: string) => string);  roles: string[];
 }
 
 export const MENU_ITEMS: MenuItem[] = [
-{
-  label: "Dashboard",
-  icon: "fa-solid fa-shapes",
-   route: "/dashboard",
-  roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"]
-}
-,
-{
+  {
+    label: "Dashboard",
+    icon: "fa-solid fa-shapes",
+    route: "/dashboard",
+    roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"]
+  }
+  ,
+  {
     label: "Hospital",
     icon: "fa-solid fa-hospital",
     route: "/superadmin/hospital",
     roles: ["SuperAdmin", "Admin"]
   },
-   {
+  {
     label: "Users",
     icon: "fa-solid fa-users",
     route: "/superadmin/user",
@@ -52,59 +52,63 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: []
   },
   {
-    label: "drugdose",
-    icon: "fas fa-pills",
+    label: "Drug Dose",
+    icon: "fas fa-syringe",
     route: "/drugmanagement/drugdose",
     roles: ["Receptionist"]
   },
   {
-    label: "drugadvice",
-    icon: "fas fa-pills",
+    label: "Drug Advice",
+    icon: "fas fa-notes-medical",
     route: "/drugmanagement/drugadvice",
     roles: ["Receptionist"]
   },
   {
-    label: "drugstrength",
-    icon: "fas fa-pills",
+    label: "Drug Strength",
+    icon: "fas fa-weight-hanging",
     route: "/drugmanagement/drugstrength",
     roles: ["Receptionist"]
   },
   {
-    label: "drugtype",
-    icon: "fas fa-pills",
+    label: "Drug Type",
+    icon: "fas fa-capsules",
     route: "/drugmanagement/drugtype",
     roles: ["Receptionist"]
   },
-   {
-    label: "drugduration",
-    icon: "fas fa-pills",
+  {
+    label: "Drug Duration",
+    icon: "fas fa-hourglass-half",
     route: "/drugmanagement/drugduration",
     roles: ["Receptionist"]
   },
   {
+    label: "Drug",
+    icon: "fas fa-pills",
+    route: "/drugmanagement/drug",
+    roles: ["Receptionist"]
+  },
+  {
     label: "Lab Tests",
-    icon: "fa-solid fa-flask-vial",
+    icon: "fas fa-pills",
     route: "/doctor/labtest/alllabtest",
     roles: []
-  },
-  
- 
- {
-  label: "Create Feature",
-  icon: "fa-solid fa-square-plus",
-  route: "/superadmin/create-feature",
-  roles: ["SuperAdmin"]
-},
-{
-  label: "Feature Assignment",
-  icon: "fa-solid fa-user-gear",
-  route: "/superadmin/feature-assignment",
-  roles: ["SuperAdmin"]
-},
+  }, 
   {
-  label: "Logout",
-  icon: "fa-solid fa-right-from-bracket",
-  roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"],
-  action: "logout"  
-}
+    label: "Create Feature",
+    icon: "fa-solid fa-square-plus",
+    route: "/superadmin/create-feature",
+    roles: ["SuperAdmin"]
+  },
+  {
+    label: "Feature Assignment",
+    icon: "fa-solid fa-user-gear",
+    route: "/superadmin/feature-assignment",
+    roles: ["SuperAdmin"]
+  },
+  {
+    label: "Logout",
+    icon: "fa-solid fa-right-from-bracket",
+    roles: ["Admin", "SuperAdmin", "Doctor", "Receptionist"],
+    action: "logout"  
+  }
 ];
