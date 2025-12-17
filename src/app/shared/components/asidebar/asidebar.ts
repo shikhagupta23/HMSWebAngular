@@ -54,8 +54,16 @@ export class Asidebar {
     return item.route as string | readonly any[] | null | undefined;
   }
 
-  isExactRoute(item: MenuItem): boolean {
-    const r = this.resolveRoute(item);
-    return r === '/doctor';
-  }
+isExactRoute(item: MenuItem): boolean {
+  const route = this.resolveRoute(item);
+
+  // If route is an array → never exact
+  if (Array.isArray(route)) return false;
+
+  // Exact only for dashboard routes
+  return route === '/superadmin' || route === '/doctor';
+}
+
+
+
 }

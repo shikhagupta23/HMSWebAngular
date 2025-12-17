@@ -17,7 +17,7 @@ export const MENU_ITEMS: MenuItem[] = [
 {
   label: "Dashboard",
   icon: "fa-solid fa-shapes",
-   route: "/superadmin/dashboard",
+   route: "/superadmin",
   roles: ["Admin", "SuperAdmin"]
 },
 {
