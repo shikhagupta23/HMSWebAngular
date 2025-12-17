@@ -21,6 +21,8 @@ export class UpcomingFollowup implements OnInit {
 
   loading = false;
 
+  activeTab: 'upcoming' | 'past' = 'upcoming';
+
 
   private api = inject(AppointmentService);
 
@@ -55,24 +57,39 @@ export class UpcomingFollowup implements OnInit {
 
   fetchData(): void {
     this.loading = true;
-    this.api.getUpcomingFollowUps(this.pageNumber, this.pageSize, this.searchTerm || '', 2, this.formatDateFromInputToApi(this.fromDateInput), this.noOfDays ?? '').subscribe({
-      next: res => {
-        this.dataList = res?.dataList || [];
-        this.pageNumber = (res?.pageNumber && res.pageNumber > 0) ? res.pageNumber : this.pageNumber;
-        this.pageSize = (res?.pageSize && res.pageSize > 0) ? res.pageSize : this.pageSize;
-        this.totalCount = res?.totalCount || (this.dataList.length);
-        this.totalPages = res?.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
-        this.buildPages();
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.dataList = [];
-        this.totalPages = 0;
-        this.totalCount = 0;
-        this.buildPages();
-      }
+    const dateForApi = this.formatDateFromInputToApi(this.fromDateInput);
+
+    if (this.activeTab === 'upcoming') {
+      this.api.getUpcomingFollowUps(this.pageNumber, this.pageSize, this.searchTerm || '', 2, dateForApi, this.noOfDays ?? '').subscribe({
+        next: res => this.handleResponse(res),
+        error: () => this.handleError()
+      });
+      return;
+    }
+
+    // past followups
+    this.api.getPastFollowUps(this.pageNumber, this.pageSize, this.searchTerm || '', 3, dateForApi, this.noOfDays ?? '').subscribe({
+      next: res => this.handleResponse(res),
+      error: () => this.handleError()
     });
+  }
+
+  private handleResponse(res: any) {
+    this.dataList = res?.dataList || [];
+    this.pageNumber = (res?.pageNumber && res.pageNumber > 0) ? res.pageNumber : this.pageNumber;
+    this.pageSize = (res?.pageSize && res.pageSize > 0) ? res.pageSize : this.pageSize;
+    this.totalCount = res?.totalCount || (this.dataList.length);
+    this.totalPages = res?.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
+    this.buildPages();
+    this.loading = false;
+  }
+
+  private handleError() {
+    this.loading = false;
+    this.dataList = [];
+    this.totalPages = 0;
+    this.totalCount = 0;
+    this.buildPages();
   }
 
   buildPages(): void {
@@ -93,6 +110,13 @@ export class UpcomingFollowup implements OnInit {
   }
 
   applyFilters(): void {
+    this.pageNumber = 1;
+    this.fetchData();
+  }
+
+  setTab(tab: 'upcoming' | 'past') {
+    if (this.activeTab === tab) return;
+    this.activeTab = tab;
     this.pageNumber = 1;
     this.fetchData();
   }

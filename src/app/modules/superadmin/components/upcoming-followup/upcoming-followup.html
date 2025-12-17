@@ -26,8 +26,28 @@
 				<div class="col-lg-8 col-xl-9">
 
 					<div class="dashboard-header mb-3">
-						<h3>Upcoming Follow Ups</h3>
+						<h3>{{ activeTab === 'upcoming' ? 'Upcoming Follow Ups' : 'Past Follow Ups' }}</h3>
 					</div>
+
+					<ul class="nav nav-tabs followup-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link"
+           [class.active]="activeTab === 'upcoming'"
+           (click)="setTab('upcoming')">
+            <i class="fa-solid fa-calendar-day me-1"></i>
+            Upcoming Follow Ups
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           [class.active]="activeTab === 'past'"
+           (click)="setTab('past')">
+            <i class="fa-solid fa-clock-rotate-left me-1"></i>
+            Past Follow Ups
+        </a>
+    </li>
+</ul>
+
 
 					<div class="table-controls d-flex justify-content-between align-items-center mb-3">
 						<div>

@@ -30,7 +30,8 @@ export const ApiEndpoints = {
       todays: number
     ) =>
       `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search || '')}&status=${status}&date=${encodeURIComponent(date || '')}&todays=${encodeURIComponent(todays ?? '')}`,
-    UPCOMING_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment`
+    UPCOMING_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment`,
+    PAST_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getPastFollowUpAppointment`
   },
   PATIENT: {
     GET: (page: number, pageSize: number, search: string) =>
