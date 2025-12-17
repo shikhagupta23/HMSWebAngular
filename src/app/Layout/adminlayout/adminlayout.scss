@@ -1,3 +1,49 @@
+/* Full height layout */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Main wrapper full height */
+.main-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Breadcrumb fixed height */
+.breadcrumb-bar-two {
+  flex-shrink: 0;
+}
+
+/* Layout row takes remaining space */
+.main-layout-row {
+  height: calc(100vh - 110px); /* adjust if header height changes */
+}
+
+/* Sidebar fixed & scroll disabled */
+.sidebar-fixed {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Content area */
+.content-wrapper {
+  height: 100%;
+}
+
+/* ONLY router outlet scrolls */
+.router-scroll {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Smooth scrolling */
+.router-scroll {
+  scrollbar-width: thin;
+}
+/* Topbar Profile */
 .topbar-profile {
   display: flex;
   align-items: center;

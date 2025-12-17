@@ -1,0 +1,36 @@
+<!-- Sidebar -->
+<div class="app-sidebar">
+
+  <!-- Main Section -->
+  <div class="sidebar-section">
+    <div class="sidebar-title">Main</div>
+
+    <ul class="sidebar-menu">
+      <li *ngFor="let item of menu"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
+
+        <!-- Normal route -->
+        <a *ngIf="item.route"
+           [routerLink]="resolveRoute(item)">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+
+          <!-- Arrow for sub menu -->
+          <!-- <i *ngIf="item.children"
+             class="fa fa-chevron-right arrow"></i> -->
+        </a>
+
+        <!-- Action item -->
+        <a *ngIf="item.action"
+           (click)="handleMenuAction(item.action)">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+
+      </li>
+    </ul>
+  </div>
+
+</div>
+<!-- /Sidebar -->
