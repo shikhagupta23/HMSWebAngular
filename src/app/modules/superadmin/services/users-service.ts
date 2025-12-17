@@ -17,6 +17,10 @@ export class UsersService {
     return this.api.get(ApiEndpoints.USER.GET_ROLE_ID(roleName));
   }
 
+  getSystemRoles(): Observable<any> {
+    return this.api.get(ApiEndpoints.SELECT.GET_SYSTEM_ROLE);
+  }
+
   addUser(body: any): Observable<any> {
     return this.api.post(ApiEndpoints.User.ADD, body);
   }

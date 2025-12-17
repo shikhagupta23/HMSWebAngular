@@ -4,7 +4,7 @@ import { Header } from './components/header/header';
 import { Footer } from './components/footer/footer';
 import { Addappointment } from './components/addappointment/addappointment';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Select2Directive } from './directives/select2.directive';
 import { GenderPipe } from './pipe/gender-pipe';
 import { Asidebar } from './components/asidebar/asidebar';
@@ -23,7 +23,8 @@ import { Asidebar } from './components/asidebar/asidebar';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule    
+    FormsModule,
+    ReactiveFormsModule    
   ],
   exports:[ 
     Asidebar,

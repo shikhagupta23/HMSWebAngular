@@ -1,0 +1,32 @@
+.btn-primary{
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+}
+.followup-tabs {
+    border-bottom: none;
+    gap: 10px;
+}
+
+.followup-tabs .nav-link {
+    border: none;
+    border-radius: 8px;
+    padding: 7px 18px;
+    font-weight: 500;
+    color: #4e73df;
+    background: #f4f6fc;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.followup-tabs .nav-link:hover {
+    background: rgba(78, 115, 223, 0.12);
+    color: #224abe;
+}
+
+.followup-tabs .nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    box-shadow: 0 2px 8px rgba(78, 115, 223, 0.35);
+}
