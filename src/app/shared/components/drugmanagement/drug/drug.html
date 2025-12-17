@@ -119,19 +119,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- FIXED VARIATIONS DISPLAY SECTION -->
                                         <div class="col-variations">
                                             <div class="variations-list">
                                                 <div *ngFor="let variation of drug.variations" class="variation-item">
                                                     <div class="variation-detail">
-                                                        <strong>Type:</strong> {{ getDrugTypeName(variation.drugTypeId)
-                                                        }}
-                                                        <!-- FIXED: Use singular field names from API response -->
-                                                        <strong>Strength:</strong> {{
-                                                        getStrengthName(variation.drugStrengthId) }}
-                                                        <strong>Dose:</strong> {{ getDoseName(variation.doseId) }}
-                                                        <strong>Duration:</strong> {{
-                                                        getDurationName(variation.drugDurationId) }}
+                                                        <strong>Type:</strong> {{ getDrugTypeName(variation.drugTypeId) }}
+                                                        <strong>Strength:</strong> {{ variation.strengths }}
+                                                        <strong>Dose:</strong> {{ variation.doses }}
+                                                        <strong>Duration:</strong> {{ variation.durations || 'N/A' }}
                                                     </div>
                                                     <div *ngIf="variation.variationNote" class="variation-advice">
                                                         <strong>Advice:</strong> {{ variation.variationNote }}
@@ -233,145 +228,125 @@
                                 </div>
                             </div>
 
-                            <!-- Drug Variations Section - Enhanced with Searchable Dropdowns -->
-                            <!-- Drug Variations Section -->
-                            <div class="variations-section mt-4">
+                            <!-- Drug Variations Section with Custom Input Support -->
+                            <div class="variations-section">
                                 <h2 class="mb-3">Drug Variations</h2>
 
                                 <div *ngFor="let variation of formData.variations; let i = index" class="mb-4">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="row g-3 align-items-start">
-
-                                                <!-- Drug Type -->
-                                                <div class="col-md-2">
-                                                    <label class="form-label">
-                                                        Drug Type <span class="text-danger">*</span>
-                                                    </label>
-                                                    <select class="form-select" [(ngModel)]="variation.drugTypeId">
-                                                        <option value="">Select type</option>
-                                                        <option *ngFor="let type of drugTypes" [value]="type.id">
-                                                            {{ type.name }}
-                                                        </option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Strength Multi Select -->
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Strength</label>
-
-                                                    <div class="multiselect-input" (click)="showStrengthDropdown(i)">
-
-                                                        <span *ngFor="let strengthId of variation.drugStrengthIds"
-                                                            class="chip">
-                                                            {{ getStrengthName(strengthId) }}
-                                                            <span class="chip-remove"
-                                                                (click)="removeTag(variation.drugStrengthIds, strengthId); $event.stopPropagation()">×</span>
-                                                        </span>
-
-                                                        <input type="text" class="chip-input"
-                                                            placeholder="Strength, like: 3mg, 5mg"
-                                                            [(ngModel)]="variation.strengthSearch"
-                                                            (input)="filterStrengths(i)"
-                                                            (focus)="showStrengthDropdown(i)"
-                                                            (blur)="hideStrengthDropdown(i)" autocomplete="off">
-                                                    </div>
-
-                                                    <div *ngIf="variation.showStrengthDropdown && getFilteredStrengths(i).length"
-                                                        class="search-dropdown">
-                                                        <div *ngFor="let strength of getFilteredStrengths(i)"
-                                                            class="search-dropdown-item"
-                                                            (mousedown)="selectStrength(i, strength.id)">
-                                                            {{ strength.name }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Dose Multi Select -->
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Dose</label>
-
-                                                    <div class="multiselect-input" (click)="showDoseDropdown(i)">
-
-                                                        <span *ngFor="let doseId of variation.drugDoseIds" class="chip">
-                                                            {{ getDoseName(doseId) }}
-                                                            <span class="chip-remove"
-                                                                (click)="removeTag(variation.drugDoseIds, doseId); $event.stopPropagation()">×</span>
-                                                        </span>
-
-                                                        <input type="text" class="chip-input"
-                                                            placeholder="Dose, like: 1+1+1"
-                                                            [(ngModel)]="variation.doseSearch" (input)="filterDoses(i)"
-                                                            (focus)="showDoseDropdown(i)" (blur)="hideDoseDropdown(i)"
-                                                            autocomplete="off">
-                                                    </div>
-
-                                                    <div *ngIf="variation.showDoseDropdown && getFilteredDoses(i).length"
-                                                        class="search-dropdown">
-                                                        <div *ngFor="let dose of getFilteredDoses(i)"
-                                                            class="search-dropdown-item"
-                                                            (mousedown)="selectDose(i, dose.id)">
-                                                            {{ dose.name }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Duration Multi Select -->
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Duration</label>
-
-                                                    <div class="multiselect-input" (click)="showDurationDropdown(i)">
-
-                                                        <span *ngFor="let durationId of variation.drugDurationIds"
-                                                            class="chip">
-                                                            {{ getDurationName(durationId) }}
-                                                            <span class="chip-remove"
-                                                                (click)="removeTag(variation.drugDurationIds, durationId); $event.stopPropagation()">×</span>
-                                                        </span>
-
-                                                        <input type="text" class="chip-input"
-                                                            placeholder="Duration, like: 7 days"
-                                                            [(ngModel)]="variation.durationSearch"
-                                                            (input)="filterDurations(i)"
-                                                            (focus)="showDurationDropdown(i)"
-                                                            (blur)="hideDurationDropdown(i)" autocomplete="off">
-                                                    </div>
-
-                                                    <div *ngIf="variation.showDurationDropdown && getFilteredDurations(i).length"
-                                                        class="search-dropdown">
-                                                        <div *ngFor="let duration of getFilteredDurations(i)"
-                                                            class="search-dropdown-item"
-                                                            (mousedown)="selectDuration(i, duration.id)">
-                                                            {{ duration.name }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Remove Button -->
-                                                <div class="col-md-1 d-flex align-items-end">
-                                                    <button type="button" class="btn btn-danger w-100"
-                                                        (click)="removeVariation(i)">
-                                                        Remove
-                                                    </button>
-                                                </div>
-
-                                                <!-- Advice -->
-                                                <div class="col-12">
-                                                    <label class="form-label">Advice</label>
-                                                    <textarea class="form-control" rows="2" placeholder="Enter advice"
-                                                        [(ngModel)]="variation.advice"></textarea>
-                                                </div>
-
+                                    <div class="variation-card">
+                                        <div class="variation-main-row">
+                                            <!-- Drug Type Dropdown -->
+                                            <div class="variation-col-type">
+                                                <select class="form-select" [(ngModel)]="variation.drugTypeId">
+                                                    <option value="">Select type</option>
+                                                    <option *ngFor="let type of drugTypes" [value]="type.id">
+                                                        {{ type.name }}
+                                                    </option>
+                                                </select>
                                             </div>
+
+                                            <!-- Strength Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let strength of variation.strengths" class="chip">
+                                                        {{ strength }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.strengths, strength)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Strength, like: 3mg, 5mg"
+                                                        [(ngModel)]="variation.strengthSearch"
+                                                        (input)="filterStrengths(i)" 
+                                                        (focus)="showStrengthDropdown(i)"
+                                                        (blur)="hideStrengthDropdown(i)"
+                                                        (keydown)="onStrengthKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
+
+                                                <div *ngIf="variation.showStrengthDropdown && getFilteredStrengths(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let strength of getFilteredStrengths(i)"
+                                                        class="dropdown-item"
+                                                        (mousedown)="selectStrength(i, strength.name)">
+                                                        {{ strength.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dose Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let dose of variation.doses" class="chip">
+                                                        {{ dose }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.doses, dose)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Dose, like: 1+1+1, 1+0+1"
+                                                        [(ngModel)]="variation.doseSearch" 
+                                                        (input)="filterDoses(i)"
+                                                        (focus)="showDoseDropdown(i)" 
+                                                        (blur)="hideDoseDropdown(i)"
+                                                        (keydown)="onDoseKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
+
+                                                <div *ngIf="variation.showDoseDropdown && getFilteredDoses(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let dose of getFilteredDoses(i)" class="dropdown-item"
+                                                        (mousedown)="selectDose(i, dose.name)">
+                                                        {{ dose.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Duration Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let duration of variation.durations" class="chip">
+                                                        {{ duration }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.durations, duration)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Duration, like: 7 days, 15 days"
+                                                        [(ngModel)]="variation.durationSearch"
+                                                        (input)="filterDurations(i)" 
+                                                        (focus)="showDurationDropdown(i)"
+                                                        (blur)="hideDurationDropdown(i)"
+                                                        (keydown)="onDurationKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
+
+                                                <div *ngIf="variation.showDurationDropdown && getFilteredDurations(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let duration of getFilteredDurations(i)"
+                                                        class="dropdown-item"
+                                                        (mousedown)="selectDuration(i, duration.name)">
+                                                        {{ duration.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Advice Row (Full Width with Remove Button) -->
+                                        <div class="advice-row">
+                                            <textarea class="form-control" rows="2" placeholder="Advice"
+                                                [(ngModel)]="variation.advice"></textarea>
+
+                                            <button type="button" class="btn-remove-variation"
+                                                (click)="removeVariation(i)" title="Remove variation">
+                                                ×
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <button type="button" class="btn btn-success" (click)="addVariation()">
-                                    <i class="bi bi-plus-circle"></i> Add More Variation
+                                <!-- Add More Button -->
+                                <button type="button" class="btn btn-add-more" (click)="addVariation()">
+                                    + Add More
                                 </button>
                             </div>
-
 
                             <!-- Save Button -->
                             <div class="form-footer">

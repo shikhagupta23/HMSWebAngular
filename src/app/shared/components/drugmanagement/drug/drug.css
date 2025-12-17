@@ -1,16 +1,16 @@
-/* drug.component.css - CORRECTED VERSION */
+/* drug.component.css - COMPLETE STYLES WITH CHIPS INSIDE BOX */
 
 :host {
   display: block;
 }
 
-/* Main Wrapper */
+/* ===== MAIN WRAPPER ===== */
 .main-wrapper {
   min-height: 100vh;
   background-color: #f8f9fa;
 }
 
-/* Breadcrumb Bar */
+/* ===== BREADCRUMB BAR ===== */
 .breadcrumb-bar-two {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
@@ -49,13 +49,12 @@
   color: #d1d5db;
 }
 
-/* Content Area */
+/* ===== CONTENT AREA ===== */
 .content {
   padding: 2rem 0;
   min-height: calc(100vh - 200px);
 }
 
-/* Sidebar */
 .theiaStickySidebar {
   margin-bottom: 2rem;
 }
@@ -71,14 +70,13 @@
   }
 }
 
-/* Container Fluid */
 .container-fluid {
   background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== LIST VIEW ===== */
+/* ===== LIST VIEW STYLES ===== */
 
 /* Header Section */
 .list-header {
@@ -223,18 +221,9 @@
   font-size: 0.875rem;
 }
 
-.col-number {
-  width: 100%;
-}
-
-.col-trade {
-  width: 100%;
-}
-
-.col-variations {
-  width: 100%;
-}
-
+.col-number,
+.col-trade,
+.col-variations,
 .col-actions {
   width: 100%;
 }
@@ -336,7 +325,6 @@
 }
 
 /* ===== PAGINATION STYLES ===== */
-
 .pagination-wrapper {
   display: flex;
   justify-content: space-between;
@@ -392,8 +380,9 @@
   font-weight: 600;
 }
 
-/* ===== FORM VIEW ===== */
+/* ===== FORM VIEW STYLES ===== */
 
+/* Form Header */
 .form-header {
   display: flex;
   justify-content: space-between;
@@ -422,6 +411,8 @@
   gap: 8px;
   transition: all 0.2s ease;
   white-space: nowrap;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-back:hover {
@@ -433,6 +424,7 @@
   font-size: 1.125rem;
 }
 
+/* Form Content */
 .form-content {
   padding: 24px 0;
 }
@@ -471,100 +463,253 @@
   box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
 }
 
-.form-control textarea {
+.form-group textarea.form-control {
   min-height: 80px;
   resize: vertical;
 }
 
-/* Variations Section */
+/* ===== VARIATIONS SECTION - CHIPS INSIDE BOX ===== */
 .variations-section {
-  margin-top: 32px;
-  padding-top: 32px;
+  margin-top: 2rem;
+  padding-top: 2rem;
   border-top: 2px solid #e5e7eb;
 }
 
 .variations-section h2 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
-.variation-form {
-  margin-bottom: 20px;
+/* Variation Card */
+.variation-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Main Row (Type + Multi-selects) */
+.variation-main-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1.8fr 1.5fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Type Column */
+.variation-col-type {
   position: relative;
 }
 
-.variation-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 2fr auto;
-  gap: 12px;
-  padding: 16px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  align-items: flex-start;
-}
-
-.variation-inputs .form-control {
-  margin: 0;
+.variation-col-type .form-select {
   width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background-color: #fff;
 }
 
-.variation-inputs textarea {
-  min-height: 60px;
-  grid-column: 5;
+.variation-col-type .form-select:focus {
+  outline: none;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
 }
 
-.btn-remove {
-  background-color: #dc2626;
-  color: white;
+/* Multi-Select Columns - NEW STRUCTURE */
+.variation-col {
+  position: relative;
+}
+
+/* Multi-select Container - Contains both chips AND input field */
+.multiselect-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 42px;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: text;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.multiselect-container:focus-within {
+  border-color: #0f172a;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+/* Chips - Inside the multiselect box */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  background-color: #16a34a;
+  color: #fff;
+  animation: chipIn 0.2s ease-out;
+}
+
+@keyframes chipIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chip-remove {
+  margin-left: 0.375rem;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: bold;
+  line-height: 1;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.chip-remove:hover {
+  opacity: 1;
+}
+
+/* Input Field - Inside the multiselect box, grows to fill space */
+.chip-input-field {
+  flex: 1;
+  min-width: 120px;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 0.375rem;
+  outline: none;
+  padding: 0.375rem;
+  font-size: 0.875rem;
+  background: transparent;
+  font-family: inherit;
+}
+
+.chip-input-field::placeholder {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}
+
+/* Dropdown List - Positioned below the multiselect container */
+.dropdown-list {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: background-color 0.15s;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.dropdown-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.dropdown-item:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+/* Advice Row (Textarea + Remove Button) */
+.advice-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.advice-row .form-control {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.advice-row .form-control:focus {
+  outline: none;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+/* Remove Variation Button */
+.btn-remove-variation {
+  width: 48px;
+  height: 48px;
+  background-color: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 0;
+  flex-shrink: 0;
 }
 
-.btn-remove:hover {
+.btn-remove-variation:hover {
   background-color: #b91c1c;
 }
 
-.btn-remove i {
-  margin: 0;
-}
-
+/* Add More Button */
 .btn-add-more {
   background-color: #16a34a;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 0.375rem;
-  cursor: pointer;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.9375rem;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 16px;
 }
 
 .btn-add-more:hover {
   background-color: #15803d;
 }
 
-.btn-add-more i {
-  font-size: 1.125rem;
+/* Form Footer */
+.form-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
 }
 
 .btn-save {
   background-color: #0f172a;
-  color: white;
+  color: #fff;
   border: none;
   padding: 10px 24px;
   border-radius: 0.375rem;
@@ -581,150 +726,32 @@
   background-color: #1e293b;
 }
 
-/* Form Footer */
-.form-footer {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #e5e7eb;
+/* Scrollbar Styling for Dropdowns */
+.dropdown-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* ============================= */
-/* MULTISELECT INPUT (GLOBAL)   */
-/* ============================= */
-
-.multiselect-input {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  min-height: 42px;
-  padding: 6px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  background-color: #fff;
-  cursor: text;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  position: relative;
+.dropdown-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-.multiselect-input:focus-within {
-  border-color: #0f172a;
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
 }
 
-/* Chips */
-.multiselect-input .chip {
-  display: inline-flex;
-  align-items: center;
-  background-color: #198754;
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.2;
-  white-space: nowrap;
-  max-height: 24px;
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
-/* Remove icon */
-.multiselect-input .chip-remove {
-  margin-left: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.multiselect-input .chip-remove:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-/* Input inside multiselect */
-.multiselect-input .chip-input {
-  border: none;
-  outline: none;
-  flex: 1;
-  min-width: 120px;
-  padding: 4px 2px;
-  font-size: 14px;
-  line-height: 1.5;
-  background: transparent;
-  height: 28px;
-}
-
-.multiselect-input .chip-input::placeholder {
-  color: #9ca3af;
-  font-size: 13px;
-}
-
-/* Prevent Bootstrap interference */
-.multiselect-input input {
-  box-shadow: none !important;
-  margin: 0 !important;
-}
-
-/* Dropdown Container */
-.col-md-3 {
-  position: relative;
-}
-
-/* Dropdown */
-.search-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  margin-top: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1050;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.search-dropdown-item {
-  padding: 10px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #374151;
-  transition: background-color 0.15s;
-}
-
-.search-dropdown-item:hover {
-  background-color: #f3f4f6;
-  color: #1f2937;
-}
-
-.search-dropdown-item:first-child {
-  border-radius: 6px 6px 0 0;
-}
-
-.search-dropdown-item:last-child {
-  border-radius: 0 0 6px 6px;
-}
-
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1200px) {
   .form-row {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .variation-inputs {
-    grid-template-columns: 1fr 1fr 1fr auto;
-  }
-
-  .variation-inputs textarea {
-    grid-column: 1 / -1;
+  .variation-main-row {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -745,6 +772,7 @@
 
   .filter-control {
     flex-direction: column;
+    width: 100%;
   }
 
   .filter-control .form-select {
@@ -757,18 +785,24 @@
 
   .search-control {
     max-width: 100%;
+    width: 100%;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  .variation-inputs {
+  .variation-main-row {
     grid-template-columns: 1fr;
   }
 
-  .btn-remove {
+  .advice-row {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-remove-variation {
     width: 100%;
+    height: 40px;
   }
 
   .col-actions {
@@ -780,7 +814,6 @@
     flex: 1;
   }
 
-  /* Responsive Pagination */
   .pagination-wrapper {
     flex-direction: column;
     gap: 15px;
@@ -799,88 +832,8 @@
     padding: 6px 10px;
     font-size: 13px;
   }
-
-  /* ============================= */
-/* MULTISELECT INPUT (GLOBAL)   */
-/* ============================= */
-
-.multiselect-input {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;              /* 🔥 CRITICAL */
-  gap: 6px;
-  min-height: 38px;
-  padding: 4px 8px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  background-color: #fff;
-  cursor: text;
-}
-
-.multiselect-input:focus-within {
-  border-color: #0f172a;
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15);
-}
-
-/* Chips */
-.multiselect-input .chip {
-  display: inline-flex;             /* 🔥 CRITICAL */
-  align-items: center;
-  background-color: #198754;
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 13px;
-  line-height: 1;                   /* 🔥 CRITICAL */
-  white-space: nowrap;
-}
-
-/* Remove icon */
-.multiselect-input .chip-remove {
-  margin-left: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* Input inside multiselect */
-.multiselect-input .chip-input {
-  border: none;
-  outline: none;
-  flex: 1;
-  min-width: 120px;
-  padding: 4px;
-  font-size: 14px;
-  line-height: 1.2;                 /* 🔥 CRITICAL */
-  background: transparent;
-}
-
-/* Prevent Bootstrap interference */
-.multiselect-input input {
-  box-shadow: none !important;
-}
-
-/* Dropdown */
-.search-dropdown {
-  position: absolute;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  margin-top: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-  width: 100%;
-}
-
-.search-dropdown-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.search-dropdown-item:hover {
-  background-color: #f3f4f6;
-}
-
-
+  
+  .chip-input-field {
+    min-width: 100px;
+  }
 }
