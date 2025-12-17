@@ -100,12 +100,8 @@ allAppointments: any[] = [];   // 🔥 store all data once
     };
 
   ngOnInit(): void {
-    this.loadAppointments();
-    this.loadMedicineTypes();
-    this.loadLabTests();  
-    this.loadMedicineOptions(); 
-    this.loadDoctorDetails(); 
-    this.addAppointmentForm = this.fb.group({
+
+        this.addAppointmentForm = this.fb.group({
       patientId: [''],
       fullName: ['', Validators.required],
       email: [''],
@@ -130,10 +126,16 @@ allAppointments: any[] = [];   // 🔥 store all data once
       visitReason: [''],
       doctorId: [''],  
     });
-
+    
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
+
+    this.loadAppointments();
+    this.loadMedicineTypes();
+    this.loadLabTests();  
+    this.loadMedicineOptions(); 
+    this.loadDoctorDetails(); 
   }
   
 @HostListener('document:click')
@@ -171,13 +173,13 @@ loadDoctorDetails() {
         if (response.isSuccess) {
           this.doctorDetails = response.data;
           console.log(response.data);
+
           this.addAppointmentForm.patchValue({
             doctor: response.data.doctorId
           });
+          this.getDoctorFee();
+          this.addAppointmentForm.get('appointmentFee')?.disable();
 
-          this.addAppointmentForm.patchValue({
-            appointmentFee: response.data.consultationFee
-          });
         }
       },
       error: (err) => console.error("API Error:", err)
@@ -185,6 +187,8 @@ loadDoctorDetails() {
   } 
   else {
     this.loadAllDoctors();
+    this.addAppointmentForm.get('appointmentFee')?.enable();
+
   }
 }
 
@@ -987,5 +991,21 @@ resetPrescription() {
   this.adviceOptions.forEach(x => x.selected = false);
   this.followUpOptions.forEach(x => x.selected = false);
 }
+
+resetAddAppointmentForm() {
+  this.addAppointmentForm.reset({
+    appointmentDate: this.getCurrentDateTime(),
+    doctor: this.isDoctorRole ? this.doctorDetails?.doctorId : ''
+  });
+
+  this.getDoctorFee();
+
+  this.patientList = [];
+  this.selectedPatientId = null;
+
+  this.addAppointmentForm.markAsPristine();
+  this.addAppointmentForm.markAsUntouched();
+}
+
 
 }

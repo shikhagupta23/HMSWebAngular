@@ -104,13 +104,7 @@ export class ViewTodaysAppointments implements OnInit {
 // }
   ngOnInit(): void {
     
-    // this.loadFullData();
-    this.loadAppointments();
-    this.loadMedicineTypes();
-    this.loadLabTests();  
-    this.loadMedicineOptions(); 
-    this.loadDoctorDetails(); 
-    this.addAppointmentForm = this.fb.group({
+        this.addAppointmentForm = this.fb.group({
       patientId: [''],
       fullName: ['', Validators.required],
       email: [''],
@@ -139,6 +133,16 @@ export class ViewTodaysAppointments implements OnInit {
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
+
+    // this.loadFullData();
+    this.loadAppointments();
+    this.loadMedicineTypes();
+    this.loadLabTests();  
+    this.loadMedicineOptions(); 
+    this.loadDoctorDetails(); 
+
+
+
   }
   
 @HostListener('document:click')
@@ -172,21 +176,17 @@ loadDoctorDetails() {
   this.isDoctorRole = (role?.toLowerCase() === 'doctor');
 
   if (this.isDoctorRole) {
-    // Load logged-in doctor details
     this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
       next: (response: any) => {
         if (response.isSuccess) {
           this.doctorDetails = response.data;
           console.log(response.data);
-          // ⚡ Set doctor userId directly in the form
-          this.addAppointmentForm.patchValue({
-            doctor: response.data.doctorId
-          });
 
-          // ⚡ Set doctor fee automatically
           this.addAppointmentForm.patchValue({
-            appointmentFee: response.data.consultationFee
+            doctor: response.data.doctorId,
           });
+          this.getDoctorFee();
+          this.addAppointmentForm.get('appointmentFee')?.disable();
         }
       },
       error: (err) => console.error("API Error:", err)
@@ -195,6 +195,7 @@ loadDoctorDetails() {
   else {
     // For receptionist → load all doctors
     this.loadAllDoctors();
+    this.addAppointmentForm.get('appointmentFee')?.enable();
   }
 }
 
@@ -811,7 +812,7 @@ toggleTiming(m: any, timing: string) {
 // 🔥 SELECT INSTRUCTION
 // --------------------------
 selectInstruction(m: any, instr: string) {
-  m.instruction = instr;  // only one instruction
+  m.instruction = instr;
 }
 
 
@@ -841,7 +842,6 @@ loadLabTests() {
 }
 
 loadMedicineOptions() {
-  // Load frequencies
   this.appointmentService.getMedicineFrequencies().subscribe({
     next: (res: any) => {
       this.frequencyOptions = res.dataList.map((f: any) => ({ label: f.name, value: f.id }));
@@ -849,7 +849,6 @@ loadMedicineOptions() {
     error: (err) => console.error("Error loading medicine frequencies", err)
   });
 
-  // Load timings
   this.appointmentService.getMedicineTimings().subscribe({
     next: (res: any) => {
       this.timingOptions = res.dataList.map((t: any) => ({ label: t.name, value: t.name }));
@@ -857,7 +856,6 @@ loadMedicineOptions() {
     error: (err) => console.error("Error loading medicine timings", err)
   });
 
-  // Load instructions
   this.appointmentService.getMedicineInstructions().subscribe({
     next: (res: any) => {
       this.instructionOptions = res.dataList.map((i: any) => ({ label: i.name, value: i.name }));
@@ -872,7 +870,6 @@ savePrescription() {
     return;
   }
 
-  // Validate medicines
   for (let med of this.prescription.medicines) {
     if (!med.frequency) {
       this.toast.error(`Select frequency for ${med.name}`);
@@ -887,9 +884,6 @@ savePrescription() {
       return;
     }
   }
-
-  // Validate lab tests (optional)
-  // if needed: ensure LabTestId is valid
 
 const payload: any = {
   AppointmentId: this.selectedAppointment?.appointmentId || '',
@@ -918,11 +912,10 @@ const payload: any = {
     Name: m.name,
     Dosage: `${m.dosage}`,
     Frequency: m.frequencyName,
-    Duration: String(m.duration || 1),       // ✅ must be string
+    Duration: String(m.duration || 1),
     Instructions: m.instruction,
-Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
-  // ✅ convert to int[]
-    TimmingNames: m.timings                // optional, backend allows
+    Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
+    TimmingNames: m.timings
   })),
 
   Labtests: this.prescription.labTests.map(l => ({
@@ -944,9 +937,9 @@ Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
       if (modalInstance) {
         modalInstance.hide();
       }
-
-      // Optionally reset the form
       this.resetPrescription();
+      this.loadAppointments();
+
       const appointmentId = this.selectedAppointment?.appointmentId;
       if (appointmentId) {
         this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
@@ -1004,6 +997,20 @@ resetPrescription() {
   this.diagnosisOptions.forEach(x => x.selected = false);
   this.adviceOptions.forEach(x => x.selected = false);
   this.followUpOptions.forEach(x => x.selected = false);
+}
+
+resetAddAppointmentForm() {
+  this.addAppointmentForm.reset({
+    appointmentDate: this.getCurrentDateTime(),
+    doctor: this.isDoctorRole ? this.doctorDetails?.doctorId : ''
+  });
+    this.getDoctorFee();
+
+  this.patientList = [];
+  this.selectedPatientId = null;
+
+  this.addAppointmentForm.markAsPristine();
+  this.addAppointmentForm.markAsUntouched();
 }
 
 }
