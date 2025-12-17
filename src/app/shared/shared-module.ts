@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Select2Directive } from './directives/select2.directive';
 import { GenderPipe } from './pipe/gender-pipe';
 import { Asidebar } from './components/asidebar/asidebar';
+import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { Asidebar } from './components/asidebar/asidebar';
     Select2Directive,
     GenderPipe,
     Asidebar,
+    AdminSidebar,
     
   ],
   imports: [
@@ -32,7 +34,8 @@ import { Asidebar } from './components/asidebar/asidebar';
     Addappointment,
     FormsModule,
     Select2Directive,
-    GenderPipe
+    GenderPipe,
+    AdminSidebar
   ]
 })
 export class SharedModule { }

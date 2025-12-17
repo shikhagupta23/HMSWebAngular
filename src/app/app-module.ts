@@ -13,13 +13,15 @@ import { authInterceptor } from './shared/interceptors/auth.interceptor';
 import { loaderInterceptor } from './shared/interceptors/loader.interceptor';
 import { Loader } from './shared/components/loader/loader';
 import { Dashboard } from './shared/components/dashboard/dashboard';
+import { Adminlayout } from './Layout/adminlayout/adminlayout';
 @NgModule({
   declarations: [
     App,
     AuthLayout,
     MainLayout,
     Loader,
-    Dashboard
+    Dashboard,
+    Adminlayout
   ],
   imports: [
     BrowserModule,
