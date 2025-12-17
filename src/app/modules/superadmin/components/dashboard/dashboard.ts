@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../../../shared/services/api-service';
 import { ApiEndpoints } from '../../../../shared/constants/api-endpoints';
+import { AuthService } from '../../../auth/services/auth-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,13 @@ import { ApiEndpoints } from '../../../../shared/constants/api-endpoints';
 export class Dashboard {
 
   private api = inject(ApiService);
+  private auth = inject(AuthService);
+
+  role: string | null = null;
+  isAdmin: boolean = false;
+  isSuperAdmin: boolean = false;
+  hospitalCount: number = 0;
+  hospitalList: any[] = [];
 
   doctorsCount: number = 0;
   patientsCount: number = 0;
@@ -28,7 +36,34 @@ export class Dashboard {
   appointmentList: any[] = [];
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    try {
+      this.role = this.auth.getUserRole();
+    } catch (e) {
+      this.role = null;
+    }
+    const r = (this.role || '').toLowerCase();
+    this.isAdmin = r === 'admin';
+    this.isSuperAdmin = r === 'superadmin';
+
+    if (this.isSuperAdmin) {
+      this.loadSuperadminData();
+    } else {
+      this.loadDashboardData();
+    }
+  }
+
+  private loadSuperadminData() {
+    const hospitals$ = this.api.get<any>(ApiEndpoints.HOSPITAL.GET(1, 10, ''));
+    hospitals$.subscribe({
+      next: res => {
+        const list = this.extractList(res?.dataList ?? res?.data ?? res);
+        this.hospitalList = list;
+        this.hospitalCount = this.extractCount(res, list.length);
+      },
+      error: err => {
+        console.error('Hospital API error', err);
+      }
+    });
   }
 
   private loadDashboardData() {
