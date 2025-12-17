@@ -58,9 +58,13 @@ export class ViewAllPatients implements OnInit {
     ).subscribe({
       next: (response) => {
 
-        console.log("API Response:", response);
+        console.log("Patient API Response:", response);
 
-        this.patientList = response.dataList;
+        // this.patientList = response.dataList;
+        this.patientList = response.dataList.map((p: any) => ({
+          ...p,
+          age: this.calculateAge(p.dob)
+        }));
 
         this.filteredPatients = [...this.patientList];
 
@@ -161,4 +165,40 @@ openAddPatientModal() {
     const modal = new bootstrap.Modal(document.getElementById('addPatientModal'));
     modal.show();
 }
+
+calculateAge(dob: string): string {
+  if (!dob) return '-';
+
+  const birthDate = new Date(dob.replace(' ', 'T'));
+  const today = new Date();
+
+  const diffTime = today.getTime() - birthDate.getTime();
+  if (diffTime < 0) return '0 days';
+
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  // 👶 Less than 1 month → show days
+  if (diffDays < 30) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+  }
+
+  // 👶 Less than 1 year → show months
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `${months} month${months > 1 ? 's' : ''}`;
+  }
+
+  // 👨 Adult → show years
+  const years = Math.floor(diffDays / 365);
+  return `${years} yr${years > 1 ? 's' : ''}`;
+}
+
+getGenderIcon(gender: string): string {
+  const g = gender?.toLowerCase();
+  if (g === 'm' || g === 'male') return 'fa-mars';
+  if (g === 'f' || g === 'female') return 'fa-venus';
+  return 'fa-genderless';
+}
+
+
 }

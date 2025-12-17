@@ -1,10 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 // import { Dashboard } from './components/dashboard/dashboard';
-import { Appointment } from './components/appointment/appointment';
-import { Medicine } from './components/medicine/medicine';
-import { Labtest } from './components/labtest/labtest';
-import { Profile } from './components/profile/profile';
 import { FormsModule } from '@angular/forms';
 import { Dashboard } from '../../shared/components/dashboard/dashboard';
 import { DrugdoseComponent } from '../../shared/components/drugmanagement/drugdose/drugdose';
@@ -16,9 +12,6 @@ import { DrugComponent } from '../../shared/components/drugmanagement/drug/drug'
 
 const routes: Routes = [
   {path: 'dashboard', component: Dashboard},
-  {path: 'medicine', component: Medicine},
-  {path: 'labtest', component: Labtest},
-  {path: 'profile', component: Profile},
   {path: 'appointment',
     loadChildren: () =>
     import('../doctor/modules/appointment/appointment-module').then(m => m.AppointmentModule),
