@@ -9,7 +9,7 @@ import { AuthService } from '../../../modules/auth/services/auth-service';
   styleUrl: './header.scss',
 })
 export class Header {
-// public roleService = inject(RoleService);
+public roleService = inject(RoleService);
 private authService = inject(AuthService);
 
   loggedInUserName: string = '';
