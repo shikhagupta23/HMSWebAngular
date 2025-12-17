@@ -8,6 +8,7 @@ import { FeatureAssignment } from './components/feature-assignment/feature-assig
 import { ChangePassword } from './components/change-password/change-password';
 import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
+import { LabtestComponent } from '../superadmin/components/labtest/labtest';
 
 const routes: Routes = [
   { path: '', component: Dashboard },
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'change-password', component: ChangePassword },
   { path: 'profile-setting', component: ProfileSetting },
   { path: 'upcoming-followup', component: UpcomingFollowup },
+  { path: 'labtest', component: LabtestComponent },
 ];
 
 @NgModule({

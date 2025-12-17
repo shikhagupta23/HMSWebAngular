@@ -96,8 +96,8 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     label: "Lab Tests",
     icon: "fas fa-pills",
-    route: "/doctor/labtest/alllabtest",
-    roles: []
+    route: "/superadmin/labtest",
+    roles: ["SuperAdmin"]
   }, 
   {
     label: "Create Feature",
