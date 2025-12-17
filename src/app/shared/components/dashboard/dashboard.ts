@@ -2,6 +2,16 @@ import { Component, inject, OnInit} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { DashboardService } from './Service/dashboard-service';
 
+interface DashboardSummary {
+  appointments: number;
+  scheduled: number;
+  completed: number;
+  pending: number;
+  cancelled: number;
+  patients: number;
+  revenue: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: false,
@@ -31,7 +41,9 @@ export class Dashboard implements OnInit{
   activeTab: 'today' | 'overall' = 'today';
 
   
-
+  todaySummary!: DashboardSummary;
+  overallSummary!: DashboardSummary;
+  
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
   constructor() {}

@@ -698,16 +698,16 @@ loadHelperValues(masterId: string) {
       .join(', ');
 
     if (this.activeField === 'Symptoms')
-      this.prescription.symptoms = selectedValues;
+      this.prescription.symptoms += selectedValues;
 
     if (this.activeField === 'Diagnosis')
-      this.prescription.diagnosis = selectedValues;
+      this.prescription.diagnosis += selectedValues;
 
     if (this.activeField === 'Advice')
-      this.prescription.advice = selectedValues;
+      this.prescription.advice += selectedValues;
 
     if (this.activeField === 'FollowUp')
-      this.prescription.followUp = selectedValues;
+      this.prescription.followUp += selectedValues;
   }
 
 onMedicineTypeChange() {

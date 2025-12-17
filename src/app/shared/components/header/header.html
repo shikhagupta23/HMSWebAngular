@@ -170,13 +170,16 @@
 											<img src="assets/img/doctors-dashboard/doctor-profile-img.jpg" alt="User Image" class="avatar-img rounded-circle">
 										</div>
 										<div class="user-text">
-											<h6>Dr Edalin Hendry</h6>
-											<p class="text-success mb-0">Available</p>
+											<h6>
+												<span *ngIf="loggedInRole === 'Doctor'">Dr</span>
+												{{ loggedInUserName }}
+											</h6>
+
 										</div>
 									</div>
-									<a class="dropdown-item" href="doctor-dashboard.html">Dashboard</a>
-									<a class="dropdown-item" href="doctor-profile-settings.html">Profile Settings</a>
-									<a class="dropdown-item" href="login.html">Logout</a>
+									<a class="d-none dropdown-item" href="doctor-profile-settings.html">Profile Settings</a>
+									<a class="dropdown-item" (click)="logout()">Logout</a>
+
 								</div>
 							</li>
 							<!-- /User Menu -->
