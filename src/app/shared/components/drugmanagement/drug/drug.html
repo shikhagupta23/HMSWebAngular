@@ -20,141 +20,162 @@
             </div>
         </div>
     </div>
+
     <div class="content">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 col-xl-3 theiaStickySidebar">
                     <app-asidebar class="h-100"></app-asidebar>
                 </div>
+
                 <div class="col-lg-8 col-xl-9">
                     <!-- List View -->
                     <div *ngIf="!showCreateForm" class="container-fluid p-4">
-                        <!-- Header Section -->
-                        <div class="list-header">
-                            <h1 class="mb-0">Drug List</h1>
-                            <div class="header-controls">
-                                <div class="filter-control">
-                                    <label>Filter:</label>
-                                    <select class="form-select" [(ngModel)]="selectedFilterType" (change)="onFilterChange()">
-                                        <option value="">All Types</option>
-                                        <option *ngFor="let type of filterTypes" [value]="type">{{ type }}</option>
+                        <!-- Error Message -->
+                        <div class="alert alert-danger" *ngIf="error">
+                            {{ error }}
+                        </div>
+
+                        <!-- Loading Spinner -->
+                        <div class="text-center py-5" *ngIf="isLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading drugs...</p>
+                        </div>
+
+                        <!-- Content (shown when not loading) -->
+                        <div *ngIf="!isLoading">
+                            <!-- Header Section -->
+                            <div class="list-header">
+                                <h1 class="mb-0">Drug List</h1>
+                                <div class="header-controls">
+                                    <div class="filter-control">
+                                        <label>Filter:</label>
+                                        <select class="form-select" [(ngModel)]="selectedFilterType"
+                                            (change)="onFilterChange()">
+                                            <option value="">All Types</option>
+                                            <option *ngFor="let type of drugTypes" [value]="type.id">{{ type.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-primary" (click)="openCreateForm()">
+                                        <span class="me-2">+</span>Create Drug
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filter and Controls Section -->
+                            <div class="controls-row">
+                                <div class="entries-control">
+                                    <select class="form-select form-select-sm" [(ngModel)]="entriesPerPage"
+                                        (change)="onEntriesPerPageChange()">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
                                     </select>
+                                    <span class="text-muted">entries per page</span>
                                 </div>
-                                <button class="btn btn-primary" (click)="openCreateForm()">
-                                    <span class="me-2">+</span>Create Drug
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Filter and Controls Section -->
-                        <div class="controls-row">
-                            <div class="entries-control">
-                                <select class="form-select form-select-sm" [(ngModel)]="entriesPerPage" (change)="onEntriesPerPageChange()">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                                <span class="text-muted">entries per page</span>
-                            </div>
-                            <div class="search-control">
-                                <input type="text" class="form-control" placeholder="Search..."
-                                    [(ngModel)]="searchTerm" (input)="onSearch()" />
-                            </div>
-                        </div>
-
-                        <!-- Drug List Table -->
-                        <div class="drugs-table">
-                            <div class="table-header">
-                                <div class="col-number">#</div>
-                                <div class="col-trade">Trade name</div>
-                                <div class="col-variations">Variations</div>
-                                <div class="col-actions">Actions</div>
+                                <div class="search-control">
+                                    <input type="text" class="form-control" placeholder="Search..."
+                                        [(ngModel)]="searchTerm" (input)="onSearch()" />
+                                </div>
                             </div>
 
-                            <div class="table-body">
-                                <div *ngFor="let drug of paginatedDrugList; let i = index" class="table-row">
-                                    <div class="col-number">{{ getStartIndex() + i }}</div>
-                                    <div class="col-trade">
-                                        <div class="drug-details">
-                                            <div class="detail-item">
-                                                <span class="label">Trade name:</span>
-                                                <span class="value">{{ drug.tradeName }}</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <span class="label">Generic name:</span>
-                                                <span class="value">{{ drug.genericName }}</span>
-                                            </div>
-                                            <div class="detail-item" *ngIf="drug.warning">
-                                                <span class="label">Warning:</span>
-                                                <span class="value">{{ drug.warning }}</span>
-                                            </div>
-                                            <div class="detail-item" *ngIf="drug.note">
-                                                <span class="label">Note:</span>
-                                                <span class="value">{{ drug.note }}</span>
-                                            </div>
-                                            <div class="detail-item" *ngIf="drug.sideEffect">
-                                                <span class="label">Side effect:</span>
-                                                <span class="value">{{ drug.sideEffect }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-variations">
-                                        <div class="variations-list">
-                                            <div *ngFor="let variation of drug.variations" class="variation-item">
-                                                <div class="variation-detail">
-                                                    <strong>Type:</strong> {{ variation.type }}
-                                                    <strong>Strength:</strong> [ {{ variation.strength.join('", "') }} ]
-                                                    <strong>Dose:</strong> [ {{ variation.dose.join('", "') }} ]
-                                                    <strong>Duration:</strong> [ {{ variation.duration.join('", "') }} ]
+                            <!-- Drug List Table -->
+                            <div class="drugs-table">
+                                <div class="table-header">
+                                    <div class="col-number">#</div>
+                                    <div class="col-trade">Trade name</div>
+                                    <div class="col-variations">Variations</div>
+                                    <div class="col-actions">Actions</div>
+                                </div>
+
+                                <div class="table-body">
+                                    <div *ngFor="let drug of paginatedDrugList; let i = index" class="table-row">
+                                        <div class="col-number">{{ getStartIndex() + i }}</div>
+                                        <div class="col-trade">
+                                            <div class="drug-details">
+                                                <div class="detail-item">
+                                                    <span class="label">Trade name:</span>
+                                                    <span class="value">{{ drug.tradeName }}</span>
                                                 </div>
-                                                <div *ngIf="variation.advice" class="variation-advice">
-                                                    <strong>Advice:</strong> {{ variation.advice }}
+                                                <div class="detail-item">
+                                                    <span class="label">Generic name:</span>
+                                                    <span class="value">{{ drug.genericName }}</span>
+                                                </div>
+                                                <div class="detail-item" *ngIf="drug.warning">
+                                                    <span class="label">Warning:</span>
+                                                    <span class="value">{{ drug.warning }}</span>
+                                                </div>
+                                                <div class="detail-item" *ngIf="drug.note">
+                                                    <span class="label">Note:</span>
+                                                    <span class="value">{{ drug.note }}</span>
+                                                </div>
+                                                <div class="detail-item" *ngIf="drug.sideEffect">
+                                                    <span class="label">Side effect:</span>
+                                                    <span class="value">{{ drug.sideEffect }}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-variations">
+                                            <div class="variations-list">
+                                                <div *ngFor="let variation of drug.variations" class="variation-item">
+                                                    <div class="variation-detail">
+                                                        <strong>Type:</strong> {{ getDrugTypeName(variation.drugTypeId) }}
+                                                        <strong>Strength:</strong> {{ variation.strengths }}
+                                                        <strong>Dose:</strong> {{ variation.doses }}
+                                                        <strong>Duration:</strong> {{ variation.durations || 'N/A' }}
+                                                    </div>
+                                                    <div *ngIf="variation.variationNote" class="variation-advice">
+                                                        <strong>Advice:</strong> {{ variation.variationNote }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-actions">
+                                            <div class="d-flex flex-column gap-2">
+                                                <button class="btn btn-sm btn-primary"
+                                                    (click)="openEditForm(drug.drugId)" title="Edit">
+                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" (click)="deleteDrug(drug.drugId)"
+                                                    title="Delete">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-actions">
-                                        <button class="btn btn-sm btn-primary" (click)="openEditForm(drug.id)" title="Edit">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" (click)="deleteDrug(drug.id)" title="Delete">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </button>
+
+                                    <div *ngIf="paginatedDrugList.length === 0" class="table-row empty-state">
+                                        <div class="col-span">No drugs found</div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div *ngIf="paginatedDrugList.length === 0" class="table-row empty-state">
-                                    <div class="col-span">No drugs found</div>
+                            <!-- Pagination Section -->
+                            <div class="pagination-wrapper" *ngIf="totalCount > 0">
+                                <div class="pagination-info">
+                                    Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalCount }} entries
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Pagination Section -->
-                        <div class="pagination-wrapper" *ngIf="filteredDrugList.length > 0">
-                            <div class="pagination-info">
-                                Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ filteredDrugList.length }} entries
-                            </div>
-                            <div class="pagination-controls">
-                                <button class="btn btn-pagination" 
-                                        [disabled]="currentPage === 1" 
+                                <div class="pagination-controls">
+                                    <button class="btn btn-pagination" [disabled]="currentPage === 1"
                                         (click)="goToPage(currentPage - 1)">
-                                    Previous
-                                </button>
-                                
-                                <button *ngFor="let page of getPageNumbers()" 
-                                        class="btn btn-pagination" 
-                                        [class.active]="page === currentPage"
-                                        [disabled]="page === -1"
+                                        Previous
+                                    </button>
+
+                                    <button *ngFor="let page of getPageNumbers()" class="btn btn-pagination"
+                                        [class.active]="page === currentPage" [disabled]="page === -1"
                                         (click)="page !== -1 && goToPage(page)">
-                                    {{ page === -1 ? '...' : page }}
-                                </button>
-                                
-                                <button class="btn btn-pagination" 
-                                        [disabled]="currentPage === totalPages" 
+                                        {{ page === -1 ? '...' : page }}
+                                    </button>
+
+                                    <button class="btn btn-pagination" [disabled]="currentPage === totalPages"
                                         (click)="goToPage(currentPage + 1)">
-                                    Next
-                                </button>
+                                        Next
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -172,12 +193,12 @@
                             <!-- Basic Info Row -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label class="form-label">Trade name</label>
+                                    <label class="form-label">Trade name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" placeholder="Trade name"
                                         [(ngModel)]="formData.tradeName" />
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Generic name</label>
+                                    <label class="form-label">Generic name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" placeholder="Generic name"
                                         [(ngModel)]="formData.genericName" />
                                 </div>
@@ -207,51 +228,130 @@
                                 </div>
                             </div>
 
-                            <!-- Drug Variations Section -->
+                            <!-- Drug Variations Section with Custom Input Support -->
                             <div class="variations-section">
-                                <h2>Drug Variations</h2>
+                                <h2 class="mb-3">Drug Variations</h2>
 
-                                <div *ngFor="let variation of formData.variations; let i = index" class="variation-form">
-                                    <div class="variation-inputs">
-                                        <select class="form-control" [(ngModel)]="variation.type" placeholder="Please select">
-                                            <option value="">Please select</option>
-                                            <option value="Tab.">Tab.</option>
-                                            <option value="Syrup">Syrup</option>
-                                            <option value="Injection">Injection</option>
-                                            <option value="Gel">Gel</option>
-                                            <option value="Ointment">Ointment</option>
-                                        </select>
+                                <div *ngFor="let variation of formData.variations; let i = index" class="mb-4">
+                                    <div class="variation-card">
+                                        <div class="variation-main-row">
+                                            <!-- Drug Type Dropdown -->
+                                            <div class="variation-col-type">
+                                                <select class="form-select" [(ngModel)]="variation.drugTypeId">
+                                                    <option value="">Select type</option>
+                                                    <option *ngFor="let type of drugTypes" [value]="type.id">
+                                                        {{ type.name }}
+                                                    </option>
+                                                </select>
+                                            </div>
 
-                                        <input type="text" class="form-control" placeholder="Strength, like: 3mg, 5mg"
-                                            [ngModel]="formatArray(variation.strength)"
-                                            (ngModelChange)="variation.strength = parseArray($event)" />
+                                            <!-- Strength Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let strength of variation.strengths" class="chip">
+                                                        {{ strength }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.strengths, strength)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Strength, like: 3mg, 5mg"
+                                                        [(ngModel)]="variation.strengthSearch"
+                                                        (input)="filterStrengths(i)" 
+                                                        (focus)="showStrengthDropdown(i)"
+                                                        (blur)="hideStrengthDropdown(i)"
+                                                        (keydown)="onStrengthKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
 
-                                        <input type="text" class="form-control" placeholder="Dose, like: 1+1+1, 1+0+1, 0+1+1"
-                                            [ngModel]="formatArray(variation.dose)"
-                                            (ngModelChange)="variation.dose = parseArray($event)" />
+                                                <div *ngIf="variation.showStrengthDropdown && getFilteredStrengths(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let strength of getFilteredStrengths(i)"
+                                                        class="dropdown-item"
+                                                        (mousedown)="selectStrength(i, strength.name)">
+                                                        {{ strength.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                        <input type="text" class="form-control" placeholder="Duration, like: 7 days, 15 days"
-                                            [ngModel]="formatArray(variation.duration)"
-                                            (ngModelChange)="variation.duration = parseArray($event)" />
+                                            <!-- Dose Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let dose of variation.doses" class="chip">
+                                                        {{ dose }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.doses, dose)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Dose, like: 1+1+1, 1+0+1"
+                                                        [(ngModel)]="variation.doseSearch" 
+                                                        (input)="filterDoses(i)"
+                                                        (focus)="showDoseDropdown(i)" 
+                                                        (blur)="hideDoseDropdown(i)"
+                                                        (keydown)="onDoseKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
 
-                                        <textarea class="form-control" placeholder="Advice"
-                                            [(ngModel)]="variation.advice"></textarea>
+                                                <div *ngIf="variation.showDoseDropdown && getFilteredDoses(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let dose of getFilteredDoses(i)" class="dropdown-item"
+                                                        (mousedown)="selectDose(i, dose.name)">
+                                                        {{ dose.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                        <button class="btn btn-remove" (click)="removeVariation(i)" title="Remove">
-                                            <i class="bi bi-x"></i>
-                                        </button>
+                                            <!-- Duration Multi-Select with Custom Input -->
+                                            <div class="variation-col">
+                                                <div class="multiselect-container">
+                                                    <span *ngFor="let duration of variation.durations" class="chip">
+                                                        {{ duration }}
+                                                        <span class="chip-remove"
+                                                            (click)="removeTag(variation.durations, duration)">×</span>
+                                                    </span>
+                                                    <input type="text" class="chip-input-field"
+                                                        placeholder="Duration, like: 7 days, 15 days"
+                                                        [(ngModel)]="variation.durationSearch"
+                                                        (input)="filterDurations(i)" 
+                                                        (focus)="showDurationDropdown(i)"
+                                                        (blur)="hideDurationDropdown(i)"
+                                                        (keydown)="onDurationKeyDown($event, i)"
+                                                        autocomplete="off">
+                                                </div>
+
+                                                <div *ngIf="variation.showDurationDropdown && getFilteredDurations(i).length > 0"
+                                                    class="dropdown-list">
+                                                    <div *ngFor="let duration of getFilteredDurations(i)"
+                                                        class="dropdown-item"
+                                                        (mousedown)="selectDuration(i, duration.name)">
+                                                        {{ duration.name }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Advice Row (Full Width with Remove Button) -->
+                                        <div class="advice-row">
+                                            <textarea class="form-control" rows="2" placeholder="Advice"
+                                                [(ngModel)]="variation.advice"></textarea>
+
+                                            <button type="button" class="btn-remove-variation"
+                                                (click)="removeVariation(i)" title="Remove variation">
+                                                ×
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <button class="btn btn-add-more" (click)="addVariation()">
-                                    <i class="bi bi-plus"></i> Add More
+                                <!-- Add More Button -->
+                                <button type="button" class="btn btn-add-more" (click)="addVariation()">
+                                    + Add More
                                 </button>
                             </div>
 
                             <!-- Save Button -->
                             <div class="form-footer">
                                 <button class="btn btn-save" (click)="saveDrug()">
-                                    <i class="bi bi-lock"></i> Save
+                                    <i class="bi bi-check-lg"></i> Save
                                 </button>
                             </div>
                         </div>
