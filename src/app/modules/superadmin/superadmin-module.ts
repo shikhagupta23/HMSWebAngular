@@ -12,6 +12,7 @@ import { FeatureAssignment } from './components/feature-assignment/feature-assig
 import { ChangePassword } from './components/change-password/change-password';
 import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
+import { LabtestComponent } from './components/labtest/labtest';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { UpcomingFollowup } from './components/upcoming-followup/upcoming-follow
     ChangePassword,
     ProfileSetting,
     UpcomingFollowup,
+    LabtestComponent
   ],
   imports: [
     CommonModule,
