@@ -116,7 +116,9 @@
 												<tr *ngFor="let d of doctorList">
 													<td>
 														<h2 class="table-avatar">
-															<a  class="avatar avatar-sm me-2"><img class="avatar-img rounded-circle" src="assets/img/doctors/doctor-thumb-01.jpg" alt="User Image"></a>
+															<span class="avatar avatar-sm me-2 d-flex align-items-center justify-content-center" style="background:#f5f6fa; border-radius:50%; width:32px; height:32px;">
+																<i class="feather feather-home"></i>
+															</span>
 															<a >{{ d?.doctorName || d?.fullName || d?.name || d?.userName || '—' }}</a>
 														</h2>
 													</td>
@@ -284,11 +286,9 @@
                   <tr *ngFor="let h of hospitalList">
                     <td>
                       <h2 class="table-avatar">
-                        <a class="avatar avatar-sm me-2">
-                          <img class="avatar-img rounded-circle"
-                               src="assets/img/hospital.png"
-                               alt="Hospital">
-                        </a>
+                        <span class="avatar avatar-sm me-2 d-flex align-items-center justify-content-center" style="background:#f5f6fa; border-radius:50%; width:32px; height:32px;">
+																<i class="feather feather-home"></i>
+															</span>
                         <a>{{ h?.hospitalName || h?.name || '—' }}</a>
                       </h2>
                     </td>

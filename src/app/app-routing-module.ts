@@ -22,9 +22,9 @@ const routes: Routes = [
   },
 
   // MAIN LAYOUT (WITH HEADER/FOOTER)
-  {
+  { 
     path: '',
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
     component: MainLayout,
     children: [
       {
@@ -50,7 +50,8 @@ const routes: Routes = [
   },
   {
     path:'dashboard',
-    component:Dashboard
+    component:Dashboard,
+     canActivate: [authGuard],
   }
 ];
 
