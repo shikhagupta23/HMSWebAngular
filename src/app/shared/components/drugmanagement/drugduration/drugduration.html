@@ -1,34 +1,3 @@
-<!-- drug-duration.component.html -->
-<div class="main-wrapper">
-    <div class="breadcrumb-bar-two">
-        <div class="container">
-            <div class="row align-items-center inner-banner">
-                <div class="col-md-2 col-2">
-                    <a href="/doctor" class="menu-logo">
-                        <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
-                    </a>
-                </div>
-                <div class="d-none col-md-10 col-10 text-center">
-                    <h2 class="breadcrumb-title">Drug Duration</h2>
-                    <nav aria-label="breadcrumb" class="page-breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
-                            <li class="breadcrumb-item">Drug Duration</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
-                    <app-asidebar class="h-100"></app-asidebar>
-                </div>
-                
-                <div class="col-lg-8 col-xl-9">
                     <div class="container-fluid p-4">
                         <!-- Header Section -->
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -68,21 +37,13 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="input-group">
-                                        <input 
-                                            type="text" 
-                                            class="form-control" 
-                                            placeholder="Search..." 
-                                            [(ngModel)]="searchTerm"
-                                        />
-                                        <button 
-                                            class="btn btn-outline-secondary" 
-                                            type="button" 
-                                            (click)="onSearch()"
-                                            title="Search">
-                                            <i class="bi bi-search"></i>
-                                        </button>
-                                    </div>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        placeholder="Search..." 
+                                        [(ngModel)]="searchTerm"
+                                        (input)="onSearch()"
+                                    />
                                 </div>
                             </div>
 
@@ -213,8 +174,3 @@
                         <div class="modal-backdrop fade" [class.show]="showModal"
                             [style.display]="showModal ? 'block' : 'none'"></div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>

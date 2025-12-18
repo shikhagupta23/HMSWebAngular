@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Updated interface to match API response
@@ -39,9 +39,16 @@ interface ApiResponse {
   styleUrls: ['./drugduration.css']
 })
 export class DrugDurationComponent implements OnInit {
-  drugDurations: DrugDuration[] = [];
+  // All drug durations from backend (master list)
+  allDrugDurations: DrugDuration[] = [];
+  
+  // Filtered list based on search
   filteredDrugDurations: DrugDuration[] = [];
+  
+  // Paginated list for current page
   paginatedDrugDurations: DrugDuration[] = [];
+  
+  // UI controls
   showModal = false;
   isEditMode = false;
   formData: DrugDuration = { 
@@ -70,71 +77,94 @@ export class DrugDurationComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadDrugDurations();
+    this.loadAllDrugDurations();
   }
 
-  loadDrugDurations(): void {
+  // Load all drug durations from backend (without pagination)
+  loadAllDrugDurations(): void {
     this.isLoading = true;
     this.error = '';
 
-    let params = new HttpParams()
-      .set('page', this.currentPage.toString())
-      .set('pageSize', this.entriesPerPage.toString());
-
-    // Add search term if it exists
-    if (this.searchTerm && this.searchTerm.trim()) {
-      params = params.set('searchTerm', this.searchTerm.trim());
-    }
-
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
 
-    this.http.get<DrugDurationResponse>(apiUrl, { params })
-      .subscribe({
-        next: (response) => {
-          console.log('API Response:', response);
-          
-          if (response.isSuccess) {
-            this.drugDurations = response.dataList || [];
-            this.paginatedDrugDurations = response.dataList || [];
-            this.totalCount = response.totalCount;
-            this.totalPages = response.totalPages;
-            this.filteredDrugDurations = response.dataList || [];
-          } else {
-            this.error = response.message || 'Failed to load drug duration data';
-            this.drugDurations = [];
-            this.paginatedDrugDurations = [];
-            this.filteredDrugDurations = [];
-          }
-          
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.error = 'Failed to load drug duration data';
-          console.error('API Error:', err);
-          this.drugDurations = [];
-          this.paginatedDrugDurations = [];
+    // Load all data without pagination parameters
+    this.http.get<DrugDurationResponse>(apiUrl, { 
+      params: { page: '1', pageSize: '10000' } // Large page size to get all records
+    }).subscribe({
+      next: (response) => {
+        console.log('API Response:', response);
+        
+        if (response.isSuccess) {
+          this.allDrugDurations = response.dataList || [];
+          this.applyFiltersAndPagination();
+        } else {
+          this.error = response.message || 'Failed to load drug duration data';
+          this.allDrugDurations = [];
           this.filteredDrugDurations = [];
-          this.isLoading = false;
+          this.paginatedDrugDurations = [];
         }
-      });
+        
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to load drug duration data';
+        console.error('API Error:', err);
+        this.allDrugDurations = [];
+        this.filteredDrugDurations = [];
+        this.paginatedDrugDurations = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Apply search filter and pagination on frontend
+  applyFiltersAndPagination(): void {
+    // Start with all drug durations
+    let filtered = [...this.allDrugDurations];
+
+    // Apply search filter
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const search = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(duration => 
+        duration.duration.toLowerCase().includes(search) ||
+        duration.drugDurationId.toLowerCase().includes(search)
+      );
+    }
+
+    // Update filtered list and total count
+    this.filteredDrugDurations = filtered;
+    this.totalCount = filtered.length;
+
+    // Calculate total pages
+    this.totalPages = Math.ceil(this.totalCount / this.entriesPerPage);
+
+    // Reset to page 1 if current page exceeds total pages
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
+
+    // Apply pagination
+    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
+    const endIndex = startIndex + this.entriesPerPage;
+    this.paginatedDrugDurations = filtered.slice(startIndex, endIndex);
   }
 
   onSearch(): void {
     // Reset to page 1 when searching
     this.currentPage = 1;
-    // Server-side search through API
-    this.loadDrugDurations();
+    // Apply filters on frontend
+    this.applyFiltersAndPagination();
   }
 
   onEntriesPerPageChange(): void {
     this.currentPage = 1;
-    this.loadDrugDurations();
+    this.applyFiltersAndPagination();
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.loadDrugDurations();
+      this.applyFiltersAndPagination();
     }
   }
 
@@ -192,7 +222,7 @@ export class DrugDurationComponent implements OnInit {
   }
 
   openEditModal(drugDurationId: string): void {
-    const drugDuration = this.drugDurations.find(dd => dd.drugDurationId === drugDurationId);
+    const drugDuration = this.allDrugDurations.find(dd => dd.drugDurationId === drugDurationId);
     if (drugDuration) {
       this.isEditMode = true;
       this.formData = { ...drugDuration };
@@ -232,7 +262,7 @@ export class DrugDurationComponent implements OnInit {
             if (response.isSuccess) {
               console.log('Update success:', response.message);
               this.closeModal();
-              this.loadDrugDurations();
+              this.loadAllDrugDurations();
             } else {
               alert(response.message || 'Failed to update drug duration');
             }
@@ -258,7 +288,7 @@ export class DrugDurationComponent implements OnInit {
             if (response.isSuccess) {
               console.log('Create success:', response.message);
               this.closeModal();
-              this.loadDrugDurations();
+              this.loadAllDrugDurations();
             } else {
               alert(response.message || 'Failed to create drug duration');
             }
@@ -280,7 +310,7 @@ export class DrugDurationComponent implements OnInit {
           next: (response) => {
             if (response.isSuccess) {
               console.log('Delete success:', response.message);
-              this.loadDrugDurations();
+              this.loadAllDrugDurations();
             } else {
               alert(response.message || 'Failed to delete drug duration');
             }

@@ -1,247 +1,197 @@
-<!-- Main Wrapper -->
-<div class="main-wrapper">
+    <div class="dashboard-header">
+        <h3>Patients</h3>
 
-    <!-- Breadcrumb -->
-    <div class="breadcrumb-bar-two">
-        <div class="container">
-            <div class="row align-items-center inner-banner">
-                <div class="col-md-2 col-2">
-                    <a href="/receptionist" class="menu-logo">
-                        <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
-                    </a>
+        <ul class="header-list-btns">
+            <li class="me-2">
+                <div class="input-block dash-search-input">
+                    <input type="text" class="form-control" placeholder="Search Patient..."
+                        [(ngModel)]="searchText" (input)="searchPatients()">
+                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                 </div>
-                <div class="d-none col-md-10 col-10 text-center">
-                    <h2 class="breadcrumb-title">Total Patients</h2>
-                    <nav aria-label="breadcrumb" class="page-breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
-                            <li class="breadcrumb-item">Total Patients</li>
-                        </ol>
-                    </nav>
+            </li>
+            <li>
+                <a class="btn customBtn" (click)="openAddPatientModal()">+ Add New</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="appointment-tab-content ">
+        <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
+            <div class="row d-flex align-items-center">
+                <!-- Gender + Name -->
+                <div class="col-12 col-lg-3">
+                        <div class="patient-info mt-0 d-flex align-items-center gap-2 date-tag">
+                                <!-- Initial Circle -->
+                                <div class="initial-circle">
+                                    {{ p.fullName?.charAt(0).toUpperCase() }}
+                                </div>
+                                <!-- Patient Details -->
+                                <div>
+                                    <p class="m-0 appointment-view-id">#{{ p.patientViewId }}</p>
+                                    <p class="m-0 patient-name">{{ p.fullName }}</p>
+                                </div>
+
+                        </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <span class="appointment-info date-tag" title="Abha Id"><i class="fa-solid fa-id-card"></i> {{ p.abhaId }}</span>
+                    <span class="appointment-info date-tag"><i class="fa-solid" [ngClass]="getGenderIcon(p.gender)"></i> {{ p.gender | gender}}</span>
+                </div>
+
+                <!-- DOB & ABHA -->
+                <div class="col-12 col-lg-3">
+                    <span class="appointment-info date-tag"><i class="fa-solid fa-cake-candles"></i> {{ formatDate(p.dob)}}</span>
+                    <span class="appointment-info date-tag"><i class="fa-solid fa-user-clock"></i> {{ p.age }} </span>                 
+                </div>
+
+                <!-- Phone -->
+                <div class="col-12 col-lg-3">
+                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
+                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="d-none card-action-btns">
+                <div class="d-flex gap-2">
+                    <a><i class="fa-solid fa-eye"></i></a>
+                    <a><i class="fa-solid fa-pen"></i></a>
+                    <a><i class="fa-solid fa-trash"></i></a>
                 </div>
             </div>
         </div>
     </div>
-    <!-- /Breadcrumb -->
 
-    <!-- Page Content -->
-    <div class="content">
-        <div class="container">
+    <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
+        <ul>
 
-            <div class="row">
-                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
-                    <app-asidebar class="h-100"></app-asidebar>
-                </div>
+            <!-- Previous -->
+            <li>
+                <a class="page-link" (click)="previousPage()">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+            </li>
 
-                <div class="col-lg-8 col-xl-9">
-                    <div class="dashboard-header">
-                        <h3>Patients</h3>
+            <!-- Page Numbers -->
+            <li *ngFor="let p of [].constructor(totalPages); let i = index">
+                <a class="page-link" [class.active]="pageNumber === (i + 1)" (click)="goToPage(i + 1)">
+                    {{ i + 1 }}
+                </a>
+            </li>
 
-                        <ul class="header-list-btns">
-                            <li class="me-2">
-                                <div class="input-block dash-search-input">
-                                    <input type="text" class="form-control" placeholder="Search Patient..."
-                                        [(ngModel)]="searchText" (input)="searchPatients()">
-                                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <!-- Next -->
+            <li>
+                <a class="page-link" (click)="nextPage()">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Add Patient</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+
+                            <!-- Personal Info Section -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="fas fa-user-circle me-2"></i>Personal Information
+                                </h6>
+                                <div class="row g-3">
+
+                                    <!-- Full Name -->
+                                    <div class="col-md-3">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                            <input type="text" formControlName="fullName" class="form-control "
+                                                placeholder="Enter full name">
+                                            <p class="text-danger" *ngIf="isInvalid('fullName')">Full Name is required</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gender -->
+                                    <div class="col-md-3">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                            <select class="form-control " appSelect2 placeholder="-- Select Gender --"  formControlName="gender">
+                                                <option value="">-- Select Gender --</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <p class="text-danger" *ngIf="isInvalid('gender')">Gender is required</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- dob -->
+                                    <div class="col-md-3">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                            <input type="date" formControlName="dob" class="form-control " [max]="today">
+                                            <p class="text-danger" *ngIf="isInvalid('dob')">Date of Birth is required</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="col-md-3">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <input type="text" formControlName="phoneNumber" class="form-control " oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                placeholder="Enter 10 digit number">
+                                            <p class="text-danger" *ngIf="isInvalid('phoneNumber')">Enter valid 10-digit phone</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li>
-                                <a class="btn customBtn" (click)="openAddPatientModal()">+ Add New</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Patient List UI (same card style as appointments) -->
-                    <div class="appointment-tab-content ">
-                        <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
-                            <div class="row d-flex align-items-center">
-                                <!-- Gender + Name -->
-                                <div class="col-12 col-lg-3">
-                                    	<div class="patient-info mt-0 d-flex align-items-center gap-2 date-tag">
-												<!-- Initial Circle -->
-												<div class="initial-circle">
-													{{ p.fullName?.charAt(0).toUpperCase() }}
-												</div>
-												<!-- Patient Details -->
-												<div>
-													<!-- <p class="m-0 appointment-view-id">#{{ p.patientViewId }}</p> -->
-													<p class="m-0 patient-name">{{ p.fullName }}</p>
-													<p class="m-0 appointment-view-id">{{ p.gender | gender }}</p>
-
-												</div>
-
-										</div>
-                                </div>
-
-
-                                <!-- DOB & ABHA -->
-                                <div class="col-12 col-lg-3">
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-cake-candles"></i> DOB: {{ formatDate(p.dob)}}</span>
-                                    <!-- <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> ABHA Id: {{ p.abhaId }}</span> -->
-	
-                                </div>
-
-                                <!-- Phone -->
-                                <div class="col-12 col-lg-4">
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
-                                    <!-- <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span> -->
-                                </div>
-                                
-                                <div class="col-12 col-lg-2">
-                                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
-
-                                </div>
-
                             </div>
+                            <div class="mb-4">
+                                <h6 class="fw-bold mb-3 d-none">
+                                    <i class="fas fa-home me-2"></i>Contact Information
+                                </h6>
+                                <div class="row g-3">
 
-                            <!-- Actions -->
-                            <div class="d-none card-action-btns">
-                                <div class="d-flex gap-2">
-                                    <a><i class="fa-solid fa-eye"></i></a>
-                                    <a><i class="fa-solid fa-pen"></i></a>
-                                    <a><i class="fa-solid fa-trash"></i></a>
+                                    <!-- Address -->
+                                    <div class="col-md-6">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                                            <input formControlName="address" class="form-control"/>
+                                            <p class="text-danger" *ngIf="isInvalid('address')">Address is required</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- ABHA ID -->
+                                    <div class="col-md-3">
+                                        <div class="input-block mb-3">
+                                            <label class="form-label">ABHA ID</label>
+                                            <input type="text" formControlName="abhaId" class="form-control ">
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="text-end mt-4 pt-3 border-top">
+                                <button type="button" class="d-none btn btn-outline-secondary  px-4 me-2">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn customBtn">
+                                    Save Patient
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
-                        <ul>
-
-                            <!-- Previous -->
-                            <li>
-                                <a class="page-link" (click)="previousPage()">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </a>
-                            </li>
-
-                            <!-- Page Numbers -->
-                            <li *ngFor="let p of [].constructor(totalPages); let i = index">
-                                <a class="page-link" [class.active]="pageNumber === (i + 1)" (click)="goToPage(i + 1)">
-                                    {{ i + 1 }}
-                                </a>
-                            </li>
-
-                            <!-- Next -->
-                            <li>
-                                <a class="page-link" (click)="nextPage()">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </div>
-                </div>
+                </form>
+            </div>
             </div>
         </div>
     </div>
-    <!-- /Page Content -->
-
-</div>
-<!-- /Main Wrapper -->
-
-		<div class="modal fade" id="addPatientModal" tabindex="-1" aria-hidden="true">
-			<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-				<div class="modal-content rounded-4 border-0 shadow">
-
-				<div class="modal-header">
-					<h5 class="modal-title">Add Patient</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
-
-				<div class="modal-body">
-                    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
-
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-body p-4">
-
-                                <!-- Personal Info Section -->
-                                <div class="mb-4">
-                                    <h6 class="fw-bold mb-3">
-                                        <i class="fas fa-user-circle me-2"></i>Personal Information
-                                    </h6>
-                                    <div class="row g-3">
-
-                                        <!-- Full Name -->
-                                        <div class="col-md-3">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                                <input type="text" formControlName="fullName" class="form-control "
-                                                    placeholder="Enter full name">
-                                                <p class="text-danger" *ngIf="isInvalid('fullName')">Full Name is required</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Gender -->
-                                        <div class="col-md-3">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                                <select class="form-control " appSelect2 placeholder="-- Select Gender --"  formControlName="gender">
-                                                    <option value="">-- Select Gender --</option>
-                                                    <option value="Male">Male</option>
-                                                    <option value="Female">Female</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
-                                                <p class="text-danger" *ngIf="isInvalid('gender')">Gender is required</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- dob -->
-                                        <div class="col-md-3">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                                <input type="date" formControlName="dob" class="form-control " [max]="today">
-                                                <p class="text-danger" *ngIf="isInvalid('dob')">Date of Birth is required</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Phone -->
-                                        <div class="col-md-3">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                                <input type="text" formControlName="phoneNumber" class="form-control " oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                                    placeholder="Enter 10 digit number">
-                                                <p class="text-danger" *ngIf="isInvalid('phoneNumber')">Enter valid 10-digit phone</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <h6 class="fw-bold mb-3 d-none">
-                                        <i class="fas fa-home me-2"></i>Contact Information
-                                    </h6>
-                                    <div class="row g-3">
-
-                                        <!-- Address -->
-                                        <div class="col-md-6">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">Address <span class="text-danger">*</span></label>
-                                                <input formControlName="address" class="form-control"/>
-                                                <p class="text-danger" *ngIf="isInvalid('address')">Address is required</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- ABHA ID -->
-                                        <div class="col-md-3">
-                                            <div class="input-block mb-3">
-                                                <label class="form-label">ABHA ID</label>
-                                                <input type="text" formControlName="abhaId" class="form-control ">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-end mt-4 pt-3 border-top">
-                                    <button type="button" class="d-none btn btn-outline-secondary  px-4 me-2">
-                                        <i class="fas fa-times me-1"></i>Cancel
-                                    </button>
-                                    <button type="submit" class="btn customBtn">
-                                        Save Patient
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                </div>
-            </div>
-        </div>

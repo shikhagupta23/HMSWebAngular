@@ -1,157 +1,112 @@
-<!-- Main Wrapper -->
-<div class="main-wrapper">
-
-    <!-- Breadcrumb -->
-    <div class="breadcrumb-bar-two">
-        <div class="container">
-            <div class="row align-items-center inner-banner">
-                <div class="col-md-2 col-2">
-                    <a href="/receptionist" class="menu-logo">
-                        <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
-                    </a>
-                </div>
-                <div class="d-none col-md-10 col-10 text-center">
-                    <h2 class="breadcrumb-title">Lab Tests Management</h2>
-                    <nav aria-label="breadcrumb" class="page-breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
-                            <li class="breadcrumb-item">Lab Tests</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Page Content -->
-    <div class="content">
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-4 col-xl-3 theiaStickySidebar">
-                    <app-asidebar class="h-100"></app-asidebar>
-                </div>
-
-                <div class="col-lg-8 col-xl-9">
-
-                    <!-- Lab Tests List -->
-                    <div class="card shadow-sm border-0 rounded-4">
-                        <div class="card-body p-4">
-                            
-                            <!-- Header with Search and Add Button -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h5 class="fw-bold text-primary mb-0">
-                                    <i class="fas fa-list me-2"></i>Lab Tests
-                                    <span class="badge bg-light text-dark ms-2" *ngIf="totalCount > 0">{{totalCount}}</span>
-                                </h5>
-                                <div class="d-flex gap-2">
-                                    <div class="input-group" style="max-width: 300px;">
-                                        <span class="input-group-text bg-white border-end-0">
-                                            <i class="fas fa-search text-muted"></i>
-                                        </span>
-                                        <input type="text" class="form-control border-start-0" 
-                                            placeholder="Search lab tests..." 
-                                            [(ngModel)]="searchText"
-                                            (ngModelChange)="filterTests()"
-                                            [ngModelOptions]="{standalone: true}">
-                                    </div>
-                                    <button type="button" class="btn btn-primary px-4" (click)="openModal()">
-                                        <i class="fas fa-plus me-1"></i>Add Lab Test
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Loading Spinner -->
-                            <div class="text-center py-5" *ngIf="isLoading">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2 text-muted">Loading lab tests...</p>
-                            </div>
-
-                            <!-- Lab Tests Table -->
-                            <div class="table-responsive" *ngIf="!isLoading">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="text-center" style="width: 80px;">SR. NO.</th>
-                                            <th>TEST NAME</th>
-                                            <th>CATEGORY</th>
-                                            <th class="text-end">PRICE</th>
-                                            <th class="text-center" style="width: 120px;">ACTIONS</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let test of filteredLabTests; let i = index">
-                                            <td class="text-center fw-semibold">{{(currentPage - 1) * pageSize + i + 1}}</td>
-                                            <td>
-                                                <span class="fw-medium">{{test.testName}}</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-light text-dark">{{test.category}}</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <span class="fw-semibold">₹{{test.price}}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-primary me-1" 
-                                                    (click)="editTest(test)" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                    (click)="deleteTest(test.id)" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr *ngIf="filteredLabTests.length === 0">
-                                            <td colspan="5" class="text-center text-muted py-4">
-                                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                                <p class="mb-0">No lab tests found</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="filteredLabTests.length > 0 && !isLoading">
-                                <div class="text-muted">
-                                    Showing {{(currentPage - 1) * pageSize + 1}} to {{Math.min(currentPage * pageSize, totalCount)}} of {{totalCount}} entries
-                                </div>
-                                <nav>
-                                    <ul class="pagination mb-0">
-                                        <li class="page-item" [class.disabled]="currentPage === 1">
-                                            <a class="page-link" href="javascript:void(0)" (click)="previousPage()" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                        <li class="page-item" 
-                                            *ngFor="let page of getPageNumbers()" 
-                                            [class.active]="page === currentPage">
-                                            <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{page}}</a>
-                                        </li>
-                                        <li class="page-item" [class.disabled]="currentPage === totalPages">
-                                            <a class="page-link" href="javascript:void(0)" (click)="nextPage()" aria-label="Next">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-
-                        </div>
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            
+            <!-- Header with Search and Add Button -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold text-primary mb-0">
+                    <i class="fas fa-list me-2"></i>Lab Tests
+                    <span class="badge bg-light text-dark ms-2" *ngIf="totalCount > 0">{{totalCount}}</span>
+                </h5>
+                <div class="d-flex gap-2">
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" 
+                            placeholder="Search lab tests..." 
+                            [(ngModel)]="searchText"
+                            (ngModelChange)="filterTests()"
+                            [ngModelOptions]="{standalone: true}">
                     </div>
-
+                    <button type="button" class="btn btn-primary px-4" (click)="openModal()">
+                        <i class="fas fa-plus me-1"></i>Add Lab Test
+                    </button>
                 </div>
             </div>
+
+            <!-- Loading Spinner -->
+            <div class="text-center py-5" *ngIf="isLoading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading lab tests...</p>
+            </div>
+
+            <!-- Lab Tests Table -->
+            <div class="table-responsive" *ngIf="!isLoading">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width: 80px;">SR. NO.</th>
+                            <th>TEST NAME</th>
+                            <th>CATEGORY</th>
+                            <th class="text-end">PRICE</th>
+                            <th class="text-center d-none" style="width: 120px;">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let test of filteredLabTests; let i = index">
+                            <td class="text-center fw-semibold">{{(currentPage - 1) * pageSize + i + 1}}</td>
+                            <td>
+                                <span class="fw-medium">{{test.testName}}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark">{{test.category}}</span>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-semibold">₹{{test.price}}</span>
+                            </td>
+                            <td class="text-center d-none">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" 
+                                    (click)="editTest(test)" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    (click)="deleteTest(test.id)" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredLabTests.length === 0">
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                <p class="mb-0">No lab tests found</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="filteredLabTests.length > 0 && !isLoading">
+                <div class="text-muted">
+                    Showing {{(currentPage - 1) * pageSize + 1}} to {{Math.min(currentPage * pageSize, totalCount)}} of {{totalCount}} entries
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item" [class.disabled]="currentPage === 1">
+                            <a class="page-link" href="javascript:void(0)" (click)="previousPage()" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" 
+                            *ngFor="let page of getPageNumbers()" 
+                            [class.active]="page === currentPage">
+                            <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{page}}</a>
+                        </li>
+                        <li class="page-item" [class.disabled]="currentPage === totalPages">
+                            <a class="page-link" href="javascript:void(0)" (click)="nextPage()" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
         </div>
     </div>
 
-</div>
-
-<!-- Add/Edit Lab Test Modal -->
-<div class="modal fade" id="labTestModal" tabindex="-1" aria-labelledby="labTestModalLabel" aria-hidden="true" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+    <div class="modal fade" id="labTestModal" tabindex="-1" aria-labelledby="labTestModalLabel" aria-hidden="true" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -256,7 +211,6 @@
             </form>
         </div>
     </div>
-</div>
+    </div>
 
-<!-- Modal Backdrop -->
-<div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal" (click)="closeModal()"></div>
+    <div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal" (click)="closeModal()"></div>
