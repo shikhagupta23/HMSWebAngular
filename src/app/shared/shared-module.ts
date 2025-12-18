@@ -11,6 +11,7 @@ import { Asidebar } from './components/asidebar/asidebar';
 import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
 import { Invoice } from './components/invoice/invoice';
 
+
 @NgModule({
   declarations: [
     Asidebar,
@@ -22,6 +23,7 @@ import { Invoice } from './components/invoice/invoice';
     Asidebar,
     AdminSidebar,
     Invoice,
+    
     
   ],
   imports: [

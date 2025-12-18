@@ -91,16 +91,49 @@
         <form [formGroup]="addHospitalForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-semibold"
-                >Hospital Name <span class="text-danger">*</span></label
-              >
+              <label class="form-label small fw-semibold">Hospital Name</label>
               <input type="text" class="form-control" formControlName="HospitalName" />
+
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('HospitalName')?.touched &&
+                  addHospitalForm.get('HospitalName')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('HospitalName')?.errors?.['required']">
+                  Hospital name is required
+                </div>
+                <div *ngIf="addHospitalForm.get('HospitalName')?.errors?.['minlength']">
+                  Minimum 3 characters required
+                </div>
+              </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold"
-                >Phone <span class="text-danger">*</span></label
+              <label class="form-label small fw-semibold">Contact Number</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="HospitalPhoneNumber"
+                maxlength="10"
+                inputmode="numeric"
+                numbersOnly
+              />
+
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('HospitalPhoneNumber')?.touched &&
+                  addHospitalForm.get('HospitalPhoneNumber')?.errors
+                "
               >
-              <input type="text" class="form-control" formControlName="HospitalPhoneNumber" />
+                <div *ngIf="addHospitalForm.get('HospitalPhoneNumber')?.errors?.['required']">
+                  Phone number is required
+                </div>
+                <div *ngIf="addHospitalForm.get('HospitalPhoneNumber')?.errors?.['pattern']">
+                  Enter a valid 10-digit mobile number
+                </div>
+              </div>
             </div>
 
             <div class="col-md-6">
@@ -110,16 +143,69 @@
                 class="form-control"
                 formControlName="HospitalRegistrationNumber"
               />
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('HospitalRegistrationNumber')?.touched &&
+                  addHospitalForm.get('HospitalRegistrationNumber')?.errors
+                "
+              >
+                <div
+                  *ngIf="addHospitalForm.get('HospitalRegistrationNumber')?.errors?.['required']"
+                >
+                  Registration number is required
+                </div>
+
+                <div
+                  *ngIf="addHospitalForm.get('HospitalRegistrationNumber')?.errors?.['minlength']"
+                >
+                  Minimum 3 characters required
+                </div>
+              </div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Email</label>
               <input type="email" class="form-control" formControlName="HospitalEmail" />
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('HospitalEmail')?.touched &&
+                  addHospitalForm.get('HospitalEmail')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('HospitalEmail')?.errors?.['required']">
+                  Email is required
+                </div>
+
+                <div *ngIf="addHospitalForm.get('HospitalEmail')?.errors?.['email']">
+                  Enter a valid email address
+                </div>
+              </div>
             </div>
 
             <div class="col-12">
               <label class="form-label small fw-semibold">Address</label>
               <textarea class="form-control" rows="2" formControlName="HospitalAddress"></textarea>
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('HospitalAddress')?.touched &&
+                  addHospitalForm.get('HospitalAddress')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('HospitalAddress')?.errors?.['required']">
+                  Address is required
+                </div>
+
+                <div *ngIf="addHospitalForm.get('HospitalAddress')?.errors?.['minlength']">
+                  Minimum 5 characters required
+                </div>
+
+                <div *ngIf="addHospitalForm.get('HospitalAddress')?.errors?.['maxlength']">
+                  Maximum 250 characters allowed
+                </div>
+              </div>
             </div>
 
             <div class="col-12">

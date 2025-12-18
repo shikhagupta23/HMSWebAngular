@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
@@ -11,7 +11,8 @@ declare const bootstrap: any;
   templateUrl: './hospital.html',
   styleUrl: './hospital.scss',
 })
-export class Hospital implements OnInit {
+export class Hospital implements OnInit, AfterViewInit  {
+   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -31,17 +32,39 @@ export class Hospital implements OnInit {
     this.initForm();
     this.loadHospitals();
   }
+  ngAfterViewInit() {
+    const modalEl = document.getElementById('addHospitalModal');
 
-  initForm() {
-    this.addHospitalForm = this.fb.group({
-      HospitalName: ['', Validators.required],
-      HospitalPhoneNumber: ['', [Validators.required]],
-      HospitalRegistrationNumber: [''],
-      HospitalEmail: ['', [Validators.email]],
-      HospitalAddress: [''],
-      HospitalImageFile: [null]
-    });
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.resetAddHospitalForm();
+      });
+    }
   }
+
+initForm() {
+  this.addHospitalForm = this.fb.group({
+    HospitalName: ['', [Validators.required, Validators.minLength(3)]],
+
+    HospitalPhoneNumber: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/^[6-9]\d{9}$/)
+      ]
+    ],
+
+    HospitalRegistrationNumber: ['', [Validators.required, Validators.minLength(3)]],
+
+    HospitalEmail: ['', [Validators.required, Validators.email]],
+
+    HospitalAddress: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
+
+    HospitalImageFile: [null]
+  });
+}
+
+
 
   loadHospitals() {
     this.api.getHospitals(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
@@ -151,5 +174,10 @@ console.log('Submitting hospital:',formData);
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
+    resetAddHospitalForm() {
+    this.addHospitalForm.reset();
+    this.addHospitalForm.markAsPristine();
+    this.addHospitalForm.markAsUntouched();
+  } 
 
 }

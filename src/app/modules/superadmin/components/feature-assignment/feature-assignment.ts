@@ -30,13 +30,33 @@ export class FeatureAssignment implements OnInit {
   private usersApi = inject(UsersService);
   private toast = inject(ToastService);
 
-  ngOnInit(): void {
-    this.initForm();
-    this.loadList();
-    this.loadFeatureList();
-    this.loadHospitalList();
-    this.loadUsersForAdminRole();
-  }
+ngOnInit(): void {
+  this.initForm();
+  this.loadList();
+  this.loadFeatureList();
+  this.loadHospitalList();
+
+  this.assignForm.get('featureId')?.valueChanges.subscribe(featureId => {
+    if (featureId) {
+      this.assignForm.get('hospitalId')?.enable();
+      this.assignForm.get('hospitalId')?.reset();
+      this.assignForm.get('userId')?.disable();
+      this.assignForm.get('canAddAnotherUser')?.disable();
+      this.userList = [];
+    }
+  });
+
+  this.assignForm.get('hospitalId')?.valueChanges.subscribe(hospitalId => {
+    const featureId = this.assignForm.value.featureId;
+
+    if (hospitalId && featureId) {
+      this.loadUsersAsPerSelection();
+      this.assignForm.get('userId')?.enable();
+      this.assignForm.get('canAddAnotherUser')?.enable();
+    }
+  });
+}
+
 
   loadUsersForAdminRole() {
     this.usersApi.getRoleId('admin').subscribe({
@@ -55,14 +75,14 @@ export class FeatureAssignment implements OnInit {
   }
 
   initForm() {
-    this.assignForm = this.fb.group({
-      featureId: [null, Validators.required],
-      name: ['', Validators.required],
-      hospitalId: [null, Validators.required],
-      userId: [null, Validators.required],
-      canAddAnotherUser: [false]
-    });
-  }
+  this.assignForm = this.fb.group({
+    featureId: [null, Validators.required],
+    hospitalId: [{ value: null, disabled: true }, Validators.required],
+    userId: [{ value: null, disabled: true }, Validators.required],
+    canAddAnotherUser: [{ value: false, disabled: true }]
+  });
+}
+
 
   loadList() {
     this.api.getFeatureAccess(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
@@ -95,7 +115,7 @@ export class FeatureAssignment implements OnInit {
   }
 
   loadHospitalList() {
-    this.api.getHospitalList(1, 100, '').subscribe({
+    this.api.getHospitalList().subscribe({
       next: (res: any) => {
         console.log('Hospitals:', res);
         this.hospitalList = res?.dataList;
@@ -228,5 +248,35 @@ export class FeatureAssignment implements OnInit {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
+
+loadUsersAsPerSelection() {
+  const hospitalId = this.assignForm.get('hospitalId')?.value;
+  const featureId = this.assignForm.get('featureId')?.value;
+  const role = 'SuperAdmin';
+
+  if (!hospitalId || !featureId) {
+    this.userList = [];
+    return;
+  }
+
+  this.api.getUsersAsPerHospitalFeature(hospitalId, featureId, role)
+    .subscribe({
+      next: (res: any) => {
+        this.userList = res?.dataList ?? [];
+      },
+      error: () => {
+        this.toast.error('Failed to load users');
+        this.userList = [];
+      }
+    });
+}
+resetForm() {
+  this.assignForm.reset();
+  this.assignForm.get('hospitalId')?.disable();
+  this.assignForm.get('userId')?.disable();
+  this.assignForm.get('canAddAnotherUser')?.disable();
+  this.userList = [];
+}
+
 
 }
