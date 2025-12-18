@@ -411,4 +411,39 @@ body {
   line-height: 1.2;
 }
 
+.cardBody{
+  width: 400px;
+}
+
+.textarea-wrapper {
+  position: relative;
+}
+
+.textarea-wrapper textarea {
+  padding-right: 45px; /* space for + button */
+  resize: none;
+}
+
+.plus-btn {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background-color: #0d6efd; /* Bootstrap primary */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.plus-btn:hover {
+  background-color: #0b5ed7;
+}
+
+
 

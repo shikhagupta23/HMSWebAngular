@@ -16,7 +16,7 @@
     </div>
 
     <div class="appointment-tab-content ">
-        <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
+        <div class="appointment-wrap position-relative border rounded p-3 mt-2 cursor-pointer" *ngFor="let p of paginatedPatients" (click)="openPatientDetails(p)">
             <div class="row d-flex align-items-center">
                 <!-- Gender + Name -->
                 <div class="col-12 col-lg-3">

@@ -537,6 +537,34 @@ allMedicineNames: any = {
   Injection: ['Insulin', 'Diclofenac']
 };
 
+medicineAutoData: any = {
+  1: { // Drop
+    Panadol: {
+      strength: '300mg',
+      dosage: '1 drop every 5 minutes',
+      duration: 6,
+      advice: 'Sed perferendis ipsam eum at laboriosam sequi provident.'
+    }
+  },
+  2: { // Eye Ointment
+    Augmentin: {
+      strength: '5mg',
+      dosage: '1+1+1',
+      duration: 6,
+      advice: 'Deserunt et quos quia excepturi fugiat dolor.'
+    }
+  }
+};
+
+
+medicineForm = {
+  strength: '',
+  dosage: '',
+  duration: 1,
+  advice: ''
+};
+
+
   loadMedicineTypes() {
   this.appointmentService.getMedicineType().subscribe({
     next: (res) => {
@@ -716,10 +744,31 @@ onMedicineTypeChange() {
 
   this.selectedUnit = selected?.unit || '';
 
+    this.medicineForm = {
+    strength: '',
+    dosage: '',
+    duration: 1,
+    advice: ''
+  };
   this.loadMedicines();
 }
 
+onMedicineNameChange() {
+  const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
+  if (!med) return;
 
+  const auto =
+    this.medicineAutoData[this.selectedMedicineType]?.[med.text];
+
+  if (auto) {
+    this.medicineForm = {
+      strength: auto.strength,
+      dosage: auto.dosage,
+      duration: auto.duration,
+      advice: auto.advice
+    };
+  }
+}
 
 addMedicine() {
   const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
@@ -731,18 +780,55 @@ addMedicine() {
 
   this.prescription.medicines.push({
     type: med.type,
-    name: med.text,   // SHOW NAME
-    value: med.value, // SAVE VALUE
-    unit: med.unit,
-    qty: this.medicineQty,
+    name: med.text,
+    value: med.value,
+
+    strength: this.medicineForm.strength,
+    dosage: this.medicineForm.dosage,
+    duration: this.medicineForm.duration,
+    advice: this.medicineForm.advice,
+
+    unit: this.selectedUnit,
     frequency: null,
+    frequencyName: '',
     timings: [],
     instruction: ''
   });
 
+  // reset
   this.selectedMedicineName = '';
-  this.medicineQty = 1;
+  this.medicineForm = {
+    strength: '',
+    dosage: '',
+    duration: 1,
+    advice: ''
+  };
 }
+
+
+
+// addMedicine() {
+//   const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
+
+//   if (!med) {
+//     this.toast.error("Select a medicine");
+//     return;
+//   }
+
+//   this.prescription.medicines.push({
+//     type: med.type,
+//     name: med.text,   // SHOW NAME
+//     value: med.value, // SAVE VALUE
+//     unit: med.unit,
+//     qty: this.medicineQty,
+//     frequency: null,
+//     timings: [],
+//     instruction: ''
+//   });
+
+//   this.selectedMedicineName = '';
+//   this.medicineQty = 1;
+// }
 
 
 

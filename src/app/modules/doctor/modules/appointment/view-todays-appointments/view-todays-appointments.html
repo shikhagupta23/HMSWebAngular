@@ -325,75 +325,73 @@
 			<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 		</div>
 
-		<div class="modal-body">
-
-			<!-- CARD -->
-			<div class="card shadow-sm border-0 rounded-4">
+		<div class="modal-body d-flex">
+			<div class="col-3 card shadow-sm border-0 rounded-4">
 			<div class="card-body">
 
 				<div class="row g-4">
 
-				<!-- Symptoms -->
-				<div class="col-md-3">
-					<label class="form-label fw-bold">Symptoms</label>
-					<div class="input-group">
-					<textarea class="form-control" rows="1"
+				<div class="col-md-12">
+					<div class="textarea-wrapper">
+					<textarea class="form-control" rows="3"
 						[(ngModel)]="prescription.symptoms"
 						[readonly]="!canEdit"
 						placeholder="Enter symptoms..."></textarea>
 
-					<span class="input-group-text cursor-pointer"
-							(click)="openList('Symptoms')" *ngIf="isDoctor">
+					    <button type="button"
+								class="plus-btn"
+								(click)="openList('Symptoms')"
+								*ngIf="isDoctor">
 						<i class="fa fa-plus"></i>
-					</span>
+						</button>
 					</div>
 				</div>
 
-				<!-- Diagnosis -->
-				<div class="col-md-3">
-					<label class="form-label fw-bold">Diagnosis</label>
-					<div class="input-group">
-					<textarea class="form-control" rows="1"
+				<div class="col-md-12">
+					<div class="textarea-wrapper">
+					<textarea class="form-control" rows="3"
 						[(ngModel)]="prescription.diagnosis"
 						[readonly]="!canEdit"
 						placeholder="Enter diagnosis..."></textarea>
 
-					<span class="input-group-text cursor-pointer"
-							(click)="openList('Diagnosis')" *ngIf="isDoctor">
+						<button type="button"
+							class="plus-btn"
+							(click)="openList('Diagnosis')"
+							*ngIf="isDoctor">
 						<i class="fa fa-plus"></i>
-					</span>
+						</button>
 					</div>
 				</div>
 
-				<!-- Advice -->
-				<div class="col-md-3">
-					<label class="form-label fw-bold">Advice</label>
-					<div class="input-group">
-					<textarea class="form-control" rows="1"
+				<div class="col-md-12">
+					<div class="textarea-wrapper">
+					<textarea class="form-control" rows="3"
 						[(ngModel)]="prescription.advice"
 						[readonly]="!canEdit"
 						placeholder="Enter advice..."></textarea>
 
-					<span class="input-group-text cursor-pointer"
-							(click)="openList('Advice')" *ngIf="isDoctor">
+						<button type="button"
+							class="plus-btn"
+							(click)="openList('Advice')"
+							*ngIf="isDoctor">
 						<i class="fa fa-plus"></i>
-					</span>
+						</button>
 					</div>
 				</div>
 
-				<!-- Follow Up -->
-				<div class="col-md-3">
-					<label class="form-label fw-bold">Follow Up</label>
-					<div class="input-group">
-					<textarea class="form-control" rows="1"
+				<div class="col-md-12">
+					<div class="textarea-wrapper">
+					<textarea class="form-control" rows="3"
 						[(ngModel)]="prescription.followUp"
 						[readonly]="!canEdit"
 						placeholder="Enter follow up..."></textarea>
 
-					<span class="input-group-text cursor-pointer"
-							(click)="openList('FollowUp')" *ngIf="isDoctor">
+						<button type="button"
+							class="plus-btn"
+							(click)="openList('FollowUp')"
+							*ngIf="isDoctor">
 						<i class="fa fa-plus"></i>
-					</span>
+						</button>
 					</div>
 				</div>
 
@@ -401,20 +399,17 @@
 			</div>
 			</div>
 
-			<div class="card shadow-sm border-0 rounded-4">
+			<div class="col-5 card shadow-sm border-0 rounded-4">
 			<div class="card-body">
 				<div class="row g-4" *ngIf="isDoctor">
 
-				<!-- Medicine Type -->
 				<div class="col-md-3">
-					<label class="form-label fw-bold">Medicine Type</label>
-					
 					<select class="form-control"
 							[(ngModel)]="selectedMedicineType"
 							(change)="onMedicineTypeChange()"
 							>
 
-					<option value="">-- Select Medicine Type --</option>
+					<option value="">-- Type --</option>
 
 					<option *ngFor="let m of medicineTypes" [value]="m.id">
 						{{ m.typeName }}
@@ -423,11 +418,10 @@
 					</select>
 				</div>
 
-				<!-- Medicine Name -->
-					<div class="col-md-3">
-					<label class="form-label fw-bold">Medicine Name</label>
-					<select class="form-control" appSelect2 placeholder="-- Select Medicine Name --"
-							[(ngModel)]="selectedMedicineName">
+					<div class="col-md-5">
+					<select class="form-control" appSelect2 placeholder="-- Medicines --"
+							[(ngModel)]="selectedMedicineName"
+							(change)="onMedicineNameChange()">
 						<option value="">Select Medicine</option>
 
 						<option *ngFor="let m of medicineNames" [value]="m.value">
@@ -436,142 +430,116 @@
 
 					</select>
 					</div>
-					<div class="col-md-2 d-flex justify-content-end" *ngIf="isDoctor">
+					
+					<div class="col-md-4">
+						<input type="text" class="form-control" placeholder="Strength" [(ngModel)]="medicineForm.strength"/>
+					</div>
+					<div class="col-md-6">
+						<input type="text" class="form-control" placeholder="Dose" [(ngModel)]="medicineForm.dosage"/>
+					</div>
+					<div class="col-md-6">
+						<input type="text" class="form-control" placeholder="Duration" [(ngModel)]="medicineForm.duration"/>
+					</div>
+					<div class="col-md-12">
+						<input type="text" class="form-control" placeholder="Advice" [(ngModel)]="medicineForm.advice"/>
+					</div>
+
+					<div class="col-md-3 d-flex" *ngIf="isDoctor">
 					<button class="btn customBtn" (click)="addMedicine()">
 						+ Add
 					</button>
 					</div>
-				</div>
 
-				<div class="card p-3 my-3 rounded-4 shadow-sm"
-					*ngFor="let m of prescription.medicines; let i = index">
+					<ol class="ps-3 mt-3">
+  <li *ngFor="let m of prescription.medicines; let i = index" class="mb-4">
 
-					<div class="d-flex justify-content-between">
-					<h5 class=" fw-bold">
-						{{ m.name }} ({{ m.type }})
-					</h5>
+    <div class="d-flex align-items-center gap-2">
+      <strong>{{ m.type }} {{ m.name }}</strong>
+      <span>{{ m.strength }}</span>
 
-					<button class="btn btn-sm"
-							(click)="removeMedicine(i)" *ngIf="isDoctor">
-						<i class="fa-solid fa-xmark"></i>
-					</button>
-					</div>
+      <button class="d-none btn btn-sm btn-primary ms-auto">
+        <i class="fa fa-pen"></i>
+      </button>
 
-					<hr>
+      <button class="btn btn-sm"
+              (click)="removeMedicine(i)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
 
-					<div class="row g-3">
+    <ul class="mt-2">
+      <li>{{ m.dosage }}</li>
+      <li>{{ m.duration }}</li>
+    </ul>
 
-					<!-- Dosage -->
-					<div class="col-md-3">
-						<label class="fw-bold">Dosage (mg/ml)</label>
-						<input type="text" class="form-control"
-							placeholder="e.g. 500mg"
-							[(ngModel)]="m.dosage" [disabled]="!canEdit">
-					</div>
+    <p class="mb-0">{{ m.advice }}</p>
+  </li>
+</ol>
 
-					<!-- Duration -->
-					<div class="col-md-3">
-						<label class="fw-bold">Duration (days)</label>
-						<input type="text" class="form-control"
-							placeholder="e.g. 5 days"
-							[(ngModel)]="m.duration" [disabled]="!canEdit">
-					</div>
-
-					<!-- Frequency -->
-				<div class="col-md-6">
-					<label class="fw-bold">Frequency</label>
-					<div class="d-flex flex-wrap gap-2 mt-1">
-					<button *ngFor="let f of frequencyOptions"
-							class="btn"
-							[ngClass]="m.frequency === f.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-							(click)="selectFrequency(m, f.value)" [disabled]="!canEdit">
-					{{ f.label }}
-					</button>
-
-					</div>
-				</div>
-
-
-					<!-- Timing -->
-				<div class="col-md-6">
-					<label class="fw-bold">Timing</label>
-					<div class="d-flex flex-wrap gap-2 mt-1">
-					<button *ngFor="let t of timingOptions"
-							class="btn"
-							[ngClass]="m.timings.includes(t.value) ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-							(click)="toggleTiming(m, t.value)" [disabled]="!canEdit">
-						{{ t.label }}
-					</button>
-					</div>
-				</div>
-
-
-					<!-- Instructions -->
-				<div class="col-md-6">
-					<label class="fw-bold">Instructions *</label>
-					<div class="d-flex flex-wrap gap-2 mt-1">
-					<button *ngFor="let ins of instructionOptions"
-							class="btn"
-							[ngClass]="m.instruction === ins.value ? 'btn-outline-dark active-btn' : 'btn-outline-secondary'"
-							(click)="selectInstruction(m, ins.value)" [disabled]="!canEdit">
-						{{ ins.label }}
-					</button>
-					</div>
-				</div>
-
-
-					</div>
 				</div>
 
 			</div>
 			</div>
 
-			<div class="card shadow-sm border-0 rounded-4">
+			<div class="col-4 card shadow-sm border-0 rounded-4">
 			<div class="card-body">
 
-				<!-- Lab Test Dropdown -->
 				<div class="row g-4" *ngIf="isDoctor">
 
-				<div class="col-md-3">
-					<label class="form-label fw-bold">Select Lab Test</label>
-					<select class="form-control" appSelect2 placeholder="-- Select Lab Test --" [(ngModel)]="selectedLabTest" [disabled]="isViewMode">
+				<div class="col-md-5">
+					<label class="d-none form-label fw-bold">Select Lab Test</label>
+					<select class="form-control" appSelect2 placeholder="-- Lab Test --" [(ngModel)]="selectedLabTest" [disabled]="isViewMode">
 					<option value="">Select Test</option>
-					<option *ngFor="let t of labTests" [value]="t.value">  <!-- IMPORTANT -->
+					<option *ngFor="let t of labTests" [value]="t.value">
 						{{ t.text }}
 					</option>
 					</select>
 				</div>
 
-				<div class="col-md-2 d-flex justify-content-end">
+				</div>
+				<div class="col-md-3 d-flex mt-4">
 					<button class="btn customBtn" (click)="addLabTest()">
 					+ Add 
 					</button>
 				</div>
 
-				</div>
-
 				<!-- Lab Test Table -->
-				<table class="table table-bordered table-sm mt-3" *ngIf="prescription.labTests.length > 0">
-				<thead class="table-light">
-					<tr>
-					<th>#</th>
-					<th>Lab Test</th>
-					<th *ngIf="isDoctor">Action</th>
-					</tr>
-				</thead>
+<ol class="ps-3 mt-3" *ngIf="prescription.labTests.length > 0">
 
-				<tbody>
-					<tr *ngFor="let t of prescription.labTests; let i = index">
-					<td>{{ i + 1 }}</td>
-					<td>{{ t.name }}</td>   <!-- ✔ Correct -->
-					<td>
-						<button class="btn btn-sm" (click)="removeLabTest(i)" *ngIf="isDoctor">
-						<i class="fa fa-trash"></i>
-						</button>
-					</td>
-					</tr>
-				</tbody>
-				</table>
+  <li *ngFor="let t of prescription.labTests; let i = index" class="mb-4">
+
+    <div class="d-flex align-items-center gap-2">
+      <strong>{{ t.name }}</strong>
+
+      <!-- Optional badge -->
+      <span class="badge bg-light text-dark">Lab Test</span>
+
+      <!-- Edit (optional) -->
+      <button class="d-none btn btn-sm btn-primary ms-auto">
+        <i class="fa fa-pen"></i>
+      </button>
+
+      <!-- Delete (Doctor only) -->
+      <button class="btn btn-sm"
+              *ngIf="isDoctor"
+              (click)="removeLabTest(i)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+
+    <!-- Extra info (optional placeholders) -->
+    <ul class="mt-2">
+      <li>Sample: Blood</li>
+      <li>Category: General</li>
+    </ul>
+
+    <p class="mb-0 text-muted">
+      As advised
+    </p>
+
+  </li>
+</ol>
+
 				</div>
 			</div>
 		</div>

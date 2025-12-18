@@ -59,7 +59,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Invoice",
     icon: "fa-solid fa-receipt",
     route: "/invoice",
-    roles: [""]
+    roles: ["Receptionist"]
   },  
   {
     label: "Prescriptions",
