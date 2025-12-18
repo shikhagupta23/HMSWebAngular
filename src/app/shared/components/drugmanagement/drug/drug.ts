@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Dropdown interface
@@ -120,11 +122,11 @@ interface DrugUpdateDto {
   templateUrl: './drug.html',
   styleUrls: ['./drug.css']
 })
-export class DrugComponent implements OnInit {
-  // All drugs from backend (master list)
+export class DrugComponent implements OnInit, OnDestroy {
+  // Drugs from backend (current page)
   allDrugs: Drug[] = [];
   
-  // Filtered list based on search and filter
+  // Filtered list based on type filter (client-side)
   filteredDrugList: Drug[] = [];
   
   // Paginated list for current page
@@ -144,6 +146,9 @@ export class DrugComponent implements OnInit {
   currentPage: number = 1;
   totalPages: number = 1;
   totalCount: number = 0;
+
+  // Debounce search - Industry Standard
+  private searchSubject = new Subject<string>();
 
   // Dropdowns
   drugTypes: DropdownDto[] = [];
@@ -178,6 +183,21 @@ export class DrugComponent implements OnInit {
   ngOnInit(): void {
     this.loadAllDropdowns();
     this.loadAllDrugs();
+    
+    // Setup debounced search - waits 500ms after user stops typing
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only trigger if search term actually changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on new search
+      this.loadAllDrugs();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.searchSubject.complete();
   }
 
   loadAllDropdowns(): void {
@@ -219,21 +239,31 @@ export class DrugComponent implements OnInit {
     });
   }
 
-  // Load all drugs from backend (without pagination)
+  // Load drugs with backend pagination and search
   loadAllDrugs(): void {
     this.isLoading = true;
     this.error = '';
 
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
+    
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.entriesPerPage.toString());
 
-    // Load all data without pagination parameters
-    this.http.get<DrugResponse>(apiUrl, { 
-      params: { page: '1', pageSize: '10000' } // Large page size to get all records
-    }).subscribe({
+    // Add search term if it exists
+    if (this.searchTerm && this.searchTerm.trim()) {
+      params = params.set('search', this.searchTerm.trim());
+    }
+
+    this.http.get<DrugResponse>(apiUrl, { params }).subscribe({
       next: (response) => {
+        console.log('API Response:', response);
+        
         if (response.isSuccess) {
           this.allDrugs = response.dataList || [];
-          this.applyFiltersAndPagination();
+          this.totalCount = response.totalCount;
+          this.totalPages = response.totalPages;
+          this.applyClientSideFilter();
         } else {
           this.error = response.message || 'Failed to load drug data';
           this.allDrugs = [];
@@ -253,67 +283,40 @@ export class DrugComponent implements OnInit {
     });
   }
 
-  // Apply search, filter, and pagination on frontend
-  applyFiltersAndPagination(): void {
-    // Start with all drugs
+  // Apply client-side type filter only (search is on backend)
+  applyClientSideFilter(): void {
     let filtered = [...this.allDrugs];
 
-    // Apply search filter
-    if (this.searchTerm && this.searchTerm.trim()) {
-      const search = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(drug => 
-        drug.tradeName.toLowerCase().includes(search) ||
-        drug.genericName.toLowerCase().includes(search) ||
-        (drug.warning && drug.warning.toLowerCase().includes(search)) ||
-        (drug.note && drug.note.toLowerCase().includes(search)) ||
-        (drug.sideEffect && drug.sideEffect.toLowerCase().includes(search))
-      );
-    }
-
-    // Apply type filter
+    // Apply type filter on client side
     if (this.selectedFilterType) {
       filtered = filtered.filter(drug =>
         drug.variations.some(v => v.drugTypeId === this.selectedFilterType)
       );
     }
 
-    // Update filtered list and total count
     this.filteredDrugList = filtered;
-    this.totalCount = filtered.length;
-
-    // Calculate total pages
-    this.totalPages = Math.ceil(this.totalCount / this.entriesPerPage);
-
-    // Reset to page 1 if current page exceeds total pages
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = 1;
-    }
-
-    // Apply pagination
-    const startIndex = (this.currentPage - 1) * this.entriesPerPage;
-    const endIndex = startIndex + this.entriesPerPage;
-    this.paginatedDrugList = filtered.slice(startIndex, endIndex);
+    this.paginatedDrugList = filtered;
   }
 
+  // Updated search method - now uses debouncing with backend API
   onSearch(): void {
-    this.currentPage = 1;
-    this.applyFiltersAndPagination();
+    // Push the search term to the subject - debouncing will handle the delay
+    this.searchSubject.next(this.searchTerm);
   }
 
   onFilterChange(): void {
-    this.currentPage = 1;
-    this.applyFiltersAndPagination();
+    this.applyClientSideFilter();
   }
 
   onEntriesPerPageChange(): void {
     this.currentPage = 1;
-    this.applyFiltersAndPagination();
+    this.loadAllDrugs();
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.applyFiltersAndPagination();
+      this.loadAllDrugs();
     }
   }
 
@@ -356,7 +359,8 @@ export class DrugComponent implements OnInit {
   }
 
   getEndIndex(): number {
-    return Math.min(this.currentPage * this.entriesPerPage, this.totalCount);
+    const effectiveCount = this.selectedFilterType ? this.filteredDrugList.length : this.totalCount;
+    return Math.min(this.getStartIndex() + this.paginatedDrugList.length - 1, effectiveCount);
   }
 
   openCreateForm(): void {
