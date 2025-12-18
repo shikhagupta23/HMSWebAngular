@@ -7,7 +7,7 @@
 /* Modal Styles */
 .modal {
   transition: all 0.3s ease;
-}
+} 
 
 .modal.show {
   animation: slideIn 0.3s ease-out;
@@ -72,22 +72,7 @@
   font-weight: 500;
 }
 
-.btn-primary {
-  background-color: #0A0167;
-  border-color: #0A0167;
-}
 
-.btn-primary:hover {
-  background-color: #080152;
-  border-color: #080152;
-}
-
-.btn-primary:focus,
-.btn-primary:active {
-  background-color: #060140;
-  border-color: #060140;
-  box-shadow: 0 0 0 0.2rem rgba(10, 1, 103, 0.25);
-}
 
 .btn-sm {
   padding: 0.25rem 0.75rem;
@@ -146,6 +131,10 @@ h1 {
   display: flex;
   gap: 5px;
   align-items: center;
+}
+.btn-primary{
+    background: linear-gradient(135deg, #0E82FD 0%, #0E82FD 100%);
+    border: none;
 }
 
 .btn-pagination {
