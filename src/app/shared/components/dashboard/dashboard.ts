@@ -62,11 +62,21 @@ export class Dashboard implements OnInit{
       next: (res) => {
         console.log("Dashboard Data:", res);
         let dashboardData = res.data;
+        let totalAllAppointment = dashboardData.pendingAllAppointments + dashboardData.completedAllAppointments + dashboardData.cancelledAllAppointments + dashboardData.scheduledAllAppointments;
         this.todayAppointments = dashboardData.totalAppointments;
         this.todayPendingAppointments = dashboardData.pendingAppointments;
         this.todayCompletedAppointments = dashboardData.completedAppointments;
         this.todayCancelledAppointments = dashboardData.cancelledAppointments;
+        this.totalTodayPatients = dashboardData.totalTodayPatient;
+        this.todayScheduledAppointments = dashboardData.scheduledAppointments;
+
+        this.totalAppointments = totalAllAppointment;
+        this.pendingAppointments = dashboardData.pendingAllAppointments;
+        this.completedAppointments = dashboardData.completedAllAppointments;
+        this.cancelledAppointments = dashboardData.cancelledAllAppointments;
         this.todayRevenue = dashboardData.totalRevenue;
+        this.totalPatients = dashboardData.totalAllPatient;
+        this.totalScheduledAppointments = dashboardData.scheduledAllAppointments;
       },
       error: (err) => {
         console.error("Error loading dashboard data", err);

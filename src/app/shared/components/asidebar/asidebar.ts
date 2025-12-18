@@ -16,6 +16,7 @@ export class Asidebar {
   doctorDetails: any = null;
   menu:MenuItem[] = [];
   role: string='';
+
   ngOnInit(): void {
     this.role = this.authService.getUserRole() ?? '';
     this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
@@ -57,10 +58,8 @@ export class Asidebar {
 isExactRoute(item: MenuItem): boolean {
   const route = this.resolveRoute(item);
 
-  // If route is an array → never exact
   if (Array.isArray(route)) return false;
 
-  // Exact only for dashboard routes
   return route === '/superadmin' || route === '/doctor';
 }
 
