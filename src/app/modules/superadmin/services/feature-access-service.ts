@@ -17,10 +17,24 @@ export class FeatureAccessService {
     return this.api.post(ApiEndpoints.FEATURE_ACCESS.SAVE, body);
   }
 
-  updateStatus(id: any, isExtend: boolean): Observable<any> {
-    const body = { id, isExtend };
-    return this.api.post(ApiEndpoints.FEATURE_ACCESS.UPDATE_STATUS, body);
-  }
+  updateStatus(id: string, isExtend: boolean): Observable<any> {
+  console.group('📡 updateStatus API');
+
+  console.log('Endpoint:', ApiEndpoints.FEATURE_ACCESS.UPDATE_STATUS);
+  console.log('Query Params:', { id, isExtend });
+
+  return this.api.post(
+    ApiEndpoints.FEATURE_ACCESS.UPDATE_STATUS,
+    null, // 👈 no body
+    {
+      params: {
+        id,
+        isExtend
+      }
+    }
+  );
+}
+
 
   getFeatureList(): Observable<any> {
     return this.api.get(ApiEndpoints.SELECT.GET_FEATURE_LIST);
