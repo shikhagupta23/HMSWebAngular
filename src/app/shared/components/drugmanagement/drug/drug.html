@@ -28,7 +28,7 @@
                             </option>
                         </select>
                     </div>
-                    <button class="btn btn-primary" (click)="openCreateForm()">
+                    <button class="btn customBtn" (click)="openCreateForm()">
                         <span class="me-2">+</span>Create Drug
                     </button>
                 </div>
@@ -153,9 +153,6 @@
     <div *ngIf="showCreateForm" class="container-fluid p-4">
         <div class="form-header">
             <h1 class="mb-0">{{ isEditMode ? 'Edit' : 'Create' }} Drug</h1>
-            <button class="btn btn-back" (click)="closeForm()">
-                <i class="bi bi-chevron-left"></i> Back
-            </button>
         </div>
 
         <div class="form-content">
@@ -319,7 +316,10 @@
 
             <!-- Save Button -->
             <div class="form-footer">
-                <button class="btn btn-save" (click)="saveDrug()">
+                <button class="btn customBackBtn" (click)="closeForm()">
+                    <i class="bi bi-chevron-left"></i> Back
+                </button>
+                <button class="btn customBtn" (click)="saveDrug()">
                     <i class="bi bi-check-lg"></i> Save
                 </button>
             </div>
