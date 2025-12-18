@@ -13,9 +13,13 @@ export class HospitalService {
     return this.api.get(ApiEndpoints.HOSPITAL.GET(page, pageSize, search));
   }
 
-  addHospital(body: any): Observable<any> {
-    // body can be FormData or JSON
-    return this.api.post(ApiEndpoints.HOSPITAL.ADD, body);
-  }
+addHospital(body: FormData, params: any): Observable<any> {
+  return this.api.post(
+    ApiEndpoints.HOSPITAL.ADD,
+    body,
+    { params } // ✅ query params added
+  );
+}
+
 
 }
