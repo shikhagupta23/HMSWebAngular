@@ -9,9 +9,10 @@ import { DrugStrengthComponent } from '../../shared/components/drugmanagement/dr
 import { DrugTypeComponent } from '../../shared/components/drugmanagement/drugtype/drugtype';
 import { DrugDurationComponent } from '../../shared/components/drugmanagement/drugduration/drugduration';
 import { DrugComponent } from '../../shared/components/drugmanagement/drug/drug';
-
+import { Invoice } from '../../shared/components/invoice/invoice';
 const routes: Routes = [
   {path: 'dashboard', component: Dashboard},
+  {path: 'invoice', component: Invoice},
   {path: 'appointment',
     loadChildren: () =>
     import('../doctor/modules/appointment/appointment-module').then(m => m.AppointmentModule),

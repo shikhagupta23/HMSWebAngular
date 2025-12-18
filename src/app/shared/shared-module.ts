@@ -9,6 +9,7 @@ import { Select2Directive } from './directives/select2.directive';
 import { GenderPipe } from './pipe/gender-pipe';
 import { Asidebar } from './components/asidebar/asidebar';
 import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
+import { Invoice } from './components/invoice/invoice';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
     GenderPipe,
     Asidebar,
     AdminSidebar,
+    Invoice,
     
   ],
   imports: [
@@ -35,7 +37,8 @@ import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
     FormsModule,
     Select2Directive,
     GenderPipe,
-    AdminSidebar
+    AdminSidebar,
+    Invoice
   ]
 })
 export class SharedModule { }
