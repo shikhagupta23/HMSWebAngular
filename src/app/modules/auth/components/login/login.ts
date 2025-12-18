@@ -55,6 +55,10 @@ export class Login {
 
   this.authService.login(loginPayload).subscribe({
     next: (response: any) => {
+      if (!response?.isSuccess) {
+      this.toast.error(response?.message || 'Login failed');
+      return;
+    }
       this.authService.saveAuth(response);
       const role = response.data?.userRole;
       this.handleRoleNavigation(role);
