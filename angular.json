@@ -43,10 +43,14 @@
               "src/assets/css/feather.css",
               "src/assets/css/custom.css",
               "node_modules/select2/dist/css/select2.min.css",
-              "node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css"
+              "node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/summernote/dist/summernote-bs4.min.css"
             ],
             "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+              "node_modules/summernote/dist/summernote-bs4.min.js"
             ]
           },
           "configurations": {
