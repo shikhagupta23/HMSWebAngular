@@ -104,16 +104,24 @@
                             </div>
                         </div>
                         <div class="col-actions">
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-sm btn-primary"
-                                    (click)="openEditForm(drug.drugId)" title="Edit">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </button>
-                                <button class="btn btn-sm btn-danger" (click)="deleteDrug(drug.drugId)"
-                                    title="Delete">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </div>
+                           <div class="d-flex gap-2">
+  <button
+    class="btn btn-sm btn-outline-warning icon-btn"
+    (click)="openEditForm(drug.drugId)"
+    title="Edit"
+  >
+    <i class="fa-solid fa-pen"></i>
+  </button>
+
+  <button
+    class="btn btn-sm btn-outline-danger icon-btn"
+    (click)="deleteDrug(drug.drugId)"
+    title="Delete"
+  >
+    <i class="fa-solid fa-trash"></i>
+  </button>
+</div>
+
                         </div>
                     </div>
 
@@ -123,29 +131,62 @@
                 </div>
             </div>
 
-            <!-- Pagination Section -->
-            <div class="pagination-wrapper" *ngIf="totalCount > 0">
-                <div class="pagination-info">
-                    Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalCount }} entries
-                </div>
-                <div class="pagination-controls">
-                    <button class="btn btn-pagination" [disabled]="currentPage === 1"
-                        (click)="goToPage(currentPage - 1)">
-                        Previous
-                    </button>
+           <!-- Pagination Section -->
+<div
+  class="d-flex justify-content-between align-items-center mt-3"
+  *ngIf="totalCount > 0"
+>
+  <!-- Left info -->
+  <div class="text-muted">
+    Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalCount }} entries
+  </div>
 
-                    <button *ngFor="let page of getPageNumbers()" class="btn btn-pagination"
-                        [class.active]="page === currentPage" [disabled]="page === -1"
-                        (click)="page !== -1 && goToPage(page)">
-                        {{ page === -1 ? '...' : page }}
-                    </button>
+  <!-- Pagination -->
+  <ul class="pagination mb-0">
+    <!-- Previous -->
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <a
+        class="page-link"
+        href="javascript:void(0)"
+        (click)="currentPage !== 1 && goToPage(currentPage - 1)"
+      >
+        &laquo;
+      </a>
+    </li>
 
-                    <button class="btn btn-pagination" [disabled]="currentPage === totalPages"
-                        (click)="goToPage(currentPage + 1)">
-                        Next
-                    </button>
-                </div>
-            </div>
+    <!-- Page Numbers -->
+    <li
+      class="page-item"
+      *ngFor="let page of getPageNumbers()"
+      [class.active]="page === currentPage"
+      [class.disabled]="page === -1"
+    >
+      <a
+        class="page-link"
+        href="javascript:void(0)"
+        *ngIf="page !== -1"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </a>
+
+      <!-- Ellipsis -->
+      <span class="page-link" *ngIf="page === -1">…</span>
+    </li>
+
+    <!-- Next -->
+    <li class="page-item" [class.disabled]="currentPage === totalPages">
+      <a
+        class="page-link"
+        href="javascript:void(0)"
+        (click)="currentPage !== totalPages && goToPage(currentPage + 1)"
+      >
+        &raquo;
+      </a>
+    </li>
+  </ul>
+</div>
+
         </div>
     </div>
 
