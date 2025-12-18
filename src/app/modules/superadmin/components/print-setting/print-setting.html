@@ -1,0 +1,135 @@
+<!-- Main Wrapper -->
+<div class="main-wrapper">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar-two">
+    <div class="container">
+      <div class="row align-items-center inner-banner">
+        <div class="col-md-2 col-2">
+          <a href="/receptionist" class="menu-logo">
+            <img src="assets/img/Medipilot360.png" class="img-fluid-header" alt="Logo">
+          </a>
+        </div>
+        <div class="d-none col-md-10 col-10 text-center">
+          <h2 class="breadcrumb-title">Print Settings</h2>
+          <nav aria-label="breadcrumb" class="page-breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a routerLink="/doctor">Home</a></li>
+              <li class="breadcrumb-item">Print Settings</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="content">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-4 col-xl-3 theiaStickySidebar">
+          <app-asidebar class="h-100"></app-asidebar>
+        </div>
+
+        <div class="col-lg-8 col-xl-9">
+
+          <!-- Print Settings Card -->
+          <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-print me-2"></i>Print Settings
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <form id="printSettingsForm">
+                <input type="hidden" [(ngModel)]="printSettings.id" name="id" />
+                <input type="hidden" [(ngModel)]="printSettings.hospitalId" name="hospitalId" />
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Header HTML</label>
+                  <div id="headerEditor" class="summernote"></div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Footer HTML</label>
+                  <div id="footerEditor" class="summernote"></div>
+                </div>
+
+                <div class="mb-3 d-none">
+                  <label class="form-label fw-bold">Body HTML</label>
+                  <div id="bodyEditor" class="summernote"></div>
+                </div>
+
+                <div class="mb-3 d-none">
+                  <label class="form-label fw-bold">Base HTML</label>
+                  <div id="baseEditor" class="summernote"></div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Page Size</label>
+                    <select class="form-select" [(ngModel)]="printSettings.pageSize" name="pageSize">
+                      <option value="A4">A4</option>
+                      <option value="A3">A3</option>
+                      <option value="Letter">Letter</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Top Margin (mm)</label>
+                    <input 
+                      type="number" 
+                      step="0.1" 
+                      class="form-control" 
+                      [(ngModel)]="printSettings.marginTop" 
+                      name="marginTop" 
+                    />
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Bottom Margin (mm)</label>
+                    <input 
+                      type="number" 
+                      step="0.1" 
+                      class="form-control" 
+                      [(ngModel)]="printSettings.marginBottom" 
+                      name="marginBottom" 
+                    />
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Left Margin (mm)</label>
+                    <input 
+                      type="number" 
+                      step="0.1" 
+                      class="form-control" 
+                      [(ngModel)]="printSettings.marginLeft" 
+                      name="marginLeft" 
+                    />
+                  </div>
+                  <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Right Margin (mm)</label>
+                    <input 
+                      type="number" 
+                      step="0.1" 
+                      class="form-control" 
+                      [(ngModel)]="printSettings.marginRight" 
+                      name="marginRight" 
+                    />
+                  </div>
+                </div>
+
+                <div class="text-end">
+                  <button type="button" (click)="saveSettings()" class="btn btn-success px-4">
+                    <i class="bi bi-save me-1"></i> Save Settings
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

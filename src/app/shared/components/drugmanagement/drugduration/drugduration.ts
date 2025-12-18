@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Updated interface to match API response
@@ -38,7 +40,7 @@ interface ApiResponse {
   templateUrl: './drugduration.html',
   styleUrls: ['./drugduration.css']
 })
-export class DrugDurationComponent implements OnInit {
+export class DrugDurationComponent implements OnInit, OnDestroy {
   // All drug durations from backend (master list)
   allDrugDurations: DrugDuration[] = [];
   
@@ -66,6 +68,9 @@ export class DrugDurationComponent implements OnInit {
   totalPages: number = 1;
   totalCount: number = 0;
 
+  // Debounce search - Industry Standard
+  private searchSubject = new Subject<string>();
+
   // API Endpoints
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrugDuration',
@@ -78,6 +83,21 @@ export class DrugDurationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllDrugDurations();
+    
+    // Setup debounced search - waits 500ms after user stops typing
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only trigger if search term actually changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on new search
+      this.applyFiltersAndPagination();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.searchSubject.complete();
   }
 
   // Load all drug durations from backend (without pagination)
@@ -149,11 +169,10 @@ export class DrugDurationComponent implements OnInit {
     this.paginatedDrugDurations = filtered.slice(startIndex, endIndex);
   }
 
+  // Updated search method - now uses debouncing
   onSearch(): void {
-    // Reset to page 1 when searching
-    this.currentPage = 1;
-    // Apply filters on frontend
-    this.applyFiltersAndPagination();
+    // Push the search term to the subject - debouncing will handle the delay
+    this.searchSubject.next(this.searchTerm);
   }
 
   onEntriesPerPageChange(): void {

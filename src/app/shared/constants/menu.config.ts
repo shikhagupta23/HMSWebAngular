@@ -110,6 +110,12 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ["SuperAdmin", "Admin", "Receptionist"]
   }, 
   {
+    label: "Print Settings",
+    icon: "fas fa-pills",
+    route: "/superadmin/print-setting",
+    roles: ["SuperAdmin"]
+  }, 
+  {
     label: "Create Feature",
     icon: "fa-solid fa-square-plus",
     route: "/superadmin/create-feature",

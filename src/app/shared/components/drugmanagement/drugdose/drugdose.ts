@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Updated interface to match API response
@@ -62,7 +64,7 @@ interface ApiResponse {
   templateUrl: './drugdose.html',
   styleUrls: ['./drugdose.css']
 })
-export class DrugdoseComponent implements OnInit {
+export class DrugdoseComponent implements OnInit, OnDestroy {
   doses: DrugDose[] = [];
   filteredDoses: DrugDose[] = [];
   paginatedDoses: DrugDose[] = [];
@@ -86,6 +88,9 @@ export class DrugdoseComponent implements OnInit {
   totalPages: number = 1;
   totalCount: number = 0;
 
+  // Debounce search - Industry Standard
+  private searchSubject = new Subject<string>();
+
   // API Endpoints
   private readonly API_ENDPOINTS = {
     GET_ALL_DOSE: '/DrugManagement/getAllDrugDose',
@@ -100,6 +105,21 @@ export class DrugdoseComponent implements OnInit {
   ngOnInit(): void {
     this.loadDrugTypes();
     this.loadDrugDoses();
+    
+    // Setup debounced search - waits 500ms after user stops typing
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only trigger if search term actually changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on new search
+      this.loadDrugDoses();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.searchSubject.complete();
   }
 
   loadDrugTypes(): void {
@@ -181,9 +201,10 @@ export class DrugdoseComponent implements OnInit {
     }
   }
 
+  // Updated search method - now uses debouncing
   onSearch(): void {
-    this.currentPage = 1;
-    this.loadDrugDoses();
+    // Push the search term to the subject - debouncing will handle the delay
+    this.searchSubject.next(this.searchTerm);
   }
 
   onFilterChange(): void {
