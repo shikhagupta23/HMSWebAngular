@@ -111,6 +111,13 @@ export class ProfileSetting implements OnInit {
     const payload = { ...this.form.value };
     this.api.put<any>(ApiEndpoints.PROFILE.UPDATEPROFILE, payload).subscribe({
       next: (res) => {
+         if (res?.isSuccess === false) {
+
+        // show toast message
+        this.toast.error(res?.message || 'Profile update failed');
+        this.saving = false;
+        return;
+      }
         this.toast.success(res?.message ?? 'Profile updated successfully');
         this.saving = false;
       },
