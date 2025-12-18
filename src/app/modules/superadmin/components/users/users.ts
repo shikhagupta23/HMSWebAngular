@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users-service';
 import { HospitalService } from '../../services/hospital-service';
@@ -13,7 +13,7 @@ declare const bootstrap: any;
   templateUrl: './users.html',
   styleUrl: './users.scss',
 })
-export class Users implements OnInit {
+export class Users implements OnInit, AfterViewInit {
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -55,20 +55,71 @@ export class Users implements OnInit {
     this.loadRoles();
     this.loadHospitals();
   }
+   ngAfterViewInit(): void {
+    const modalEl = document.getElementById('addUserModal');
+
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.resetAddUserForm();
+      });
+    }
+  }
+    resetAddUserForm() {
+    this.addUserForm.reset({
+      HospitalId: this.loggedInHospitalId || ''
+    });
+
+    this.addUserForm.markAsPristine();
+    this.addUserForm.markAsUntouched();
+  }
 
   initForm() {
-    this.addUserForm = this.fb.group({
-      FullName: ['', Validators.required],
-      Gender: ['', Validators.required],
-      DateOfBirth: [''],
-      RoleId: ['', Validators.required],
-      HospitalId: [this.loggedInHospitalId || ''],
-      Email: ['', Validators.email],
-      PhoneNumber: ['', Validators.required],
-      Password: ['', Validators.required],
-      Address: ['']
-    });
- }
+  this.addUserForm = this.fb.group({
+    FullName: [
+      '',
+      [Validators.required, Validators.minLength(3)]
+    ],
+
+    Gender: ['', Validators.required],
+
+    DateOfBirth: [''],
+
+    RoleId: ['', Validators.required],
+
+    HospitalId: [
+      this.loggedInHospitalId || '',
+      this.showHospitalSelect ? Validators.required : []
+    ],
+
+    Email: ['', [Validators.required, Validators.email]],
+
+    PhoneNumber: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/^[6-9]\d{9}$/)
+      ]
+    ],
+
+    Password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(6)
+      ]
+    ],
+
+    Address: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(5),
+        Validators.maxLength(250)
+      ]
+    ]
+  });
+}
+
 
   loadUsers() {
     this.api.getUsers(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
@@ -149,7 +200,7 @@ export class Users implements OnInit {
       FullName: v.FullName,
       Gender: v.Gender,
       DateOfBirth: v.DateOfBirth,
-      RoleId: v.RoleId,
+      Role: v.RoleId,
       HospitalId: v.HospitalId || this.loggedInHospitalId || null,
       Email: v.Email,
       PhoneNumber: v.PhoneNumber,

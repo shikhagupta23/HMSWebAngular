@@ -29,9 +29,13 @@ export const ApiEndpoints = {
       date: string,
       todays: number
     ) =>
-      `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search || '')}&status=${status}&date=${encodeURIComponent(date || '')}&todays=${encodeURIComponent(todays ?? '')}`,
+      `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(
+        search || ''
+      )}&status=${status}&date=${encodeURIComponent(date || '')}&todays=${encodeURIComponent(
+        todays ?? ''
+      )}`,
     UPCOMING_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getUpcomingFollowUpAppointment`,
-    PAST_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getPastFollowUpAppointment`
+    PAST_FOLLOWUP_BASE: `${API_BASE_URL}/AppointmentAPI/getPastFollowUpAppointment`,
   },
   PATIENT: {
     GET: (page: number, pageSize: number, search: string) =>
@@ -103,11 +107,17 @@ export const ApiEndpoints = {
     UPDATE_STATUS: `${API_BASE_URL}/FeatureAccessAPI/updateStatus`,
   },
   SELECT: {
+    GET_HOSPITAL_LIST: `${API_BASE_URL}/SelectAPI/getHospital?role=admin`,
     GET_FEATURE_LIST: `${API_BASE_URL}/SelectAPI/getFeatureList`,
     GET_SYSTEM_ROLE: `${API_BASE_URL}/SelectAPI/getSystemRole`,
     GET_USER_LIST: (role: string, page: number, pageSize: number, search?: string) =>
       `${API_BASE_URL}/SelectAPI/getUserList?role=${role}&page=${page}&pageSize=${pageSize}${
         search ? '&searchTerm=' + encodeURIComponent(search) : ''
       }`,
+    GET_USER_AS_PER_HOSPITAL_FEATURE: (hospitalId: string, featureId: string, role: string) =>
+      `${API_BASE_URL}/SelectAPI/getUserAsPerHospitalId` +
+      `?hospitalId=${hospitalId}` +
+      `&featureId=${featureId}` +
+      `&role=${role}`,
   },
 };

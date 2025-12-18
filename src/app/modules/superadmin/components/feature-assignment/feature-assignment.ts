@@ -95,7 +95,7 @@ export class FeatureAssignment implements OnInit {
   }
 
   loadHospitalList() {
-    this.api.getHospitalList(1, 100, '').subscribe({
+    this.api.getHospitalList().subscribe({
       next: (res: any) => {
         console.log('Hospitals:', res);
         this.hospitalList = res?.dataList;
@@ -228,5 +228,29 @@ export class FeatureAssignment implements OnInit {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
+
+  loadUsersAsPerSelection() {
+  const hospitalId = this.assignForm.value.hospitalId;
+  const featureId = this.assignForm.value.featureId;
+  const role = 'admin'; // or dynamic role
+
+  if (!hospitalId || !featureId) {
+    this.userList = [];
+    return;
+  }
+
+  this.api
+    .getUsersAsPerHospitalFeature(hospitalId, featureId, role)
+    .subscribe({
+      next: (res: any) => {
+        this.userList = res?.dataList ?? res?.data ?? [];
+      },
+      error: (err) => {
+        console.error(err);
+        this.toast.error('Failed to load users');
+      }
+    });
+}
+
 
 }

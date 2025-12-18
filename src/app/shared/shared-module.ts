@@ -10,6 +10,7 @@ import { GenderPipe } from './pipe/gender-pipe';
 import { Asidebar } from './components/asidebar/asidebar';
 import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
 
+
 @NgModule({
   declarations: [
     Asidebar,
@@ -20,6 +21,7 @@ import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
     GenderPipe,
     Asidebar,
     AdminSidebar,
+    
     
   ],
   imports: [

@@ -4,7 +4,7 @@ import { ApiService } from '../../../shared/services/api-service';
 import { ApiEndpoints } from '../../../shared/constants/api-endpoints';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FeatureAccessService {
   private api = inject(ApiService);
@@ -26,12 +26,26 @@ export class FeatureAccessService {
     return this.api.get(ApiEndpoints.SELECT.GET_FEATURE_LIST);
   }
 
-  getHospitalList(page: number = 1, pageSize: number = 100, search: string = ''): Observable<any> {
-    return this.api.get(ApiEndpoints.HOSPITAL.GET(page, pageSize, search));
+  getHospitalList(): Observable<any> {
+    return this.api.get(ApiEndpoints.SELECT.GET_HOSPITAL_LIST);
   }
 
-  getUserList(role: string, page: number = 1, pageSize: number = 100, search: string = ''): Observable<any> {
+  getUserList(
+    role: string,
+    page: number = 1,
+    pageSize: number = 100,
+    search: string = ''
+  ): Observable<any> {
     return this.api.get(ApiEndpoints.SELECT.GET_USER_LIST(role, page, pageSize, search));
   }
-
+  getUsersAsPerHospitalFeature(
+    hospitalId: string,
+    featureId: string,
+    role: string
+  ): Observable<any> {
+    return this.api.get(
+      ApiEndpoints.SELECT.GET_USER_AS_PER_HOSPITAL_FEATURE(hospitalId, featureId, role)
+    );
+  }
+  
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureService } from '../../services/feature-service';
 import { ToastService } from '../../../../shared/services/toast-service';
@@ -11,7 +11,7 @@ declare const bootstrap: any;
   templateUrl: './create-feature.html',
   styleUrl: './create-feature.scss',
 })
-export class CreateFeature implements OnInit {
+export class CreateFeature implements OnInit, AfterViewInit {
   featureForm!: FormGroup;
   dataList: any[] = [];
   pageNumber = 1;
@@ -30,26 +30,44 @@ export class CreateFeature implements OnInit {
     this.loadFeatures();
   }
 
+  ngAfterViewInit(): void {
+    const modalEl = document.getElementById('createFeatureModal');
+
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.resetFeatureForm();
+      });
+    }
+  }
+
+  resetFeatureForm() {
+    this.featureForm.reset();
+
+    this.featureForm.markAsPristine();
+    this.featureForm.markAsUntouched();
+  }
+
   initForm() {
     this.featureForm = this.fb.group({
-      name: ['', Validators.required]
+      name: ['', Validators.required],
     });
   }
 
   loadFeatures() {
     this.api.getFeatures(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
-        this.dataList = res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
+        this.dataList =
+          res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
         this.pageNumber = res.pageNumber ?? this.pageNumber;
         this.pageSize = res.pageSize ?? this.pageSize;
-        this.totalCount = res.totalCount ?? res.total ?? (this.dataList?.length ?? 0);
+        this.totalCount = res.totalCount ?? res.total ?? this.dataList?.length ?? 0;
         const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         this.totalPages = res.totalPages ?? computedPages;
       },
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to load features');
-      }
+      },
     });
   }
 
@@ -94,7 +112,7 @@ export class CreateFeature implements OnInit {
       name: nameVal,
       description: nameVal,
       featureUniqueEnumKey: nameVal,
-      featureTypeId: 0
+      featureTypeId: 0,
     };
     if (this.selectedFeatureId != null) {
       payload.id = this.selectedFeatureId;
@@ -109,21 +127,21 @@ export class CreateFeature implements OnInit {
           const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
           m.hide();
         }
-            this.selectedFeatureId = null;
-            this.featureForm.reset();
+        this.selectedFeatureId = null;
+        this.featureForm.reset();
         this.loadFeatures();
       },
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to save feature');
-      }
+      },
     });
   }
 
   onEdit(item: any) {
     this.selectedFeatureId = item.id ?? item.featureId ?? item.FeatureId ?? null;
     this.featureForm.patchValue({
-      name: item.name ?? item.Name ?? ''
+      name: item.name ?? item.Name ?? '',
     });
 
     const modalEl = document.getElementById('createFeatureModal');
@@ -136,5 +154,4 @@ export class CreateFeature implements OnInit {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
-
 }
