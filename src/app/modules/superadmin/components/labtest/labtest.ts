@@ -35,6 +35,8 @@ export class LabtestComponent implements OnInit {
   showModal: boolean = false;
   
   // Pagination
+  pages: number[] = [];
+
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
@@ -93,26 +95,25 @@ export class LabtestComponent implements OnInit {
     
     this.http.get<any>(url, { headers: this.getHeaders() }).subscribe({
       next: (response) => {
-        console.log('API Response:', response); // Debug log
-        
-        // Handle the API response structure with dataList
-        if (response && response.dataList && Array.isArray(response.dataList)) {
-          this.labTests = response.dataList;
-          this.totalCount = response.totalCount || response.dataList.length;
-          this.totalPages = response.totalPages || Math.ceil(this.totalCount / this.pageSize);
-          this.filteredLabTests = [...this.labTests];
-          
-          console.log('Lab Tests loaded:', this.labTests.length);
-        } else {
-          console.warn('Unexpected API response structure:', response);
-          this.labTests = [];
-          this.filteredLabTests = [];
-          this.totalCount = 0;
-          this.totalPages = 0;
-        }
-        
-        this.isLoading = false;
-      },
+  if (response && response.dataList && Array.isArray(response.dataList)) {
+    this.labTests = response.dataList;
+    this.totalCount = response.totalCount || response.dataList.length;
+    this.totalPages =
+      response.totalPages || Math.ceil(this.totalCount / this.pageSize);
+
+    this.filteredLabTests = [...this.labTests];
+    this.buildPages(); // ✅ ADD THIS
+  } else {
+    this.labTests = [];
+    this.filteredLabTests = [];
+    this.totalCount = 0;
+    this.totalPages = 0;
+    this.pages = [];
+  }
+
+  this.isLoading = false;
+},
+
       error: (error) => {
         console.error('Error loading lab tests:', error);
         console.error('Error details:', error.error);
@@ -324,4 +325,25 @@ export class LabtestComponent implements OnInit {
     this.isEditMode = false;
     this.editingTestId = null;
   }
+
+  onPageSizeChange(): void {
+  this.currentPage = 1;
+  this.loadLabTests(1);
+}
+buildPages(): void {
+  this.pages = [];
+  const maxPagesToShow = 5;
+
+  let start = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+  let end = Math.min(this.totalPages, start + maxPagesToShow - 1);
+
+  if (end - start < maxPagesToShow - 1) {
+    start = Math.max(1, end - maxPagesToShow + 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    this.pages.push(i);
+  }
+}
+
 }

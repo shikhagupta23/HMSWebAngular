@@ -17,6 +17,8 @@ export const ApiEndpoints = {
     LOGIN: `${API_BASE_URL}/Auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,
     REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh-token`,
+     FORGOT_PASSWORD: `${API_BASE_URL}/Auth/forgotPassword`,
+    VERIFY_OTP: `${API_BASE_URL}/Auth/verifyOTP`
   },
   APPOINTMENT: {
     GET: `${API_BASE_URL}/AppointmentAPI/Get`,

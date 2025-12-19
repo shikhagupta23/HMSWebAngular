@@ -218,32 +218,55 @@ ngOnInit(): void {
   }
 
   onToggleExtend(item: any, checked: boolean) {
-    const id = item.id ?? item.featureAccessId ?? item.FeatureAccessId ?? item.featureId ?? item.FeatureId ?? null;
-    if (id == null) {
-      this.toast.error('Unable to determine record id');
-      return;
-    }
-    const prev = item.isExtend ?? item.isExtended ?? item.IsExtend ?? item.IsExtended ?? false;
-    item._updatingExtend = true;
-    // optimistic update
-    item.isExtend = checked;
-    item.isExtended = checked;
+  const id = item.featureAccessId;
 
-    this.api.updateStatus(id, checked).subscribe({
-      next: (res) => {
-        this.toast.success('Extend status updated');
-        item._updatingExtend = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.toast.error('Failed to update extend status');
-        // revert
-        item.isExtend = prev;
-        item.isExtended = prev;
-        item._updatingExtend = false;
-      }
-    });
+  console.group('🔁 Toggle Extend');
+  console.log('Item:', item);
+  console.log('FeatureAccessId:', id);
+  console.log('Checked value:', checked);
+
+  if (!id) {
+    console.error('❌ FeatureAccessId is null/undefined');
+    this.toast.error('Unable to determine record id');
+    console.groupEnd();
+    return;
   }
+
+  const prevExtend = item.isExtend ?? item.isExtended;
+
+  // UI: optimistic update
+  item._updatingExtend = true;
+  item.isExtend = checked;
+  item.isExtended = checked;
+
+  console.log('➡️ Calling API:', {
+    url: 'FeatureAccessAPI/updateStatus',
+    id,
+    isExtend: checked
+  });
+
+  this.api.updateStatus(id, checked).subscribe({
+    next: (res) => {
+      console.log('✅ API Success Response:', res);
+      this.toast.success('Extend status updated');
+      item._updatingExtend = false;
+      console.groupEnd();
+    },
+
+    error: (err) => {
+      console.error('❌ API Error:', err);
+
+      // revert UI state
+      item.isExtend = prevExtend;
+      item.isExtended = prevExtend;
+      item._updatingExtend = false;
+
+      this.toast.error('Failed to update extend status');
+      console.groupEnd();
+    }
+  });
+}
+
 
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);

@@ -252,4 +252,15 @@ export class Users implements OnInit, AfterViewInit {
     this.loadUsers();
   }
 
+  onEmailInput() {
+  const control = this.addUserForm.get('Email');
+  if (control && control.value) {
+    const lower = control.value.toLowerCase();
+    if (control.value !== lower) {
+      control.setValue(lower, { emitEvent: false });
+    }
+  }
+}
+
+
 }
