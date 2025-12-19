@@ -21,10 +21,10 @@ export class ApiService {
     return this.http.get<T>(`${url}/${id}`);
   }
  
-  post<T>(url: string, body: any): Observable<T> {
-    return this.http.post<T>(url, body);
-  }
- 
+ post<T>(url: string, body: any, options?: any): Observable<any> {
+  return this.http.post(url, body, options);
+}
+
   put<T>(url: string, body: any): Observable<T> {
     return this.http.put<T>(url, body);
   }

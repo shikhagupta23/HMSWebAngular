@@ -11,8 +11,8 @@ declare const bootstrap: any;
   templateUrl: './hospital.html',
   styleUrl: './hospital.scss',
 })
-export class Hospital implements OnInit, AfterViewInit  {
-   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
+export class Hospital implements OnInit, AfterViewInit {
+  @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -42,41 +42,45 @@ export class Hospital implements OnInit, AfterViewInit  {
     }
   }
 
-initForm() {
-  this.addHospitalForm = this.fb.group({
-    HospitalName: ['', [Validators.required, Validators.minLength(3)]],
+  initForm() {
+    this.addHospitalForm = this.fb.group({
+      HospitalName: ['', [Validators.required, Validators.minLength(3)]],
 
-    HospitalPhoneNumber: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(/^[6-9]\d{9}$/)
-      ]
-    ],
+      HospitalPhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
 
-    HospitalRegistrationNumber: ['', [Validators.required, Validators.minLength(3)]],
+      HospitalRegistrationNumber: ['', [Validators.required, Validators.minLength(3)]],
 
-    HospitalEmail: ['', [Validators.required, Validators.email]],
+      HospitalEmail: ['', [Validators.required, Validators.email]],
 
-    HospitalAddress: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
+      HospitalAddress: [
+        '',
+        [Validators.required, Validators.minLength(5), Validators.maxLength(250)],
+      ],
 
-    HospitalImageFile: [null]
-  });
-}
+      City: ['', [Validators.required, Validators.minLength(2)]],
 
+      State: ['', [Validators.required, Validators.minLength(2)]],
 
+      PinCode: ['', [Validators.required, Validators.pattern(/^[1-9][0-9]{5}$/)]],
+
+      CountryCode: ['', [Validators.required, Validators.pattern(/^\+\d{1,3}$/)]],
+
+      HospitalImageFile: [null],
+    });
+  }
 
   loadHospitals() {
     this.api.getHospitals(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
         // API returns: { dataList: [], pageNumber, pageSize, totalCount, totalPages, ... }
         if (res) {
-          this.dataList = res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
+          this.dataList =
+            res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
 
           // prefer server-provided pagination values when present
           this.pageNumber = res.pageNumber ?? this.pageNumber;
           this.pageSize = res.pageSize ?? this.pageSize;
-          this.totalCount = res.totalCount ?? res.total ?? (this.dataList?.length ?? 0);
+          this.totalCount = res.totalCount ?? res.total ?? this.dataList?.length ?? 0;
           const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
           this.totalPages = res.totalPages ?? computedPages;
         } else {
@@ -88,7 +92,7 @@ initForm() {
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to load hospitals');
-      }
+      },
     });
   }
 
@@ -136,34 +140,36 @@ initForm() {
       return;
     }
 
-    const formData = new FormData();
     const v = this.addHospitalForm.value;
-    formData.append('HospitalName', v.HospitalName);
-    formData.append('HospitalPhoneNumber', v.HospitalPhoneNumber);
-    formData.append('HospitalRegistrationNumber', v.HospitalRegistrationNumber || '');
-    formData.append('HospitalEmail', v.HospitalEmail || '');
-    formData.append('HospitalAddress', v.HospitalAddress || '');
+
+    const params = {
+      HospitalName: v.HospitalName,
+      HospitalPhoneNumber: v.HospitalPhoneNumber,
+      HospitalRegistrationNumber: v.HospitalRegistrationNumber,
+      HospitalEmail: v.HospitalEmail,
+      HospitalAddress: v.HospitalAddress,
+      City: v.City,
+      State: v.State,
+      PinCode: v.PinCode,
+      CountryCode: v.CountryCode,
+    };
+
+    const formData = new FormData();
     if (this.selectedFile) {
       formData.append('HospitalImageFile', this.selectedFile);
     }
-console.log('Submitting hospital:',formData);
-    this.api.addHospital(formData).subscribe({
-      next: (res) => {
+
+    this.api.addHospital(formData, params).subscribe({
+      next: () => {
         this.toast.success('Hospital added successfully');
-        // close modal
-        const modalEl = document.getElementById('addHospitalModal');
-        if (modalEl) {
-          const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          m.hide();
-        }
+        this.closeModal(this.addHospitalModal);
         this.addHospitalForm.reset();
         this.selectedFile = undefined;
         this.loadHospitals();
       },
-      error: (err) => {
-        console.error(err);
+      error: () => {
         this.toast.error('Failed to add hospital');
-      }
+      },
     });
   }
 
@@ -174,10 +180,30 @@ console.log('Submitting hospital:',formData);
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
-    resetAddHospitalForm() {
+  resetAddHospitalForm() {
     this.addHospitalForm.reset();
     this.addHospitalForm.markAsPristine();
     this.addHospitalForm.markAsUntouched();
-  } 
+  }
+
+  closeModal(modalRef: ElementRef | null) {
+  if (!modalRef) return;
+
+  const modalEl = modalRef.nativeElement;
+
+  const modalInstance =
+    bootstrap.Modal.getInstance(modalEl) ||
+    new bootstrap.Modal(modalEl);
+
+  modalInstance.hide();
+
+  modalEl.addEventListener(
+    'hidden.bs.modal',
+    () => {
+      this.resetAddHospitalForm();
+    },
+    { once: true } // 🔥 prevents multiple event bindings
+  );
+}
 
 }

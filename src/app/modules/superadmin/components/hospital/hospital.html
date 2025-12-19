@@ -79,7 +79,7 @@
 </div>
 
 <!-- Add Hospital Modal -->
-<div class="modal fade" id="addHospitalModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="addHospitalModal" #addHospitalModal tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
@@ -180,6 +180,87 @@
 
                 <div *ngIf="addHospitalForm.get('HospitalEmail')?.errors?.['email']">
                   Enter a valid email address
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">City</label>
+              <input type="text" class="form-control" formControlName="City" />
+
+              <div
+                class="text-danger small"
+                *ngIf="addHospitalForm.get('City')?.touched && addHospitalForm.get('City')?.errors"
+              >
+                <div *ngIf="addHospitalForm.get('City')?.errors?.['required']">
+                  City is required
+                </div>
+                <div *ngIf="addHospitalForm.get('City')?.errors?.['minlength']">
+                  Minimum 2 characters required
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">State</label>
+              <input type="text" class="form-control" formControlName="State" />
+
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('State')?.touched && addHospitalForm.get('State')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('State')?.errors?.['required']">
+                  State is required
+                </div>
+                <div *ngIf="addHospitalForm.get('State')?.errors?.['minlength']">
+                  Minimum 2 characters required
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Pin Code</label>
+              <input
+                type="text"
+                class="form-control"
+                maxlength="6"
+                inputmode="numeric"
+                numbersOnly
+                formControlName="PinCode"
+              />
+
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('PinCode')?.touched && addHospitalForm.get('PinCode')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('PinCode')?.errors?.['required']">
+                  Pin code is required
+                </div>
+                <div *ngIf="addHospitalForm.get('PinCode')?.errors?.['pattern']">
+                  Enter a valid 6-digit pin code
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Country Code</label>
+              <input type="text" class="form-control" maxlength="4" formControlName="CountryCode" />
+
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addHospitalForm.get('CountryCode')?.touched &&
+                  addHospitalForm.get('CountryCode')?.errors
+                "
+              >
+                <div *ngIf="addHospitalForm.get('CountryCode')?.errors?.['required']">
+                  Country code is required
+                </div>
+                <div *ngIf="addHospitalForm.get('CountryCode')?.errors?.['pattern']">
+                  Enter valid country code (e.g. +91)
                 </div>
               </div>
             </div>
