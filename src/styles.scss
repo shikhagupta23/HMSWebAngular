@@ -410,6 +410,46 @@ body {
   border-radius: 999px;       /* pill shape */
   line-height: 1.2;
 }
+
+.cardBody{
+  width: 400px;
+}
+
+.textarea-wrapper {
+  position: relative;
+}
+
+.textarea-wrapper textarea {
+  padding-right: 45px; /* space for + button */
+  resize: none;
+}
+
+.plus-btn {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background-color: #0d6efd; /* Bootstrap primary */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.plus-btn:hover {
+  background-color: #0b5ed7;
+}
+
+a{
+  text-decoration: none !important;
+}
+
+.patientProfile{
 .blue-badge{
   background: white;
     color: #0E82FD;
@@ -419,3 +459,54 @@ body {
     font-size: 13px;
 }
 
+  width: 64px;
+  height: 64px;
+  background: #545d6945;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 25px;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.inline-list {
+  counter-reset: item;
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap; /* wraps if space is less */
+  gap: 24px;
+}
+
+.inline-list li {
+  counter-increment: item;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.inline-list li::before {
+  content: counter(item) ".";
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.prescription-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.prescription-item {
+  flex: 1 1 250px;
+  min-width: 250px; 
+  max-width: 400px;
+}
+
+.txt-font{
+  font-size: 13px !important;
+}

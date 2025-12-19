@@ -47,6 +47,21 @@ ngOnInit() {
   });
 }
 
+
+openPatientDetails(patient: any) {
+  if (!patient?.userId) {
+    console.error('UserId missing', patient);
+    return;
+  }
+
+  this.router.navigate(
+    ['/patient/patient-details', patient.userId],
+    { state: { patient } }   // 👈 send full data
+  );
+}
+
+
+
   loadPatients() {
     this.patientService.getPatients(
       this.pageNumber,

@@ -190,12 +190,11 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+                        <button type="button" class="btn btn-secondary d-none" (click)="closeModal()">
                             Back
                         </button>
-                        <button type="button" class="btn btn-primary" (click)="saveDrugStrength()"
-                            [disabled]="!formData.strength || !formData.strength.trim()">
-                            <i class="bi bi-check-lg me-2"></i>Save
+                        <button type="button" class="btn customBtn" (click)="saveDrugStrength()">
+                            <i class="bi bi-check-lg"></i>Save
                         </button>
                     </div>
                 </div>

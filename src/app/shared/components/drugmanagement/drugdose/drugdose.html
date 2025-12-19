@@ -244,18 +244,16 @@
                 <div class="modal-footer">
                     <button 
                         type="button" 
-                        class="btn btn-secondary" 
+                        class="btn btn-secondary d-none" 
                         (click)="closeModal()"
                     >
                         Back
                     </button>
                     <button 
                         type="button" 
-                        class="btn btn-primary" 
-                        (click)="saveDose()"
-                        [disabled]="!formData.doseDescription || !formData.doseDescription.trim() || !formData.drugTypeId"
-                    >
-                        <i class="bi bi-check-lg me-2"></i>Save
+                        class="btn customBtn" 
+                        (click)="saveDose()">
+                        <i class="bi bi-check-lg "></i>Save
                     </button>
                 </div>
             </div>

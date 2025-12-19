@@ -61,7 +61,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Invoice",
     icon: "fa-solid fa-receipt",
     route: "/invoice",
-    roles: [""]
+    roles: ["Receptionist"]
   },  
   {
     label: "Prescriptions",
@@ -118,6 +118,12 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "fas fa-flask",
     route: "/superadmin/labtest",
     roles: ["SuperAdmin", "Admin", "Receptionist"]
+  }, 
+  {
+    label: "Print Settings",
+    icon: "fas fa-pills",
+    route: "/superadmin/print-setting",
+    roles: ["SuperAdmin"]
   }, 
   {
     label: "Create Feature",

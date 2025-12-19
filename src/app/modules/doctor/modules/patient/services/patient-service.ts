@@ -24,4 +24,23 @@ export class PatientService {
     postPatient(payload: any): Observable<any> {
       return this.api.post(ApiEndpoints.USER.CREATE, payload);
     }
+
+    getPatientAppointmentLists(
+      patientId: number,
+      page: number,
+      pageSize: number
+    ): Observable<any> {
+
+      const params = {
+        patientId,
+        page,
+        pageSize
+      };
+
+      return this.api.get(
+        ApiEndpoints.PATIENT.GETPATIENTAPPOINTMENTLISTS,
+        params
+      );
+    }
+
 }

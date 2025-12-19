@@ -8,13 +8,15 @@ import { AddNewPatient } from './add-new-patient/add-new-patient';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared-module';
+import { PatientDetails } from './patient-details/patient-details';
 
 
 @NgModule({
   declarations: [
     ViewTodaysPatients,
     ViewAllPatients,
-    AddNewPatient
+    AddNewPatient,
+    PatientDetails
   ],
   imports: [
     CommonModule,

@@ -9,6 +9,7 @@ import { ChangePassword } from './components/change-password/change-password';
 import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
 import { LabtestComponent } from '../superadmin/components/labtest/labtest';
+import { PrintSettingComponent } from './components/print-setting/print-setting';
 
 const routes: Routes = [
   { path: '', component: Dashboard },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'profile-setting', component: ProfileSetting },
   { path: 'upcoming-followup', component: UpcomingFollowup },
   { path: 'labtest', component: LabtestComponent },
+  { path: 'print-setting', component: PrintSettingComponent },
 ];
 
 @NgModule({
