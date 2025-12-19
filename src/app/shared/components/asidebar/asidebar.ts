@@ -19,8 +19,8 @@ export class Asidebar {
 
   ngOnInit(): void {
     this.role = this.authService.getUserRole() ?? '';
-    this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
-    this.loadDoctorDetails();
+  this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
+  this.loadDoctorDetails();
   }
 
   loadDoctorDetails(){
@@ -62,7 +62,6 @@ isExactRoute(item: MenuItem): boolean {
 
   return route === '/superadmin' || route === '/doctor';
 }
-
 
 
 }
