@@ -115,9 +115,14 @@ getMedicineInstructions() {
   return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineInstructions}`);
 }
 
-  savePrescription(payload: any): Observable<any> {
-    return this.api.post(`${ApiEndpoints.DOCTOR.SavePrescription}`, payload);
-  }
+  // savePrescription(payload: any): Observable<any> {
+  //   return this.api.post(`${ApiEndpoints.DOCTOR.SavePrescription}`, payload);
+  // }
+
+savePrescription(payload: any): Observable<any> {
+  return this.api.post(ApiEndpoints.PRESCRIPTION.SAVE, payload);
+}
+
 
 getPrescriptionByAppointmentId(appointmentId: string) {
   return this.api.get(
@@ -140,5 +145,22 @@ getPrescriptionValues(masterId: string): Observable<any> {
   const url = `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`;
   return this.api.get(url);
 }
+
+searchDrugByName(term: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.DRUG.SEARCH_BY_NAME,
+    { searchTerm: term }
+  );
+}
+
+
+getMedicineDetails(drugId: string, variationId: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.DRUG.GET_DETAILS,
+    { drugId, variationId }
+  );
+}
+
+
 
 }

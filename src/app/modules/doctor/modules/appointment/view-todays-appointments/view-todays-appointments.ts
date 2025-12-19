@@ -69,6 +69,13 @@ export class ViewTodaysAppointments implements OnInit {
     isReceptionist: boolean = false;
     isDoctor: boolean = false;
 
+    medicineSearchText = '';
+    medicineSearchResults: any[] = [];
+
+    selectedDrug: any = null;
+    selectedVariation: any = null;
+
+
     masterIds = {
       Symptoms: '',
       Diagnosis: '',
@@ -138,12 +145,55 @@ export class ViewTodaysAppointments implements OnInit {
     this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
-    this.loadMedicineOptions(); 
+    // this.loadMedicineOptions(); 
     this.loadDoctorDetails(); 
 
 
 
   }
+
+  searchMedicine() {
+  if (!this.medicineSearchText || this.medicineSearchText.length < 1) {
+    this.medicineSearchResults = [];
+    return;
+  }
+
+  this.appointmentService
+    .searchDrugByName(this.medicineSearchText)
+    .subscribe((res: any) => {
+      this.medicineSearchResults = res?.dataList || [];
+    });
+}
+
+selectMedicineType(drug: any, type: any) {
+  this.selectedDrug = drug;
+  this.selectedVariation = type;
+
+  this.medicineSearchResults = [];
+  this.medicineSearchText = `${drug.drugName} (${type.typeName})`;
+
+  this.getMedicineDetails(drug.drugId, type.variationId);
+}
+
+getMedicineDetails(drugId: string, variationId: string) {
+  this.appointmentService
+    .getMedicineDetails(drugId, variationId)
+    .subscribe((res: any) => {
+      if (!res?.data) return;
+
+      const d = res.data;
+      console.log(d);
+      this.medicineForm = {
+        type: d.drugTypeName || '',
+        strength: d.strengths?.[0] || '',
+        dosage: d.doses?.[0] || '',
+        duration: d.durations?.[0] || '',
+        advice: d.advice || ''
+      };
+    });
+}
+
+
   
 @HostListener('document:click')
   clickOutside() {
@@ -558,9 +608,10 @@ medicineAutoData: any = {
 
 
 medicineForm = {
+  type: '',
   strength: '',
   dosage: '',
-  duration: 1,
+  duration: '',
   advice: ''
 };
 
@@ -746,9 +797,10 @@ onMedicineTypeChange() {
   this.selectedUnit = selected?.unit || '';
 
     this.medicineForm = {
+    type:'',
     strength: '',
     dosage: '',
-    duration: 1,
+    duration: '',
     advice: ''
   };
   this.loadMedicines();
@@ -763,6 +815,7 @@ onMedicineNameChange() {
 
   if (auto) {
     this.medicineForm = {
+      type: auto.typeName,
       strength: auto.strength,
       dosage: auto.dosage,
       duration: auto.duration,
@@ -772,39 +825,35 @@ onMedicineNameChange() {
 }
 
 addMedicine() {
-  const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
-
-  if (!med) {
-    this.toast.error("Select a medicine");
+  if (!this.selectedDrug || !this.selectedVariation) {
+    this.toast.error('Select medicine');
     return;
   }
 
   this.prescription.medicines.push({
-    type: med.type,
-    name: med.text,
-    value: med.value,
-
+    drugId: this.selectedDrug.drugId,
+    variationId: this.selectedVariation.variationId,
+    type: this.selectedVariation.typeName,
+    name: this.selectedDrug.drugName,
     strength: this.medicineForm.strength,
     dosage: this.medicineForm.dosage,
     duration: this.medicineForm.duration,
-    advice: this.medicineForm.advice,
-
-    unit: this.selectedUnit,
-    frequency: null,
-    frequencyName: '',
-    timings: [],
-    instruction: ''
+    advice: this.medicineForm.advice
   });
 
-  // reset
-  this.selectedMedicineName = '';
+  // Reset
+  this.selectedDrug = null;
+  this.selectedVariation = null;
+  this.medicineSearchText = '';
   this.medicineForm = {
+    type:'',
     strength: '',
     dosage: '',
-    duration: 1,
+    duration: '',
     advice: ''
   };
 }
+
 
 
 
@@ -860,47 +909,40 @@ removeLabTest(index: number) {
   this.prescription.labTests.splice(index, 1);
 }
 
-selectFrequency(m: any, freqId: number) {
-  const selected = this.frequencyOptions.find(f => f.value === freqId);
-  if (!selected) return;
+// selectFrequency(m: any, freqId: number) {
+//   const selected = this.frequencyOptions.find(f => f.value === freqId);
+//   if (!selected) return;
 
-  m.frequency = freqId;             // store ID
-  m.frequencyName = selected.label; // store label (optional)
+//   m.frequency = freqId;             // store ID
+//   m.frequencyName = selected.label; // store label (optional)
 
-  m.timings = [];  
-}
+//   m.timings = [];  
+// }
 
+// toggleTiming(m: any, timing: string) {
+//   if (!m.frequency) {
+//     this.toast.error("Select frequency first");
+//     return;
+//   }
 
-// --------------------------
-// 🔥 TOGGLE TIMING WITH LIMIT
-// --------------------------
-toggleTiming(m: any, timing: string) {
-  if (!m.frequency) {
-    this.toast.error("Select frequency first");
-    return;
-  }
+//   const limit = m.frequency;  // frequencyId is already 1,2,3,4
 
-  const limit = m.frequency;  // frequencyId is already 1,2,3,4
+//   if (m.timings.includes(timing)) {
+//     m.timings = m.timings.filter((t: string) => t !== timing);
+//     return;
+//   }
 
-  if (m.timings.includes(timing)) {
-    m.timings = m.timings.filter((t: string) => t !== timing);
-    return;
-  }
+//   if (m.timings.length >= limit) {
+//     this.toast.error(`Only ${limit} timing(s) allowed for ${limit}`);
+//     return;
+//   }
 
-  if (m.timings.length >= limit) {
-    this.toast.error(`Only ${limit} timing(s) allowed for ${limit}`);
-    return;
-  }
+//   m.timings.push(timing);
+// }
 
-  m.timings.push(timing);
-}
-
-// --------------------------
-// 🔥 SELECT INSTRUCTION
-// --------------------------
-selectInstruction(m: any, instr: string) {
-  m.instruction = instr;
-}
+// selectInstruction(m: any, instr: string) {
+//   m.instruction = instr;
+// }
 
 
 loadMedicines() {
@@ -928,89 +970,51 @@ loadLabTests() {
   });
 }
 
-loadMedicineOptions() {
-  this.appointmentService.getMedicineFrequencies().subscribe({
-    next: (res: any) => {
-      this.frequencyOptions = res.dataList.map((f: any) => ({ label: f.name, value: f.id }));
-    },
-    error: (err) => console.error("Error loading medicine frequencies", err)
-  });
+// loadMedicineOptions() {
+//   this.appointmentService.getMedicineFrequencies().subscribe({
+//     next: (res: any) => {
+//       this.frequencyOptions = res.dataList.map((f: any) => ({ label: f.name, value: f.id }));
+//     },
+//     error: (err) => console.error("Error loading medicine frequencies", err)
+//   });
 
-  this.appointmentService.getMedicineTimings().subscribe({
-    next: (res: any) => {
-      this.timingOptions = res.dataList.map((t: any) => ({ label: t.name, value: t.name }));
-    },
-    error: (err) => console.error("Error loading medicine timings", err)
-  });
+//   this.appointmentService.getMedicineTimings().subscribe({
+//     next: (res: any) => {
+//       this.timingOptions = res.dataList.map((t: any) => ({ label: t.name, value: t.name }));
+//     },
+//     error: (err) => console.error("Error loading medicine timings", err)
+//   });
 
-  this.appointmentService.getMedicineInstructions().subscribe({
-    next: (res: any) => {
-      this.instructionOptions = res.dataList.map((i: any) => ({ label: i.name, value: i.name }));
-    },
-    error: (err) => console.error("Error loading medicine instructions", err)
-  });
-}
+//   this.appointmentService.getMedicineInstructions().subscribe({
+//     next: (res: any) => {
+//       this.instructionOptions = res.dataList.map((i: any) => ({ label: i.name, value: i.name }));
+//     },
+//     error: (err) => console.error("Error loading medicine instructions", err)
+//   });
+// }
 
 savePrescription() {
   if (!this.prescription.symptoms && !this.prescription.medicines.length) {
     this.toast.error("Add at least symptoms or medicines before saving");
     return;
   }
+  const payload = {
+    appointmentId: this.selectedAppointment?.appointmentId,
 
-  for (let med of this.prescription.medicines) {
-    if (!med.frequency) {
-      this.toast.error(`Select frequency for ${med.name}`);
-      return;
-    }
-    if (med.timings.length === 0) {
-      this.toast.error(`Select at least one timing for ${med.name}`);
-      return;
-    }
-    if (!med.instruction) {
-      this.toast.error(`Select an instruction for ${med.name}`);
-      return;
-    }
-  }
+    symptoms: this.prescription.symptoms || '',
+    diagnosis: this.prescription.diagnosis || '',
+    advise: this.prescription.advice || '',
+    followUp: this.prescription.followUp || '',
+    nextFollowUpCount: 0,
 
-const payload: any = {
-  AppointmentId: this.selectedAppointment?.appointmentId || '',
-  AppointmentViewId: String(this.selectedAppointment?.appointmentViewId || ''),
-  PatientName: this.selectedAppointment?.patientName || '',
-  Age: String(this.selectedAppointment?.age || 0),
-  Gender: this.selectedAppointment?.gender || 'Unknown',
-  PatientPhone: this.selectedAppointment?.patientPhone || '',
-  AppointmentDate: this.selectedAppointment?.appointmentDate || new Date().toISOString(),
-  BookedDate: this.selectedAppointment?.createdAt || new Date().toISOString(),
+    medicines: this.prescription.medicines.map(m => ({
+      prescriptionId: this.selectedAppointment?.appointmentId,
+      drugId: m.drugId || this.selectedDrug?.drugId,
+      drugVariationid: m.variationId || this.selectedVariation?.variationId
+    })),
 
-  Prescription:
-    this.prescription.symptoms ||
-    this.prescription.diagnosis ||
-    this.prescription.advice ||
-    'N/A',
-
-  Symptoms: this.prescription.symptoms || '',
-  Diagnosis: this.prescription.diagnosis || '',
-  Advise: this.prescription.advice || '',
-  FollowUp: this.prescription.followUp || '',
-  NextFollowUpCount: 0,
-
-  Medicines: this.prescription.medicines.map(m => ({
-    MedicineId: m.value,
-    Name: m.name,
-    Dosage: `${m.dosage}`,
-    Frequency: m.frequencyName,
-    Duration: String(m.duration || 1),
-    Instructions: m.instruction,
-    Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
-    TimmingNames: m.timings
-  })),
-
-  Labtests: this.prescription.labTests.map(l => ({
-    LabTestId: l.value,
-    TestName: l.name,
-    Category: 'General'
-  }))
-};
+    labtests: this.prescription.labTests.map(l => l.value)
+  };
 
   console.log("DTO PAYLOAD:", payload);
 

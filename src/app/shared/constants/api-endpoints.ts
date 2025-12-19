@@ -91,6 +91,7 @@ export const ApiEndpoints = {
   PRESCRIPTION: {
     GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
     GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/`, // + masterId
+    SAVE: `${API_BASE_URL}/PrescriptionApi/savePrescription`
   },
   FEATURE: {
     GET: (page: number, pageSize: number, search?: string) =>
@@ -120,5 +121,9 @@ export const ApiEndpoints = {
       `?hospitalId=${hospitalId}` +
       `&featureId=${featureId}` +
       `&role=${role}`,
+  },
+    DRUG: {
+    SEARCH_BY_NAME: `${API_BASE_URL}/DrugManagement/getDrugByName`,
+    GET_DETAILS: `${API_BASE_URL}/DrugManagement/getMedicineDetails`,
   },
 };

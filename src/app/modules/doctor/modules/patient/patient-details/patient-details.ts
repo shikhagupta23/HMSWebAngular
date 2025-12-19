@@ -5,6 +5,7 @@ import { PatientService } from '../services/patient-service'; // adjust path
 
 @Component({
   selector: 'app-patient-details',
+  standalone: false,
   templateUrl: './patient-details.html',
   styleUrl: './patient-details.scss',
 })
@@ -13,6 +14,7 @@ export class PatientDetails implements OnInit {
   patientId!: number;
   patient: any;
   appointments: any[] = [];
+  lastBookingDate?: string;
 
   page: number = 1;
   pageSize: number = 20;
@@ -34,19 +36,21 @@ export class PatientDetails implements OnInit {
     this.loadPatientAppointmentLists();
   }
 
-  loadPatientAppointmentLists() {
-    this.patientService
-      .getPatientAppointmentLists(this.patientId, this.page, this.pageSize)
-      .subscribe({
-        next: (res) => {
-          this.appointments = res?.data || res;
-          console.log(res);
-        },
-        error: (err) => {
-          console.error('Failed to load appointments', err);
-        }
-      });
-  }
+loadPatientAppointmentLists() {
+  this.patientService
+    .getPatientAppointmentLists(this.patientId, this.page, this.pageSize)
+    .subscribe({
+      next: (res) => {
+        this.appointments = res?.dataList || [];
+        this.lastBookingDate = this.appointments[0]?.appointmentDate;
+        console.log('Appointments:', this.appointments);
+      },
+      error: (err) => {
+        console.error('Failed to load appointments', err);
+      }
+    });
+}
+
 
   goBack() {
     this.location.back();
