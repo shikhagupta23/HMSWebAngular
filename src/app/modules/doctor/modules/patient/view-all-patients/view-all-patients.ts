@@ -54,8 +54,12 @@ openPatientDetails(patient: any) {
     return;
   }
 
-  this.router.navigate(['/patient/patient-details', patient.userId]);
+  this.router.navigate(
+    ['/patient/patient-details', patient.userId],
+    { state: { patient } }   // 👈 send full data
+  );
 }
+
 
 
   loadPatients() {

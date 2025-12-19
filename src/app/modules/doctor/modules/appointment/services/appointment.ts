@@ -84,8 +84,16 @@ getAllPatientAsPerDoctor(page: number, pageSize: number, searchText: string, sta
   return this.api.get(`${ApiEndpoints.DOCTOR.GetAllPatientAsPerDoctor}`,params );
 }
 
-getMedicineType(): Observable<any> {
-  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
+// getMedicineType(): Observable<any> {
+//   return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
+// }
+
+getMedicineType(page: number, pageSize: number) {
+    const params: any = {
+    page: page,
+    pageSize: pageSize
+  };
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`,params);
 }
 
 getMedicineList(typeId: number): Observable<any> {

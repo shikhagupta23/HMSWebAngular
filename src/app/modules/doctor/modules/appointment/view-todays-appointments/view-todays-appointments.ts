@@ -566,11 +566,12 @@ medicineForm = {
 
 
   loadMedicineTypes() {
-  this.appointmentService.getMedicineType().subscribe({
+  this.appointmentService.getMedicineType(this.pageNumber, this.pageSize).subscribe({
     next: (res) => {
-      if (res && res.dataList) {
-        this.medicineTypes = res.dataList;   // Bind API list
-      }
+      // if (res && res.dataList) {
+      //   this.medicineTypes = res.dataList;   // Bind API list
+      // }
+      console.log(res);
     },
     error: (err) => {
       console.error('Error loading medicine types', err);

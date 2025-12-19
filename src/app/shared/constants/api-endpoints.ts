@@ -41,6 +41,7 @@ export const ApiEndpoints = {
     GET: (page: number, pageSize: number, search: string) =>
       `${API_BASE_URL}/SelectAPI/getUserList?role=patient&page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     GET_BY_NAME_OR_PHONE: `${API_BASE_URL}/SelectAPI/getUserListbyTerm`,
+    GETPATIENTAPPOINTMENTLISTS: `${API_BASE_URL}/AppointmentAPI/getPatientAppointmentHistoryByPatientId`
   },
   USER: {
     GET_ROLE_ID: (roleName?: string) =>
@@ -68,7 +69,7 @@ export const ApiEndpoints = {
     GetPatientAsPerDoctor: `${API_BASE_URL}/DoctorAPI/getPatientAsPerDoctorId`,
     GetAllPatientAsPerDoctor: `${API_BASE_URL}/DoctorAPI/getALLPatientByDoctorId`,
     GetDoctorById: `${API_BASE_URL}/DoctorAPI/getDoctorsById?id=`,
-    GetMedicineType: `${API_BASE_URL}/MedicineAPI/getMedicineType`,
+    GetMedicineType: `${API_BASE_URL}/DrugManagement/getAllDrugType`,
     GetMedicineList: `${API_BASE_URL}/MedicineAPI/getMedicine?medicineTypeId=`,
     GetLabTest: `${API_BASE_URL}/LabTest/getLabTest`,
     GetFrequency: `${API_BASE_URL}/DoctorAPI/getMedicineFrequency`,
