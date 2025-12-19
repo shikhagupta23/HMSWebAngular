@@ -13,7 +13,7 @@ import { ApiEndpoints } from '../../../../shared/constants/api-endpoints';
 export class ChangePassword implements OnInit {
   form!: FormGroup;
   submitting = false;
-
+  currentEmail:string=''
   private fb = inject(FormBuilder);
   private api = inject(ApiService);
   private toast = inject(ToastService);
@@ -25,6 +25,7 @@ export class ChangePassword implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmNewPassword: ['', [Validators.required]]
     }, { validators: [this.matchPasswords] });
+    this.loadProfile()
   }
 
   matchPasswords(control: AbstractControl) {
@@ -37,6 +38,22 @@ export class ChangePassword implements OnInit {
   get oldPassword() { return this.form.get('oldPassword'); }
   get newPassword() { return this.form.get('newPassword'); }
   get confirmNewPassword() { return this.form.get('confirmNewPassword'); }
+
+   loadProfile() {
+    this.api.get<any>(ApiEndpoints.PROFILE.GETPROFILE).subscribe({
+      next: (res) => {
+       this.currentEmail=res.data.email
+       this.form.patchValue({
+    email: this.currentEmail
+  });
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+        this.toast.error('Failed to load profile');
+       
+      }
+    });
+  }
 
   submit() {
     if (this.form.invalid) {

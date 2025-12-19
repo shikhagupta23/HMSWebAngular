@@ -104,4 +104,27 @@ export class AuthService {
     return user ? user.userId : null;
   }
 
+forgotPassword(phoneNumber: string): Observable<any> {
+  return this.api.post(
+    ApiEndpoints.AUTH.FORGOT_PASSWORD,
+    null, // body must be null
+    {
+      params: {
+        userid: phoneNumber
+      }
+    }
+  );
+}
+
+verifyOtp(phoneNumber: string, otp: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.AUTH.VERIFY_OTP,
+    {
+      userId: phoneNumber,
+      otp: otp
+    }
+  );
+}
+
+
 }

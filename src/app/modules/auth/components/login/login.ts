@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth-service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { AuthService } from '../../services/auth-service';
+
+type AuthStep = 'login' | 'forgot' | 'otp';
 
 @Component({
   selector: 'app-login',
@@ -10,88 +12,119 @@ import { ToastService } from '../../../../shared/services/toast-service';
   templateUrl: './LoginPage.html',
   styleUrl: './login.scss',
 })
-export class Login {
+export class Login implements OnInit {
 
   loginForm!: FormGroup;
-  private fb =inject(FormBuilder);
+  forgotForm!: FormGroup;
+  otpForm!: FormGroup;
+
+  step: AuthStep = 'login';
+  phoneForOtp = '';
+
+  private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
-  constructor() {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      phoneNumber: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(/^[0-9]{10}$/)   // only numbers + exactly 10 digits
-        ],
-      ],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(6),
-          // Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-          // regex ensures:
-          // 1 lowercase, 1 uppercase, 1 number, 1 special char
-        ],
-      ],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+
+    this.forgotForm = this.fb.group({
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    });
+
+    this.otpForm = this.fb.group({
+      otp: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
     });
   }
 
- submit() {
-  if (this.loginForm.invalid) {
-    this.loginForm.markAllAsTouched();
-    return;
-  }
-
-  const loginPayload = {
-    userId: this.loginForm.value.phoneNumber,
-    password: this.loginForm.value.password,
-    appId: 0
-  }; 
-
-  this.authService.login(loginPayload).subscribe({
-    next: (response: any) => {
-      if (!response?.isSuccess) {
-      this.toast.error(response?.message || 'Login failed');
+  /* ========== LOGIN ========== */
+  submitLogin() {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
-      this.authService.saveAuth(response);
-      const role = response.data?.userRole;
-      this.handleRoleNavigation(role);
-    },
-    error: (error: any) => {
-      console.error("API Error:", error);
-      this.toast.error("Login failed.");
-    }
-  });
-}
-private handleRoleNavigation(role: string) {
 
-  const normalizedRole = role.toLowerCase();
+    const payload = {
+      userId: this.loginForm.value.phoneNumber,
+      password: this.loginForm.value.password,
+      appId: 0
+    };
 
-  const roleRoutes: Record<string, string> = {
-    doctor: '/dashboard',
-    receptionist: '/dashboard',
-    superadmin: '/superadmin',
-    admin: '/superadmin'
-  };
-
-  if (roleRoutes[normalizedRole]) {
-     this.toast.success("Login successfully!");
-    this.router.navigate([roleRoutes[normalizedRole]]);
-    return;
+    this.authService.login(payload).subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Login failed');
+          return;
+        }
+        this.authService.saveAuth(res);
+        this.toast.success('Login successful');
+        this.handleRoleNavigation(res.data?.userRole);
+      },
+      error: () => this.toast.error('Login failed')
+    });
   }
 
-  
+  /* ========== FORGOT PASSWORD ========== */
+  sendOtp() {
+    if (this.forgotForm.invalid) {
+      this.forgotForm.markAllAsTouched();
+      return;
+    }
 
-  this.toast.error("Unauthorized role or invalid credentials.");
+    this.phoneForOtp = this.forgotForm.value.phoneNumber;
 
+    this.authService.forgotPassword(this.phoneForOtp).subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'OTP send failed');
+          return;
+        }
+        this.toast.success('OTP sent successfully');
+        this.step = 'otp';
+      },
+      error: () => this.toast.error('OTP send failed')
+    });
+  }
+
+  /* ========== VERIFY OTP ========== */
+  verifyOtp() {
+    if (this.otpForm.invalid) {
+      this.otpForm.markAllAsTouched();
+      return;
+    }
+
+    this.authService.verifyOtp(this.phoneForOtp, this.otpForm.value.otp).subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Invalid OTP');
+          return;
+        }
+        this.toast.success('OTP verified successfully');
+        this.step = 'login';
+      },
+      error: () => this.toast.error('OTP verification failed')
+    });
+  }
+
+  backToLogin() {
+    this.step = 'login';
+    this.forgotForm.reset();
+    this.otpForm.reset();
+  }
+
+  private handleRoleNavigation(role: string) {
+    const routes: any = {
+      doctor: '/dashboard',
+      receptionist: '/dashboard',
+      admin: '/superadmin',
+      superadmin: '/superadmin',
+    };
+
+    const path = routes[role?.toLowerCase()];
+    path ? this.router.navigate([path]) : this.toast.error('Unauthorized role');
+  }
 }
-
-}
-
-
