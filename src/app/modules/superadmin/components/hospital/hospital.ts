@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { environment } from '../../../../../environment/environment';
 
 declare const bootstrap: any;
 
@@ -11,8 +12,8 @@ declare const bootstrap: any;
   templateUrl: './hospital.html',
   styleUrl: './hospital.scss',
 })
-export class Hospital implements OnInit, AfterViewInit  {
-   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
+export class Hospital implements OnInit, AfterViewInit {
+  @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -22,8 +23,8 @@ export class Hospital implements OnInit, AfterViewInit  {
   searchTerm = '';
 
   addHospitalForm!: FormGroup;
-  selectedFile?: File;
-
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
   private fb = inject(FormBuilder);
   private api = inject(HospitalService);
   private toast = inject(ToastService);
@@ -42,41 +43,45 @@ export class Hospital implements OnInit, AfterViewInit  {
     }
   }
 
-initForm() {
-  this.addHospitalForm = this.fb.group({
-    HospitalName: ['', [Validators.required, Validators.minLength(3)]],
+  initForm() {
+    this.addHospitalForm = this.fb.group({
+      HospitalName: ['', [Validators.required, Validators.minLength(3)]],
 
-    HospitalPhoneNumber: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(/^[6-9]\d{9}$/)
-      ]
-    ],
+      HospitalPhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
 
-    HospitalRegistrationNumber: ['', [Validators.required, Validators.minLength(3)]],
+      HospitalRegistrationNumber: ['', [Validators.required, Validators.minLength(3)]],
 
-    HospitalEmail: ['', [Validators.required, Validators.email]],
+      HospitalEmail: ['', [Validators.required, Validators.email]],
 
-    HospitalAddress: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
+      HospitalAddress: [
+        '',
+        [Validators.required, Validators.minLength(5), Validators.maxLength(250)],
+      ],
 
-    HospitalImageFile: [null]
-  });
-}
+      City: ['', [Validators.required, Validators.minLength(2)]],
 
+      State: ['', [Validators.required, Validators.minLength(2)]],
 
+      PinCode: ['', [Validators.required, Validators.pattern(/^[1-9][0-9]{5}$/)]],
+
+      CountryCode: ['', [Validators.required, Validators.pattern(/^\+\d{1,3}$/)]],
+
+      HospitalImageFile: [null],
+    });
+  }
 
   loadHospitals() {
     this.api.getHospitals(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
         // API returns: { dataList: [], pageNumber, pageSize, totalCount, totalPages, ... }
         if (res) {
-          this.dataList = res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
+          this.dataList =
+            res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
 
           // prefer server-provided pagination values when present
           this.pageNumber = res.pageNumber ?? this.pageNumber;
           this.pageSize = res.pageSize ?? this.pageSize;
-          this.totalCount = res.totalCount ?? res.total ?? (this.dataList?.length ?? 0);
+          this.totalCount = res.totalCount ?? res.total ?? this.dataList?.length ?? 0;
           const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
           this.totalPages = res.totalPages ?? computedPages;
         } else {
@@ -88,7 +93,7 @@ initForm() {
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to load hospitals');
-      }
+      },
     });
   }
 
@@ -123,49 +128,72 @@ initForm() {
     }
   }
 
-  onFileChange(event: any) {
-    const file = event.target.files && event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-    }
+ onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+
+  if (!input.files || input.files.length === 0) return;
+
+  this.selectedFile = input.files[0];
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.imagePreview = reader.result as string;
+  };
+  reader.readAsDataURL(this.selectedFile);
+}
+
+removeImage(fileInput: HTMLInputElement) {
+  this.selectedFile = null;
+  this.imagePreview = null;
+
+  // reset native file input UI
+  fileInput.value = '';
+}
+ onSubmit() {
+  if (this.addHospitalForm.invalid) {
+    this.addHospitalForm.markAllAsTouched();
+    return;
   }
 
-  onSubmit() {
-    if (this.addHospitalForm.invalid) {
-      this.addHospitalForm.markAllAsTouched();
-      return;
-    }
+  const v = this.addHospitalForm.value;
 
-    const formData = new FormData();
-    const v = this.addHospitalForm.value;
-    formData.append('HospitalName', v.HospitalName);
-    formData.append('HospitalPhoneNumber', v.HospitalPhoneNumber);
-    formData.append('HospitalRegistrationNumber', v.HospitalRegistrationNumber || '');
-    formData.append('HospitalEmail', v.HospitalEmail || '');
-    formData.append('HospitalAddress', v.HospitalAddress || '');
-    if (this.selectedFile) {
-      formData.append('HospitalImageFile', this.selectedFile);
-    }
-console.log('Submitting hospital:',formData);
-    this.api.addHospital(formData).subscribe({
-      next: (res) => {
-        this.toast.success('Hospital added successfully');
-        // close modal
-        const modalEl = document.getElementById('addHospitalModal');
-        if (modalEl) {
-          const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          m.hide();
-        }
-        this.addHospitalForm.reset();
-        this.selectedFile = undefined;
-        this.loadHospitals();
-      },
-      error: (err) => {
-        console.error(err);
-        this.toast.error('Failed to add hospital');
-      }
-    });
+  // QUERY PARAMS (exactly what API expects)
+  const params = {
+    HospitalName: v.HospitalName,
+    HospitalAddress: v.HospitalAddress,
+    HospitalEmail: v.HospitalEmail,
+    HospitalPhoneNumber: v.HospitalPhoneNumber,
+    HospitalRegistrationNumber: v.HospitalRegistrationNumber,
+    City: v.City ?? '',
+    State: v.State ?? '',
+    PinCode: v.PinCode ?? 0,
+    CountryCode: v.CountryCode ?? ''
+  };
+
+  // MULTIPART FORM DATA (ONLY IMAGE)
+  const formData = new FormData();
+  if (this.selectedFile) {
+    formData.append(
+  'HospitalImageFile',
+  this.selectedFile,
+  this.selectedFile.name
+);
   }
+
+  this.api.addHospital(formData, params).subscribe({
+    next: () => {
+      this.toast.success('Hospital added successfully');
+      this.closeModal(this.addHospitalModal);
+      this.addHospitalForm.reset();
+      this.selectedFile = null;
+      this.loadHospitals();
+    },
+    error: () => {
+      this.toast.error('Failed to add hospital');
+    }
+  });
+}
+
 
   formatDate(date: string) {
     return new Date(date).toDateString();
@@ -174,10 +202,36 @@ console.log('Submitting hospital:',formData);
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
-    resetAddHospitalForm() {
+  resetAddHospitalForm() {
     this.addHospitalForm.reset();
     this.addHospitalForm.markAsPristine();
     this.addHospitalForm.markAsUntouched();
-  } 
+  }
+
+  closeModal(modalRef: ElementRef | null) {
+  if (!modalRef) return;
+
+  const modalEl = modalRef.nativeElement;
+
+  const modalInstance =
+    bootstrap.Modal.getInstance(modalEl) ||
+    new bootstrap.Modal(modalEl);
+
+  modalInstance.hide();
+
+  modalEl.addEventListener(
+    'hidden.bs.modal',
+    () => {
+      this.resetAddHospitalForm();
+    },
+    { once: true } // 🔥 prevents multiple event bindings
+  );
+}
+
+getHospitalLogo(h: any): string {
+  if (!h?.hospitalImage) return '';
+
+  return `${environment.hospitalLogoPath}${h.hospitalImage}`;
+}
 
 }

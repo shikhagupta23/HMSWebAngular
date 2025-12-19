@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiEndpoints } from '../../../shared/constants/api-endpoints';
 import { ApiService } from '../../../shared/services/api-service';
 import { AuthResponse } from '../models/auth.model';
@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
+  private userSubject = new BehaviorSubject<any>(this.getUser());
+user$ = this.userSubject.asObservable();
   private api = inject(ApiService);
   private router = inject(Router);
   private TOKEN_KEY = 'auth_token';
@@ -21,20 +23,23 @@ export class AuthService {
   }
 
   /** Save Auth Data */
-  saveAuth(res: AuthResponse): void {
-    const user = {
-      userId: res.data.userId,
-      userName: res.data.userName,
-      hospitalId: res.data.hospitalId,
-      hospitalName: res.data.hospitalName,
-      hospitalImage: res.data.hospitalImage,
-      featureList: res.data.featureList,
-    };
+saveAuth(res: AuthResponse): void {
+  const user = {
+    userId: res.data.userId,
+    userName: res.data.userName,
+    hospitalId: res.data.hospitalId,
+    hospitalName: res.data.hospitalName,
+    hospitalImage: res.data.hospitalImage,
+    featureList: res.data.featureList,
+  };
 
-    safeStorage.set(this.TOKEN_KEY, res.data.token);
-    safeStorage.set(this.REFRESH_KEY, res.data.refreshToken);
-    safeStorage.set(this.USER_KEY, JSON.stringify(user));
-  }
+  safeStorage.set(this.TOKEN_KEY, res.data.token);
+  safeStorage.set(this.REFRESH_KEY, res.data.refreshToken);
+
+  // 🔥 IMPORTANT
+  this.setUser(user);
+}
+
 
   /** Get Stored Token */
   getToken(): string | null {
@@ -103,5 +108,44 @@ export class AuthService {
     const user = this.getUser();
     return user ? user.userId : null;
   }
+
+forgotPassword(phoneNumber: string): Observable<any> {
+  return this.api.post(
+    ApiEndpoints.AUTH.FORGOT_PASSWORD,
+    null, // body must be null
+    {
+      params: {
+        userid: phoneNumber
+      }
+    }
+  );
+}
+
+verifyOtp(phoneNumber: string, otp: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.AUTH.VERIFY_OTP,
+    {
+      userId: phoneNumber,
+      otp: otp
+    }
+  );
+}
+
+updateUserName(userName: string): void {
+  const user = this.getUser();
+  if (!user) return;
+
+  const updatedUser = {
+    ...user,
+    userName
+  };
+
+  this.setUser(updatedUser);
+}
+
+setUser(user: any): void {
+  safeStorage.set(this.USER_KEY, JSON.stringify(user));
+  this.userSubject.next(user);
+}
 
 }

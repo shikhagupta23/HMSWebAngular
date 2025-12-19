@@ -1,216 +1,202 @@
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body p-4">
-            
-            <!-- Header with Search and Add Button -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold mb-0">
-                    <i class="fas fa-list me-2"></i>Lab Tests
-                    <span class="badge bg-light text-dark ms-2" *ngIf="totalCount > 0">{{totalCount}}</span>
-                </h5>
-                <div class="d-flex gap-2">
-                    <div class="input-group" style="max-width: 300px;">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" 
-                            placeholder="Search lab tests..." 
-                            [(ngModel)]="searchText"
-                            (ngModelChange)="filterTests()"
-                            [ngModelOptions]="{standalone: true}">
-                    </div>
-                    <button type="button" class="btn btn-primary px-4" (click)="openModal()">
-                        <i class="fas fa-plus me-1"></i>Add Lab Test
-                    </button>
-                </div>
-            </div>
+<!-- ================= HEADER ================= -->
+<div class="dashboard-header">
+  <h3>Lab Test Management</h3>
+</div>
 
-            <!-- Loading Spinner -->
-            <div class="text-center py-5" *ngIf="isLoading">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2 text-muted">Loading lab tests...</p>
-            </div>
+<!-- ================= TABLE CONTROLS ================= -->
+<div class="table-controls d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <label class="form-label small me-2">Show</label>
+    <select
+      class="form-select d-inline-block w-auto"
+      [(ngModel)]="pageSize"
+      (change)="onPageSizeChange()"
+    >
+      <option *ngFor="let s of [5, 10, 25, 50]" [value]="s">{{ s }}</option>
+    </select>
+    <span class="small ms-2">entries</span>
+  </div>
 
-            <!-- Lab Tests Table -->
-            <div class="table-responsive" *ngIf="!isLoading">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-center" style="width: 80px;">SR. NO.</th>
-                            <th>TEST NAME</th>
-                            <th>CATEGORY</th>
-                            <th class="text-end">PRICE</th>
-                            <th class="text-center d-none" style="width: 120px;">ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let test of filteredLabTests; let i = index">
-                            <td class="text-center fw-semibold">{{(currentPage - 1) * pageSize + i + 1}}</td>
-                            <td>
-                                <span class="fw-medium">{{test.testName}}</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-light text-dark">{{test.category}}</span>
-                            </td>
-                            <td class="text-end">
-                                <span class="fw-semibold">₹{{test.price}}</span>
-                            </td>
-                            <td class="text-center d-none">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" 
-                                    (click)="editTest(test)" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" 
-                                    (click)="deleteTest(test.id)" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr *ngIf="filteredLabTests.length === 0">
-                            <td colspan="5" class="text-center text-muted py-4">
-                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                <p class="mb-0">No lab tests found</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="filteredLabTests.length > 0 && !isLoading">
-                <div class="text-muted">
-                    Showing {{(currentPage - 1) * pageSize + 1}} to {{Math.min(currentPage * pageSize, totalCount)}} of {{totalCount}} entries
-                </div>
-                <nav>
-                    <ul class="pagination mb-0">
-                        <li class="page-item" [class.disabled]="currentPage === 1">
-                            <a class="page-link" href="javascript:void(0)" (click)="previousPage()" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item" 
-                            *ngFor="let page of getPageNumbers()" 
-                            [class.active]="page === currentPage">
-                            <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{page}}</a>
-                        </li>
-                        <li class="page-item" [class.disabled]="currentPage === totalPages">
-                            <a class="page-link" href="javascript:void(0)" (click)="nextPage()" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-        </div>
+  <div class="d-flex align-items-center">
+    <div class="input-block dash-search-input">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search lab tests..."
+        [(ngModel)]="searchText"
+        (input)="filterTests()"
+        [ngModelOptions]="{ standalone: true }"
+      />
+      <span class="search-icon">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </span>
     </div>
 
-    <div class="modal fade" id="labTestModal" tabindex="-1" aria-labelledby="labTestModalLabel" aria-hidden="true" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="labTestModalLabel">
-                    <i class="fas fa-flask me-2"></i>{{isEditMode ? 'Edit Lab Test' : 'Add Lab Test'}}
-                </h5>
-                <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+    <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#labTestModal" >
+      + Add New
+    </a>
+  </div>
+</div>
+
+<!-- ================= TABLE ================= -->
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>SR. NO.</th>
+        <th>Test Name</th>
+        <th>Category</th>
+        <th class="text-end">Price</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let test of filteredLabTests; let i = index">
+        <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+        <td>{{ test.testName }}</td>
+        <td>
+          <span class="badge bg-light text-dark">
+            {{ test.category }}
+          </span>
+        </td>
+        <td class="text-end fw-semibold">
+          ₹{{ test.price }}
+        </td>
+      </tr>
+
+      <tr *ngIf="filteredLabTests.length === 0 && !isLoading">
+        <td colspan="4" class="text-center text-muted py-4">
+          No lab tests found
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ================= PAGINATION ================= -->
+<div
+  class="d-flex justify-content-between align-items-center mt-3"
+  *ngIf="filteredLabTests.length > 0"
+>
+  <div class="text-muted">
+    Showing page {{ currentPage }} of {{ totalPages }}
+  </div>
+
+  <ul class="pagination mb-0">
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <a class="page-link" (click)="previousPage()">&laquo;</a>
+    </li>
+
+    <li
+      class="page-item"
+      *ngFor="let p of getPageNumbers()"
+      [class.active]="currentPage === p"
+    >
+      <a class="page-link" (click)="goToPage(p)">
+        {{ p }}
+      </a>
+    </li>
+
+    <li class="page-item" [class.disabled]="currentPage === totalPages">
+      <a class="page-link" (click)="nextPage()">&raquo;</a>
+    </li>
+  </ul>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="labTestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditMode ? 'Edit Lab Test' : 'Add Lab Test' }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal" aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form #labTestForm="ngForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+
+            <!-- Test Name -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">
+                Test Name <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                name="testName"
+                [(ngModel)]="testName"
+                required
+              />
             </div>
-            
-            <form #labTestForm="ngForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
-                    
-                    <!-- Lab Test Information Section -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-info-circle me-2"></i>Test Information
-                        </h6>
-                        <div class="row g-3">
 
-                            <!-- Test Name -->
-                            <div class="col-md-6">
-                                <div class="input-block mb-3">
-                                    <label class="form-label">Test Name <span class="text-danger">*</span></label>
-                                    <input type="text" 
-                                        name="testName"
-                                        [(ngModel)]="testName" 
-                                        #testNameField="ngModel"
-                                        required
-                                        minlength="2"
-                                        class="form-control"
-                                        placeholder="Enter test name">
-                                    <p class="text-danger small mt-1 mb-0" *ngIf="testNameField.invalid && testNameField.touched">Test Name is required</p>
-                                </div>
-                            </div>
+            <!-- Category -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">
+                Category <span class="text-danger">*</span>
+              </label>
+              <select
+                class="form-select"
+                name="category"
+                [(ngModel)]="category"
+                required
+              >
+                <option value="">Select Category</option>
+                <option>Blood Test</option>
+                <option>MRI</option>
+                <option>X-Ray</option>
+                <option>CT Scan</option>
+                <option>Ultrasound</option>
+                <option>ECG</option>
+                <option>Other</option>
+              </select>
+            </div>
 
-                            <!-- Category -->
-                            <div class="col-md-6">
-                                <div class="input-block mb-3">
-                                    <label class="form-label">Category <span class="text-danger">*</span></label>
-                                    <select class="form-control" 
-                                        name="category"
-                                        [(ngModel)]="category"
-                                        #categoryField="ngModel"
-                                        required>
-                                        <option value="">-- Select Category --</option>
-                                        <option value="Blood Test">Blood Test</option>
-                                        <option value="MRI">MRI</option>
-                                        <option value="Sugar Test">Sugar Test</option>
-                                        <option value="X-Ray">X-Ray</option>
-                                        <option value="CT Scan">CT Scan</option>
-                                        <option value="Ultrasound">Ultrasound</option>
-                                        <option value="ECG">ECG</option>
-                                        <option value="Urine Test">Urine Test</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <p class="text-danger small mt-1 mb-0" *ngIf="categoryField.invalid && categoryField.touched">Category is required</p>
-                                </div>
-                            </div>
+            <!-- Price -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">
+                Price <span class="text-danger">*</span>
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                name="price"
+                [(ngModel)]="price"
+                required
+              />
+            </div>
 
-                            <!-- Price -->
-                            <div class="col-md-6">
-                                <div class="input-block mb-3">
-                                    <label class="form-label">Price <span class="text-danger">*</span></label>
-                                    <input type="number" 
-                                        name="price"
-                                        [(ngModel)]="price"
-                                        #priceField="ngModel"
-                                        required
-                                        min="0"
-                                        class="form-control" 
-                                        placeholder="Enter price">
-                                    <p class="text-danger small mt-1 mb-0" *ngIf="priceField.invalid && priceField.touched">Price is required</p>
-                                </div>
-                            </div>
+            <!-- Description -->
+            <div class="col-md-12">
+              <label class="form-label small fw-semibold">
+                Description
+              </label>
+              <textarea
+                class="form-control"
+                rows="3"
+                name="description"
+                [(ngModel)]="description"
+              ></textarea>
+            </div>
+          </div>
 
-                            <!-- Description -->
-                            <div class="col-md-12">
-                                <div class="input-block mb-3">
-                                    <label class="form-label">Description (Optional)</label>
-                                    <textarea 
-                                        name="description"
-                                        [(ngModel)]="description"
-                                        class="form-control" 
-                                        rows="3"
-                                        placeholder="Enter test description or additional notes"></textarea>
-                                </div>
-                            </div>
+          <!-- Modal Footer -->
+          <div class="mt-3 d-flex justify-content-end">
+           
+            <button type="submit" class="btn btn-primary">
+              Save
+            </button>
+          </div>
 
-                        </div>
-                    </div>
-
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary d-none" (click)="closeModal()">
-                        <i class="fas fa-times me-1"></i>Cancel
-                    </button>
-                    <button type="submit" class="btn customBtn">
-                        {{isEditMode ? 'Update' : 'Save'}}
-                    </button>
-                </div>
-            </form>
-        </div>
+        </form>
+      </div>
     </div>
-    </div>
-
-    <div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal" (click)="closeModal()"></div>
+  </div>
+</div>
