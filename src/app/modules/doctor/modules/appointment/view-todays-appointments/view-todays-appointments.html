@@ -96,7 +96,7 @@
 					<div class="d-flex align-items-center gap-2">
 
 						<!-- Eye icon when appointmentStatus = 2 -->
-						<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor || isReceptionist)" class="appointment-action">
+						<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor)" class="appointment-action">
 							<i class="fa-solid fa-eye"></i>
 						</a>
 
@@ -321,7 +321,10 @@
 		<div class="modal-content rounded-4">
 
 		<div class="modal-header">
-			<h5 class="modal-title">Add Prescription</h5>
+			<h5 class="modal-title">
+			{{ isEditMode ? 'Update Prescription' : 'Add Prescription' }}
+			</h5>
+			<!-- <button type="button" class="btn-close" (click)="UpdateAppointmentStatus()" data-bs-dismiss="modal"></button> -->
 			<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 		</div>
 
@@ -343,7 +346,7 @@
 								<button type="button"
 										class="plus-btn"
 										(click)="openList('Symptoms')"
-										*ngIf="isDoctor">
+										*ngIf="canEdit">
 								<i class="fa fa-plus"></i>
 								</button>
 							</div>
@@ -431,6 +434,7 @@
 								placeholder="Search medicine..."
 								[(ngModel)]="medicineSearchText"
 								(input)="searchMedicine()"
+								[disabled]="!canEdit"
 								/>
 
 								<div class="medicine-dropdown" *ngIf="medicineSearchResults.length">
@@ -450,20 +454,20 @@
 							</div>
 							
 							<div class="col-md-2">
-								<input type="text" class="form-control" placeholder="Strength" [(ngModel)]="medicineForm.strength"/>
+								<input type="text" class="form-control" placeholder="Strength" [(ngModel)]="medicineForm.strength" [disabled]="!canEdit"/>
 							</div>
 							<div class="col-md-2">
-								<input type="text" class="form-control" placeholder="Dose" [(ngModel)]="medicineForm.dosage"/>
+								<input type="text" class="form-control" placeholder="Dose" [(ngModel)]="medicineForm.dosage" [disabled]="!canEdit"/>
 							</div>
 							<div class="col-md-2">
-								<input type="text" class="form-control" placeholder="Duration" [(ngModel)]="medicineForm.duration"/>
+								<input type="text" class="form-control" placeholder="Duration" [(ngModel)]="medicineForm.duration" [disabled]="!canEdit"/>
 							</div>
 							<div class="col-md-6">
-								<input type="text" class="form-control" placeholder="Advice" [(ngModel)]="medicineForm.advice"/>
+								<input type="text" class="form-control" placeholder="Advice" [(ngModel)]="medicineForm.advice" [disabled]="!canEdit"/>
 							</div>
 
 							<div class="col-md-2 d-flex" *ngIf="isDoctor">
-							<button class="btn customBtn" (click)="addMedicine()">
+							<button class="btn customBtn" (click)="addMedicine()" *ngIf="canEdit">
 								+ Add
 							</button>
 							</div>
@@ -480,6 +484,7 @@
 									</button>
 
 									<button class="btn btn-sm"
+											*ngIf="canEdit"
 											(click)="removeMedicine(i)">
 									<i class="fa fa-trash"></i>
 									</button>
@@ -506,7 +511,7 @@
 
 						<div class="col-md-4">
 							<label class="d-none form-label fw-bold">Select Lab Test</label>
-							<select class="form-control" appSelect2 placeholder="-- Lab Test --" [(ngModel)]="selectedLabTest" [disabled]="isViewMode">
+							<select class="form-control" appSelect2 placeholder="-- Lab Test --" [(ngModel)]="selectedLabTest" [disabled]="!canEdit">
 							<option value="">Select Test</option>
 							<option *ngFor="let t of labTests" [value]="t.value">
 								{{ t.text }}
@@ -514,12 +519,12 @@
 							</select>
 						</div>
 						<div class="col-md-2 d-flex mt-4">
-							<button class="btn customBtn" (click)="addLabTest()">
+							<button class="btn customBtn" *ngIf="canEdit" (click)="addLabTest()">
 							+ Add 
 							</button>
 						</div>
 						<div class="col-md-4 d-flex mt-4">
-							<input type="text" class="form-control" placeholder="Next Follow up"/>
+							<input type="text" class="form-control" placeholder="Next Follow up" *ngIf="canEdit"/>
 						</div>
 						</div>
 
@@ -575,11 +580,20 @@
 			</div>
 		</div>
 
-		<div class="modal-footer" *ngIf="isDoctor">
-			<button class="btn customBtn" (click)="savePrescription()">
-			{{ isViewMode ? 'Update' : 'Save' }}
-			</button>
+		<!-- ADD -->
+		<div class="modal-footer" *ngIf="isDoctor && !isEditMode">
+		<button class="btn customBtn" (click)="savePrescription()">
+			Save
+		</button>
 		</div>
+
+		<!-- UPDATE -->
+		<div class="modal-footer" *ngIf="isDoctor && isEditMode">
+		<button class="btn customBtn" (click)="savePrescription()">
+			Update
+		</button>
+		</div>
+
 		</div>
 	</div>
 	</div>

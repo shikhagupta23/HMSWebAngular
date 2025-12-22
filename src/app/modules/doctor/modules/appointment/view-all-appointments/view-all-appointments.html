@@ -96,18 +96,18 @@
 					<div class="d-flex align-items-center gap-2">
 
 						<!-- Eye icon when appointmentStatus = 2 -->
-						<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor || isReceptionist)" class="appointment-action">
+						<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor)" class="appointment-action">
 							<i class="fa-solid fa-eye"></i>
 						</a>
 
 						<!-- Cross + Start Now when appointmentStatus = 0 or 1 -->
 						<!-- <ng-container *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1"> -->
 
-							<a class="appointment-action" *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1" (click)="cancelAppointment(item)">
+							<a class="d-none appointment-action" *ngIf="item.appointmentStatus == 0 || item.appointmentStatus == 1" (click)="cancelAppointment(item)">
 								<i class="fa-solid fa-xmark"></i>
 							</a>
 
-							<a (click)="openPrescriptionModal(item, 'start')" *ngIf="(item.appointmentStatus == 0 || item.appointmentStatus == 1) && isDoctor" class="appointment-start start-link date-tag">
+							<a (click)="openPrescriptionModal(item, 'start')" *ngIf="(item.appointmentStatus == 0 || item.appointmentStatus == 1) && isDoctor" class="d-none appointment-start start-link date-tag">
 								Start Now
 							</a>
 

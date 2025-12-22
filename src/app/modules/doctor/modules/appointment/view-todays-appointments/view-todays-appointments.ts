@@ -8,6 +8,34 @@ import { AsidebarService } from '../../../../../shared/components/asidebar/servi
 import { AuthService } from '../../../../auth/services/auth-service';
 declare var bootstrap: any;
 
+interface PrescriptionMedicine {
+  prescriptionMedicineId?: string | null;
+  drugId: string;
+  variationId: string;
+  type: string;
+  name: string;
+  strength: string;
+  dosage: string;
+  duration: string;
+  advice: string;
+}
+
+interface PrescriptionLabTest {
+  prescriptionLabTestId?: string | null;
+  name: string;
+  value: string;
+}
+
+interface Prescription {
+  prescriptionId?: string | null;
+  symptoms: string;
+  diagnosis: string;
+  advice: string;
+  followUp: string;
+  medicines: PrescriptionMedicine[];
+  labTests: PrescriptionLabTest[];
+}
+
 
 @Component({
   selector: 'app-view-todays-appointments',
@@ -27,7 +55,7 @@ export class ViewTodaysAppointments implements OnInit {
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
   
-  isViewMode: boolean = false;
+  isEditMode: boolean = false;
   canEdit: boolean = false; 
 
   addAppointmentForm!: FormGroup;
@@ -92,15 +120,17 @@ export class ViewTodaysAppointments implements OnInit {
   activeTab: string = "All";
   doctorList : any[] = [];
   patientList: any[] = [];
+  
+prescription: Prescription = {
+  prescriptionId: null,
+  symptoms: '',
+  diagnosis: '',
+  advice: '',
+  followUp: '',
+  medicines: [],
+  labTests: []
+};
 
-    prescription = {
-      symptoms: '',
-      diagnosis: '',
-      advice: '',
-      followUp: '',
-      medicines: [] as any[],
-      labTests: [] as { name: string; value: string }[]  
-    };
 
 //     getTodayDate(): string {
 //   const today = new Date();
@@ -633,25 +663,64 @@ medicineForm = {
   // --------------------------
   // 🔥 OPEN MAIN MODAL
   // --------------------------
-openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
-    if (this.isReceptionist) {
-    this.isViewMode = true;
-    this.canEdit = false;
+// openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
+//   if (this.isDoctor) {
+//     this.canEdit = true;
+//   } else {
+//     this.canEdit = false;
+//   }
+//   this.selectedAppointment = item;
 
-  }  else if (this.isDoctor) {
-    // Doctor
-    this.isViewMode = (mode === 'view');
-    this.canEdit = true;
-  }
+//   this.resetPrescription();
+//   this.loadExistingPrescription(item.appointmentId);
+//   this.loadPrescriptionMaster(); 
+
+//   let modal = new bootstrap.Modal(document.getElementById('prescriptionModal'));
+//   modal.show();
+//   // if(this.isDoctor){
+//   //       const appointmentId = this.selectedAppointment?.appointmentId;
+
+//   //     if (appointmentId) {
+//   //       this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 1).subscribe({
+//   //         next: () => {
+//   //           console.log(`Appointment ${appointmentId} marked as ongoing`);
+//   //           this.loadAppointments();
+//   //         },
+//   //         error: (err) => {
+//   //           console.error("Error updating appointment status", err);
+//   //           this.toast.error("Prescription saved but failed to update appointment status");
+//   //         }
+//   //       });
+//   //     }
+//   // }
+// }
+
+openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
   this.selectedAppointment = item;
 
-  this.resetPrescription();
-  this.loadExistingPrescription(item.appointmentId);
-  this.loadPrescriptionMaster(); 
+  if (mode === 'view') {
+    this.isEditMode = true;
 
-  let modal = new bootstrap.Modal(document.getElementById('prescriptionModal'));
+    // Doctor can edit, receptionist cannot
+    this.canEdit = this.isDoctor;
+
+    // ❌ DO NOT reset here
+    this.loadExistingPrescription(item.appointmentId);
+  } else {
+    // Start new prescription
+    this.isEditMode = false;
+    this.canEdit = true;
+    this.resetPrescription();
+  }
+
+  this.loadPrescriptionMaster();
+
+  const modal = new bootstrap.Modal(
+    document.getElementById('prescriptionModal')!
+  );
   modal.show();
 }
+
 
 loadPrescriptionMaster() {
   this.appointmentService.getPrescriptionMaster()
@@ -672,66 +741,57 @@ loadPrescriptionMaster() {
 
 
 
-loadExistingPrescription(appointmentId: number) {
+loadExistingPrescription(appointmentId: string) {
   this.appointmentService
-    .getPrescriptionByAppointmentId(appointmentId.toString())
+    .getPrescriptionByAppointmentId(appointmentId)
     .subscribe({
       next: (res: any) => {
-
-        if (!res || !res.data) return;
+        if (!res?.data) return;
 
         const p = res.data;
-
         console.log(p);
-        // ---------------------
-        // 🔥 Bind Text Fields
-        // ---------------------
-        this.prescription.symptoms = p.symptoms || "";
-        this.prescription.diagnosis = p.diagnosis || "";
-        this.prescription.advice = p.advise || "";
-        this.prescription.followUp = p.followUp || "";
+        // ✅ Parse JSON string safely
+        const parseArray = (val: string) => {
+          try {
+            return JSON.parse(val || '[]').join(', ');
+          } catch {
+            return val || '';
+          }
+        };
 
-        // ---------------------
-        // 🔥 Bind Checklist UI (optional highlight)
-        // ---------------------
-        this.symptomOptions.forEach(x => x.selected = this.prescription.symptoms.includes(x.label));
-        this.diagnosisOptions.forEach(x => x.selected = this.prescription.diagnosis.includes(x.label));
-        this.adviceOptions.forEach(x => x.selected = this.prescription.advice.includes(x.label));
-        this.followUpOptions.forEach(x => x.selected = this.prescription.followUp.includes(x.label));
+this.prescription = {
+  prescriptionId: p.prescriptionId ?? null,
 
-        // ---------------------
-        // 🔥 Bind Medicines
-        // ---------------------
-        this.prescription.medicines = (p.medicines || []).map((m: any) => {
-          return {
-            type: m.medicineType || "",
-            name: m.name || "",
-            value: m.medicineId || "",
-            unit: m.unit || "",
-            dosage: m.dosage || "",
-            frequency: this.getFrequencyId(m.frequency),   // convert string → ID
-            frequencyName: m.frequency,                    // store original text (optional)
-            timings: (m.timmingNames || []),
-            instruction: m.instructions || "",
-            duration: Number(m.duration || 1)
-          };
-        });
+  symptoms: parseArray(p.symptoms),
+  diagnosis: parseArray(p.diagnosis),
+  advice: parseArray(p.prescriptionAdvice),
+  followUp: parseArray(p.followUp),
 
-        // ---------------------
-        // 🔥 Bind Lab Tests
-        // ---------------------
-        this.prescription.labTests = (p.labtests || []).map((l: any) => ({
-          name: l.testName,
-          value: l.labTestId
-        }));
+  medicines: (p.medicines || []).map((m: any) => ({
+    prescriptionMedicineId: m.prescriptionMedicineId ?? null,
+    drugId: m.medicineID,
+    variationId: m.drugVariationId,
+    type: m.typeName,
+    name: m.tradeName,
+    strength: m.prescriptionStrength,
+    dosage: m.prescriptionDosage,
+    duration: m.prescriptionDuration,
+    advice: m.prescriptionAdvice
+  })),
 
-        console.log("BOUND PRESCRIPTION:", this.prescription);
+  labTests: (p.labTests || []).map((l: any) => ({
+    prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+    name: l.testName,
+    value: l.labTestId
+  }))
+};
+
+
+        console.log('BOUND PRESCRIPTION:', this.prescription);
       },
       error: (err) => console.error(err)
     });
 }
-
-
 
   // --------------------------
   // 🔥 OPEN CHECKLIST
@@ -1000,7 +1060,7 @@ savePrescription() {
   }
   const payload = {
     appointmentId: this.selectedAppointment?.appointmentId,
-
+    prescriptionId: this.prescription.prescriptionId ?? null,
     symptoms: this.prescription.symptoms || '',
     diagnosis: this.prescription.diagnosis || '',
     advise: this.prescription.advice || '',
@@ -1008,12 +1068,20 @@ savePrescription() {
     nextFollowUpCount: 0,
 
     medicines: this.prescription.medicines.map(m => ({
-      prescriptionId: this.selectedAppointment?.appointmentId,
+      prescriptionMedicineId: m.prescriptionMedicineId ?? null,
       drugId: m.drugId || this.selectedDrug?.drugId,
-      drugVariationid: m.variationId || this.selectedVariation?.variationId
+      drugVariationid: m.variationId || this.selectedVariation?.variationId,
+      prescriptionDosage: m.dosage,
+      prescriptionAdvice: m.advice,
+      prescriptionStrength: m.strength,
+      prescriptionDuration: m.duration,
     })),
 
-    labtests: this.prescription.labTests.map(l => l.value)
+    
+    labtests: this.prescription.labTests.map(l => ({
+      prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+      labTestId: l.value
+    }))
   };
 
   console.log("DTO PAYLOAD:", payload);
@@ -1029,13 +1097,12 @@ savePrescription() {
         modalInstance.hide();
       }
       this.resetPrescription();
-      this.loadAppointments();
-
       const appointmentId = this.selectedAppointment?.appointmentId;
       if (appointmentId) {
         this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
           next: () => {
             console.log(`Appointment ${appointmentId} marked as Completed`);
+            this.loadAppointments();
           },
           error: (err) => {
             console.error("Error updating appointment status", err);
@@ -1103,5 +1170,21 @@ resetAddAppointmentForm() {
   this.addAppointmentForm.markAsPristine();
   this.addAppointmentForm.markAsUntouched();
 }
+
+// UpdateAppointmentStatus(){
+//     const appointmentId = this.selectedAppointment?.appointmentId;
+//       if (appointmentId) {
+//         this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 0).subscribe({
+//           next: () => {
+//             console.log(`Appointment ${appointmentId} marked as re-Scheduled`);
+//             this.loadAppointments();
+//           },
+//           error: (err) => {
+//             console.error("Error updating appointment status", err);
+//             this.toast.error("Prescription saved but failed to update appointment status");
+//           }
+//         });
+//       }
+// }
 
 }

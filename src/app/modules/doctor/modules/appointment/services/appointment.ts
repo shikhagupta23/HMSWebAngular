@@ -126,9 +126,10 @@ savePrescription(payload: any): Observable<any> {
 
 getPrescriptionByAppointmentId(appointmentId: string) {
   return this.api.get(
-    `${ApiEndpoints.DOCTOR.GetPrescriptionByAppointmentId}?appointmentId=${appointmentId}`
+    `${ApiEndpoints.DOCTOR.GetPrescriptionByAppointmentId}/${appointmentId}`
   );
 }
+
 
 updateAppointmentStatus(appointmentId: string, status: number = 2): Observable<any> {
   const url = `${ApiEndpoints.DOCTOR.UpdateAppointment}?status=${status}&AppointmentId=${appointmentId}`;

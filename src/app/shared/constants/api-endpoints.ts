@@ -78,7 +78,7 @@ export const ApiEndpoints = {
     GetMedicineTimings: `${API_BASE_URL}/DoctorAPI/getMedicineTiming`,
     GetMedicineInstructions: `${API_BASE_URL}/DoctorAPI/getMedicineInstruction`,
     SavePrescription: `${API_BASE_URL}/DoctorAPI/savePrescription`,
-    GetPrescriptionByAppointmentId: `${API_BASE_URL}/DoctorAPI/getPrescription`,
+    GetPrescriptionByAppointmentId: `${API_BASE_URL}/PrescriptionApi/prescription`,
     UpdateAppointment: `${API_BASE_URL}/Hub/UpdateAppointmentStatus`,
   },
   DASHBOARD: {
