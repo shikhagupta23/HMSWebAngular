@@ -28,7 +28,7 @@ export class ViewAllPatients implements OnInit {
   today: string = new Date().toISOString().split('T')[0];
   searchText = "";
   pageNumber = 1;
-  pageSize = 100;
+  pageSize = 10;
   totalPages = 0;
 
   formatDate(date: string): string {
