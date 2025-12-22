@@ -128,4 +128,15 @@ export const ApiEndpoints = {
     SEARCH_BY_NAME: `${API_BASE_URL}/DrugManagement/getDrugByName`,
     GET_DETAILS: `${API_BASE_URL}/DrugManagement/getMedicineDetails`,
   },
+   LAB_TEST: {
+    GET: (page: number, pageSize: number) =>
+      `${API_BASE_URL}/LabTest/Get?page=${page}&pageSize=${pageSize}`,
+
+    ADD: `${API_BASE_URL}/LabTest/Post`,
+
+    UPDATE: `${API_BASE_URL}/LabTest/Put`,
+
+    DELETE: (id: string) =>
+      `${API_BASE_URL}/LabTest/Delete?id=${id}`,
+  },
 };

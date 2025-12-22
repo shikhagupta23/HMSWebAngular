@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureService } from '../../services/feature-service';
 import { ToastService } from '../../../../shared/services/toast-service';
@@ -12,6 +12,8 @@ declare const bootstrap: any;
   styleUrl: './create-feature.scss',
 })
 export class CreateFeature implements OnInit, AfterViewInit {
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
+
   featureForm!: FormGroup;
   dataList: any[] = [];
   pageNumber = 1;
@@ -122,11 +124,7 @@ export class CreateFeature implements OnInit, AfterViewInit {
     this.api.saveFeature(payload).subscribe({
       next: (res) => {
         this.toast.success('Feature saved successfully');
-        const modalEl = document.getElementById('createFeatureModal');
-        if (modalEl) {
-          const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          m.hide();
-        }
+       this.closeModal();
         this.selectedFeatureId = null;
         this.featureForm.reset();
         this.loadFeatures();
@@ -154,4 +152,7 @@ export class CreateFeature implements OnInit, AfterViewInit {
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
+  closeModal(): void {
+  this.closeModalBtn?.nativeElement.click();
+}
 }
