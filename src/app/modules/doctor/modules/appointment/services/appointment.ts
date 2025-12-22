@@ -84,8 +84,16 @@ getAllPatientAsPerDoctor(page: number, pageSize: number, searchText: string, sta
   return this.api.get(`${ApiEndpoints.DOCTOR.GetAllPatientAsPerDoctor}`,params );
 }
 
-getMedicineType(): Observable<any> {
-  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
+// getMedicineType(): Observable<any> {
+//   return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`);
+// }
+
+getMedicineType(page: number, pageSize: number) {
+    const params: any = {
+    page: page,
+    pageSize: pageSize
+  };
+  return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineType}`,params);
 }
 
 getMedicineList(typeId: number): Observable<any> {
@@ -107,15 +115,21 @@ getMedicineInstructions() {
   return this.api.get(`${ApiEndpoints.DOCTOR.GetMedicineInstructions}`);
 }
 
-  savePrescription(payload: any): Observable<any> {
-    return this.api.post(`${ApiEndpoints.DOCTOR.SavePrescription}`, payload);
-  }
+  // savePrescription(payload: any): Observable<any> {
+  //   return this.api.post(`${ApiEndpoints.DOCTOR.SavePrescription}`, payload);
+  // }
+
+savePrescription(payload: any): Observable<any> {
+  return this.api.post(ApiEndpoints.PRESCRIPTION.SAVE, payload);
+}
+
 
 getPrescriptionByAppointmentId(appointmentId: string) {
   return this.api.get(
-    `${ApiEndpoints.DOCTOR.GetPrescriptionByAppointmentId}?appointmentId=${appointmentId}`
+    `${ApiEndpoints.DOCTOR.GetPrescriptionByAppointmentId}/${appointmentId}`
   );
 }
+
 
 updateAppointmentStatus(appointmentId: string, status: number = 2): Observable<any> {
   const url = `${ApiEndpoints.DOCTOR.UpdateAppointment}?status=${status}&AppointmentId=${appointmentId}`;
@@ -132,5 +146,22 @@ getPrescriptionValues(masterId: string): Observable<any> {
   const url = `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`;
   return this.api.get(url);
 }
+
+searchDrugByName(term: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.DRUG.SEARCH_BY_NAME,
+    { searchTerm: term }
+  );
+}
+
+
+getMedicineDetails(drugId: string, variationId: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.DRUG.GET_DETAILS,
+    { drugId, variationId }
+  );
+}
+
+
 
 }

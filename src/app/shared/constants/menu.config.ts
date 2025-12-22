@@ -3,7 +3,9 @@ export interface MenuItem {
   icon: string;
 route?: string | ((role: string) => string);  roles: string[];
   hidden?: boolean;
-  action?: string;     
+  action?: string;   
+  expanded?: boolean;
+  children?: MenuItem[];  
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -59,7 +61,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Invoice",
     icon: "fa-solid fa-receipt",
     route: "/invoice",
-    roles: [""]
+    roles: ["Receptionist"]
   },  
   {
     label: "Prescriptions",
@@ -67,47 +69,61 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/doctor/prescription/add",
     roles: []
   },
-  {
-    label: "Drug Dose",
-    icon: "fas fa-syringe",
-    route: "/drugmanagement/drugdose",
-    roles: ["Receptionist", "Doctor"]
-  },
-  {
-    label: "Drug Advice",
-    icon: "fas fa-notes-medical",
-    route: "/drugmanagement/drugadvice",
-    roles: ["Receptionist", "Doctor"]
-  },
-  {
-    label: "Drug Strength",
-    icon: "fas fa-weight-hanging",
-    route: "/drugmanagement/drugstrength",
-    roles: ["Receptionist", "Doctor"]
-  },
-  {
-    label: "Drug Type",
-    icon: "fas fa-capsules",
-    route: "/drugmanagement/drugtype",
-    roles: ["Receptionist", "Doctor"]
-  },
-  {
-    label: "Drug Duration",
-    icon: "fas fa-hourglass-half",
-    route: "/drugmanagement/drugduration",
-    roles: ["Receptionist", "Doctor"]
-  },
-  {
-    label: "Drug",
-    icon: "fas fa-pills",
-    route: "/drugmanagement/drug",
-    roles: ["Receptionist", "Doctor"]
-  },
+ {
+  label: "Drug Management",
+  icon: "fas fa-pills",
+  roles: ["Receptionist", "Doctor"],
+  children: [
+    {
+      label: "Drug",
+      icon: "fas fa-pills",
+      route: "/drugmanagement/drug",
+      roles: ["Receptionist", "Doctor"]
+    },
+    {
+      label: "Drug Dose",
+      icon: "fas fa-syringe",
+      route: "/drugmanagement/drugdose",
+      roles: ["Receptionist", "Doctor"]
+    },
+    {
+      label: "Drug Advice",
+      icon: "fas fa-notes-medical",
+      route: "/drugmanagement/drugadvice",
+      roles: ["Receptionist", "Doctor"]
+    },
+    {
+      label: "Drug Strength",
+      icon: "fas fa-weight-hanging",
+      route: "/drugmanagement/drugstrength",
+      roles: ["Receptionist", "Doctor"]
+    },
+    {
+      label: "Drug Type",
+      icon: "fas fa-capsules",
+      route: "/drugmanagement/drugtype",
+      roles: ["Receptionist", "Doctor"]
+    },
+    {
+      label: "Drug Duration",
+      icon: "fas fa-hourglass-half",
+      route: "/drugmanagement/drugduration",
+      roles: ["Receptionist", "Doctor"]
+    }
+  ]
+},
+
   {
     label: "Lab Tests",
     icon: "fas fa-flask",
     route: "/superadmin/labtest",
     roles: ["SuperAdmin", "Admin", "Receptionist"]
+  }, 
+  {
+    label: "Print Settings",
+    icon: "fas fa-pills",
+    route: "/superadmin/print-setting",
+    roles: ["Admin"]
   }, 
   {
     label: "Create Feature",

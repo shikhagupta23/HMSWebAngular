@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { environment } from '../../../../../environment/environment';
 
 declare const bootstrap: any;
 
@@ -13,6 +14,8 @@ declare const bootstrap: any;
 })
 export class Hospital implements OnInit, AfterViewInit {
   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
+
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -22,8 +25,8 @@ export class Hospital implements OnInit, AfterViewInit {
   searchTerm = '';
 
   addHospitalForm!: FormGroup;
-  selectedFile?: File;
-
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
   private fb = inject(FormBuilder);
   private api = inject(HospitalService);
   private toast = inject(ToastService);
@@ -127,51 +130,72 @@ export class Hospital implements OnInit, AfterViewInit {
     }
   }
 
-  onFileChange(event: any) {
-    const file = event.target.files && event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-    }
+ onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+
+  if (!input.files || input.files.length === 0) return;
+
+  this.selectedFile = input.files[0];
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.imagePreview = reader.result as string;
+  };
+  reader.readAsDataURL(this.selectedFile);
+}
+
+removeImage(fileInput: HTMLInputElement) {
+  this.selectedFile = null;
+  this.imagePreview = null;
+
+  // reset native file input UI
+  fileInput.value = '';
+}
+ onSubmit() {
+  if (this.addHospitalForm.invalid) {
+    this.addHospitalForm.markAllAsTouched();
+    return;
   }
 
-  onSubmit() {
-    if (this.addHospitalForm.invalid) {
-      this.addHospitalForm.markAllAsTouched();
-      return;
-    }
+  const v = this.addHospitalForm.value;
 
-    const v = this.addHospitalForm.value;
+  // QUERY PARAMS (exactly what API expects)
+  const params = {
+    HospitalName: v.HospitalName,
+    HospitalAddress: v.HospitalAddress,
+    HospitalEmail: v.HospitalEmail,
+    HospitalPhoneNumber: v.HospitalPhoneNumber,
+    HospitalRegistrationNumber: v.HospitalRegistrationNumber,
+    City: v.City ?? '',
+    State: v.State ?? '',
+    PinCode: v.PinCode ?? 0,
+    CountryCode: v.CountryCode ?? ''
+  };
 
-    const params = {
-      HospitalName: v.HospitalName,
-      HospitalPhoneNumber: v.HospitalPhoneNumber,
-      HospitalRegistrationNumber: v.HospitalRegistrationNumber,
-      HospitalEmail: v.HospitalEmail,
-      HospitalAddress: v.HospitalAddress,
-      City: v.City,
-      State: v.State,
-      PinCode: v.PinCode,
-      CountryCode: v.CountryCode,
-    };
-
-    const formData = new FormData();
-    if (this.selectedFile) {
-      formData.append('HospitalImageFile', this.selectedFile);
-    }
-
-    this.api.addHospital(formData, params).subscribe({
-      next: () => {
-        this.toast.success('Hospital added successfully');
-        this.closeModal(this.addHospitalModal);
-        this.addHospitalForm.reset();
-        this.selectedFile = undefined;
-        this.loadHospitals();
-      },
-      error: () => {
-        this.toast.error('Failed to add hospital');
-      },
-    });
+  // MULTIPART FORM DATA (ONLY IMAGE)
+  const formData = new FormData();
+  if (this.selectedFile) {
+    formData.append(
+  'HospitalImageFile',
+  this.selectedFile,
+  this.selectedFile.name
+);
   }
+
+  this.api.addHospital(formData, params).subscribe({
+    next: () => {
+      this.toast.success('Hospital added successfully');
+      this.closeModal();
+      this.addHospitalForm.reset();
+      this.selectedFile = null;
+      this.loadHospitals();
+    },
+    error: () => {
+      this.toast.error('Failed to add hospital');
+    }
+  });
+}
+
 
   formatDate(date: string) {
     return new Date(date).toDateString();
@@ -186,24 +210,14 @@ export class Hospital implements OnInit, AfterViewInit {
     this.addHospitalForm.markAsUntouched();
   }
 
-  closeModal(modalRef: ElementRef | null) {
-  if (!modalRef) return;
+  closeModal() {
+   this.closeModalBtn?.nativeElement.click();
+}
 
-  const modalEl = modalRef.nativeElement;
+getHospitalLogo(h: any): string {
+  if (!h?.hospitalImage) return '';
 
-  const modalInstance =
-    bootstrap.Modal.getInstance(modalEl) ||
-    new bootstrap.Modal(modalEl);
-
-  modalInstance.hide();
-
-  modalEl.addEventListener(
-    'hidden.bs.modal',
-    () => {
-      this.resetAddHospitalForm();
-    },
-    { once: true } // 🔥 prevents multiple event bindings
-  );
+  return `${environment.hospitalLogoPath}${h.hospitalImage}`;
 }
 
 }

@@ -18,22 +18,41 @@
   </div>
   <div class="dashboard-widget">
     <nav class="dashboard-menu">
-      <ul>
-        <li *ngFor="let item of menu" routerLinkActive="active"  [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
-          <!-- If menu item has a route -->
-          <a *ngIf="item.route" [routerLink]="resolveRoute(item)">
-            <i [class]="item.icon"></i>
-            <span>&nbsp; {{ item.label }}</span>
-          </a>
+  <ul>
+    <li *ngFor="let item of menu"  routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
 
-          <!-- If menu item is an action (like Logout) -->
-          <a *ngIf="item.action" (click)="handleMenuAction(item.action)">
-            <i [class]="item.icon"></i>
-            <span>&nbsp; {{ item.label }}</span>
+      <!-- NORMAL MENU (no children) -->
+      <a *ngIf="!item.children && item.route"
+         [routerLink]="resolveRoute(item)"
+         routerLinkActive="active">
+        <i [class]="item.icon"></i>
+        <span>&nbsp; {{ item.label }}</span>
+      </a>
+
+      <!-- DRUG DROPDOWN -->
+      <a *ngIf="item.children"
+         href="javascript:void(0)"
+         (click)="item.expanded = !item.expanded">
+        <i [class]="item.icon"></i>
+        <span>&nbsp; {{ item.label }}</span>
+        <i class="fa fa-chevron-down float-end"></i>
+      </a>
+
+      <!-- SUB MENU -->
+      <ul *ngIf="item.children && item.expanded" class="submenu">
+        <li *ngFor="let child of item.children" routerLinkActive="active">
+          <a [routerLink]="resolveRoute(child)">
+            <i [class]="child.icon"></i>
+            <span>&nbsp; {{ child.label }}</span>
           </a>
         </li>
       </ul>
-    </nav>
+
+    </li>
+  </ul>
+</nav>
+
   </div>
 </div>
 <!-- /Profile Sidebar -->

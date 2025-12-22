@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users-service';
 import { HospitalService } from '../../services/hospital-service';
@@ -14,6 +14,8 @@ declare const bootstrap: any;
   styleUrl: './users.scss',
 })
 export class Users implements OnInit, AfterViewInit {
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
+
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -217,11 +219,7 @@ export class Users implements OnInit, AfterViewInit {
           return;
         }
         this.toast.success(res.message ||'User added successfully');
-        const modalEl = document.getElementById('addUserModal');
-        if (modalEl) {
-          const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          m.hide();
-        }
+      this.closeModal();
         this.addUserForm.reset();
         this.loadUsers();
       },
@@ -239,6 +237,9 @@ export class Users implements OnInit, AfterViewInit {
       return false;
     }
   }
+closeModal(): void {
+  this.closeModalBtn?.nativeElement.click();
+}
 
   formatDate(date: string) {
     return date ? new Date(date).toDateString() : '';
@@ -251,5 +252,16 @@ export class Users implements OnInit, AfterViewInit {
     this.pageNumber = 1;
     this.loadUsers();
   }
+
+  onEmailInput() {
+  const control = this.addUserForm.get('Email');
+  if (control && control.value) {
+    const lower = control.value.toLowerCase();
+    if (control.value !== lower) {
+      control.setValue(lower, { emitEvent: false });
+    }
+  }
+}
+
 
 }

@@ -20,6 +20,4 @@ addHospital(body: FormData, params: any): Observable<any> {
     { params } // ✅ query params added
   );
 }
-
-
 }

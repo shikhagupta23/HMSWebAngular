@@ -13,6 +13,7 @@ import { ChangePassword } from './components/change-password/change-password';
 import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
 import { LabtestComponent } from './components/labtest/labtest';
+import { PrintSettingComponent } from './components/print-setting/print-setting';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { LabtestComponent } from './components/labtest/labtest';
     ChangePassword,
     ProfileSetting,
     UpcomingFollowup,
-    LabtestComponent
+    LabtestComponent,
+    PrintSettingComponent
   ],
   imports: [
     CommonModule,

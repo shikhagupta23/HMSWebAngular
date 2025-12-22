@@ -2,7 +2,7 @@
   <h3>Hospitals</h3>
 </div>
 
-<div class="table-controls d-flex justify-content-between align-items-center mb-3">
+<div class="table-controls d-flex justify-content-between align-items-center my-3">
   <div>
     <label class="form-label small me-2">Show</label>
     <select
@@ -26,7 +26,7 @@
       <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
     </div>
 
-    <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHospitalModal"
+    <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addHospitalModal"
       >+ Add New</a
     >
   </div>
@@ -47,11 +47,21 @@
         <td>
           <div class="d-flex align-items-center">
             <div
-              class="avatar me-3 rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+              class="avatar me-3 rounded-circle overflow-hidden bg-secondary d-flex align-items-center justify-content-center"
               style="width: 48px; height: 48px"
             >
-              <i class="fa fa-hospital"></i>
+              <img
+               
+                [src]="getHospitalLogo(h) || 'assets/img/hospitalicon.png'"
+                alt="Hospital"
+                class="w-100 h-100 object-fit-cover"
+              />
+
+              <ng-template #defaultIcon>
+                <i class="fa fa-hospital text-white"></i>
+              </ng-template>
             </div>
+
             <div>
               <div class="fw-semibold">{{ h.hospitalName || h.HospitalName || h.name }}</div>
               <div class="small text-muted">{{ h.HospitalEmail || h.hospitalEmail || '' }}</div>
@@ -84,14 +94,16 @@
     <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title">Add Hospital</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeModalBtn></button>
       </div>
 
       <div class="modal-body">
         <form [formGroup]="addHospitalForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Hospital Name</label>
+              <label class="form-label small fw-semibold">
+                Hospital Name<span class="text-danger">*</span></label
+              >
               <input type="text" class="form-control" formControlName="HospitalName" />
 
               <div
@@ -110,7 +122,9 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Contact Number</label>
+              <label class="form-label small fw-semibold"
+                >Contact Number<span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -137,7 +151,9 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Registration Number</label>
+              <label class="form-label small fw-semibold"
+                >Registration Number<span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -165,7 +181,9 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Email</label>
+              <label class="form-label small fw-semibold"
+                >Email<span class="text-danger">*</span></label
+              >
               <input type="email" class="form-control" formControlName="HospitalEmail" />
               <div
                 class="text-danger small"
@@ -184,7 +202,9 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">City</label>
+              <label class="form-label small fw-semibold"
+                >City<span class="text-danger">*</span></label
+              >
               <input type="text" class="form-control" formControlName="City" />
 
               <div
@@ -201,7 +221,9 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">State</label>
+              <label class="form-label small fw-semibold"
+                >State<span class="text-danger">*</span></label
+              >
               <input type="text" class="form-control" formControlName="State" />
 
               <div
@@ -220,7 +242,9 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Pin Code</label>
+              <label class="form-label small fw-semibold"
+                >Pin Code<span class="text-danger">*</span></label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -246,7 +270,9 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-semibold">Country Code</label>
+              <label class="form-label small fw-semibold"
+                >Country Code<span class="text-danger">*</span></label
+              >
               <input type="text" class="form-control" maxlength="4" formControlName="CountryCode" />
 
               <div
@@ -266,7 +292,9 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label small fw-semibold">Address</label>
+              <label class="form-label small fw-semibold"
+                >Address<span class="text-danger">*</span></label
+              >
               <textarea class="form-control" rows="2" formControlName="HospitalAddress"></textarea>
               <div
                 class="text-danger small"
@@ -291,14 +319,36 @@
 
             <div class="col-12">
               <label class="form-label small fw-semibold">Image</label>
-              <input type="file" class="form-control" (change)="onFileChange($event)" />
+
+              <div class="position-relative">
+                <input
+                  #fileInput
+                  type="file"
+                  class="form-control"
+                  accept="image/*"
+                  (change)="onFileChange($event)"
+                />
+
+                <!-- Image Preview -->
+                <div *ngIf="imagePreview" class="mt-2 position-relative d-inline-block">
+                  <img [src]="imagePreview" class="img-thumbnail" style="max-height: 120px" />
+
+                  <!-- ❌ Remove button -->
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0"
+                    style="transform: translate(50%, -50%)"
+                    (click)="removeImage(fileInput)"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="mt-3 d-flex justify-content-end">
-            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
-              Cancel
-            </button>
-            <button type="submit" class="btn btn-primary">Save Hospital</button>
+            <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </form>
       </div>

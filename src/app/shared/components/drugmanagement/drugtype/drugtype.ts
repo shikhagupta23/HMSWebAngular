@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Updated interface to match API response
@@ -39,7 +41,7 @@ interface ApiResponse {
   templateUrl: './drugtype.html',
   styleUrls: ['./drugtype.css']
 })
-export class DrugTypeComponent implements OnInit {
+export class DrugTypeComponent implements OnInit, OnDestroy {
   drugTypes: DrugType[] = [];
   filteredDrugTypes: DrugType[] = [];
   paginatedDrugTypes: DrugType[] = [];
@@ -61,6 +63,9 @@ export class DrugTypeComponent implements OnInit {
   totalPages: number = 1;
   totalCount: number = 0;
 
+  // Debounce search - Industry Standard
+  private searchSubject = new Subject<string>();
+
   // API Endpoints - Updated to match backend routes
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrugType',
@@ -73,6 +78,21 @@ export class DrugTypeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDrugTypes();
+    
+    // Setup debounced search - waits 500ms after user stops typing
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only trigger if search term actually changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on new search
+      this.loadDrugTypes();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.searchSubject.complete();
   }
 
   loadDrugTypes(): void {
@@ -121,11 +141,10 @@ export class DrugTypeComponent implements OnInit {
       });
   }
 
+  // Updated search method - now uses debouncing
   onSearch(): void {
-    // Reset to page 1 when searching
-    this.currentPage = 1;
-    // Server-side search through API
-    this.loadDrugTypes();
+    // Push the search term to the subject - debouncing will handle the delay
+    this.searchSubject.next(this.searchTerm);
   }
 
   onEntriesPerPageChange(): void {

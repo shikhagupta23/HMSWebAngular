@@ -1,4 +1,4 @@
-    <div class="dashboard-header">
+    <div class="dashboard-header mb-0 pb-0">
         <h3>Patients</h3>
 
         <ul class="header-list-btns">
@@ -16,7 +16,7 @@
     </div>
 
     <div class="appointment-tab-content ">
-        <div class="appointment-wrap position-relative border rounded p-3 mt-2" *ngFor="let p of paginatedPatients">
+        <div class="appointment-wrap position-relative border rounded p-3 mt-2 " *ngFor="let p of paginatedPatients" (click)="openPatientDetails(p)">
             <div class="row d-flex align-items-center">
                 <!-- Gender + Name -->
                 <div class="col-12 col-lg-3">
@@ -96,7 +96,7 @@
 
             <div class="modal-header">
                 <h5 class="modal-title">Add Patient</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" #closeModalBtn></button>
             </div>
 
             <div class="modal-body">
@@ -185,7 +185,7 @@
                                     <i class="fas fa-times me-1"></i>Cancel
                                 </button>
                                 <button type="submit" class="btn customBtn">
-                                    Save Patient
+                                    Save
                                 </button>
                             </div>
                         </div>

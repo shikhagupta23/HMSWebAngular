@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 
 // Updated interface to match API response
@@ -38,7 +40,7 @@ interface ApiResponse {
   templateUrl: 'drugadvice.html',
   styleUrls: ['./drugadvice.css']
 })
-export class DrugAdviceComponent implements OnInit {
+export class DrugAdviceComponent implements OnInit, OnDestroy {
   advices: DrugAdvice[] = [];
   filteredAdvices: DrugAdvice[] = [];
   paginatedAdvices: DrugAdvice[] = [];
@@ -59,6 +61,9 @@ export class DrugAdviceComponent implements OnInit {
   totalPages: number = 1;
   totalCount: number = 0;
 
+  // Debounce search - Industry Standard
+  private searchSubject = new Subject<string>();
+
   // API Endpoints - Updated to match backend routes
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrugAdvice',
@@ -71,6 +76,21 @@ export class DrugAdviceComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDrugAdvices();
+    
+    // Setup debounced search - waits 500ms after user stops typing
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only trigger if search term actually changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on new search
+      this.loadDrugAdvices();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    this.searchSubject.complete();
   }
 
   loadDrugAdvices(): void {
@@ -119,11 +139,10 @@ export class DrugAdviceComponent implements OnInit {
       });
   }
 
+  // Updated search method - now uses debouncing
   onSearch(): void {
-    // Reset to page 1 when searching
-    this.currentPage = 1;
-    // Server-side search through API
-    this.loadDrugAdvices();
+    // Push the search term to the subject - debouncing will handle the delay
+    this.searchSubject.next(this.searchTerm);
   }
 
   onEntriesPerPageChange(): void {
