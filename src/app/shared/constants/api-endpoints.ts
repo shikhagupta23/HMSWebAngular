@@ -41,7 +41,7 @@ export const ApiEndpoints = {
   },
   PATIENT: {
     GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/SelectAPI/getUserList?role=patient&page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
+      `${API_BASE_URL}/SelectAPI/getUserList?role=patient&page=${page}&pageSize=${pageSize}&search=${search}`,
     GET_BY_NAME_OR_PHONE: `${API_BASE_URL}/SelectAPI/getUserListbyTerm`,
     GETPATIENTAPPOINTMENTLISTS: `${API_BASE_URL}/AppointmentAPI/getPatientAppointmentHistoryByPatientId`
   },

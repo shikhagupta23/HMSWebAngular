@@ -70,45 +70,32 @@ openPatientDetails(patient: any) {
 
 
 
-  loadPatients() {
-    this.patientService.getPatients(
-      this.pageNumber,
-      this.pageSize,
-      this.searchText
-    ).subscribe({
-      next: (response) => {
+loadPatients() {
+  this.patientService.getPatients(
+    this.pageNumber,
+    this.pageSize,
+    this.searchText
+  ).subscribe({
+    next: (response) => {
 
-        console.log("Patient API Response:", response);
-
-        // this.patientList = response.dataList;
-        this.patientList = response.dataList.map((p: any) => ({
+      this.patientList = response.dataList
+        .map((p: any) => ({
           ...p,
           age: this.calculateAge(p.dob)
-        })) .sort((a: any, b: any) =>
+        }))
+        .sort((a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
-        if (this.searchText) {
-            const search = this.searchText.toLowerCase();
+      this.paginatedPatients = this.patientList; // ✅ directly assign
+      this.totalPages = response.totalPages;      // ✅ from API
+    },
+    error: (err) => {
+      console.error("API Error:", err);
+    }
+  });
+}
 
-            this.filteredPatients = this.patientList.filter(p =>
-              p.fullName?.toLowerCase().includes(search) ||
-              p.phoneNumber?.includes(search) ||
-              p.abhaId?.toLowerCase().includes(search)
-            );
-          } else {
-            this.filteredPatients = [...this.patientList];
-          }
-
-          this.paginatedPatients = this.filteredPatients;
-          this.totalPages = response.totalPages;
-
-      },
-      error: (err) => {
-        console.error("API Error:", err);
-      }
-    });
-  }
 
   searchPatients() {
     this.pageNumber = 1;
