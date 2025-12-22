@@ -123,7 +123,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Print Settings",
     icon: "fas fa-pills",
     route: "/superadmin/print-setting",
-    roles: ["SuperAdmin"]
+    roles: ["Admin"]
   }, 
   {
     label: "Create Feature",

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureAccessService } from '../../services/feature-access-service';
 import { UsersService } from '../../services/users-service';
@@ -13,6 +13,7 @@ declare const bootstrap: any;
   styleUrl: './feature-assignment.scss',
 })
 export class FeatureAssignment implements OnInit {
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
   assignForm!: FormGroup;
   dataList: any[] = [];
   featureList: any[] = [];
@@ -56,7 +57,15 @@ ngOnInit(): void {
     }
   });
 }
+ngAfterViewInit(): void {
+    const modalEl = document.getElementById('featureAssignModal');
 
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.resetForm();
+      });
+    }
+  }
 
   loadUsersForAdminRole() {
     this.usersApi.getRoleId('admin').subscribe({
@@ -184,11 +193,7 @@ ngOnInit(): void {
     this.api.saveFeatureAccess(payload).subscribe({
       next: (res) => {
         this.toast.success('Feature assignment saved');
-        const modalEl = document.getElementById('featureAssignModal');
-        if (modalEl) {
-          const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          m.hide();
-        }
+       this.closeModal();
         this.selectedId = null;
         this.assignForm.reset();
         this.loadList();
@@ -199,7 +204,9 @@ ngOnInit(): void {
       }
     });
   }
-
+  closeModal(): void {
+  this.closeModalBtn?.nativeElement.click();
+}
   onEdit(item: any) {
     this.selectedId = item.id ?? item.featureAccessId ?? null;
     this.assignForm.patchValue({
@@ -216,6 +223,9 @@ ngOnInit(): void {
       m.show();
     }
   }
+//   closeModal(): void {
+//   this.closeModalBtn?.nativeElement.click();
+// }
 
   onToggleExtend(item: any, checked: boolean) {
   const id = item.featureAccessId;

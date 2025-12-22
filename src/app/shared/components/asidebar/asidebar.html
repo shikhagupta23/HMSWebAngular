@@ -19,7 +19,8 @@
   <div class="dashboard-widget">
     <nav class="dashboard-menu">
   <ul>
-    <li *ngFor="let item of menu">
+    <li *ngFor="let item of menu"  routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
 
       <!-- NORMAL MENU (no children) -->
       <a *ngIf="!item.children && item.route"

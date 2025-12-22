@@ -14,6 +14,8 @@ declare const bootstrap: any;
 })
 export class Hospital implements OnInit, AfterViewInit {
   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
+
   dataList: any[] = [];
 
   pageNumber = 1;
@@ -183,7 +185,7 @@ removeImage(fileInput: HTMLInputElement) {
   this.api.addHospital(formData, params).subscribe({
     next: () => {
       this.toast.success('Hospital added successfully');
-      this.closeModal(this.addHospitalModal);
+      this.closeModal();
       this.addHospitalForm.reset();
       this.selectedFile = null;
       this.loadHospitals();
@@ -208,24 +210,8 @@ removeImage(fileInput: HTMLInputElement) {
     this.addHospitalForm.markAsUntouched();
   }
 
-  closeModal(modalRef: ElementRef | null) {
-  if (!modalRef) return;
-
-  const modalEl = modalRef.nativeElement;
-
-  const modalInstance =
-    bootstrap.Modal.getInstance(modalEl) ||
-    new bootstrap.Modal(modalEl);
-
-  modalInstance.hide();
-
-  modalEl.addEventListener(
-    'hidden.bs.modal',
-    () => {
-      this.resetAddHospitalForm();
-    },
-    { once: true } // 🔥 prevents multiple event bindings
-  );
+  closeModal() {
+   this.closeModalBtn?.nativeElement.click();
 }
 
 getHospitalLogo(h: any): string {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PatientService } from '../services/patient-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ declare var bootstrap: any;
   providers: [DatePipe]
 })
 export class ViewAllPatients implements OnInit {
-
+  @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
   private patientService = inject(PatientService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -46,7 +46,15 @@ ngOnInit() {
     abhaId: ['']
   });
 }
+ ngAfterViewInit(): void {
+    const modalEl = document.getElementById('addPatientModal');
 
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.resetPatientForm();
+      });
+    }
+  }
 
 openPatientDetails(patient: any) {
   if (!patient?.userId) {
@@ -76,7 +84,9 @@ openPatientDetails(patient: any) {
         this.patientList = response.dataList.map((p: any) => ({
           ...p,
           age: this.calculateAge(p.dob)
-        }));
+        })) .sort((a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
 
         if (this.searchText) {
             const search = this.searchText.toLowerCase();
@@ -155,13 +165,7 @@ openPatientDetails(patient: any) {
         this.api.postPatient(payload).subscribe({
           next: (res) => {
             this.toast.success("Patient Saved Successfully");
-            this.patientForm.reset();
-
-            const modalEl = document.getElementById('addPatientModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) {
-                modalInstance.hide();
-            }
+            this.closeModal();
             this.loadPatients();
           },
           error: (err) => {
@@ -177,7 +181,12 @@ openPatientDetails(patient: any) {
       }
     });
   }
+ resetPatientForm() {
+    this.patientForm.reset();
 
+    this.patientForm.markAsPristine();
+    this.patientForm.markAsUntouched();
+  }
 openAddPatientModal() {
     const modal = new bootstrap.Modal(document.getElementById('addPatientModal'));
     modal.show();
@@ -213,6 +222,8 @@ getGenderIcon(gender: string): string {
   if (g === 'f' || g === 'female') return 'fa-venus';
   return 'fa-genderless';
 }
-
+  closeModal(): void {
+  this.closeModalBtn?.nativeElement.click();
+}
 
 }

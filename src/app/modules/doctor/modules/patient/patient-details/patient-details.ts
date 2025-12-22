@@ -55,4 +55,36 @@ loadPatientAppointmentLists() {
   goBack() {
     this.location.back();
   }
+
+  getStatusText(status: number): string {
+    console.log(status)
+  switch (status) {
+    case 4:
+      return 'Cancelled';
+    case 2:
+      return 'Completed';
+    case 1:
+      return 'On Going';
+    case 0:
+      return 'Scheduled';
+    default:
+      return 'Unknown';
+  }
+}
+
+getStatusClass(status: number): string {
+  switch (status) {
+    case 4:
+      return 'badge-danger';   // red
+    case 2:
+      return 'badge-success';  // green
+    case 1:
+      return 'badge-blue';  // blue
+    case 0:
+      return 'badge-warning';  // yellow
+    default:
+      return 'badge-secondary';
+  }
+}
+
 }
