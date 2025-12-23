@@ -4,14 +4,14 @@
   <div>
     <button class="btn" [class.btn-primary]="activeView === 'invoices'"
       [class.btn-outline-primary]="activeView !== 'invoices'" (click)="switchView('invoices')">
-      <i class="bi bi-receipt me-2"></i> Invoices
+      <i class="fa-solid fa-receipt me-2"></i> Invoices
     </button>
     <button class="btn ms-2" [class.btn-primary]="activeView === 'reports'"
       [class.btn-outline-primary]="activeView !== 'reports'" (click)="switchView('reports')">
-      <i class="bi bi-file-earmark-bar-graph me-2"></i> Payment Reports
+      <i class="fa-solid fa-chart-line me-2"></i> Payment Reports
     </button>
     <button class="btn btn-success ms-2" (click)="openGenerateInvoice()" *ngIf="activeView === 'invoices'">
-      <i class="bi bi-plus-circle me-2"></i> Generate Invoice
+      <i class="fa-solid fa-circle-plus me-2"></i> Generate Invoice
     </button>
   </div>
 </div>
@@ -79,7 +79,7 @@
       </div>
       <div class="col-md-2">
         <button class="btn btn-primary w-100" (click)="loadPaymentReports()">
-          <i class="bi bi-search me-2"></i> Load Report
+          <i class="fa-solid fa-magnifying-glass me-2"></i> Load Report
         </button>
       </div>
     </div>
@@ -117,13 +117,13 @@
             <td><strong>#Inv0000_{{ invoice.invoiceNo }}</strong></td>
             <td>
               <div class="d-flex align-items-center">
-                <i class="bi bi-person-fill text-primary me-2"></i>
+                <i class="fa-solid fa-user text-primary me-2"></i>
                 <span>{{ invoice.patientName }}</span>
               </div>
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <i class="bi bi-person-badge text-success me-2"></i>
+                <i class="fa-solid fa-user-doctor text-success me-2"></i>
                 <span>{{ invoice.doctorName }}</span>
               </div>
             </td>
@@ -135,12 +135,12 @@
               <div class="d-flex gap-2 justify-content-center">
                 <button class="btn btn-sm btn-outline-primary icon-btn" (click)="printInvoice(invoice)"
                   title="Print Invoice">
-                  <i class="fa-solid fa-print"></i> 
+                  <i class="fa-solid fa-print"></i>
                 </button>
 
                 <button class="btn btn-sm btn-outline-danger icon-btn" (click)="deleteInvoice(invoice.id)"
                   title="Delete Invoice">
-                  <i class="fa-solid fa-trash"></i> 
+                  <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
             </td>
@@ -163,7 +163,7 @@
         <ul class="pagination mb-0">
           <li class="page-item" [class.disabled]="currentPage === 1">
             <a class="page-link" (click)="previousPage()" style="cursor: pointer;">
-              <i class="bi bi-chevron-left"></i> Previous
+              <i class="fa-solid fa-chevron-left"></i> Previous
             </a>
           </li>
 
@@ -175,7 +175,7 @@
 
           <li class="page-item" [class.disabled]="currentPage === totalPages">
             <a class="page-link" (click)="nextPage()" style="cursor: pointer;">
-              Next <i class="bi bi-chevron-right"></i>
+              Next <i class="fa-solid fa-chevron-right"></i>
             </a>
           </li>
         </ul>
@@ -206,13 +206,13 @@
             <td><strong>#Inv0000_{{ report.invoiceNo }}</strong></td>
             <td>
               <div class="d-flex align-items-center">
-                <i class="bi bi-person-fill text-primary me-2"></i>
+                <i class="fa-solid fa-user text-primary me-2"></i>
                 <span>{{ report.patientName }}</span>
               </div>
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <i class="bi bi-person-badge text-success me-2"></i>
+                <i class="fa-solid fa-user-doctor text-success me-2"></i>
                 <span>{{ report.doctorName }}</span>
               </div>
             </td>
@@ -238,7 +238,7 @@
         <ul class="pagination mb-0">
           <li class="page-item" [class.disabled]="reportPage === 1">
             <a class="page-link" (click)="previousReportPage()" style="cursor: pointer;">
-              <i class="bi bi-chevron-left"></i> Previous
+              <i class="fa-solid fa-chevron-left"></i> Previous
             </a>
           </li>
           <li class="page-item active">
@@ -246,7 +246,7 @@
           </li>
           <li class="page-item">
             <a class="page-link" (click)="nextReportPage()" style="cursor: pointer;">
-              Next <i class="bi bi-chevron-right"></i>
+              Next <i class="fa-solid fa-chevron-right"></i>
             </a>
           </li>
         </ul>
@@ -255,7 +255,7 @@
   </div>
 </div>
 
-<!-- Generate Invoice Modal -->
+<!-- Generate Invoice Modal - IMPROVED VERSION -->
 <div class="modal fade" id="generateInvoiceModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -269,62 +269,89 @@
 
         <!-- Patient Name Dropdown with Search -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">Select Patient</label>
-          <input type="text" class="form-control mb-2" placeholder="Search patient..." [(ngModel)]="searchTerm"
-            (input)="filterAppointments()" />
-          <select class="form-select" [(ngModel)]="selectedAppointmentId" (change)="onAppointmentChange()" size="5">
-            <option value="">-- Select Patient --</option>
-            <option *ngFor="let appt of filteredAppointments" [value]="appt.appointmentId">
-              {{ appt.patientName }}
-            </option>
-          </select>
+          <label class="form-label">
+            <i class="fa-solid fa-user"></i>
+            Select Patient <span class="text-danger">*</span>
+          </label>
+          <div class="search-wrapper">
+            <input type="text" class="form-control" placeholder="Search patient by name..." [(ngModel)]="searchTerm"
+              (input)="filterAppointments()" />
+          </div>
+          <div class="patient-select-wrapper">
+            <select class="form-select" [(ngModel)]="selectedAppointmentId" (change)="onAppointmentChange()" size="5">
+              <option value="">-- Select a patient from the list --</option>
+              <option *ngFor="let appt of filteredAppointments" [value]="appt.appointmentId">
+                {{ appt.patientName }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- Doctor Name -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">Doctor Name</label>
-          <input type="text" class="form-control" [value]="invoice.doctorName" readonly />
+          <label class="form-label">
+            <i class="fa-solid fa-user-doctor"></i>
+            Doctor Name
+          </label>
+          <input type="text" class="form-control" [value]="invoice.doctorName" readonly
+            placeholder="Auto-filled after patient selection" />
         </div>
 
         <!-- Appointment Date -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">Appointment Date</label>
-          <input type="text" class="form-control" [value]="invoice.appointmentDate" readonly />
+          <label class="form-label">
+            <i class="fa-solid fa-calendar-check"></i>
+            Appointment Date
+          </label>
+          <input type="text" class="form-control" [value]="invoice.appointmentDate" readonly
+            placeholder="Auto-filled after patient selection" />
         </div>
 
         <hr />
 
-        <!-- Doctor Fee -->
+        <!-- Fee Section -->
         <div class="row mb-3">
+          <!-- Doctor Fee -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Doctor Fee (Appointment Fee)</label>
+            <label class="form-label">
+              <i class="fa-solid fa-stethoscope"></i>
+              Doctor Fee (Appointment Fee)
+            </label>
             <input type="number" class="form-control" [(ngModel)]="invoice.doctorFee" min="0" readonly
-              placeholder="Auto-filled from appointment" />
-            <small class="text-muted">This field is auto-filled from appointment fee</small>
+              placeholder="₹ 0.00" />
+            <small class="text-muted">Auto-filled from appointment</small>
           </div>
 
           <!-- Lab Test Fee -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Lab Test Fee</label>
+            <label class="form-label">
+              <i class="fa-solid fa-flask"></i>
+              Lab Test Fee
+            </label>
             <input type="number" class="form-control" [(ngModel)]="invoice.labTestFee" (input)="calculateTotal()"
-              min="0" placeholder="Enter lab test fee" />
+              min="0" placeholder="₹ 0.00" />
           </div>
         </div>
 
         <!-- Payment Mode -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">Payment Mode</label>
+          <label class="form-label">
+            <i class="fa-solid fa-credit-card"></i>
+            Payment Mode
+          </label>
           <select class="form-select" [(ngModel)]="invoice.paymentMode">
-            <option value="Cash">Cash</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-            <option value="Net Banking">Net Banking</option>
+            <option value="Cash">💵 Cash</option>
+            <option value="Card">💳 Card</option>
+            <option value="UPI">📱 UPI</option>
+            <option value="Net Banking">🏦 Net Banking</option>
           </select>
         </div>
 
         <!-- Total Amount Display -->
         <div class="alert alert-info d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">Total Amount:</span>
+          <span class="fw-semibold">
+            <i class="fa-solid fa-receipt me-2"></i>Total Amount:
+          </span>
           <span class="fs-5 fw-bold">₹{{ totalAmount | number:'1.2-2' }}</span>
         </div>
 
@@ -332,11 +359,13 @@
 
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">
-          Cancel
+          <i class="fa-solid fa-times me-2"></i>Cancel
         </button>
 
-        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting" (click)="generateInvoice()">
+        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting"
+          (click)="generateInvoice()">
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!isSubmitting" class="fa-solid fa-check me-2"></i>
           {{ isSubmitting ? 'Generating...' : 'Generate Invoice' }}
         </button>
       </div>
