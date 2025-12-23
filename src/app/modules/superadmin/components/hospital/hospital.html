@@ -40,6 +40,10 @@
         <th>Registration</th>
         <th>Phone</th>
         <th>Address</th>
+        <!-- <th>city</th>
+        <th>state</th> -->
+        <th>Created At</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -70,7 +74,31 @@
         </td>
         <td>{{ h.hospitalRegistrationNumber || h.HospitalRegistrationNumber || '-' }}</td>
         <td>{{ h.hospitalPhoneNumber || h.HospitalPhoneNumber || h.phone || '-' }}</td>
-        <td>{{ h.hospitalAddress || h.HospitalAddress || h.address || '-' }}</td>
+       <td class="address-cell">
+  {{ h.hospitalAddress + ', ' + h.city + ', ' + h.state }}
+</td>
+          <td>{{h.createdAt | date}}</td>
+        <td>
+           <div class="d-flex gap-2">
+      <button
+  class="btn btn-sm btn-outline-primary icon-btn"
+  title="View"
+>
+  <i class="fa-solid fa-eye"></i>
+</button>
+
+  <button
+    class="btn btn-sm btn-outline-warning icon-btn"
+   
+    title="Edit"
+  >
+    <i class="fa-solid fa-pen"></i>
+  </button>
+
+
+</div>
+
+        </td>
       </tr>
     </tbody>
   </table>
