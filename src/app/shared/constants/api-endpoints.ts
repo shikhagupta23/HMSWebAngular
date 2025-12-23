@@ -84,7 +84,16 @@ export const ApiEndpoints = {
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
   },
-
+  INVOICE: {
+    GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,
+    GETDELETEINVOICE: `${API_BASE_URL}/Invoice/deleteInvoice`,
+    PAYMENTREPORT: `${API_BASE_URL}/Invoice/paymentReport`,
+    GET_DOCTOR_APPOINTMENT_BY_STATUS: `${API_BASE_URL}/AppointmentAPI/getDoctorAppointmentByStatus`,
+    GET_APPOINTMENT_FEES_BY_ID: `${API_BASE_URL}/AppointmentAPI/getAppointmentFeesById`,
+    GET_LAB_FEES_BY_ID: `${API_BASE_URL}/LabTest/getLabFeesById`,
+    CREATE_INVOICE: `${API_BASE_URL}/Invoice/createInvoice`,
+    CREATE_PAYMENT: `${API_BASE_URL}/Invoice/createPayment`
+  },
   PROFILE: {
     GETPROFILE: `${API_BASE_URL}/ProfileAPI/getProfile`,
     UPDATEPROFILE: `${API_BASE_URL}/ProfileAPI/updateProfile`,
