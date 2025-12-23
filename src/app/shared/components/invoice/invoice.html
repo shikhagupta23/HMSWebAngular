@@ -2,21 +2,15 @@
 <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
   <h3>Invoice Management</h3>
   <div>
-    <button class="btn" 
-            [class.btn-primary]="activeView === 'invoices'"
-            [class.btn-outline-primary]="activeView !== 'invoices'"
-            (click)="switchView('invoices')">
+    <button class="btn" [class.btn-primary]="activeView === 'invoices'"
+      [class.btn-outline-primary]="activeView !== 'invoices'" (click)="switchView('invoices')">
       <i class="bi bi-receipt me-2"></i> Invoices
     </button>
-    <button class="btn ms-2" 
-            [class.btn-primary]="activeView === 'reports'"
-            [class.btn-outline-primary]="activeView !== 'reports'"
-            (click)="switchView('reports')">
+    <button class="btn ms-2" [class.btn-primary]="activeView === 'reports'"
+      [class.btn-outline-primary]="activeView !== 'reports'" (click)="switchView('reports')">
       <i class="bi bi-file-earmark-bar-graph me-2"></i> Payment Reports
     </button>
-    <button class="btn btn-success ms-2" 
-            (click)="openGenerateInvoice()"
-            *ngIf="activeView === 'invoices'">
+    <button class="btn btn-success ms-2" (click)="openGenerateInvoice()" *ngIf="activeView === 'invoices'">
       <i class="bi bi-plus-circle me-2"></i> Generate Invoice
     </button>
   </div>
@@ -27,19 +21,14 @@
   <div class="card-body">
     <div class="row align-items-center">
       <div class="col-md-5">
-        <input type="text" 
-               class="form-control" 
-               placeholder="Search by Invoice No, Patient, Doctor, or Amount..."
-               [(ngModel)]="searchInvoiceText"
-               (input)="searchInvoices()" />
+        <input type="text" class="form-control" placeholder="Search by Invoice No, Patient, Doctor, or Amount..."
+          [(ngModel)]="searchInvoiceText" (input)="searchInvoices()" />
       </div>
       <div class="col-md-3">
         <div class="d-flex align-items-center">
           <label class="me-2 mb-0">Show:</label>
-          <select class="form-select form-select-sm" 
-                  [(ngModel)]="itemsPerPage" 
-                  (change)="onItemsPerPageChange()"
-                  style="width: auto;">
+          <select class="form-select form-select-sm" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()"
+            style="width: auto;">
             <option [value]="5">5</option>
             <option [value]="10">10</option>
             <option [value]="25">25</option>
@@ -50,8 +39,8 @@
       </div>
       <div class="col-md-4 text-end">
         <span class="text-muted">
-          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
-          {{ Math.min(currentPage * itemsPerPage, filteredInvoices.length) }} 
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
+          {{ Math.min(currentPage * itemsPerPage, filteredInvoices.length) }}
           of {{ filteredInvoices.length }} invoices
         </span>
       </div>
@@ -65,21 +54,15 @@
     <div class="row align-items-end">
       <div class="col-md-3">
         <label class="form-label fw-semibold">From Date</label>
-        <input type="datetime-local" 
-               class="form-control" 
-               [(ngModel)]="fromDate" />
+        <input type="datetime-local" class="form-control" [(ngModel)]="fromDate" />
       </div>
       <div class="col-md-3">
         <label class="form-label fw-semibold">To Date</label>
-        <input type="datetime-local" 
-               class="form-control" 
-               [(ngModel)]="toDate" />
+        <input type="datetime-local" class="form-control" [(ngModel)]="toDate" />
       </div>
       <div class="col-md-2">
         <label class="form-label fw-semibold">Filter By</label>
-        <select class="form-select" 
-                [(ngModel)]="filterBy"
-                (change)="onFilterByChange()">
+        <select class="form-select" [(ngModel)]="filterBy" (change)="onFilterByChange()">
           <option value="date">Date</option>
           <option value="week">Week</option>
           <option value="month">Month</option>
@@ -102,11 +85,8 @@
     </div>
     <div class="row mt-3" *ngIf="paymentReports.length > 0">
       <div class="col-md-6">
-        <input type="text" 
-               class="form-control" 
-               placeholder="Search reports..."
-               [(ngModel)]="searchReportText"
-               (input)="searchReports()" />
+        <input type="text" class="form-control" placeholder="Search reports..." [(ngModel)]="searchReportText"
+          (input)="searchReports()" />
       </div>
       <div class="col-md-6 text-end">
         <span class="text-muted">Total Reports: {{ filteredReports.length }}</span>
@@ -152,16 +132,15 @@
             <td><strong class="text-success">₹{{ invoice.totalPayment | number:'1.2-2' }}</strong></td>
             <td>{{ formatDate(invoice.createdAt) }}</td>
             <td class="text-center">
-              <div class="btn-group" role="group">
-                <button class="btn btn-sm btn-outline-primary" 
-                        (click)="printInvoice(invoice)"
-                        title="Print Invoice">
-                  <i class="bi bi-printer"></i>
+              <div class="d-flex gap-2 justify-content-center">
+                <button class="btn btn-sm btn-outline-primary icon-btn" (click)="printInvoice(invoice)"
+                  title="Print Invoice">
+                  <i class="fa-solid fa-print"></i> 
                 </button>
-                <button class="btn btn-sm btn-outline-danger" 
-                        (click)="deleteInvoice(invoice.id)"
-                        title="Delete Invoice">
-                  <i class="bi bi-trash"></i>
+
+                <button class="btn btn-sm btn-outline-danger icon-btn" (click)="deleteInvoice(invoice.id)"
+                  title="Delete Invoice">
+                  <i class="fa-solid fa-trash"></i> 
                 </button>
               </div>
             </td>
@@ -187,14 +166,13 @@
               <i class="bi bi-chevron-left"></i> Previous
             </a>
           </li>
-          
-          <li class="page-item" *ngFor="let page of pageNumbers" 
-              [class.active]="page === currentPage">
+
+          <li class="page-item" *ngFor="let page of pageNumbers" [class.active]="page === currentPage">
             <a class="page-link" (click)="goToPage(page)" style="cursor: pointer;">
               {{ page }}
             </a>
           </li>
-          
+
           <li class="page-item" [class.disabled]="currentPage === totalPages">
             <a class="page-link" (click)="nextPage()" style="cursor: pointer;">
               Next <i class="bi bi-chevron-right"></i>
@@ -292,18 +270,11 @@
         <!-- Patient Name Dropdown with Search -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Select Patient</label>
-          <input type="text" 
-                 class="form-control mb-2" 
-                 placeholder="Search patient..."
-                 [(ngModel)]="searchTerm"
-                 (input)="filterAppointments()" />
-          <select class="form-select"
-                  [(ngModel)]="selectedAppointmentId"
-                  (change)="onAppointmentChange()"
-                  size="5">
+          <input type="text" class="form-control mb-2" placeholder="Search patient..." [(ngModel)]="searchTerm"
+            (input)="filterAppointments()" />
+          <select class="form-select" [(ngModel)]="selectedAppointmentId" (change)="onAppointmentChange()" size="5">
             <option value="">-- Select Patient --</option>
-            <option *ngFor="let appt of filteredAppointments"
-                    [value]="appt.appointmentId">
+            <option *ngFor="let appt of filteredAppointments" [value]="appt.appointmentId">
               {{ appt.patientName }}
             </option>
           </select>
@@ -312,19 +283,13 @@
         <!-- Doctor Name -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Doctor Name</label>
-          <input type="text"
-                 class="form-control"
-                 [value]="invoice.doctorName"
-                 readonly />
+          <input type="text" class="form-control" [value]="invoice.doctorName" readonly />
         </div>
 
         <!-- Appointment Date -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Appointment Date</label>
-          <input type="text"
-                 class="form-control"
-                 [value]="invoice.appointmentDate"
-                 readonly />
+          <input type="text" class="form-control" [value]="invoice.appointmentDate" readonly />
         </div>
 
         <hr />
@@ -333,24 +298,16 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <label class="form-label fw-semibold">Doctor Fee (Appointment Fee)</label>
-            <input type="number"
-                   class="form-control"
-                   [(ngModel)]="invoice.doctorFee"
-                   min="0"
-                   readonly
-                   placeholder="Auto-filled from appointment" />
+            <input type="number" class="form-control" [(ngModel)]="invoice.doctorFee" min="0" readonly
+              placeholder="Auto-filled from appointment" />
             <small class="text-muted">This field is auto-filled from appointment fee</small>
           </div>
 
           <!-- Lab Test Fee -->
           <div class="col-md-6">
             <label class="form-label fw-semibold">Lab Test Fee</label>
-            <input type="number"
-                   class="form-control"
-                   [(ngModel)]="invoice.labTestFee"
-                   (input)="calculateTotal()"
-                   min="0"
-                   placeholder="Enter lab test fee" />
+            <input type="number" class="form-control" [(ngModel)]="invoice.labTestFee" (input)="calculateTotal()"
+              min="0" placeholder="Enter lab test fee" />
           </div>
         </div>
 
@@ -374,15 +331,11 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-outline-secondary" 
-                data-bs-dismiss="modal"
-                [disabled]="isSubmitting">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">
           Cancel
         </button>
 
-        <button class="btn btn-primary"
-                [disabled]="!selectedAppointmentId || isSubmitting"
-                (click)="generateInvoice()">
+        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting" (click)="generateInvoice()">
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
           {{ isSubmitting ? 'Generating...' : 'Generate Invoice' }}
         </button>
