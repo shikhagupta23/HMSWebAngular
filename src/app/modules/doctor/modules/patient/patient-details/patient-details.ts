@@ -18,6 +18,7 @@ export class PatientDetails implements OnInit {
 
   page: number = 1;
   pageSize: number = 20;
+  searchText: string = '';
 
   private route = inject(ActivatedRoute);
   private location = inject(Location);
@@ -38,7 +39,7 @@ export class PatientDetails implements OnInit {
 
 loadPatientAppointmentLists() {
   this.patientService
-    .getPatientAppointmentLists(this.patientId, this.page, this.pageSize)
+    .getPatientAppointmentLists(this.patientId, this.page, this.pageSize, this.searchText)
     .subscribe({
       next: (res) => {
         this.appointments = res?.dataList || [];
@@ -86,5 +87,10 @@ getStatusClass(status: number): string {
       return 'badge-secondary';
   }
 }
+
+  onSearchChange() {
+    this.pageSize = 1;
+    this.loadPatientAppointmentLists();
+  }
 
 }

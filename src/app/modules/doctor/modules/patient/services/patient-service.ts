@@ -28,13 +28,15 @@ export class PatientService {
     getPatientAppointmentLists(
       patientId: number,
       page: number,
-      pageSize: number
+      pageSize: number,
+      searchTerm: string
     ): Observable<any> {
 
       const params = {
         patientId,
         page,
-        pageSize
+        pageSize,
+        searchTerm
       };
 
       return this.api.get(

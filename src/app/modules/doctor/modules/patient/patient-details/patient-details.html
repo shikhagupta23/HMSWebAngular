@@ -42,9 +42,10 @@
   <div class="tab-content pt-0">
     <!-- Appointment Tab -->
     <div id="pat_appointments" class="tab-pane fade show active">
-      <div class="search-header">
+      <div class="search-header d-flex justify-content-end">
         <div class="search-field">
-          <input type="text" class="form-control" placeholder="Search" />
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchText"
+						(input)="onSearchChange()" />
           <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
         </div>
       </div>
@@ -144,8 +145,8 @@
     <!-- /Appointment Tab -->
 
     <!-- Prescription Tab -->
-    <div class="tab-pane fade" id="prescription">
-      <div class="search-header">
+    <div class="d-none tab-pane fade" id="prescription">
+      <div class="searchHeader">
         <div class="search-field">
           <input type="text" class="form-control" placeholder="Search" />
           <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -390,7 +391,7 @@
     <!-- /Prescription Tab -->
 
     <!-- Medical Records Tab -->
-    <div class="tab-pane fade" id="medical">
+    <div class="d-none tab-pane fade" id="medical">
       <div class="search-header">
         <div class="search-field">
           <input type="text" class="form-control" placeholder="Search" />
@@ -611,7 +612,7 @@
     <!-- /Medical Records Tab -->
 
     <!-- Billing Tab -->
-    <div class="tab-pane" id="billing">
+    <div class="d-none tab-pane" id="billing">
       <div class="search-header">
         <div class="search-field">
           <input type="text" class="form-control" placeholder="Search" />

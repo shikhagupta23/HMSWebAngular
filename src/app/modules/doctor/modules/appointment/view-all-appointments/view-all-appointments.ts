@@ -8,6 +8,34 @@ import { AsidebarService } from '../../../../../shared/components/asidebar/servi
 import { AuthService } from '../../../../auth/services/auth-service';
 declare var bootstrap: any;
 
+interface PrescriptionMedicine {
+  prescriptionMedicineId?: string | null;
+  drugId: string;
+  variationId: string;
+  type: string;
+  name: string;
+  strength: string;
+  dosage: string;
+  duration: string;
+  advice: string;
+}
+
+interface PrescriptionLabTest {
+  prescriptionLabTestId?: string | null;
+  name: string;
+  value: string;
+}
+
+interface Prescription {
+  prescriptionId?: string | null;
+  symptoms: string;
+  diagnosis: string;
+  advice: string;
+  followUp: string;
+  medicines: PrescriptionMedicine[];
+  labTests: PrescriptionLabTest[];
+}
+
 @Component({
   selector: 'app-view-all-appointments',
   standalone: false,
@@ -26,7 +54,8 @@ export class ViewAllAppointments implements OnInit  {
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
   
-  isViewMode: boolean = false;
+  // isViewMode: boolean = false;
+  isEditMode: boolean = false;
   canEdit: boolean = false; 
 
 
@@ -52,7 +81,7 @@ export class ViewAllAppointments implements OnInit  {
     selectedMedicineName = '';
     medicineQty: number = 1;  
     selectedUnit: string = '';
-    selectedStatus: number = 3;
+    selectedStatus: number = 0;
     prescriptionHelperMaster: any[] = [];
     symptomOptions: any[] = [];
     diagnosisOptions: any[] = [];
@@ -72,6 +101,10 @@ export class ViewAllAppointments implements OnInit  {
     appointments: any[] = [];
 allAppointments: any[] = [];   // 🔥 store all data once
 
+    medicineSearchText = '';
+    medicineSearchResults: any[] = [];
+    selectedDrug: any = null;
+    selectedVariation: any = null;
 
     masterIds = {
       Symptoms: '',
@@ -90,18 +123,19 @@ allAppointments: any[] = [];   // 🔥 store all data once
   doctorList : any[] = [];
   patientList: any[] = [];
 
-    prescription = {
-      symptoms: '',
-      diagnosis: '',
-      advice: '',
-      followUp: '',
-      medicines: [] as any[],
-      labTests: [] as { name: string; value: string }[]  
-    };
+  prescription: Prescription = {
+    prescriptionId: null,
+    symptoms: '',
+    diagnosis: '',
+    advice: '',
+    followUp: '',
+    medicines: [],
+    labTests: []
+  };
 
   ngOnInit(): void {
 
-        this.addAppointmentForm = this.fb.group({
+    this.addAppointmentForm = this.fb.group({
       patientId: [''],
       fullName: ['', Validators.required],
       email: [''],
@@ -134,9 +168,58 @@ allAppointments: any[] = [];   // 🔥 store all data once
     this.loadAppointments();
     this.loadMedicineTypes();
     this.loadLabTests();  
-    this.loadMedicineOptions(); 
+    // this.loadMedicineOptions(); 
     this.loadDoctorDetails(); 
   }
+
+searchMedicine() {
+  if (!this.medicineSearchText || this.medicineSearchText.length < 1) {
+    this.medicineSearchResults = [];
+    return;
+  }
+
+  this.appointmentService
+    .searchDrugByName(this.medicineSearchText)
+    .subscribe((res: any) => {
+      this.medicineSearchResults = res?.dataList || [];
+    });
+}
+
+selectMedicineType(drug: any, type: any) {
+  this.selectedDrug = drug;
+  this.selectedVariation = type;
+
+  this.medicineSearchResults = [];
+  this.medicineSearchText = `${drug.drugName} (${type.typeName})`;
+
+  this.getMedicineDetails(drug.drugId, type.variationId);
+}
+
+getMedicineDetails(drugId: string, variationId: string) {
+  this.appointmentService
+    .getMedicineDetails(drugId, variationId)
+    .subscribe((res: any) => {
+      if (!res?.data) return;
+
+      const d = res.data;
+      console.log(d);
+      this.medicineForm = {
+        type: d.drugTypeName || '',
+        strength: d.strengths?.[0] || '',
+        dosage: d.doses?.[0] || '',
+        duration: d.durations?.[0] || '',
+        advice: d.advice || ''
+      };
+    });
+}
+
+medicineForm = {
+  type: '',
+  strength: '',
+  dosage: '',
+  duration: '',
+  advice: ''
+};
   
 @HostListener('document:click')
   clickOutside() {
@@ -213,7 +296,7 @@ loadAppointments() {
         this.totalCancelled = this.allAppointments.filter(x => x.appointmentStatus === 4).length;
 
         // Filter data based on selectedStatus
-        this.filteredData = this.selectedStatus === 3 
+        this.filteredData = this.selectedStatus === 0
           ? [...this.allAppointments] 
           : this.allAppointments.filter(x => x.appointmentStatus === this.selectedStatus);
 
@@ -267,46 +350,6 @@ onSearchChange() {
   this.loadAppointments();
 }
 
-// applyFilter(tab: string) {
-// this.activeTab = tab;
-// this.pageNumber = 1;
-
-// switch (tab) {
-//   case "Scheduled":
-//     this.filteredData = this.masterData.filter(x => x.status === 0);
-//     break;
-
-//   case "Ongoing":
-//     this.filteredData = this.masterData.filter(x => x.status === 1);
-//     break;
-
-//   case "Completed":
-//     this.filteredData = this.masterData.filter(x => x.status === 2);
-//     break;
-
-//   case "Cancelled":
-//     this.filteredData = this.masterData.filter(x => x.status === 4);
-//     break;
-
-//   default:
-//     this.filteredData = this.masterData;
-//     break;
-// }
-
-// if (this.searchText.trim() !== "") {
-//   const s = this.searchText.toLowerCase();
-//   this.filteredData = this.filteredData.filter(x =>
-//     x.patientName.toLowerCase().includes(s) ||
-//     x.doctorName.toLowerCase().includes(s) ||
-//     x.patientPhone.includes(s) ||
-//     x.visitReason.toLowerCase().includes(s)
-//   );
-// }
-
-// this.totalCount = this.filteredData.length;
-// this.totalPages = Math.ceil(this.totalCount / this.pageSize);
-// this.paginate();
-// }
 
   paginate() {
     const start = (this.pageNumber - 1) * this.pageSize;
@@ -336,23 +379,6 @@ onSearchChange() {
   formatDate(date: string): string {
     return (this.datePipe.transform(date, 'dd MMM yyyy hh.mm a') || '').toUpperCase();
   }
-
-  // get scheduledCount() {
-  //   return this.masterData.filter(x => x.status === 0).length;
-  // }
-
-  // get ongoingCount() {
-  //   return this.masterData.filter(x => x.status === 1).length;
-  // }
-
-  // get completedCount() {
-  //   return this.masterData.filter(x => x.status === 2).length;
-  // }
-
-  // get cancelledCount() {
-  //   return this.masterData.filter(x => x.status === 4).length;
-  // }
-
 
   getPatientByTerm()
   {
@@ -522,7 +548,26 @@ allMedicineNames: any = {
   Injection: ['Insulin', 'Diclofenac']
 };
 
-  loadMedicineTypes() {
+medicineAutoData: any = {
+  1: { // Drop
+    Panadol: {
+      strength: '300mg',
+      dosage: '1 drop every 5 minutes',
+      duration: 6,
+      advice: 'Sed perferendis ipsam eum at laboriosam sequi provident.'
+    }
+  },
+  2: { // Eye Ointment
+    Augmentin: {
+      strength: '5mg',
+      dosage: '1+1+1',
+      duration: 6,
+      advice: 'Deserunt et quos quia excepturi fugiat dolor.'
+    }
+  }
+};
+
+loadMedicineTypes() {
   this.appointmentService.getMedicineType(this.pageNumber, this.pageSize).subscribe({
     next: (res) => {
       // if (res && res.dataList) {
@@ -540,22 +585,28 @@ allMedicineNames: any = {
   // 🔥 OPEN MAIN MODAL
   // --------------------------
 openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
-  if (this.isReceptionist) {
-    this.isViewMode = true;
-    this.canEdit = false;
-  } else if (this.isDoctor) {
-    // Doctor
-    this.isViewMode = (mode === 'view');
-    this.canEdit = true;
-  }
-  // this.isViewMode = mode === 'view';
   this.selectedAppointment = item;
 
-  this.resetPrescription();
-  this.loadExistingPrescription(item.appointmentId);
-  this.loadPrescriptionMaster(); 
+  if (mode === 'view') {
+    this.isEditMode = true;
 
-  let modal = new bootstrap.Modal(document.getElementById('prescriptionModal'));
+    // Doctor can edit, receptionist cannot
+    this.canEdit = this.isDoctor;
+
+    // ❌ DO NOT reset here
+    this.loadExistingPrescription(item.appointmentId);
+  } else {
+    // Start new prescription
+    this.isEditMode = false;
+    this.canEdit = true;
+    this.resetPrescription();
+  }
+
+  this.loadPrescriptionMaster();
+
+  const modal = new bootstrap.Modal(
+    document.getElementById('prescriptionModal')!
+  );
   modal.show();
 }
 
@@ -578,60 +629,53 @@ loadPrescriptionMaster() {
 
 
 
-loadExistingPrescription(appointmentId: number) {
+loadExistingPrescription(appointmentId: string) {
   this.appointmentService
-    .getPrescriptionByAppointmentId(appointmentId.toString())
+    .getPrescriptionByAppointmentId(appointmentId)
     .subscribe({
       next: (res: any) => {
-
-        if (!res || !res.data) return;
+        if (!res?.data) return;
 
         const p = res.data;
-
         console.log(p);
-        // ---------------------
-        // 🔥 Bind Text Fields
-        // ---------------------
-        this.prescription.symptoms = p.symptoms || "";
-        this.prescription.diagnosis = p.diagnosis || "";
-        this.prescription.advice = p.advise || "";
-        this.prescription.followUp = p.followUp || "";
+        // ✅ Parse JSON string safely
+        const parseArray = (val: string) => {
+          try {
+            return JSON.parse(val || '[]').join(', ');
+          } catch {
+            return val || '';
+          }
+        };
 
-        // ---------------------
-        // 🔥 Bind Checklist UI (optional highlight)
-        // ---------------------
-        this.symptomOptions.forEach(x => x.selected = this.prescription.symptoms.includes(x.label));
-        this.diagnosisOptions.forEach(x => x.selected = this.prescription.diagnosis.includes(x.label));
-        this.adviceOptions.forEach(x => x.selected = this.prescription.advice.includes(x.label));
-        this.followUpOptions.forEach(x => x.selected = this.prescription.followUp.includes(x.label));
+this.prescription = {
+  prescriptionId: p.prescriptionId ?? null,
 
-        // ---------------------
-        // 🔥 Bind Medicines
-        // ---------------------
-        this.prescription.medicines = (p.medicines || []).map((m: any) => {
-          return {
-            type: m.medicineType || "",
-            name: m.name || "",
-            value: m.medicineId || "",
-            unit: m.unit || "",
-            dosage: m.dosage || "",
-            frequency: this.getFrequencyId(m.frequency),   // convert string → ID
-            frequencyName: m.frequency,                    // store original text (optional)
-            timings: (m.timmingNames || []),
-            instruction: m.instructions || "",
-            duration: Number(m.duration || 1)
-          };
-        });
+  symptoms: parseArray(p.symptoms),
+  diagnosis: parseArray(p.diagnosis),
+  advice: parseArray(p.prescriptionAdvice),
+  followUp: parseArray(p.followUp),
 
-        // ---------------------
-        // 🔥 Bind Lab Tests
-        // ---------------------
-        this.prescription.labTests = (p.labtests || []).map((l: any) => ({
-          name: l.testName,
-          value: l.labTestId
-        }));
+  medicines: (p.medicines || []).map((m: any) => ({
+    prescriptionMedicineId: m.prescriptionMedicineId ?? null,
+    drugId: m.medicineID,
+    variationId: m.drugVariationId,
+    type: m.typeName,
+    name: m.tradeName,
+    strength: m.prescriptionStrength,
+    dosage: m.prescriptionDosage,
+    duration: m.prescriptionDuration,
+    advice: m.prescriptionAdvice
+  })),
 
-        console.log("BOUND PRESCRIPTION:", this.prescription);
+  labTests: (p.labTests || []).map((l: any) => ({
+    prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+    name: l.testName,
+    value: l.labTestId
+  }))
+};
+
+
+        console.log('BOUND PRESCRIPTION:', this.prescription);
       },
       error: (err) => console.error(err)
     });
@@ -702,32 +746,64 @@ onMedicineTypeChange() {
 
   this.selectedUnit = selected?.unit || '';
 
+    this.medicineForm = {
+    type:'',
+    strength: '',
+    dosage: '',
+    duration: '',
+    advice: ''
+  };
   this.loadMedicines();
+}
+
+onMedicineNameChange() {
+  const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
+  if (!med) return;
+
+  const auto =
+    this.medicineAutoData[this.selectedMedicineType]?.[med.text];
+
+  if (auto) {
+    this.medicineForm = {
+      type: auto.typeName,
+      strength: auto.strength,
+      dosage: auto.dosage,
+      duration: auto.duration,
+      advice: auto.advice
+    };
+  }
 }
 
 
 
 addMedicine() {
-  const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
-
-  if (!med) {
-    this.toast.error("Select a medicine");
+  if (!this.selectedDrug || !this.selectedVariation) {
+    this.toast.error('Select medicine');
     return;
   }
 
   this.prescription.medicines.push({
-    type: med.type,
-    name: med.text,   // SHOW NAME
-    value: med.value, // SAVE VALUE
-    unit: med.unit,
-    qty: this.medicineQty,
-    frequency: null,
-    timings: [],
-    instruction: ''
+    drugId: this.selectedDrug.drugId,
+    variationId: this.selectedVariation.variationId,
+    type: this.selectedVariation.typeName,
+    name: this.selectedDrug.drugName,
+    strength: this.medicineForm.strength,
+    dosage: this.medicineForm.dosage,
+    duration: this.medicineForm.duration,
+    advice: this.medicineForm.advice
   });
 
-  this.selectedMedicineName = '';
-  this.medicineQty = 1;
+  // Reset
+  this.selectedDrug = null;
+  this.selectedVariation = null;
+  this.medicineSearchText = '';
+  this.medicineForm = {
+    type:'',
+    strength: '',
+    dosage: '',
+    duration: '',
+    advice: ''
+  };
 }
 
 
@@ -758,49 +834,6 @@ addLabTest() {
 removeLabTest(index: number) {
   this.prescription.labTests.splice(index, 1);
 }
-
-selectFrequency(m: any, freqId: number) {
-  const selected = this.frequencyOptions.find(f => f.value === freqId);
-  if (!selected) return;
-
-  m.frequency = freqId;             // store ID
-  m.frequencyName = selected.label; // store label (optional)
-
-  m.timings = [];  
-}
-
-
-// --------------------------
-// 🔥 TOGGLE TIMING WITH LIMIT
-// --------------------------
-toggleTiming(m: any, timing: string) {
-  if (!m.frequency) {
-    this.toast.error("Select frequency first");
-    return;
-  }
-
-  const limit = m.frequency;  // frequencyId is already 1,2,3,4
-
-  if (m.timings.includes(timing)) {
-    m.timings = m.timings.filter((t: string) => t !== timing);
-    return;
-  }
-
-  if (m.timings.length >= limit) {
-    this.toast.error(`Only ${limit} timing(s) allowed for ${limit}`);
-    return;
-  }
-
-  m.timings.push(timing);
-}
-
-// --------------------------
-// 🔥 SELECT INSTRUCTION
-// --------------------------
-selectInstruction(m: any, instr: string) {
-  m.instruction = instr;  // only one instruction
-}
-
 
 loadMedicines() {
   if (!this.selectedMedicineType) {
@@ -858,66 +891,31 @@ savePrescription() {
     this.toast.error("Add at least symptoms or medicines before saving");
     return;
   }
+  const payload = {
+    appointmentId: this.selectedAppointment?.appointmentId,
+    prescriptionId: this.prescription.prescriptionId ?? null,
+    symptoms: this.prescription.symptoms || '',
+    diagnosis: this.prescription.diagnosis || '',
+    advise: this.prescription.advice || '',
+    followUp: this.prescription.followUp || '',
+    nextFollowUpCount: 0,
 
-  // Validate medicines
-  for (let med of this.prescription.medicines) {
-    if (!med.frequency) {
-      this.toast.error(`Select frequency for ${med.name}`);
-      return;
-    }
-    if (med.timings.length === 0) {
-      this.toast.error(`Select at least one timing for ${med.name}`);
-      return;
-    }
-    if (!med.instruction) {
-      this.toast.error(`Select an instruction for ${med.name}`);
-      return;
-    }
-  }
+    medicines: this.prescription.medicines.map(m => ({
+      prescriptionMedicineId: m.prescriptionMedicineId ?? null,
+      drugId: m.drugId || this.selectedDrug?.drugId,
+      drugVariationid: m.variationId || this.selectedVariation?.variationId,
+      prescriptionDosage: m.dosage,
+      prescriptionAdvice: m.advice,
+      prescriptionStrength: m.strength,
+      prescriptionDuration: m.duration,
+    })),
 
-  // Validate lab tests (optional)
-  // if needed: ensure LabTestId is valid
-
-const payload: any = {
-  AppointmentId: this.selectedAppointment?.appointmentId || '',
-  AppointmentViewId: String(this.selectedAppointment?.appointmentViewId || ''),
-  PatientName: this.selectedAppointment?.patientName || '',
-  Age: String(this.selectedAppointment?.age || 0),
-  Gender: this.selectedAppointment?.gender || 'Unknown',
-  PatientPhone: this.selectedAppointment?.patientPhone || '',
-  AppointmentDate: this.selectedAppointment?.appointmentDate || new Date().toISOString(),
-  BookedDate: this.selectedAppointment?.createdAt || new Date().toISOString(),
-
-  Prescription:
-    this.prescription.symptoms ||
-    this.prescription.diagnosis ||
-    this.prescription.advice ||
-    'N/A',
-
-  Symptoms: this.prescription.symptoms || '',
-  Diagnosis: this.prescription.diagnosis || '',
-  Advise: this.prescription.advice || '',
-  FollowUp: this.prescription.followUp || '',
-  NextFollowUpCount: 0,
-
-  Medicines: this.prescription.medicines.map(m => ({
-    MedicineId: m.value,
-    Name: m.name,
-    Dosage: `${m.dosage}`,
-    Frequency: m.frequencyName,
-    Duration: String(m.duration || 1),       // ✅ must be string
-    Instructions: m.instruction,
-Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
-  // ✅ convert to int[]
-    TimmingNames: m.timings                // optional, backend allows
-  })),
-
-  Labtests: this.prescription.labTests.map(l => ({
-    LabTestId: l.value,
-    TestName: l.name,
-    Category: 'General'
-  }))
-};
+    
+    labtests: this.prescription.labTests.map(l => ({
+      prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+      labTestId: l.value
+    }))
+  };
 
   console.log("DTO PAYLOAD:", payload);
 
@@ -931,14 +929,13 @@ Timming: m.timings.map((t: string) => this.convertTimingToNumber(t)),
       if (modalInstance) {
         modalInstance.hide();
       }
-
-      // Optionally reset the form
       this.resetPrescription();
       const appointmentId = this.selectedAppointment?.appointmentId;
       if (appointmentId) {
         this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
           next: () => {
             console.log(`Appointment ${appointmentId} marked as Completed`);
+            this.loadAppointments();
           },
           error: (err) => {
             console.error("Error updating appointment status", err);
