@@ -25,4 +25,20 @@ export class UsersService {
     return this.api.post(ApiEndpoints.User.ADD, body);
   }
 
+  updateUser(body: any): Observable<any> {
+    return this.api.put(ApiEndpoints.User.UPDATE, body);
+  }
+    updateStatus(id: string, isExtend: boolean): Observable<any> {
+  return this.api.post(
+    ApiEndpoints.HOSPITAL.UPDATE_STATUS,
+    null, 
+    {
+      params: {
+        id,
+        isExtend
+      }
+    }
+  );
+}
+
 }

@@ -1,0 +1,165 @@
+<div class="appointment-patient hospital-details">
+
+  <!-- ================= HEADER ================= -->
+  <div class="dashboard-header mb-0">
+    <h3>
+      <a (click)="goBack()" class="cursor-pointer">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+    </h3>
+  </div>
+
+  <div class="patient-wrap">
+    <div class="patient-info">
+
+      <!-- Hospital Image / Avatar -->
+      <div class="me-3">
+        <img
+         [src]="getHospitalLogo(hospitalDetails) || 'assets/img/hospitalicon.png'"
+          alt="Hospital Logo"
+          class=""
+        />
+      </div>
+
+      <!-- Hospital Details -->
+      <div class="user-patient">
+        <h5 class="m-0">{{ hospitalDetails?.hospitalName }}</h5>
+        <h6 class="text-muted m-0"><strong>Reg No:</strong> {{ hospitalDetails?.hospitalRegistrationNumber }}</h6>
+
+        <ul class="m-0">
+          <li><strong>Contact:</strong> {{ hospitalDetails?.hospitalPhoneNumber }}</li>
+          <li><strong>Email:</strong> {{ hospitalDetails?.hospitalEmail}}</li>
+          <li><strong>Pin Code:</strong> {{ hospitalDetails?.pinCode}}</li>
+          <li><strong>State:</strong> {{ hospitalDetails?.state }}</li>
+          <li><strong>City:</strong> {{ hospitalDetails?.city }}</li>
+        </ul>
+
+        <p class="mt-2 mb-0 text-muted">
+          <strong>Address:</strong> {{ hospitalDetails?.hospitalAddress}}
+        </p>
+      </div>
+     
+    </div>
+  </div>
+
+  <!-- ================= TABS ================= -->
+  <div class="card mt-4">
+    <div class="card-body">
+
+      <ul class="nav nav-tabs nav-tabs-bottom">
+        <li class="nav-item">
+          <a class="nav-link active" data-bs-toggle="tab" href="#usersTab">
+            <i class="fa-solid fa-users me-1"></i> Users
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#otherTab">
+            <i class="fa-solid fa-circle-info me-1"></i> Other Info
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content pt-4">
+
+        <!-- ================= USERS TAB ================= -->
+        <div class="tab-pane fade show active" id="usersTab">
+
+          <div class="search-header">
+            <div class="search-field">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search user..."
+              />
+              <span class="search-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+            </div>
+             <div>
+        <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addHospitalModal"
+      >+ Add New</a
+    >
+      </div>
+          </div>
+
+          <div class="custom-table">
+            <div class="table-responsive">
+              <table class="table table-center mb-0">
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Gender</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Created At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Dr. Amit Sharma</td>
+                    <td>Male</td>
+                    <td>Doctor</td>
+                    <td>+91 9876543210</td>
+                    <td>amit@gmail.com</td>
+                    <td>Sarkanda, Bilaspur</td>
+                    <td>12 Mar 2024</td>
+                    <td>
+                      <span class="status-active">
+                        Active
+                      </span>
+                    </td>
+                    <td>
+                          <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Neha Verma</td>
+                    <td>Female</td>
+                    <td>Receptionist</td>
+                    <td>+91 9123456789</td>
+                    <td>neha@gmail.com</td>
+                    <td>Mangla Chowk</td>
+                    <td>05 Apr 2024</td>
+                    <td>
+                      <span class="status-inactive">
+                        Inactive
+                      </span>
+                    </td>
+                    <td>
+                       <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+                    </td>
+                  </tr>
+
+                  <!-- Empty State -->
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                      No users found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= OTHER TAB ================= -->
+        <div class="tab-pane fade" id="otherTab">
+          <p class="text-muted">Future hospital related details here…</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

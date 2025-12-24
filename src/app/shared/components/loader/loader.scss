@@ -1,55 +1,136 @@
+/* ============================= */
+/* Fullscreen Loader Overlay */
+/* ============================= */
 .loader-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+
+  /* Semi-transparent background */
   background: rgba(255, 255, 255, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
+
+
+  /* 🔥 Blur effect */
   backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
 }
 
-.logo-container {
+
+/* ============================= */
+/* Plus Loader */
+/* ============================= */
+.plus-loader {
   position: relative;
-  width: 153px;
-  height: 110px;
+  width: 100px;
+  height: 100px;
+  animation: rotatePause 2.8s infinite;
+}
+
+/* Plus bars */
+.plus-loader::before,
+.plus-loader::after {
+  content: "";
+  position: absolute;
+  border-radius: 4px;
+  animation: colorPause 2.8s infinite;
+}
+
+/* Vertical bar */
+.plus-loader::before {
+  width: 18px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Horizontal bar */
+.plus-loader::after {
+  width: 100%;
+  height: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ============================= */
+/* Rotation: 90° → HOLD → repeat */
+/* ============================= */
+@keyframes rotatePause {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(0deg); }     /* HOLD */
+
+  25%  { transform: rotate(90deg); }
+  40%  { transform: rotate(90deg); }    /* HOLD */
+
+  50%  { transform: rotate(180deg); }
+  65%  { transform: rotate(180deg); }   /* HOLD */
+
+  75%  { transform: rotate(270deg); }
+  90%  { transform: rotate(270deg); }   /* HOLD */
+
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================= */
+/* Color change synced with step */
+/* ============================= */
+@keyframes colorPause {
+  0% {
+    background: #0E82FD ;   /* deep warm grey */
+  }
+
+  // 25% {
+  //   background: #f14a3d;   /* confident medical green */
+  // }
+
+  // 50% {
+  //   background: #344758;   /* strong calm blue */
+  // }
+
+  // 75% {
+  //   background: #c8c7b9;   /* rich warm amber */
+  // }
+
+  100% {
+    background: #0E82FD ;   /* back to grey */
+  }
+}
+
+.loader-content {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
 }
 
-.loader-logo {
-  width: 153px;
-  height: 70px;
-  z-index: 2;
-  animation: fadeIn 0.5s ease-in-out;
+/* Text */
+.loader-text {
+  margin-top: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #0E82FD ;
+  white-space: nowrap;
 }
 
-.pulse-ring {
-  position: absolute;
-  width: 110px;
-  height: 110px;
-  border: 4px solid #4e73df;
-  border-radius: 50%;
-  animation: pulse 1.3s infinite ease-out;
-  z-index: 1;
+/* Reserve space for dots */
+.dots {
+  display: inline-block;
+  width: 1.5em;      /* FIX: prevents shifting */
+  text-align: left;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(0.7);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
+/* Animate dots */
+.dots::after {
+  content: "";
+  animation: loadingDots 1.6s infinite;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.7); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes loadingDots {
+  0%   { content: ""; }
+  25%  { content: "."; }
+  50%  { content: ".."; }
+  75%  { content: "..."; }
+  100% { content: ""; }
 }

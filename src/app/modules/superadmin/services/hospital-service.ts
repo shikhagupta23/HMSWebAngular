@@ -20,4 +20,24 @@ addHospital(body: FormData, params: any): Observable<any> {
     { params } // ✅ query params added
   );
 }
+updateHospital(body: FormData, params: any): Observable<any> {
+  return this.api.put(
+    ApiEndpoints.HOSPITAL.UPDATE,
+    body,
+    { params } // ✅ query params added
+  );
+}
+
+  updateStatus(id: string, isExtend: boolean): Observable<any> {
+  return this.api.post(
+    ApiEndpoints.User.UPDATE_STATUS,
+    null, 
+    {
+      params: {
+        id,
+        isExtend
+      }
+    }
+  );
+}
 }

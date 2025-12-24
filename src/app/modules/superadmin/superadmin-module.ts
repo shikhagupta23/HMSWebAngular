@@ -14,8 +14,10 @@ import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
 import { LabtestComponent } from './components/labtest/labtest';
 import { PrintSettingComponent } from './components/print-setting/print-setting';
-
-
+import { NgxMaterialIntlTelInputComponent } from 'ngx-material-intl-tel-input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { HospitalDetails } from './components/hospital-details/hospital-details';
 @NgModule({
   declarations: [
     Dashboard,
@@ -27,15 +29,19 @@ import { PrintSettingComponent } from './components/print-setting/print-setting'
     ProfileSetting,
     UpcomingFollowup,
     LabtestComponent,
-    PrintSettingComponent
+    PrintSettingComponent,
+    HospitalDetails
   ],
   imports: [
     CommonModule,
     SuperadminRoutingModule,
     SharedModule,
     FormsModule,
-    ReactiveFormsModule
-
+    ReactiveFormsModule,
+    NgxMaterialIntlTelInputComponent,
+    MatSelectModule,
+    MatIconModule,
+    
   ]
 })
 export class SuperadminModule { }
