@@ -10,6 +10,7 @@ import { ProfileSetting } from './components/profile-setting/profile-setting';
 import { UpcomingFollowup } from './components/upcoming-followup/upcoming-followup';
 import { LabtestComponent } from '../superadmin/components/labtest/labtest';
 import { PrintSettingComponent } from './components/print-setting/print-setting';
+import { HospitalDetails } from './components/hospital-details/hospital-details';
 
 const routes: Routes = [
   { path: '', component: Dashboard },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'upcoming-followup', component: UpcomingFollowup },
   { path: 'labtest', component: LabtestComponent },
   { path: 'print-setting', component: PrintSettingComponent },
+  {path: 'hospital-details/:hospitalName', component: HospitalDetails}
 ];
 
 @NgModule({

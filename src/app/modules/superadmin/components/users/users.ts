@@ -17,6 +17,8 @@ export class Users implements OnInit, AfterViewInit {
   @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
 
   dataList: any[] = [];
+  isEditMode = false;
+editingUserId: string | null = null;
 
   pageNumber = 1;
   pageSize = 10;
@@ -57,7 +59,7 @@ export class Users implements OnInit, AfterViewInit {
     this.loadRoles();
     this.loadHospitals();
   }
-   ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
     const modalEl = document.getElementById('addUserModal');
 
     if (modalEl) {
@@ -66,9 +68,9 @@ export class Users implements OnInit, AfterViewInit {
       });
     }
   }
-    resetAddUserForm() {
+  resetAddUserForm() {
     this.addUserForm.reset({
-      HospitalId: this.loggedInHospitalId || ''
+      HospitalId: this.loggedInHospitalId || '',
     });
 
     this.addUserForm.markAsPristine();
@@ -76,67 +78,45 @@ export class Users implements OnInit, AfterViewInit {
   }
 
   initForm() {
-  this.addUserForm = this.fb.group({
-    FullName: [
-      '',
-      [Validators.required, Validators.minLength(3)]
-    ],
+    this.addUserForm = this.fb.group({
+      FullName: ['', [Validators.required, Validators.minLength(3)]],
 
-    Gender: ['', Validators.required],
+      Gender: ['', Validators.required],
 
-    DateOfBirth: [''],
+      DateOfBirth: [''],
 
-    RoleId: ['', Validators.required],
+      RoleId: ['', Validators.required],
 
-    HospitalId: [
-      this.loggedInHospitalId || '',
-      this.showHospitalSelect ? Validators.required : []
-    ],
+      HospitalId: [
+        this.loggedInHospitalId || '',
+        this.showHospitalSelect ? Validators.required : [],
+      ],
 
-    Email: ['', [Validators.required, Validators.email]],
+      Email: ['', [Validators.required, Validators.email]],
 
-    PhoneNumber: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(/^[6-9]\d{9}$/)
-      ]
-    ],
+      PhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
 
-    Password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(6)
-      ]
-    ],
+     Password: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(6)]],
 
-    Address: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(5),
-        Validators.maxLength(250)
-      ]
-    ]
-  });
-}
-
+      Address: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
+    });
+  }
 
   loadUsers() {
     this.api.getUsers(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
-        this.dataList = res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
+        this.dataList =
+          res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
         this.pageNumber = res.pageNumber ?? this.pageNumber;
         this.pageSize = res.pageSize ?? this.pageSize;
-        this.totalCount = res.totalCount ?? res.total ?? (this.dataList?.length ?? 0);
+        this.totalCount = res.totalCount ?? res.total ?? this.dataList?.length ?? 0;
         const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         this.totalPages = res.totalPages ?? computedPages;
       },
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to load users');
-      }
+      },
     });
   }
 
@@ -144,23 +124,24 @@ export class Users implements OnInit, AfterViewInit {
     this.api.getSystemRoles().subscribe({
       next: (res: any) => {
         // API may return { dataList:null, data: { ... } } or array
-        this.roles = res.dataList ;
+        this.roles = res.dataList;
       },
       error: (err) => {
         console.error(err);
         this.toast.error('Failed to load roles');
-      }
+      },
     });
   }
 
   loadHospitals() {
     this.hospitalApi.getHospitals(1, 100, '').subscribe({
       next: (res: any) => {
-        this.hospitals = res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
+        this.hospitals =
+          res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
       },
       error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 
@@ -189,57 +170,80 @@ export class Users implements OnInit, AfterViewInit {
     }
   }
 
-  onSubmit() {
-    if (this.addUserForm.invalid) {
-      this.addUserForm.markAllAsTouched();
-      console.log(this.addUserForm)
-      return;
-    }
+ onSubmit() {
+  if (this.addUserForm.invalid) {
+    this.addUserForm.markAllAsTouched();
+    return;
+  }
 
-    const v = this.addUserForm.value;
+  const v = this.addUserForm.value;
 
-    const payload: any = {
+  if (this.isEditMode && this.editingUserId) {
+    // 🔵 EDIT (PATCH)
+    const payload = {
+      id: this.editingUserId,
       FullName: v.FullName,
       Gender: v.Gender,
       DateOfBirth: v.DateOfBirth,
       Role: v.RoleId,
-      HospitalId: v.HospitalId || this.loggedInHospitalId || null,
+      HospitalId: v.HospitalId,
+      PhoneNumber: v.PhoneNumber,
+      Email: v.Email,
+      Address: v.Address,
+    };
+
+    this.api.updateUser( payload).subscribe({
+      next: (res: any) => {
+        this.toast.success(res.message || 'User updated successfully');
+        this.closeModal();
+        this.resetEditState();
+        this.loadUsers();
+      },
+      error: () => {
+        this.toast.error('Failed to update user');
+      },
+    });
+
+  } else {
+    // 🟢 ADD
+    const payload = {
+      FullName: v.FullName,
+      Gender: v.Gender,
+      DateOfBirth: v.DateOfBirth,
+      Role: v.RoleId,
+      HospitalId: v.HospitalId || this.loggedInHospitalId,
       Email: v.Email,
       PhoneNumber: v.PhoneNumber,
       Password: v.Password,
       Address: v.Address,
-      UserName: v.PhoneNumber
+      UserName: v.PhoneNumber,
     };
 
     this.api.addUser(payload).subscribe({
-      next: (res) => {
-        console.log(res);
-        if(res.isSuccess === false){
-          this.toast.error(res.message ||'Failed to add user');
-          return;
-        }
-        this.toast.success(res.message ||'User added successfully');
-      this.closeModal();
-        this.addUserForm.reset();
+      next: (res: any) => {
+        this.toast.success(res.message || 'User added successfully');
+        this.closeModal();
+        this.resetEditState();
         this.loadUsers();
       },
-      error: (err) => {
-        console.error(err);
-        this.toast.error(err.message ||'Failed to add user');
-      }
+      error: () => {
+        this.toast.error('Failed to add user');
+      },
     });
   }
+}
+
   get showHospitalSelect(): boolean {
     try {
       const role = (this.loggedInUserRole || '').toLowerCase();
-      return role.includes('super') && role.includes('admin') || role === 'superadmin';
+      return (role.includes('super') && role.includes('admin')) || role === 'superadmin';
     } catch (e) {
       return false;
     }
   }
-closeModal(): void {
-  this.closeModalBtn?.nativeElement.click();
-}
+  closeModal(): void {
+    this.closeModalBtn?.nativeElement.click();
+  }
 
   formatDate(date: string) {
     return date ? new Date(date).toDateString() : '';
@@ -254,13 +258,90 @@ closeModal(): void {
   }
 
   onEmailInput() {
-  const control = this.addUserForm.get('Email');
-  if (control && control.value) {
-    const lower = control.value.toLowerCase();
-    if (control.value !== lower) {
-      control.setValue(lower, { emitEvent: false });
+    const control = this.addUserForm.get('Email');
+    if (control && control.value) {
+      const lower = control.value.toLowerCase();
+      if (control.value !== lower) {
+        control.setValue(lower, { emitEvent: false });
+      }
     }
   }
+ onToggleExtend(item: any, checked: boolean) {
+  const userId = item.userId;
+
+  if (!userId) {
+    this.toast.error('Unable to determine user id');
+    return;
+  }
+
+  const previousStatus = item.isActive;
+
+  // optimistic UI update
+  item._updatingExtend = true;
+  item.isActive = checked;
+
+  this.api.updateUserStatus(userId, checked).subscribe({
+    next: (res: any) => {
+      this.toast.success('User status updated');
+      item._updatingExtend = false;
+    },
+    error: (err: any) => {
+      // rollback UI
+      item.isActive = previousStatus;
+      item._updatingExtend = false;
+
+      this.toast.error('Failed to update user status');
+    }
+  });
+}
+
+ editUser(user: any) {
+  this.isEditMode = true;
+  this.editingUserId = user.userId || user.id;
+console.log(user)
+  // remove password validation in edit mode
+  this.addUserForm.get('Password')?.clearValidators();
+  this.addUserForm.get('Password')?.updateValueAndValidity();
+
+  // Call GET user by id API
+  // this.api.getUserById(this.editingUserId).subscribe({
+  //   next: (res: any) => {
+  //     const u = res.data || res;
+
+  //     this.addUserForm.patchValue({
+  //       FullName: u.fullName,
+  //       Gender: u.gender,
+  //       DateOfBirth: u.dateOfBirth?.substring(0, 10),
+  //       RoleId: u.roleId || u.role,
+  //       HospitalId: u.hospitalId,
+  //       PhoneNumber: u.phoneNumber,
+  //       Email: u.email,
+  //       Address: u.address,
+  //     });
+
+  //     // open modal programmatically
+  //     const modal = new bootstrap.Modal(
+  //       document.getElementById('addUserModal')
+  //     );
+  //     modal.show();
+  //   },
+  //   error: () => {
+  //     this.toast.error('Failed to load user details');
+  //   },
+  // });
+}
+resetEditState() {
+  this.isEditMode = false;
+  this.editingUserId = null;
+
+  // restore password validation
+  this.addUserForm.get('Password')?.setValidators([
+    Validators.required,
+    Validators.minLength(6),
+  ]);
+  this.addUserForm.get('Password')?.updateValueAndValidity();
+
+  this.resetAddUserForm();
 }
 
 

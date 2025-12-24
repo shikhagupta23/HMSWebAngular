@@ -91,8 +91,6 @@ ngAfterViewInit(): void {
     canAddAnotherUser: [{ value: false, disabled: true }]
   });
 }
-
-
   loadList() {
     this.api.getFeatureAccess(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
@@ -228,7 +226,7 @@ ngAfterViewInit(): void {
 // }
 
   onToggleExtend(item: any, checked: boolean) {
-  const id = item.featureAccessId;
+  const id = item.id;
 
   console.group('🔁 Toggle Extend');
   console.log('Item:', item);

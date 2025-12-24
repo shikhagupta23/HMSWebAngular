@@ -7,11 +7,15 @@ export const ApiEndpoints = {
     GET: (page: number, pageSize: number, search: string) =>
       `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/HospitalAPI/Post`,
+    UPDATE: `${API_BASE_URL}/HospitalAPI/Put`,
+    UPDATE_STATUS: `${API_BASE_URL}/HospitalAPI/toggle-hospital-status`
   },
   User: {
     GET: (page: number, pageSize: number, search: string) =>
       `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
+    UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggle-user-status`,
+    UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,
   },
   AUTH: {
     LOGIN: `${API_BASE_URL}/Auth/login`,
@@ -53,6 +57,8 @@ export const ApiEndpoints = {
 
     CREATE: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
     CHANGE_PASSWORD: `${API_BASE_URL}/ApplicationUserAPI/ChangePassword`,
+    GET_BY_HOSPITAL_ID: (hospitalId: string) =>
+    `${API_BASE_URL}/ApplicationUserAPI/GetbyHospitalId/${hospitalId}`
   },
   MEDICINE: {
     GET: `${API_BASE_URL}/MedicineAPI/getMedicineAsPerHospitalId`,

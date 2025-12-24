@@ -1,0 +1,37 @@
+.hospital-logo img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.user-patient ul li {
+  font-size: 13px;
+  color: #555;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+p, li, h6{
+    font-size: 13px;
+}
+
+.patientProfile {
+    width: 64px;
+    height: 64px;
+    
+    justify-content: center;
+   
+    margin-right: 10px;
+    border-radius: 100%;
+}
+
+.hospital-logo img{
+     width: 90px; 
+     height: 90px; 
+     object-fit: cover; 
+     border: 2px solid #e5e7eb; 
+}

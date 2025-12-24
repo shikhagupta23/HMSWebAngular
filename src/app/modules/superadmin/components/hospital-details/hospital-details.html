@@ -1,107 +1,166 @@
-<div class="dashboard-header">
-  <h3>Users</h3>
-</div>
+<div class="appointment-patient hospital-details">
 
-<div class="table-controls d-flex justify-content-between align-items-center my-3">
-  <div>
-    <label class="form-label small me-2">Show</label>
-    <select
-      class="form-select d-inline-block w-auto"
-      [(ngModel)]="pageSize"
-      (change)="onPageSizeChange()"
-    >
-      <option *ngFor="let s of [5, 10, 25, 50]" [value]="s">{{ s }}</option>
-    </select>
-    <span class="small ms-2">entries</span>
+  <!-- ================= HEADER ================= -->
+  <div class="dashboard-header mb-0">
+    <h3>
+      <a (click)="goBack()" class="cursor-pointer">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+    </h3>
   </div>
-  <div class="d-flex align-items-center">
-    <div class="input-block dash-search-input">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Search User..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearch()"
-      />
-      <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+
+  <div class="patient-wrap">
+    <div class="patient-info">
+
+      <!-- Hospital Image / Avatar -->
+      <div class="me-3">
+        <img
+         [src]="getHospitalLogo(hospitalDetails) || 'assets/img/hospitalicon.png'"
+          alt="Hospital Logo"
+          class=""
+        />
+      </div>
+
+      <!-- Hospital Details -->
+      <div class="user-patient">
+        <h5 class="m-0">{{ hospitalDetails?.hospitalName }}</h5>
+        <h6 class="text-muted m-0"><strong>Reg No:</strong> {{ hospitalDetails?.hospitalRegistrationNumber }}</h6>
+
+        <ul class="m-0">
+          <li><strong>Contact:</strong> {{ hospitalDetails?.hospitalPhoneNumber }}</li>
+          <li><strong>Email:</strong> {{ hospitalDetails?.hospitalEmail}}</li>
+          <li><strong>Pin Code:</strong> {{ hospitalDetails?.pinCode}}</li>
+          <li><strong>State:</strong> {{ hospitalDetails?.state }}</li>
+          <li><strong>City:</strong> {{ hospitalDetails?.city }}</li>
+        </ul>
+
+        <p class="mt-2 mb-0 text-muted">
+          <strong>Address:</strong> {{ hospitalDetails?.hospitalAddress}}
+        </p>
+      </div>
+     
     </div>
-    <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New</a>
   </div>
-</div>
 
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>User</th>
-        <th>Role</th>
-        <th>Hospital</th>
-        <th>Phone</th>
+  <!-- ================= TABS ================= -->
+  <div class="card mt-4">
+    <div class="card-body">
 
-        <th>Email</th>
-        <th>Address</th>
-         <th>Status</th>
-                    <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let u of dataList">
-        <td>
-          <div class="d-flex align-items-center">
-            <div
-              class="avatar me-3 rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-              style="width: 48px; height: 48px"
-            >
-              <i class="fa fa-user"></i>
+      <ul class="nav nav-tabs nav-tabs-bottom">
+        <li class="nav-item">
+          <a class="nav-link active" data-bs-toggle="tab" href="#usersTab">
+            <i class="fa-solid fa-users me-1"></i> Users
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#otherTab">
+            <i class="fa-solid fa-circle-info me-1"></i> Other Info
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content pt-4">
+
+        <!-- ================= USERS TAB ================= -->
+        <div class="tab-pane fade show active" id="usersTab">
+
+          <div class="search-header">
+            <div class="search-field">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search user..."
+              />
+              <span class="search-icon">
+                <i class="fa-solid fa-magnifying-glass"></i> 
+              </span>
             </div>
-            <div>
-              <div class="fw-semibold">
-                {{ u.fullName || u.FullName || u.userName || u.UserName }}
-              </div>
-              <div class="small text-muted">{{ formatDate(u.dob) }}</div>
-            </div>
+             <div>
+      <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New</a>
+      </div>
           </div>
-        </td>
-        <td>{{ u.userRole }}</td>
-        <td>{{ u.hospitalName || u.HospitalName || u.hospital || '-' }}</td>
-        
-        <td>{{ u.phoneNumber || u.PhoneNumber || u.phone || '-' }}</td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.address }}</td>
-         <td> <div class="form-check form-switch">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [checked]="u.isActive"
-              (change)="onToggleExtend(u, $event.target.checked)"
-              
-            />
-          </div></td>
-        <td>
-          <div class="d-flex gap-2">
-           
-            <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit" (click)="editUser(u)">
+
+          <div class="custom-table">
+            <div class="table-responsive">
+              <table class="table table-center mb-0">
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Gender</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Created At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Dr. Amit Sharma</td>
+                    <td>Male</td>
+                    <td>Doctor</td>
+                    <td>+91 9876543210</td>
+                    <td>amit@gmail.com</td>
+                    <td>Sarkanda, Bilaspur</td>
+                    <td>12 Mar 2024</td>
+                    <td>
+                      <span class="status-active">
+                        Active
+                      </span>
+                    </td>
+                    <td>
+                          <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
               <i class="fa-solid fa-pen"></i>
             </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Neha Verma</td>
+                    <td>Female</td>
+                    <td>Receptionist</td>
+                    <td>+91 9123456789</td>
+                    <td>neha@gmail.com</td>
+                    <td>Mangla Chowk</td>
+                    <td>05 Apr 2024</td>
+                    <td>
+                      <span class="status-inactive">
+                        Inactive
+                      </span>
+                    </td>
+                    <td>
+                       <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+                    </td>
+                  </tr>
+
+                  <!-- Empty State -->
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                      No users found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
 
-<!-- Pagination -->
-<div class="d-flex justify-content-between align-items-center mt-3">
-  <div class="text-muted">Showing page {{ pageNumber }} of {{ totalPages }}</div>
-  <ul class="pagination mb-0">
-    <li class="page-item"><a class="page-link" (click)="previousPage()">&laquo;</a></li>
-    <li class="page-item" *ngFor="let p of pages" [class.active]="pageNumber === p">
-      <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
-    </li>
-    <li class="page-item"><a class="page-link" (click)="nextPage()">&raquo;</a></li>
-  </ul>
-</div>
+        </div>
 
+        <!-- ================= OTHER TAB ================= -->
+        <div class="tab-pane fade" id="otherTab">
+          <p class="text-muted">Future hospital related details here…</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content rounded-4 border-0 shadow">
@@ -176,9 +235,9 @@
               <label class="form-label small fw-semibold">Select Hospital</label>
               <select class="form-control" formControlName="HospitalId">
                 <option value="">-- Select Hospital --</option>
-                <option *ngFor="let h of hospitals" [value]="h.id || h.hospitalId || h.HospitalId">
+                <!-- <option *ngFor="let h of hospitals" [value]="h.id || h.hospitalId || h.HospitalId">
                   {{ h.hospitalName || h.HospitalName || h.name }}
-                </option>
+                </option> -->
               </select>
               <div
                 class="text-danger small"

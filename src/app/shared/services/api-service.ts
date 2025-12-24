@@ -25,8 +25,8 @@ export class ApiService {
   return this.http.post(url, body, options);
 }
 
-  put<T>(url: string, body: any): Observable<T> {
-    return this.http.put<T>(url, body);
+  put<T>(url: string, body: any, options?: any): Observable<any> {
+    return this.http.put(url, body, options);
   }
  
   delete<T>(url: string): Observable<T> {
