@@ -582,6 +582,8 @@ loadLabTestDetails(hospitalId: string): void {
           
           // Reload invoices
           this.loadInvoices();
+
+          this.loadAppointments();
           
           // Close modal
           const modalEl = document.getElementById('generateInvoiceModal');
