@@ -162,6 +162,12 @@ getMedicineDetails(drugId: string, variationId: string): Observable<any> {
   );
 }
 
+getPrescriptionPrintHtml(appointmentId: string): Observable<any> {
+  return this.api.get(
+    ApiEndpoints.PRESCRIPTION.PRINT_HTML(appointmentId)
+  );
+}
+
 
 
 }

@@ -1,11 +1,11 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { Appointment } from '../services/appointment';
+import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AsidebarService } from '../../../../../shared/components/asidebar/services/asidebar-service';
 import { AuthService } from '../../../../auth/services/auth-service';
+import { Appointment } from '../services/appointment';
 declare var bootstrap: any;
 
 interface PrescriptionMedicine {
@@ -60,6 +60,8 @@ export class ViewTodaysAppointments implements OnInit {
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
   
+@ViewChild('printFrame') printFrame!: any;
+
   isEditMode: boolean = false;
   canEdit: boolean = false; 
 
@@ -121,6 +123,10 @@ export class ViewTodaysAppointments implements OnInit {
   totalCount = 0;
   totalPages = 0;
   apiPageSize = 100;
+
+  printHtml: string = '';
+  isPrintPreviewOpen = false;
+
 
   activeTab: string = "All";
   doctorList : any[] = [];
@@ -874,14 +880,16 @@ export class ViewTodaysAppointments implements OnInit {
       next: (res: any) => {
         if (res.isSuccess) {
           this.toast.success("Prescription saved successfully!");
-
+        const appointmentId = this.selectedAppointment?.appointmentId;
         const modalEl: any = document.getElementById('prescriptionModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) {
           modalInstance.hide();
         }
         this.resetPrescription();
-        const appointmentId = this.selectedAppointment?.appointmentId;
+        this.loadAppointments();
+        this.printPrescription(appointmentId);
+
         if (appointmentId) {
           this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
             next: () => {
@@ -953,4 +961,84 @@ export class ViewTodaysAppointments implements OnInit {
     this.addAppointmentForm.markAsPristine();
     this.addAppointmentForm.markAsUntouched();
   }
+
+  printPrescription(appointmentId: string) {
+    this.appointmentService
+      .getPrescriptionPrintHtml(appointmentId)
+      .subscribe({
+        next: (res: any) => {
+          this.printHtml = res.html; // backend already removed \r\n
+          this.printHtmlContent();
+        },
+        error: () => {
+          this.toast.error('Failed to load prescription print');
+        }
+      });
+  }
+
+  openPrintPreview() {
+    const modal = new bootstrap.Modal(
+      document.getElementById('printPreviewModal')!
+    );
+    modal.show();
+
+    setTimeout(() => {
+      const iframe = this.printFrame.nativeElement as HTMLIFrameElement;
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+
+      if (!doc) return;
+
+      doc.open();
+      doc.write(this.printHtml); // FULL HTML from backend
+      doc.close();
+    }, 100);
+  }
+
+printHtmlContent() {
+  const iframe = this.printFrame.nativeElement as HTMLIFrameElement;
+  const doc = iframe.contentWindow?.document;
+
+  if (!doc) return;
+
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Prescription</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 0;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+        </style>
+      </head>
+      <body>
+        ${this.printHtml}
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+  }, 500); // ⏱ more reliable
+}
+
+
+
+
+
 }

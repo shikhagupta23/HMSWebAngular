@@ -583,17 +583,16 @@
 		<!-- ADD -->
 		<div class="modal-footer" *ngIf="isDoctor && !isEditMode">
 		<button class="btn customBtn" (click)="savePrescription()">
-			Save
+			Save & Print
 		</button>
 		</div>
 
 		<!-- UPDATE -->
 		<div class="modal-footer" *ngIf="isDoctor && isEditMode">
 		<button class="btn customBtn" (click)="savePrescription()">
-			Update
+			Update & Print
 		</button>
 		</div>
-
 		</div>
 	</div>
 	</div>
@@ -626,3 +625,13 @@
 		</div>
 	</div>
 	</div>
+
+	<iframe
+	#printFrame
+	style="position: fixed;
+			right: 0;
+			bottom: 0;
+			width: 0;
+			height: 0;
+			border: 0;">
+	</iframe>

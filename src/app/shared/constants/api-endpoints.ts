@@ -102,7 +102,8 @@ export const ApiEndpoints = {
   PRESCRIPTION: {
     GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
     GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/`, // + masterId
-    SAVE: `${API_BASE_URL}/PrescriptionApi/savePrescription`
+    SAVE: `${API_BASE_URL}/PrescriptionApi/savePrescription`,
+    PRINT_HTML: (appointmentId: string) =>`${API_BASE_URL}/PrescriptionApi/print/html/${appointmentId}`
   },
   FEATURE: {
     GET: (page: number, pageSize: number, search?: string) =>
