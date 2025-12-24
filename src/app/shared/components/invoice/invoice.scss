@@ -107,27 +107,12 @@
 }
 
 /* ==================== SEARCH INPUT WITH ICON ==================== */
-
 .search-wrapper {
-  position: relative;
   margin-bottom: 12px;
 }
 
 .search-wrapper input {
-  padding-left: 40px;
-}
-
-.search-wrapper::before {
-  content: "\f002";
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  z-index: 10;
-  pointer-events: none;
+  padding-left: 14px; /* Normal padding, no icon space needed */
 }
 
 /* ==================== DROPDOWN SELECT IMPROVEMENTS ==================== */

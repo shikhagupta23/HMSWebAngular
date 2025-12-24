@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
-
+import { AuthService } from '../../../modules/auth/services/auth-service';
 declare var bootstrap: any;
 
 interface InvoiceData {
@@ -62,6 +62,7 @@ export class Invoice implements OnInit {
   invoices: InvoiceData[] = [];
   filteredInvoices: InvoiceData[] = [];
   searchInvoiceText: string = '';
+  currentUserRole: string = '';
 
   // Payment Report
   paymentReports: PaymentReportData[] = [];
@@ -107,14 +108,20 @@ export class Invoice implements OnInit {
   isSubmitting: boolean = false;
   Math = Math; // Expose Math to template
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient ,private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadInvoices();
     this.loadAppointments();
     this.initializeDateRange();
+    this.loadCurrentUserRole();
   }
 
+  isDoctor(): boolean {
+    const role = this.currentUserRole?.toLowerCase().trim();
+    console.log('Current User Role:', role); // Add this for debugging
+     return role === 'doctor';
+  }
   // Initialize date range (last year to today)
   initializeDateRange(): void {
     const today = new Date();
@@ -129,6 +136,19 @@ export class Invoice implements OnInit {
     return date.toISOString().slice(0, 16);
   }
 
+isRoleLoaded: boolean = false;
+
+private loadCurrentUserRole(): void {
+  try {
+    this.currentUserRole = this.authService.getUserRole() || '';
+    console.log('Loaded role:', this.currentUserRole); // Debug log
+    this.isRoleLoaded = true;
+  } catch (error) {
+    console.error('Failed to load user role', error);
+    this.currentUserRole = '';
+    this.isRoleLoaded = true;
+  }
+}
   // Load all invoices
   loadInvoices(): void {
     this.http
