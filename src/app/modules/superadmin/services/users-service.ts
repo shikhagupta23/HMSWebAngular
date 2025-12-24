@@ -28,17 +28,18 @@ export class UsersService {
   updateUser(body: any): Observable<any> {
     return this.api.put(ApiEndpoints.User.UPDATE, body);
   }
-    updateStatus(id: string, isExtend: boolean): Observable<any> {
+ updateUserStatus(userId: string, isActive: boolean): Observable<any> {
   return this.api.post(
-    ApiEndpoints.HOSPITAL.UPDATE_STATUS,
-    null, 
+    ApiEndpoints.User.UPDATE_STATUS,
+    null,
     {
       params: {
-        id,
-        isExtend
+        userId: userId,
+        isActive: isActive
       }
     }
   );
 }
+
 
 }

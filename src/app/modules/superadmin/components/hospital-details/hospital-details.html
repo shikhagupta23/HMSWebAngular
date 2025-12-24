@@ -73,13 +73,11 @@
                 placeholder="Search user..."
               />
               <span class="search-icon">
-                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-magnifying-glass"></i> 
               </span>
             </div>
              <div>
-        <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addHospitalModal"
-      >+ Add New</a
-    >
+      <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New</a>
       </div>
           </div>
 
@@ -159,6 +157,189 @@
           <p class="text-muted">Future hospital related details here…</p>
         </div>
 
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header">
+      <h5 class="modal-title">
+  {{ isEditMode ? 'Edit User' : 'Add User' }}
+</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeModalBtn></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold"
+                >Full Name <span class="text-danger">*</span></label
+              >
+              <input type="text" class="form-control" formControlName="FullName" />
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('FullName')?.touched && addUserForm.get('FullName')?.errors"
+              >
+                <div *ngIf="addUserForm.get('FullName')?.errors?.['required']">
+                  Full name is required
+                </div>
+                <div *ngIf="addUserForm.get('FullName')?.errors?.['minlength']">
+                  Minimum 3 characters required
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold"
+                >Select Gender <span class="text-danger">*</span></label
+              >
+              <select class="form-control" formControlName="Gender">
+                <option value="">-- Select --</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('Gender')?.touched && addUserForm.get('Gender')?.errors"
+              >
+                Gender is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Date of Birth</label>
+              <input type="date" class="form-control" formControlName="DateOfBirth" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold"
+                >Select Role <span class="text-danger">*</span></label
+              >
+              <select class="form-control" formControlName="RoleId">
+                <option value="">-- Select Role --</option>
+                <option *ngFor="let r of roles" [value]="r.id || r.roleId || r.value">
+                  {{ r.name || r.roleName || r.text || r }}
+                </option>
+              </select>
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('RoleId')?.touched && addUserForm.get('RoleId')?.errors"
+              >
+                Role is required
+              </div>
+            </div>
+
+            <div class="col-md-6" *ngIf="showHospitalSelect">
+              <label class="form-label small fw-semibold">Select Hospital</label>
+              <select class="form-control" formControlName="HospitalId">
+                <option value="">-- Select Hospital --</option>
+                <!-- <option *ngFor="let h of hospitals" [value]="h.id || h.hospitalId || h.HospitalId">
+                  {{ h.hospitalName || h.HospitalName || h.name }}
+                </option> -->
+              </select>
+              <div
+                class="text-danger small"
+                *ngIf="
+                  showHospitalSelect &&
+                  addUserForm.get('HospitalId')?.touched &&
+                  addUserForm.get('HospitalId')?.errors
+                "
+              >
+                Hospital is required
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold"
+                >Phone Number <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                formControlName="PhoneNumber"
+                numbersOnly
+                maxlength="10"
+                inputmode="numeric"
+              />
+              <div
+                class="text-danger small"
+                *ngIf="
+                  addUserForm.get('PhoneNumber')?.touched && addUserForm.get('PhoneNumber')?.errors
+                "
+              >
+                <div *ngIf="addUserForm.get('PhoneNumber')?.errors?.['required']">
+                  Phone number is required
+                </div>
+                <div *ngIf="addUserForm.get('PhoneNumber')?.errors?.['pattern']">
+                  Enter a valid 10-digit mobile number
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email</label>
+              <input type="email" class="form-control" formControlName="Email" (input)="onEmailInput()" />
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('Email')?.touched && addUserForm.get('Email')?.errors"
+              >
+                <div *ngIf="addUserForm.get('Email')?.errors?.['required']">Email is required</div>
+                <div *ngIf="addUserForm.get('Email')?.errors?.['email']">
+                  Enter a valid email address
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold"
+                >Password <span class="text-danger">*</span></label
+              >
+             <input
+  type="password"
+  class="form-control"
+  formControlName="Password"
+  [disabled]="isEditMode"
+/>
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('Password')?.touched && addUserForm.get('Password')?.errors"
+              >
+                <div *ngIf="addUserForm.get('Password')?.errors?.['required']">
+                  Password is required
+                </div>
+                <div *ngIf="addUserForm.get('Password')?.errors?.['minlength']">
+                  Password must be at least 6 characters
+                </div>
+              </div>
+            </div>
+
+            <div [ngClass]="showHospitalSelect ? 'col-12' : 'col-md-6'">
+              <label class="form-label small fw-semibold">Address</label>
+              <input type="text" class="form-control" formControlName="Address" />
+              <div
+                class="text-danger small"
+                *ngIf="addUserForm.get('Address')?.touched && addUserForm.get('Address')?.errors"
+              >
+                <div *ngIf="addUserForm.get('Address')?.errors?.['required']">
+                  Address is required
+                </div>
+                <div *ngIf="addUserForm.get('Address')?.errors?.['minlength']">
+                  Minimum 5 characters required
+                </div>
+                <div *ngIf="addUserForm.get('Address')?.errors?.['maxlength']">
+                  Maximum 250 characters allowed
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+  {{ isEditMode ? 'Update' : 'Save' }}
+</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -266,40 +266,35 @@ editingUserId: string | null = null;
       }
     }
   }
-  onToggleExtend(item: any, checked: boolean) {
-    const id = item.userId;
+ onToggleExtend(item: any, checked: boolean) {
+  const userId = item.userId;
 
-    if (!id) {
-      this.toast.error('Unable to determine record id');
-      console.groupEnd();
-      return;
-    }
-
-    const prevExtend = item.isActive;
-    // UI: optimistic update
-    item._updatingExtend = true;
-    item.isActive = checked;
-    item.isExtended = checked;
-
-    this.api.updateStatus(id, checked).subscribe({
-      next: (res: any) => {
-        this.toast.success('Extend status updated');
-        item._updatingExtend = false;
-        console.groupEnd();
-      },
-
-      error: (err: any) => {
-
-        // revert UI state
-        item.isActive = prevExtend;
-        item.isExtended = prevExtend;
-        item._updatingExtend = false;
-
-        this.toast.error('Failed to update extend status');
-        console.groupEnd();
-      },
-    });
+  if (!userId) {
+    this.toast.error('Unable to determine user id');
+    return;
   }
+
+  const previousStatus = item.isActive;
+
+  // optimistic UI update
+  item._updatingExtend = true;
+  item.isActive = checked;
+
+  this.api.updateUserStatus(userId, checked).subscribe({
+    next: (res: any) => {
+      this.toast.success('User status updated');
+      item._updatingExtend = false;
+    },
+    error: (err: any) => {
+      // rollback UI
+      item.isActive = previousStatus;
+      item._updatingExtend = false;
+
+      this.toast.error('Failed to update user status');
+    }
+  });
+}
+
  editUser(user: any) {
   this.isEditMode = true;
   this.editingUserId = user.userId || user.id;

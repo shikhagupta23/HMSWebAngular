@@ -28,16 +28,17 @@ updateHospital(body: FormData, params: any): Observable<any> {
   );
 }
 
-  updateStatus(id: string, isExtend: boolean): Observable<any> {
+updateStatus(id: string, isActive: boolean): Observable<any> {
   return this.api.post(
-    ApiEndpoints.User.UPDATE_STATUS,
-    null, 
+    ApiEndpoints.HOSPITAL.UPDATE_STATUS,
+    null,
     {
       params: {
-        id,
-        isExtend
+        id: id,
+        isActive: isActive
       }
     }
   );
 }
+
 }

@@ -267,47 +267,44 @@ export class Hospital implements OnInit, AfterViewInit {
       .replace(/--+/g, '-'); // multiple - → single -
   }
   onToggleExtend(item: any, checked: boolean) {
-    const id = item.id;
-    console.log(item, checked, 'lllllllllllllllllll');
-    console.group('🔁 Toggle Extend');
-    console.log('Item:', item);
-    console.log('FeatureAccessId:', id);
-    console.log('Checked value:', checked);
+  const id = item.id;
 
-    if (!id) {
-      console.error('❌ FeatureAccessId is null/undefined');
-      this.toast.error('Unable to determine record id');
-      console.groupEnd();
-      return;
-    }
+  console.group('🔁 Toggle Hospital Status');
+  console.log('Item:', item);
+  console.log('HospitalId:', id);
+  console.log('Checked:', checked);
 
-    const prevExtend = item.isActive;
-    // UI: optimistic update
-    item._updatingExtend = true;
-    item.isActive = checked;
-    item.isExtended = checked;
-
-    this.api.updateStatus(id, checked).subscribe({
-      next: (res: any) => {
-        console.log('✅ API Success Response:', res);
-        this.toast.success('Extend status updated');
-        item._updatingExtend = false;
-        console.groupEnd();
-      },
-
-      error: (err: any) => {
-        console.error('❌ API Error:', err);
-
-        // revert UI state
-        item.isActive = prevExtend;
-        item.isExtended = prevExtend;
-        item._updatingExtend = false;
-
-        this.toast.error('Failed to update extend status');
-        console.groupEnd();
-      },
-    });
+  if (!id) {
+    this.toast.error('Invalid hospital id');
+    console.groupEnd();
+    return;
   }
+
+  const previousStatus = item.isActive;
+
+  // optimistic UI update
+  item._updatingExtend = true;
+  item.isActive = checked;
+
+  this.api.updateStatus(id, checked).subscribe({
+    next: (res: any) => {
+      this.toast.success('Hospital status updated');
+      item._updatingExtend = false;
+      console.groupEnd();
+    },
+    error: (err) => {
+      console.error(err);
+
+      // rollback UI
+      item.isActive = previousStatus;
+      item._updatingExtend = false;
+
+      this.toast.error('Failed to update status');
+      console.groupEnd();
+    }
+  });
+}
+
   editHospital(h: any) {
     this.isEditMode = true;
     this.editingHospitalId = h.id;
