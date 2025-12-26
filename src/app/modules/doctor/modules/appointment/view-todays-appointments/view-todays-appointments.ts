@@ -36,6 +36,7 @@ interface Prescription {
   diagnosis: string;
   advice: string;
   followUp: string;
+  nextFollowUpCount?: number;
   medicines: PrescriptionMedicine[];
   labTests: PrescriptionLabTest[];
 }
@@ -154,6 +155,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     diagnosis: '',
     advice: '',
     followUp: '',
+    nextFollowUpCount: 0,
     medicines: [],
     labTests: []
   };
@@ -511,7 +513,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   }
 
   onSubmit() {
-    const form = this.addAppointmentForm.value;
+    const form = this.addAppointmentForm.getRawValue();
     const appointmentDate = new Date(this.addAppointmentForm.value.appointmentDate);
     const now = new Date();
 
@@ -942,8 +944,7 @@ UpdateApptStatusToScheduled() {
       diagnosis: this.prescription.diagnosis || '',
       advise: this.prescription.advice || '',
       followUp: this.prescription.followUp || '',
-      nextFollowUpCount: 0,
-
+      nextFollowUpCount: this.prescription.nextFollowUpCount ?? 0,
       medicines: this.prescription.medicines.map(m => ({
         prescriptionMedicineId: m.prescriptionMedicineId ?? null,
         drugId: m.drugId || this.selectedDrug?.drugId,
@@ -969,12 +970,7 @@ UpdateApptStatusToScheduled() {
           this.toast.success("Prescription saved successfully!");
         const appointmentId = this.selectedAppointment?.appointmentId;
         const modalEl: any = document.getElementById('prescriptionModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-          if (modalInstance) {
-            modalInstance.hide();
-          }
-
-          if (appointmentId) {
+                  if (appointmentId) {
             this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
               next: () => {
                 console.log(`Appointment ${appointmentId} marked as Completed`);
@@ -987,7 +983,10 @@ UpdateApptStatusToScheduled() {
               }
             });
           }
-
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
           this.resetPrescription();
           this.loadAppointments();
           this.printPrescription(appointmentId);
@@ -1028,6 +1027,7 @@ UpdateApptStatusToScheduled() {
       diagnosis: '',
       advice: '',
       followUp: '',
+      nextFollowUpCount: 0,
       medicines: [],
       labTests: []
     };

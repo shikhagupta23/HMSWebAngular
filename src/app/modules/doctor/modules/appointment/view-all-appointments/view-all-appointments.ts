@@ -464,7 +464,7 @@ checkPhone() {
 
 
 onSubmit() {
-  const form = this.addAppointmentForm.value;
+  const form = this.addAppointmentForm.getRawValue();
   const appointmentDate = new Date(this.addAppointmentForm.value.appointmentDate);
   const now = new Date();
 
