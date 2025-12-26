@@ -117,7 +117,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Lab Tests",
     icon: "fas fa-flask",
     route: "/superadmin/labtest",
-    roles: ["SuperAdmin", "Admin", "Receptionist"]
+    roles: ["Admin", "Receptionist"]
   }, 
   {
     label: "Print Settings",
