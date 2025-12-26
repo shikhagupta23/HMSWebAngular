@@ -123,6 +123,8 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
   selectedDrug: any = null;
   selectedVariation: any = null;
+  currentPrescriptionMode: 'start' | 'view' = 'start';
+  minDateTime: string = '';
 
 
   masterIds = {
@@ -195,7 +197,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.loadDoctorDetails();
     this.onAppointmentSignalR();
 
-    
+    this.setMinDateTime();
   this.signalRService.connect().then(() => {
 
   this.subscriptions.push(
@@ -218,6 +220,12 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
 });
 
+  }
+
+  setMinDateTime() {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // timezone adjustment
+    this.minDateTime = now.toISOString().slice(0,16); // "YYYY-MM-DDTHH:MM"
   }
 
   searchMedicine() {
@@ -503,14 +511,18 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   }
 
   onSubmit() {
+    const form = this.addAppointmentForm.value;
+    const appointmentDate = new Date(this.addAppointmentForm.value.appointmentDate);
+    const now = new Date();
+
+    if (appointmentDate < now) {
+      this.toast.error("Please select a future date and time");
+      return;
+    }
     if (this.addAppointmentForm.invalid) {
       this.addAppointmentForm.markAllAsTouched();
       return;
     }
-    debugger;
-  
-
-    const form = this.addAppointmentForm.value;
 
     const payload = {
       PatientId: this.selectedPatientId || "",
@@ -630,24 +642,64 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
   openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
     this.selectedAppointment = item;
+    this.currentPrescriptionMode = mode;
 
     if (mode === 'view') {
       this.isEditMode = true;
       this.canEdit = this.isDoctor;
       this.loadExistingPrescription(item.appointmentId);
     } else {
+      this.resetPrescription();
+      this.UpdateApptStatusToOnGoing(item.appointmentId);
       this.isEditMode = false;
       this.canEdit = true;
-      this.resetPrescription();
     }
 
     this.loadPrescriptionMaster();
 
-    const modal = new bootstrap.Modal(
-      document.getElementById('prescriptionModal')!
-    );
-    modal.show();
+  const modalEl = document.getElementById('prescriptionModal');
+  const modal = new bootstrap.Modal(modalEl!);
+  modal.show();
+
+  // Add close listener
+  modalEl?.addEventListener('hidden.bs.modal', () => {
+    if (this.currentPrescriptionMode === 'start' && this.selectedAppointment?.status !== 2) {
+      this.UpdateApptStatusToScheduled();
+      this.resetPrescription();
+    } else {
+      this.resetPrescription();
+    }
+  }, { once: true });
   }
+
+  UpdateApptStatusToOnGoing(appointmentId: string){
+    if (appointmentId) {
+      this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 1).subscribe({
+        next: () => {
+          console.log(`Appointment ${appointmentId} marked as OnGoing`);
+          this.loadAppointments();
+        },
+        error: (err) => {
+          console.error("Error updating appointment status", err);
+        }
+      });
+    }
+  }
+
+UpdateApptStatusToScheduled() {
+  const appointmentId = this.selectedAppointment?.appointmentId;
+  if (!appointmentId) return;
+
+  this.appointmentService.updateAppointmentStatus(appointmentId, 0).subscribe({
+    next: () => {
+      console.log(`Appointment ${appointmentId} reverted to Scheduled`);
+      this.loadAppointments();
+      this.resetPrescription();
+    },
+    error: (err) => console.error("Failed to revert appointment status", err)
+  });
+}
+
 
   loadPrescriptionMaster() {
     this.appointmentService.getPrescriptionMaster()
@@ -918,25 +970,27 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         const appointmentId = this.selectedAppointment?.appointmentId;
         const modalEl: any = document.getElementById('prescriptionModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) {
-          modalInstance.hide();
-        }
-        this.resetPrescription();
-        this.loadAppointments();
-        this.printPrescription(appointmentId);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
 
-        if (appointmentId) {
-          this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
-            next: () => {
-              console.log(`Appointment ${appointmentId} marked as Completed`);
-              this.loadAppointments();
-            },
-            error: (err) => {
-              console.error("Error updating appointment status", err);
-              this.toast.error("Prescription saved but failed to update appointment status");
-            }
-          });
-        }
+          if (appointmentId) {
+            this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
+              next: () => {
+                console.log(`Appointment ${appointmentId} marked as Completed`);
+                this.selectedAppointment.status = 2;
+                this.loadAppointments();
+              },
+              error: (err) => {
+                console.error("Error updating appointment status", err);
+                this.toast.error("Prescription saved but failed to update appointment status");
+              }
+            });
+          }
+
+          this.resetPrescription();
+          this.loadAppointments();
+          this.printPrescription(appointmentId);
         } else {
           this.toast.error(res.message || "Failed to save prescription");
         }
@@ -969,6 +1023,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
   resetPrescription() {
     this.prescription = {
+      prescriptionId: null,
       symptoms: '',
       diagnosis: '',
       advice: '',
@@ -981,6 +1036,20 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.diagnosisOptions.forEach(x => x.selected = false);
     this.adviceOptions.forEach(x => x.selected = false);
     this.followUpOptions.forEach(x => x.selected = false);
+
+    this.selectedDrug = null;
+    this.selectedVariation = null;
+    this.selectedLabTest = '';
+    this.medicineSearchText = '';
+    this.medicineSearchResults = [];
+
+    this.medicineForm = {
+      type: '',
+      strength: '',
+      dosage: '',
+      duration: '',
+      advice: ''
+    };
   }
 
   resetAddAppointmentForm() {
@@ -1069,7 +1138,7 @@ printHtmlContent() {
   setTimeout(() => {
     iframe.contentWindow?.focus();
     iframe.contentWindow?.print();
-  }, 500); // ⏱ more reliable
+  }, 500);
 }
 
 private onAppointmentSignalR(): void {

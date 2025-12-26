@@ -99,53 +99,41 @@
                 </thead>
 
                 <tbody>
-                  <tr>
-                    <td>Dr. Amit Sharma</td>
-                    <td>Male</td>
-                    <td>Doctor</td>
-                    <td>+91 9876543210</td>
-                    <td>amit@gmail.com</td>
-                    <td>Sarkanda, Bilaspur</td>
-                    <td>12 Mar 2024</td>
-                    <td>
-                      <span class="status-active">
-                        Active
-                      </span>
-                    </td>
-                    <td>
-                          <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-                    </td>
-                  </tr>
 
-                  <tr>
-                    <td>Neha Verma</td>
-                    <td>Female</td>
-                    <td>Receptionist</td>
-                    <td>+91 9123456789</td>
-                    <td>neha@gmail.com</td>
-                    <td>Mangla Chowk</td>
-                    <td>05 Apr 2024</td>
+                  <!-- Users List -->
+                  <tr *ngFor="let user of users">
+                    <td>{{ user.fullName }}</td>
+                    <td>{{ user.gender }}</td>
+                    <td>{{ user.userRole }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.address }}</td>
+                    <td>{{ user.createdAt | date: 'dd MMM yyyy' }}</td>
                     <td>
-                      <span class="status-inactive">
-                        Inactive
+                      <span
+                        [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
+                        {{ user.isActive ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
                     <td>
-                       <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit">
-              <i class="fa-solid fa-pen"></i>
-            </button>
+                      <button
+                        class="btn btn-sm btn-outline-warning icon-btn"
+                        title="Edit"
+                        (click)="openEditUser(user)">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
                     </td>
                   </tr>
 
                   <!-- Empty State -->
-                  <tr>
-                    <td colspan="8" class="text-center text-muted py-4">
+                  <tr *ngIf="users.length === 0">
+                    <td colspan="9" class="text-center text-muted py-4">
                       No users found
                     </td>
                   </tr>
+
                 </tbody>
+
               </table>
             </div>
           </div>
@@ -166,8 +154,8 @@
     <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
       <h5 class="modal-title">
-  {{ isEditMode ? 'Edit User' : 'Add User' }}
-</h5>
+    {{ isEditMode ? 'Edit User' : 'Add User' }}
+  </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeModalBtn></button>
       </div>
 

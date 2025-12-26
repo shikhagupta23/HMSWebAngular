@@ -41,6 +41,8 @@ export class HospitalDetails implements OnInit {
   loggedInUserRole: string | null = null;
 
   roles: any[] = [];
+  users: any[] = [];
+  totalCount = 0;
 
   ngOnInit(): void {
     const state = history.state;
@@ -101,12 +103,13 @@ export class HospitalDetails implements OnInit {
       .subscribe({
         next: (res: any) => {
           console.log('Users:', res);
-          // assign to table/list variable here
-          // this.users = res.dataList;
+          this.users = res?.dataList || [];
+          this.totalCount = res?.totalCount || 0;
         },
         error: () => this.toast.error('Failed to load users'),
       });
   }
+
 
 
   get showHospitalSelect(): boolean {

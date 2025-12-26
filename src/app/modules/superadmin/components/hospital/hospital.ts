@@ -31,6 +31,8 @@ export class Hospital implements OnInit, AfterViewInit {
   addHospitalForm!: FormGroup;
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  existingImageName: string | null = null;
+
 
   isEditMode = false;
   editingHospitalId: string | null = null;
@@ -70,6 +72,7 @@ export class Hospital implements OnInit, AfterViewInit {
       PinCode: ['', [Validators.required, Validators.pattern(/^[1-9][0-9]{5}$/)]],
 
       HospitalImageFile: [null],
+      IsActive: [true],
     });
   }
 
@@ -137,6 +140,7 @@ export class Hospital implements OnInit, AfterViewInit {
     if (!input.files || input.files.length === 0) return;
 
     this.selectedFile = input.files[0];
+    this.existingImageName = this.selectedFile.name;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -148,8 +152,7 @@ export class Hospital implements OnInit, AfterViewInit {
   removeImage(fileInput: HTMLInputElement) {
     this.selectedFile = null;
     this.imagePreview = null;
-
-    // reset native file input UI
+    this.existingImageName = null;
     fileInput.value = '';
   }
   onSubmit() {
@@ -169,11 +172,13 @@ export class Hospital implements OnInit, AfterViewInit {
       City: v.City,
       State: v.State,
       PinCode: v.PinCode,
+      
     };
 
     const payloadEdit = {
       ...basePayload,
       Id: this.editingHospitalId, // only for PUT
+      IsActive: v.IsActive,
     };
 
     const payloadCreate = {
@@ -231,8 +236,9 @@ export class Hospital implements OnInit, AfterViewInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
   resetAddHospitalForm() {
-    console.log('7777777777');
-    this.addHospitalForm.reset();
+    this.addHospitalForm.reset({
+      IsActive: true
+    });
     this.addHospitalForm.markAsPristine();
     this.addHospitalForm.markAsUntouched();
   }
@@ -309,6 +315,7 @@ export class Hospital implements OnInit, AfterViewInit {
     this.isEditMode = true;
     this.editingHospitalId = h.id;
 
+    console.log(h);
     this.addHospitalForm.patchValue({
       HospitalName: h.hospitalName,
       HospitalRegistrationNumber: h.hospitalRegistrationNumber,
@@ -318,11 +325,16 @@ export class Hospital implements OnInit, AfterViewInit {
       City: h.city,
       State: h.state,
       PinCode: h.pinCode,
+      IsActive: h.isActive
     });
 
     // image preview (existing image)
     if (h.hospitalImage) {
       this.imagePreview = `${environment.hospitalLogoPath}${h.hospitalImage}`;
+      this.existingImageName = h.hospitalImage;
+    } else {
+      this.imagePreview = null;
+      this.existingImageName = null;
     }
 
     // open modal programmatically
