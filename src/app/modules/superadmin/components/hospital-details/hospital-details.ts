@@ -52,12 +52,19 @@ export class HospitalDetails implements OnInit {
       console.warn('No state found, fallback to route params if needed');
     }
 
-    
+    console.log("HospitalId",this.hospitalId);
+    this.hospitalApi.getUsersByHospitalId(this.hospitalId, 1, 20, '')
+          .subscribe({
+        next: (res: any) => {
+          console.log("API Response:", res);
+        },
+        error: () => this.toast.error("Something went wrong"),
+      });
     this.loggedInUserRole = this.auth.getUserRole?.() ?? null;
 
     this.initForm();
     this.loadRoles();
-  }
+  } 
 
   /* ---------------- FORM ---------------- */
 

@@ -13,6 +13,7 @@ type AuthStep = 'login' | 'forgot' | 'otp';
   styleUrl: './login.scss',
 })
 export class Login implements OnInit {
+  currentYear = new Date().getFullYear();
 
   loginForm!: FormGroup;
   forgotForm!: FormGroup;

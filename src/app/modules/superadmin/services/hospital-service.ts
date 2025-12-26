@@ -41,4 +41,17 @@ updateStatus(id: string, isActive: boolean): Observable<any> {
   );
 }
 
+  getUsersByHospitalId(hospitalId: string, page: number, pageSize: number, search: string){
+    const params: any = {
+      hospitalId: hospitalId,
+      page: page,
+      pageSize: pageSize
+    }
+
+    if (search && search.trim() !== '') {
+      params.search = search;
+    }
+    return this.api.get(ApiEndpoints.HOSPITAL.GETUSERSBYHOPITALID, params);
+  }
+
 }
