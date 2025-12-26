@@ -6,6 +6,10 @@ import { DatePipe } from '@angular/common';
 import { AsidebarService } from '../../../../../shared/components/asidebar/services/asidebar-service';
 import { AuthService } from '../../../../auth/services/auth-service';
 import { Appointment } from '../services/appointment';
+import { SignalRService } from '../../../../../shared/services/signal-rservice';
+import { OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+
 declare var bootstrap: any;
 
 interface PrescriptionMedicine {
@@ -49,7 +53,15 @@ interface AppointmentItem {
   providers: [DatePipe]
 })
 
-export class ViewTodaysAppointments implements OnInit {
+
+
+export class ViewTodaysAppointments implements OnInit,OnDestroy  {
+  ngOnDestroy(): void {
+  console.log('🧹 ViewTodaysAppointments destroyed');
+
+  this.subscriptions.forEach(sub => sub.unsubscribe());
+}
+
 
   private appointmentService = inject(Appointment);
   private toast = inject(ToastService);
@@ -59,6 +71,10 @@ export class ViewTodaysAppointments implements OnInit {
   private datePipe = inject(DatePipe);
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
+   private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
+
+
   
 @ViewChild('printFrame') printFrame!: any;
 
@@ -179,6 +195,30 @@ export class ViewTodaysAppointments implements OnInit {
     this.loadMedicineTypes();
     this.loadLabTests();  
     this.loadDoctorDetails();
+    this.onAppointmentSignalR();
+
+    
+    this.signalRService.connect().then(() => {
+
+  this.subscriptions.push(
+    this.signalRService.onAppointmentBooked().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCheckIn().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCompleted().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+});
 
   }
 
@@ -1037,8 +1077,11 @@ printHtmlContent() {
   }, 500); // ⏱ more reliable
 }
 
-
-
+private onAppointmentSignalR(): void {
+  console.log('🔔 SignalR update received');
+  this.loadAppointments();
+  this.loadAppointmentCounts();
+}
 
 
 }
