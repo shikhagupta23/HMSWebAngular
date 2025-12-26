@@ -24,24 +24,18 @@ export class SignalRService {
      JWT → ROLE EXTRACTION
   ================================= */
   private getRoleFromToken(): string | null {
-    const token = localStorage.getItem('token'); // adjust key if needed
-    if (!token) return null;
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-
-      // Common role claim keys
-      return (
-        payload.role ||
-        payload.Role ||
-        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
-        null
-      );
-    } catch (e) {
-      console.error('Invalid JWT token', e);
-      return null;
-    }
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+  } catch (err) {
+    console.error('Invalid JWT token', err);
+    return null;
   }
+}
+
 
   /* ================================
      CONNECT TO SIGNALR
@@ -56,7 +50,7 @@ export class SignalRService {
       console.warn('Role not found, SignalR not connected');
       return;
     }
-
+    
     const hubUrlWithRole = `${this.hubUrl}?role=${encodeURIComponent(role)}`;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -107,6 +101,7 @@ export class SignalRService {
     });
 
     this.hubConnection.on('AppointmentBooked', data => {
+      console.log('AppointmentBooked received' );
       this.appointmentBooked$.next(data);
     });
   }

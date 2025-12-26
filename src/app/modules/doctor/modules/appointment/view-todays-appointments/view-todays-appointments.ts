@@ -57,8 +57,6 @@ interface AppointmentItem {
 
 export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   ngOnDestroy(): void {
-  console.log('🧹 ViewTodaysAppointments destroyed');
-
   this.subscriptions.forEach(sub => sub.unsubscribe());
 }
 
@@ -198,7 +196,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.onAppointmentSignalR();
 
     
-    this.signalRService.connect().then(() => {
+  this.signalRService.connect().then(() => {
 
   this.subscriptions.push(
     this.signalRService.onAppointmentBooked().subscribe(() => {
@@ -677,7 +675,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
           const p = res.data;
           console.log(p);
-          // ✅ Parse JSON string safely
           const parseArray = (val: string) => {
             try {
               return JSON.parse(val || '[]').join(', ');
@@ -706,14 +703,12 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       advice: m.prescriptionAdvice
     })),
 
-    labTests: (p.labTests || []).map((l: any) => ({
-      prescriptionLabTestId: l.prescriptionLabTestId ?? null,
-      name: l.testName,
-      value: l.labTestId
-    }))
-  };
-
-
+          labTests: (p.labTests || []).map((l: any) => ({
+            prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+            name: l.testName,
+            value: l.labTestId
+          }))
+        };
           console.log('BOUND PRESCRIPTION:', this.prescription);
         },
         error: (err) => console.error(err)
@@ -1078,7 +1073,6 @@ printHtmlContent() {
 }
 
 private onAppointmentSignalR(): void {
-  console.log('🔔 SignalR update received');
   this.loadAppointments();
   this.loadAppointmentCounts();
 }

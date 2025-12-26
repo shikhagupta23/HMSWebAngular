@@ -6,6 +6,9 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AsidebarService } from '../../../../../shared/components/asidebar/services/asidebar-service';
 import { AuthService } from '../../../../auth/services/auth-service';
+import { OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SignalRService } from '../../../../../shared/services/signal-rservice';
 declare var bootstrap: any;
 
 interface PrescriptionMedicine {
@@ -43,8 +46,11 @@ interface Prescription {
   styleUrl: './view-all-appointments.scss',
   providers: [DatePipe]
 })
-export class ViewAllAppointments implements OnInit  {
+export class ViewAllAppointments implements OnInit,OnDestroy  {
 
+  ngOnDestroy(): void {
+  this.subscriptions.forEach(sub => sub.unsubscribe());
+}
   private appointmentService = inject(Appointment);
   private toast = inject(ToastService);
   private fb = inject(FormBuilder);
@@ -53,7 +59,8 @@ export class ViewAllAppointments implements OnInit  {
   private datePipe = inject(DatePipe);
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
-  
+   private signalRService = inject(SignalRService);
+   private subscriptions: Subscription[] = [];
   // isViewMode: boolean = false;
   isEditMode: boolean = false;
   canEdit: boolean = false; 
@@ -170,6 +177,27 @@ allAppointments: any[] = [];   // 🔥 store all data once
     this.loadLabTests();  
     // this.loadMedicineOptions(); 
     this.loadDoctorDetails(); 
+     this.signalRService.connect().then(() => {
+
+  this.subscriptions.push(
+    this.signalRService.onAppointmentBooked().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCheckIn().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCompleted().subscribe(() => {
+      this.onAppointmentSignalR();
+    })
+  );
+
+});
   }
 
 searchMedicine() {
@@ -1004,6 +1032,9 @@ resetAddAppointmentForm() {
   this.addAppointmentForm.markAsPristine();
   this.addAppointmentForm.markAsUntouched();
 }
-
+private onAppointmentSignalR(): void {
+  console.log('🔔 SignalR update received');
+  this.loadAppointments();
+}
 
 }
