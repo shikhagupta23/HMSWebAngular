@@ -46,24 +46,23 @@ export class HospitalDetails implements OnInit {
     const state = history.state;
 
     if (state?.hospitalId) {
-      this.hospitalId = state.hospitalId;
+      const hospitalId =
+      typeof state?.hospitalId === 'object'
+        ? state.hospitalId.id
+        : state?.hospitalId;
+
+      this.hospitalId = hospitalId;
       this.hospitalDetails = state.hospitalDetails;
     } else {
       console.warn('No state found, fallback to route params if needed');
     }
 
-    console.log("HospitalId",this.hospitalId);
-    this.hospitalApi.getUsersByHospitalId(this.hospitalId, 1, 20, '')
-          .subscribe({
-        next: (res: any) => {
-          console.log("API Response:", res);
-        },
-        error: () => this.toast.error("Something went wrong"),
-      });
     this.loggedInUserRole = this.auth.getUserRole?.() ?? null;
 
     this.initForm();
     this.loadRoles();
+    this.loadUsersByHospital();
+
   } 
 
   /* ---------------- FORM ---------------- */
@@ -90,6 +89,25 @@ export class HospitalDetails implements OnInit {
       ],
     });
   }
+
+  loadUsersByHospital(): void {
+    if (!this.hospitalId) {
+      this.toast.error('Hospital Id not found');
+      return;
+    }
+
+    this.hospitalApi
+      .getUsersByHospitalId(this.hospitalId, 1, 20, '')
+      .subscribe({
+        next: (res: any) => {
+          console.log('Users:', res);
+          // assign to table/list variable here
+          // this.users = res.dataList;
+        },
+        error: () => this.toast.error('Failed to load users'),
+      });
+  }
+
 
   get showHospitalSelect(): boolean {
     const role = (this.loggedInUserRole || '').toLowerCase();
