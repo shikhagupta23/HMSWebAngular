@@ -155,4 +155,16 @@ export const ApiEndpoints = {
     DELETE: (id: string) =>
       `${API_BASE_URL}/LabTest/Delete?id=${id}`,
   },
+  PACKAGE: {
+    GET: (page: number, pageSize: number) =>
+    `${API_BASE_URL}/Package/GetAll?page=${page}&pageSize=${pageSize}`,
+
+    ADD: `${API_BASE_URL}/Package/createPackage`,
+
+    UPDATE: `${API_BASE_URL}/Package/Put`,
+
+    CHANGE_STATUS: (id: string, isActive: boolean) =>
+  `${API_BASE_URL}/Package/activate-deactivate?id=${id}&isActive=${isActive}`,
+
+  },
 };

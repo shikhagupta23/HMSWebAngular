@@ -11,6 +11,8 @@ import { UpcomingFollowup } from './components/upcoming-followup/upcoming-follow
 import { LabtestComponent } from '../superadmin/components/labtest/labtest';
 import { PrintSettingComponent } from './components/print-setting/print-setting';
 import { HospitalDetails } from './components/hospital-details/hospital-details';
+import { Package } from './components/package/package';
+import { AssignPackage } from './components/assign-package/assign-package';
 
 const routes: Routes = [
   { path: '', component: Dashboard },
@@ -23,6 +25,8 @@ const routes: Routes = [
   { path: 'upcoming-followup', component: UpcomingFollowup },
   { path: 'labtest', component: LabtestComponent },
   { path: 'print-setting', component: PrintSettingComponent },
+  { path: 'package', component: Package},
+  { path: 'assign-package', component: AssignPackage},
   {path: 'hospital-details/:hospitalName', component: HospitalDetails}
 ];
 

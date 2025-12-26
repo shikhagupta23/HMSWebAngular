@@ -23,7 +23,7 @@ export class ApiService {
  
  post<T>(url: string, body: any, options?: any): Observable<any> {
   return this.http.post(url, body, options);
-}
+ }
 
   put<T>(url: string, body: any, options?: any): Observable<any> {
     return this.http.put(url, body, options);
@@ -31,5 +31,9 @@ export class ApiService {
  
   delete<T>(url: string): Observable<T> {
     return this.http.delete<T>(url);
+  }
+
+  patch<T>(url: string, body: any, options?: any): Observable<any> {
+    return this.http.patch(url, body, options);
   }
 }

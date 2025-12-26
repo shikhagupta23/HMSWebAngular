@@ -18,6 +18,8 @@ import { NgxMaterialIntlTelInputComponent } from 'ngx-material-intl-tel-input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { HospitalDetails } from './components/hospital-details/hospital-details';
+import { Package } from './components/package/package';
+import { AssignPackage } from './components/assign-package/assign-package';
 @NgModule({
   declarations: [
     Dashboard,
@@ -30,7 +32,9 @@ import { HospitalDetails } from './components/hospital-details/hospital-details'
     UpcomingFollowup,
     LabtestComponent,
     PrintSettingComponent,
-    HospitalDetails
+    HospitalDetails,
+    Package,
+    AssignPackage
   ],
   imports: [
     CommonModule,
