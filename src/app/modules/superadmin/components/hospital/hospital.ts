@@ -16,12 +16,16 @@ declare const bootstrap: any;
 export class Hospital implements OnInit, AfterViewInit {
   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
   @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
+  @ViewChild('confirmCloseBtn') confirmCloseBtn!: ElementRef<HTMLButtonElement>;
+ @ViewChild('confirmStatusModal') confirmStatusModal!: ElementRef;
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private api = inject(HospitalService);
   private toast = inject(ToastService);
   dataList: any[] = [];
-
+  pendingHospital: any = null;
+pendingStatus: boolean | null = null;
+ 
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
@@ -32,8 +36,8 @@ export class Hospital implements OnInit, AfterViewInit {
   selectedFile: File | null = null;
   imagePreview: string | null = null;
   existingImageName: string | null = null;
-
-
+previousStatus: boolean | null = null;
+private confirmModalInstance: any;
   isEditMode = false;
   editingHospitalId: string | null = null;
   ngOnInit(): void {
@@ -41,14 +45,32 @@ export class Hospital implements OnInit, AfterViewInit {
     this.loadHospitals();
   }
   ngAfterViewInit() {
-    const modalEl = document.getElementById('addHospitalModal');
-
-    if (modalEl) {
-      modalEl.addEventListener('hidden.bs.modal', () => {
-        this.resetAddHospitalForm();
-      });
-    }
+  // 🔹 Add/Edit Hospital modal
+  const modalEl = document.getElementById('addHospitalModal');
+  if (modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      this.resetAddHospitalForm();
+    });
   }
+
+  // 🔹 Confirm status modal
+  if (this.confirmStatusModal?.nativeElement) {
+    console.log('Setting up confirm status modal listener');
+    const modalElcnf = this.confirmStatusModal.nativeElement;
+
+    modalElcnf.addEventListener('hidden.bs.modal', () => {
+      // ❌ Modal closed WITHOUT confirmation
+      console.log('Confirm status modal closed without confirmation');
+      if (this.pendingHospital) {
+        console.log('Reverting status change for hospital:', this.pendingHospital);
+        this.pendingHospital.isActive = this.previousStatus;
+         this.loadHospitals();
+        this.clearPendingState();
+      }
+    });
+  }
+}
+
 
   initForm() {
     this.addHospitalForm = this.fb.group({
@@ -272,44 +294,57 @@ export class Hospital implements OnInit, AfterViewInit {
       .replace(/[^\w-]+/g, '') // remove special chars
       .replace(/--+/g, '-'); // multiple - → single -
   }
-  onToggleExtend(item: any, checked: boolean) {
+onToggleExtend(item: any, checked: boolean) {
+  // store states
+  this.pendingHospital = item;
+  this.pendingStatus = checked;
+  this.previousStatus = item.isActive;
+
+  // ❗ revert immediately until confirmed
+  item.isActive = this.previousStatus;
+
+  // open modal
+  this.confirmModalInstance = new bootstrap.Modal(
+    this.confirmStatusModal.nativeElement
+  );
+  this.confirmModalInstance.show();
+}
+
+confirmStatusUpdate() {
+  if (!this.pendingHospital) return;
+
+  const item = this.pendingHospital;
+  const checked = this.pendingStatus!;
   const id = item.id;
 
-  console.group('🔁 Toggle Hospital Status');
-  console.log('Item:', item);
-  console.log('HospitalId:', id);
-  console.log('Checked:', checked);
-
-  if (!id) {
-    this.toast.error('Invalid hospital id');
-    console.groupEnd();
-    return;
-  }
-
-  const previousStatus = item.isActive;
-
-  // optimistic UI update
   item._updatingExtend = true;
   item.isActive = checked;
 
   this.api.updateStatus(id, checked).subscribe({
-    next: (res: any) => {
+    next: () => {
       this.toast.success('Hospital status updated');
+
       item._updatingExtend = false;
-      console.groupEnd();
+
+      // ✅ cleanup
+      this.clearPendingState();
+
+      // ✅ close modal
+      this.confirmModalInstance?.hide();
     },
-    error: (err) => {
-      console.error(err);
-
-      // rollback UI
-      item.isActive = previousStatus;
+    error: () => {
+      // rollback on error
+      item.isActive = this.previousStatus;
       item._updatingExtend = false;
-
       this.toast.error('Failed to update status');
-      console.groupEnd();
+
+      this.clearPendingState();
+      this.confirmModalInstance?.hide();
     }
   });
 }
+
+
 
   editHospital(h: any) {
     this.isEditMode = true;
@@ -341,4 +376,10 @@ export class Hospital implements OnInit, AfterViewInit {
     const modal = new bootstrap.Modal(this.addHospitalModal.nativeElement);
     modal.show();
   }
+  clearPendingState() {
+  this.pendingHospital = null;
+  this.pendingStatus = null;
+  this.previousStatus = null;
+}
+
 }

@@ -17,6 +17,8 @@ export const ApiEndpoints = {
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
     UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggle-user-status`,
     UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,
+     GET_BY_ID: (id: string) =>
+    `${API_BASE_URL}/ApplicationUserAPI/Get/${id}`,
   },
   AUTH: {
     LOGIN: `${API_BASE_URL}/Auth/login`,
@@ -87,6 +89,7 @@ export const ApiEndpoints = {
     SavePrescription: `${API_BASE_URL}/DoctorAPI/savePrescription`,
     GetPrescriptionByAppointmentId: `${API_BASE_URL}/PrescriptionApi/prescription`,
     UpdateAppointment: `${API_BASE_URL}/Hub/UpdateAppointmentStatus`,
+    SAVE_DEPARTMENT: `${API_BASE_URL}/DoctorAPI/saveDoctorDepartment`,
   },
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
@@ -140,6 +143,7 @@ export const ApiEndpoints = {
       `?hospitalId=${hospitalId}` +
       `&featureId=${featureId}` +
       `&role=${role}`,
+      GET_DOCTOR_DEPARTMENT_LIST: `${API_BASE_URL}/SelectAPI/getDoctorDepartmentList`,
   },
     DRUG: {
     SEARCH_BY_NAME: `${API_BASE_URL}/DrugManagement/getDrugByName`,

@@ -34,6 +34,7 @@ import { Invoice } from './components/invoice/invoice';
   ],
   exports:[ 
     Asidebar,
+    Header,
     Footer,
     Addappointment,
     FormsModule,
