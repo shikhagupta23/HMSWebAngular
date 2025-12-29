@@ -1,0 +1,294 @@
+<!-- Package Management Component HTML with API Integration -->
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col-sm-12">
+          <h3 class="page-title">Packages</h3>
+        </div>
+      </div>
+    </div>
+    <!-- /Page Header -->
+
+    <!-- Search and Action Bar -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="dataTables_length">
+          <label class="d-flex align-items-center">
+            Show 
+            <select class="form-select form-select-sm mx-2" style="width: auto;" 
+                    [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+            </select>
+            entries
+          </label>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="d-flex justify-content-end gap-2">
+          <div class="search-box position-relative">
+            <input type="text" class="form-control" placeholder="Search Package..." 
+                   [(ngModel)]="searchTerm">
+            <i class="feather feather-search search-icon"></i>
+          </div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal"
+                  (click)="openAddModal()">
+            + Add New
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Packages Table -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-nowrap mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Package Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <!-- Loading State -->
+                  <tr *ngIf="loading">
+                    <td colspan="6" class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Data Rows -->
+                  <tr *ngFor="let package of filteredPackages">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar avatar-sm bg-light-primary rounded-circle me-3">
+                          <i class="feather feather-package text-primary"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ package.packageName }}</h6>
+                          <small class="text-muted">Created: {{ formatDate(package.createdAt) }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ package.description }}</td>
+                    <td><strong>₹{{ package.price | number:'1.0-0' }}</strong></td>
+                    <td>{{ package.durationInDays }} days</td>
+                    <td>
+                      <label class="toggle-switch">
+                        <input type="checkbox" 
+                               [checked]="package.isActive"
+                               (change)="toggleStatus(package, $event)">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </td>
+                  </tr>
+
+                  <!-- Empty State -->
+                  <tr *ngIf="!loading && filteredPackages.length === 0">
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      No packages found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Package Modal -->
+<div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPackageModalLabel">
+          <i class="feather feather-plus-circle me-2"></i>Add New Package
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="packageForm" (ngSubmit)="savePackage()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Package Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="packageName"
+                     [class.is-invalid]="packageForm.get('packageName')?.invalid && packageForm.get('packageName')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('packageName')?.invalid && packageForm.get('packageName')?.touched">
+                Package name is required
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="price"
+                     [class.is-invalid]="packageForm.get('price')?.invalid && packageForm.get('price')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('price')?.invalid && packageForm.get('price')?.touched">
+                Valid price is required
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Duration (Days) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="durationInDays"
+                     [class.is-invalid]="packageForm.get('durationInDays')?.invalid && packageForm.get('durationInDays')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('durationInDays')?.invalid && packageForm.get('durationInDays')?.touched">
+                Duration must be at least 1 day
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label class="form-label">Description <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="description" rows="4"
+                        [class.is-invalid]="packageForm.get('description')?.invalid && packageForm.get('description')?.touched"></textarea>
+              <div class="invalid-feedback" *ngIf="packageForm.get('description')?.invalid && packageForm.get('description')?.touched">
+                Description is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!loading" class="feather feather-save me-1"></i>
+            Save Package
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Package Modal -->
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPackageModalLabel">
+          <i class="feather feather-edit me-2"></i>Edit Package
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="packageForm" (ngSubmit)="savePackage()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Package Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="packageName"
+                     [class.is-invalid]="packageForm.get('packageName')?.invalid && packageForm.get('packageName')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('packageName')?.invalid && packageForm.get('packageName')?.touched">
+                Package name is required
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="price"
+                     [class.is-invalid]="packageForm.get('price')?.invalid && packageForm.get('price')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('price')?.invalid && packageForm.get('price')?.touched">
+                Valid price is required
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Duration (Days) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="durationInDays"
+                     [class.is-invalid]="packageForm.get('durationInDays')?.invalid && packageForm.get('durationInDays')?.touched">
+              <div class="invalid-feedback" *ngIf="packageForm.get('durationInDays')?.invalid && packageForm.get('durationInDays')?.touched">
+                Duration must be at least 1 day
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Status</label>
+              <div class="mt-2">
+                <label class="toggle-switch">
+                  <input type="checkbox" formControlName="isActive">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="ms-2">{{ packageForm.get('isActive')?.value ? 'Active' : 'Inactive' }}</span>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label class="form-label">Description <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="description" rows="4"
+                        [class.is-invalid]="packageForm.get('description')?.invalid && packageForm.get('description')?.touched"></textarea>
+              <div class="invalid-feedback" *ngIf="packageForm.get('description')?.invalid && packageForm.get('description')?.touched">
+                Description is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!loading" class="feather feather-save me-1"></i>
+            Update Package
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div class="modal fade" id="confirmStatusModal" tabindex="-1" aria-labelledby="confirmStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center pt-0">
+        <div class="mb-3">
+          <div class="avatar avatar-lg bg-warning-light rounded-circle mx-auto mb-3">
+            <i class="feather feather-alert-circle text-warning" style="font-size: 2rem;"></i>
+          </div>
+          <h4 class="mb-2">Confirm Status Change</h4>
+          <p class="text-muted mb-0">
+            Are you sure you want to <strong>{{ confirmAction }}</strong> the package 
+            <strong>"{{ confirmPackage?.packageName }}"</strong>?
+          </p>
+          <p class="text-muted small mt-2">
+            <span *ngIf="confirmAction === 'deactivate'">
+              ⚠️ This package will no longer be available for new subscriptions.
+            </span>
+            <span *ngIf="confirmAction === 'activate'">
+              ✓ This package will become available for new subscriptions.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer border-0 justify-content-center pt-0">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" 
+                (click)="cancelStatusChange()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-warning px-4" 
+                (click)="confirmStatusChange()">
+          <i class="feather feather-check me-1"></i>
+          Yes, {{ confirmAction }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

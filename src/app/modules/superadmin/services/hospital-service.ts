@@ -17,14 +17,14 @@ addHospital(body: FormData, params: any): Observable<any> {
   return this.api.post(
     ApiEndpoints.HOSPITAL.ADD,
     body,
-    { params } // ✅ query params added
+    { params } 
   );
 }
 updateHospital(body: FormData, params: any): Observable<any> {
   return this.api.put(
     ApiEndpoints.HOSPITAL.UPDATE,
     body,
-    { params } // ✅ query params added
+    { params } 
   );
 }
 

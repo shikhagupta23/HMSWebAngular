@@ -156,4 +156,57 @@ export const ApiEndpoints = {
     DELETE: (id: string) =>
       `${API_BASE_URL}/LabTest/Delete?id=${id}`,
   },
+   PACKAGE: {
+    GET: (page: number, pageSize: number) =>
+      `${API_BASE_URL}/Package/GetAll?page=${page}&pageSize=${pageSize}`,
+
+    ADD: `${API_BASE_URL}/Package/createPackage`,
+
+    UPDATE: `${API_BASE_URL}/Package/Put`,
+
+    CHANGE_STATUS: (id: string, isActive: boolean) =>
+      `${API_BASE_URL}/Package/activate-deactivate?id=${id}&isActive=${isActive}`,
+
+    GET_HOSPITAL_DROPDOWN: 
+      `${API_BASE_URL}/HospitalPackage/GetAllHospitalDropdown`,
+
+    GET_PACKAGE_DROPDOWN: 
+      `${API_BASE_URL}/HospitalPackage/GetAllPackageDropdown`,
+  },
+
+  HOSPITAL_PACKAGE: {
+    GET: (page: number, pageSize: number) =>
+      `${API_BASE_URL}/HospitalPackage/GetAll?page=${page}&pageSize=${pageSize}`,
+
+    GET_BY_ID: (id: string) =>
+      `${API_BASE_URL}/HospitalPackage/${id}`,
+
+    GET_BY_HOSPITAL: (hospitalId: string) =>
+      `${API_BASE_URL}/HospitalPackage/hospital/${hospitalId}`,
+
+    GET_ACTIVE_BY_HOSPITAL: (hospitalId: string) =>
+      `${API_BASE_URL}/HospitalPackage/active/${hospitalId}`,
+
+    GET_HOSPITAL_DROPDOWN: 
+      `${API_BASE_URL}/HospitalPackage/GetAllHospitalDropdown`,
+
+    GET_PACKAGE_DROPDOWN: 
+      `${API_BASE_URL}/HospitalPackage/GetAllPackageDropdown`,
+
+    ASSIGN: `${API_BASE_URL}/HospitalPackage`,
+
+    UPDATE: (id: string) =>
+      `${API_BASE_URL}/HospitalPackage/${id}`,
+
+    DELETE: (id: string) =>
+      `${API_BASE_URL}/HospitalPackage/${id}`,
+
+    CHANGE_STATUS: (id: string, isActive: boolean) =>
+      `${API_BASE_URL}/HospitalPackage/activate-deactivate?id=${id}&isActive=${isActive}`,
+
+    GET_ALL: (page: number, pageSize: number) =>
+      `${API_BASE_URL}/HospitalPackage/GetAllHospitalPackages?page=${page}&pageSize=${pageSize}`,
+
+  },
+
 };

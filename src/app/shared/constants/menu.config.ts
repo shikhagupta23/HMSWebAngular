@@ -137,5 +137,16 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/superadmin/feature-assignment",
     roles: ["SuperAdmin"]
   },
- 
+  {
+    label: "Package Management",
+    icon: "fa-solid fa-kit-medical",
+    route: "/superadmin/package",
+    roles: ["SuperAdmin"]
+  },
+  {
+    label: "Assign Package",
+    icon: "fa-solid fa-file-medical",
+    route: "/superadmin/assign-package",
+    roles: ["SuperAdmin"]
+  }
 ];
