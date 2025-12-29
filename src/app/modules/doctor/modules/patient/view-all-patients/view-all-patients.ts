@@ -151,10 +151,15 @@ loadPatients() {
 
         this.api.postPatient(payload).subscribe({
           next: (res) => {
+            if (res.isSuccess) {
             this.toast.success("Patient Saved Successfully");
             this.closeModal();
             this.loadPatients();
-          },
+          }
+          else {
+            this.toast.error(res.message || "Failed to saved patient");
+          }
+      },
           error: (err) => {
             console.error(err);
             this.toast.error("Something went wrong");
