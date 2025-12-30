@@ -31,7 +31,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Users",
     icon: "fa-solid fa-users",
     route: "/superadmin/user",
-    roles: ["SuperAdmin", "Admin"]
+    roles: ["Admin"]
   },
   {
     label: "My Patients",
@@ -72,43 +72,43 @@ export const MENU_ITEMS: MenuItem[] = [
  {
   label: "Drug Management",
   icon: "fas fa-pills",
-  roles: ["Receptionist", "Doctor"],
+  roles: ["Receptionist", "Doctor","Admin"],
   children: [
     {
       label: "Drug",
       icon: "fas fa-pills",
       route: "/drugmanagement/drug",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     },
     {
       label: "Drug Dose",
       icon: "fas fa-syringe",
       route: "/drugmanagement/drugdose",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     },
     {
       label: "Drug Advice",
       icon: "fas fa-notes-medical",
       route: "/drugmanagement/drugadvice",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     },
     {
       label: "Drug Strength",
       icon: "fas fa-weight-hanging",
       route: "/drugmanagement/drugstrength",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     },
     {
       label: "Drug Type",
       icon: "fas fa-capsules",
       route: "/drugmanagement/drugtype",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     },
     {
       label: "Drug Duration",
       icon: "fas fa-hourglass-half",
       route: "/drugmanagement/drugduration",
-      roles: ["Receptionist", "Doctor"]
+      roles: ["Receptionist", "Doctor","Admin"]
     }
   ]
 },

@@ -40,6 +40,16 @@ export class UsersService {
     }
   );
 }
+getDoctorDepartments(): Observable<any> {
+  return this.api.get(ApiEndpoints.SELECT.GET_DOCTOR_DEPARTMENT_LIST);
+}
+saveDoctorDepartment(body: any): Observable<any> {
+  return this.api.post(ApiEndpoints.DOCTOR.SAVE_DEPARTMENT, body);
+}
+
+getUserById(userId: string): Observable<any> {
+  return this.api.get(ApiEndpoints.User.GET_BY_ID(userId));
+}
 
 
 }

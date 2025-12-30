@@ -1,5 +1,4 @@
 <div class="appointment-patient hospital-details">
-
   <!-- ================= HEADER ================= -->
   <div class="dashboard-header mb-0">
     <h3>
@@ -11,11 +10,10 @@
 
   <div class="patient-wrap">
     <div class="patient-info">
-
       <!-- Hospital Image / Avatar -->
       <div class="me-3">
         <img
-         [src]="getHospitalLogo(hospitalDetails) || 'assets/img/hospitalicon.png'"
+          [src]="getHospitalLogo(hospitalDetails) || 'assets/img/hospitalicon.png'"
           alt="Hospital Logo"
           class=""
         />
@@ -24,28 +22,28 @@
       <!-- Hospital Details -->
       <div class="user-patient">
         <h5 class="m-0">{{ hospitalDetails?.hospitalName }}</h5>
-        <h6 class="text-muted m-0"><strong>Reg No:</strong> {{ hospitalDetails?.hospitalRegistrationNumber }}</h6>
+        <h6 class="text-muted m-0">
+          <strong>Reg No:</strong> {{ hospitalDetails?.hospitalRegistrationNumber }}
+        </h6>
 
         <ul class="m-0">
           <li><strong>Contact:</strong> {{ hospitalDetails?.hospitalPhoneNumber }}</li>
-          <li><strong>Email:</strong> {{ hospitalDetails?.hospitalEmail}}</li>
-          <li><strong>Pin Code:</strong> {{ hospitalDetails?.pinCode}}</li>
+          <li><strong>Email:</strong> {{ hospitalDetails?.hospitalEmail }}</li>
+          <li><strong>Pin Code:</strong> {{ hospitalDetails?.pinCode }}</li>
           <li><strong>State:</strong> {{ hospitalDetails?.state }}</li>
           <li><strong>City:</strong> {{ hospitalDetails?.city }}</li>
         </ul>
 
         <p class="mt-2 mb-0 text-muted">
-          <strong>Address:</strong> {{ hospitalDetails?.hospitalAddress}}
+          <strong>Address:</strong> {{ hospitalDetails?.hospitalAddress }}
         </p>
       </div>
-     
     </div>
   </div>
 
   <!-- ================= TABS ================= -->
   <div class="card mt-4">
     <div class="card-body">
-
       <ul class="nav nav-tabs nav-tabs-bottom">
         <li class="nav-item">
           <a class="nav-link active" data-bs-toggle="tab" href="#usersTab">
@@ -53,32 +51,34 @@
           </a>
         </li>
 
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" data-bs-toggle="tab" href="#otherTab">
             <i class="fa-solid fa-circle-info me-1"></i> Other Info
           </a>
-        </li>
+        </li> -->
       </ul>
 
       <div class="tab-content pt-4">
-
         <!-- ================= USERS TAB ================= -->
         <div class="tab-pane fade show active" id="usersTab">
-
           <div class="search-header">
             <div class="search-field">
               <input
                 type="text"
                 class="form-control"
                 placeholder="Search user..."
+                [(ngModel)]="searchTerm"
+                (input)="onSearch()"
               />
               <span class="search-icon">
-                <i class="fa-solid fa-magnifying-glass"></i> 
+                <i class="fa-solid fa-magnifying-glass"></i>
               </span>
             </div>
-             <div>
-      <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New</a>
-      </div>
+            <div>
+              <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal"
+                >+ Add New</a
+              >
+            </div>
           </div>
 
           <div class="custom-table">
@@ -99,27 +99,31 @@
                 </thead>
 
                 <tbody>
-
                   <!-- Users List -->
-                  <tr *ngFor="let user of users">
+                  <tr *ngFor="let user of filteredUsers">
                     <td>{{ user.fullName }}</td>
                     <td>{{ user.gender }}</td>
                     <td>{{ user.userRole }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.address }}</td>
-                    <td>{{ user.createdAt | date: 'dd MMM yyyy' }}</td>
+                    <td>{{ user.createdAt | date : 'dd MMM yyyy' }}</td>
                     <td>
-                      <span
-                        [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
-                        {{ user.isActive ? 'Active' : 'Inactive' }}
-                      </span>
+                      <div class="form-check form-switch">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [checked]="user.isActive"
+                          (change)="onToggleExtend(user, $event.target.checked)"
+                        />
+                      </div>
                     </td>
                     <td>
                       <button
                         class="btn btn-sm btn-outline-warning icon-btn"
                         title="Edit"
-                        (click)="openEditUser(user)">
+                        (click)="openEditUser(user)"
+                      >
                         <i class="fa-solid fa-pen"></i>
                       </button>
                     </td>
@@ -127,24 +131,18 @@
 
                   <!-- Empty State -->
                   <tr *ngIf="users.length === 0">
-                    <td colspan="9" class="text-center text-muted py-4">
-                      No users found
-                    </td>
+                    <td colspan="9" class="text-center text-muted py-4">No users found</td>
                   </tr>
-
                 </tbody>
-
               </table>
             </div>
           </div>
-
         </div>
 
         <!-- ================= OTHER TAB ================= -->
         <div class="tab-pane fade" id="otherTab">
           <p class="text-muted">Future hospital related details here…</p>
         </div>
-
       </div>
     </div>
   </div>
@@ -153,10 +151,16 @@
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
-      <h5 class="modal-title">
-    {{ isEditMode ? 'Edit User' : 'Add User' }}
-  </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeModalBtn></button>
+        <h5 class="modal-title">
+          {{ isEditMode ? 'Edit User' : 'Add User' }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #closeModalBtn
+        ></button>
       </div>
 
       <div class="modal-body">
@@ -219,26 +223,6 @@
               </div>
             </div>
 
-            <div class="col-md-6" *ngIf="showHospitalSelect">
-              <label class="form-label small fw-semibold">Select Hospital</label>
-              <select class="form-control" formControlName="HospitalId">
-                <option value="">-- Select Hospital --</option>
-                <!-- <option *ngFor="let h of hospitals" [value]="h.id || h.hospitalId || h.HospitalId">
-                  {{ h.hospitalName || h.HospitalName || h.name }}
-                </option> -->
-              </select>
-              <div
-                class="text-danger small"
-                *ngIf="
-                  showHospitalSelect &&
-                  addUserForm.get('HospitalId')?.touched &&
-                  addUserForm.get('HospitalId')?.errors
-                "
-              >
-                Hospital is required
-              </div>
-            </div>
-
             <div class="col-md-6">
               <label class="form-label small fw-semibold"
                 >Phone Number <span class="text-danger">*</span></label
@@ -268,7 +252,12 @@
 
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Email</label>
-              <input type="email" class="form-control" formControlName="Email" (input)="onEmailInput()" />
+              <input
+                type="email"
+                class="form-control"
+                formControlName="Email"
+                (input)="onEmailInput()"
+              />
               <div
                 class="text-danger small"
                 *ngIf="addUserForm.get('Email')?.touched && addUserForm.get('Email')?.errors"
@@ -284,12 +273,12 @@
               <label class="form-label small fw-semibold"
                 >Password <span class="text-danger">*</span></label
               >
-             <input
-  type="password"
-  class="form-control"
-  formControlName="Password"
-  [disabled]="isEditMode"
-/>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="Password"
+                [disabled]="isEditMode"
+              />
               <div
                 class="text-danger small"
                 *ngIf="addUserForm.get('Password')?.touched && addUserForm.get('Password')?.errors"
@@ -303,7 +292,7 @@
               </div>
             </div>
 
-            <div [ngClass]="showHospitalSelect ? 'col-12' : 'col-md-6'">
+            <div class="col-6">
               <label class="form-label small fw-semibold">Address</label>
               <input type="text" class="form-control" formControlName="Address" />
               <div
@@ -324,10 +313,28 @@
           </div>
           <div class="mt-3 d-flex justify-content-end">
             <button type="submit" class="btn btn-primary">
-  {{ isEditMode ? 'Update' : 'Save' }}
-</button>
+              {{ isEditMode ? 'Update' : 'Save' }}
+            </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Add confirm status  Modal -->
+<div class="modal fade" id="confirmStatusModal" #confirmStatusModal tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">Are you sure you want to change user status?</div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" (click)="confirmUserStatusUpdate()">Yes, Continue</button>
       </div>
     </div>
   </div>

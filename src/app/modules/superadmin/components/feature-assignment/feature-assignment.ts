@@ -70,14 +70,12 @@ ngAfterViewInit(): void {
   loadUsersForAdminRole() {
     this.usersApi.getRoleId('admin').subscribe({
       next: (res: any) => {
-        console.log('Roles:', res); 
         const roles = res.dataList ;
         const adminRole = roles.find((r: any) => (r.name || r.Name || r.roleName || r.RoleName || '').toString().toLowerCase().includes('admin'));
         const roleId = adminRole ? (adminRole.id ?? adminRole.roleId ?? adminRole.RoleId ?? adminRole.Id) : '';
         this.loadUserList(roleId);
       },
       error: (err) => {
-        console.error(err);
         this.loadUserList('');
       }
     });
@@ -94,7 +92,6 @@ ngAfterViewInit(): void {
   loadList() {
     this.api.getFeatureAccess(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
-        console.log('Feature Access List:', res);
         this.dataList = res.dataList ;
         this.pageNumber = res.pageNumber ?? this.pageNumber;
         this.pageSize = res.pageSize ?? this.pageSize;
@@ -112,7 +109,6 @@ ngAfterViewInit(): void {
   loadFeatureList() {
     this.api.getFeatureList().subscribe({
       next: (res: any) => {
-        console.log('Features:', res);
         this.featureList = res?.dataList ;
       },
       error: (err) => {
@@ -124,7 +120,6 @@ ngAfterViewInit(): void {
   loadHospitalList() {
     this.api.getHospitalList().subscribe({
       next: (res: any) => {
-        console.log('Hospitals:', res);
         this.hospitalList = res?.dataList;
       },
       error: (err) => console.error(err)
@@ -197,7 +192,6 @@ ngAfterViewInit(): void {
         this.loadList();
       },
       error: (err) => {
-        console.error(err);
         this.toast.error('Failed to save feature assignment');
       }
     });
@@ -226,17 +220,10 @@ ngAfterViewInit(): void {
 // }
 
   onToggleExtend(item: any, checked: boolean) {
-  const id = item.id;
-
-  console.group('🔁 Toggle Extend');
-  console.log('Item:', item);
-  console.log('FeatureAccessId:', id);
-  console.log('Checked value:', checked);
+  const id = item.featureAccessId;
 
   if (!id) {
-    console.error('❌ FeatureAccessId is null/undefined');
     this.toast.error('Unable to determine record id');
-    console.groupEnd();
     return;
   }
 
@@ -247,22 +234,13 @@ ngAfterViewInit(): void {
   item.isExtend = checked;
   item.isExtended = checked;
 
-  console.log('➡️ Calling API:', {
-    url: 'FeatureAccessAPI/updateStatus',
-    id,
-    isExtend: checked
-  });
-
   this.api.updateStatus(id, checked).subscribe({
     next: (res) => {
-      console.log('✅ API Success Response:', res);
       this.toast.success('Extend status updated');
       item._updatingExtend = false;
-      console.groupEnd();
     },
 
     error: (err) => {
-      console.error('❌ API Error:', err);
 
       // revert UI state
       item.isExtend = prevExtend;
@@ -270,7 +248,6 @@ ngAfterViewInit(): void {
       item._updatingExtend = false;
 
       this.toast.error('Failed to update extend status');
-      console.groupEnd();
     }
   });
 }

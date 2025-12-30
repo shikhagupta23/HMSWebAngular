@@ -3,26 +3,27 @@ import { RoleService } from '../../constants/role-service';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-header-common',
   standalone: false,
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header {
-public roleService = inject(RoleService);
-private authService = inject(AuthService);
+ private auth = inject(AuthService);
+ showProfileMenu = false;
+role: string | null = null;
+user:any
+ngOnInit(): void {
+ this.role= this.auth.getUserRole();
+  this.user=this.auth.getUser();
+  console.log(this.user,"admin layout user",this.role);
+}
 
-  loggedInUserName: string = '';
-  loggedInRole: string | null = null;
-
-  ngOnInit(): void {
-    const user = this.authService.getUser();   
-
-    this.loggedInUserName = user?.userName ?? '';
-    this.loggedInRole = this.authService.getUserRole();
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
   }
 
   logout() {
-    this.authService.logout();
+    this.auth.logout();
   }
 }

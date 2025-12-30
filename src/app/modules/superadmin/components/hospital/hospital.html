@@ -46,7 +46,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let h of dataList">
+      <tr *ngFor="let h of dataList" (click)="viewHospital(h)" style="cursor: pointer;">
         <td>
           <div class="d-flex align-items-center">
             <div
@@ -87,11 +87,7 @@
           </div></td>
         <td>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary icon-btn" (click)="viewHospital(h)" title="View">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-
-            <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit" (click)="editHospital(h)">
+            <button class="btn btn-sm btn-outline-warning icon-btn" title="Edit" (click)="editHospital(h); $event.stopPropagation()">
               <i class="fa-solid fa-pen"></i>
             </button>
           </div>
@@ -385,3 +381,28 @@
     </div>
   </div>
 </div>
+<!-- Add confirm status  Modal -->
+<div class="modal fade" id="confirmStatusModal" #confirmStatusModal tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"  #confirmCloseBtn></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to change hospital status?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="confirmStatusUpdate()">
+          Yes, Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

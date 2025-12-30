@@ -15,59 +15,122 @@ declare const bootstrap: any;
 })
 export class Users implements OnInit, AfterViewInit {
   @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
-
+@ViewChild('confirmStatusModal') confirmStatusModal!: ElementRef;
   dataList: any[] = [];
   isEditMode = false;
 editingUserId: string | null = null;
+doctorRoleId = 'A105795F-2FCC-4AEB-BC55-3FBC513D0640';
 
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
   totalPages = 0;
   searchTerm = '';
-
+  departments: any[] = [];
   addUserForm!: FormGroup;
   roles: any[] = [];
   hospitals: any[] = [];
   loggedInHospitalId: any = null;
   loggedInUserRole: string | null = null;
+pendingUser: any = null;
+pendingStatus: boolean | null = null;
+previousStatus: boolean | null = null;
+newDepartmentName = '';
+showDepartmentModal = false;
+private addDeptModal: any;
 
+private confirmModalInstance: any;
   private fb = inject(FormBuilder);
   private api = inject(UsersService);
   private hospitalApi = inject(HospitalService);
   private toast = inject(ToastService);
   private auth = inject(AuthService);
 
-  ngOnInit(): void {
-    // read logged in user's hospitalId from localStorage
-    try {
-      const authRaw = localStorage.getItem('auth_user');
-      const authObj = authRaw ? JSON.parse(authRaw) : null;
-      this.loggedInHospitalId = authObj?.hospitalId ?? authObj?.HospitalId ?? null;
-    } catch (e) {
-      this.loggedInHospitalId = null;
-    }
-    // determine logged-in user's role from token
-    try {
-      this.loggedInUserRole = this.auth.getUserRole();
-    } catch (e) {
-      this.loggedInUserRole = null;
-    }
-
-    this.initForm();
-    this.loadUsers();
-    this.loadRoles();
-    this.loadHospitals();
+ ngOnInit(): void {
+  // existing code
+  try {
+    const authRaw = localStorage.getItem('auth_user');
+    const authObj = authRaw ? JSON.parse(authRaw) : null;
+    this.loggedInHospitalId = authObj?.hospitalId ?? authObj?.HospitalId ?? null;
+  } catch (e) {
+    this.loggedInHospitalId = null;
   }
-  ngAfterViewInit(): void {
-    const modalEl = document.getElementById('addUserModal');
 
-    if (modalEl) {
-      modalEl.addEventListener('hidden.bs.modal', () => {
-        this.resetAddUserForm();
+  try {
+    this.loggedInUserRole = this.auth.getUserRole();
+  } catch (e) {
+    this.loggedInUserRole = null;
+  }
+
+  // 🔥 FORM INIT
+  this.initForm();
+
+  // 🔥 ADD THIS BLOCK HERE ⬇️⬇️⬇️
+  this.addUserForm.get('RoleId')?.valueChanges.subscribe(roleId => {
+    const doctorControls = [
+      'DoctorRegistrationNo',
+      'DepartmentId',
+      'DoctorDegree',
+      'DoctorSpeciality',
+    ];
+
+    if (roleId === this.doctorRoleId) {
+      // apply validators
+      doctorControls.forEach(c =>
+        this.addUserForm.get(c)?.setValidators(Validators.required)
+      );
+
+      // load departments ONLY once
+      if (this.departments.length === 0) {
+        this.loadDoctorDepartments();
+      }
+    } else {
+      // remove validators + reset values
+      doctorControls.forEach(c => {
+        this.addUserForm.get(c)?.clearValidators();
+        this.addUserForm.get(c)?.setValue('');
       });
     }
+
+    doctorControls.forEach(c =>
+      this.addUserForm.get(c)?.updateValueAndValidity()
+    );
+  });
+  // 🔥 END BLOCK
+
+  // existing calls
+  this.loadUsers();
+  this.loadRoles();
+  this.loadHospitals();
+}
+
+ ngAfterViewInit(): void {
+  // existing addUserModal logic
+  const modalEl = document.getElementById('addUserModal');
+  if (modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      this.resetAddUserForm();
+    });
   }
+
+  // ✅ USER STATUS CONFIRM MODAL ROLLBACK
+  if (this.confirmStatusModal?.nativeElement) {
+    const modalElcnf = this.confirmStatusModal.nativeElement;
+
+    modalElcnf.addEventListener('hidden.bs.modal', () => {
+      if (this.pendingUser) {
+        console.log('Reverting user status:', this.pendingUser);
+        this.loadUsers();
+        this.pendingUser.isActive = this.previousStatus;
+        this.clearPendingUserState();
+      }
+    });
+  }
+}
+get isDoctorRoleSelected(): boolean {
+  return this.addUserForm?.get('RoleId')?.value === this.doctorRoleId;
+}
+
   resetAddUserForm() {
     this.addUserForm.reset({
       HospitalId: this.loggedInHospitalId || '',
@@ -99,6 +162,11 @@ editingUserId: string | null = null;
      Password: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(6)]],
 
       Address: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
+       // 🔹 Doctor-only fields
+    DoctorRegistrationNo: [''],
+    DepartmentId: [''],
+    DoctorDegree: [''],
+    DoctorSpeciality: [''],
     });
   }
 
@@ -144,6 +212,19 @@ editingUserId: string | null = null;
       },
     });
   }
+loadDoctorDepartments() {
+  this.api.getDoctorDepartments().subscribe({
+    next: (res: any) => {
+      this.departments =
+        res.dataList ;
+
+      console.log('Doctor Departments:', this.departments);
+    },
+    error: () => {
+      this.toast.error('Failed to load departments');
+    },
+  });
+}
 
   onSearch() {
     this.pageNumber = 1;
@@ -180,17 +261,23 @@ editingUserId: string | null = null;
 
   if (this.isEditMode && this.editingUserId) {
     // 🔵 EDIT (PATCH)
-    const payload = {
-      id: this.editingUserId,
-      FullName: v.FullName,
-      Gender: v.Gender,
-      DateOfBirth: v.DateOfBirth,
-      Role: v.RoleId,
-      HospitalId: v.HospitalId,
-      PhoneNumber: v.PhoneNumber,
-      Email: v.Email,
-      Address: v.Address,
-    };
+   const payload = {
+  userId: this.editingUserId,
+  fullName: v.FullName,
+  gender: v.Gender,
+  dateOfBirth: v.DateOfBirth
+    ? new Date(v.DateOfBirth).toISOString()
+    : null,
+  roleName: v.userRole,        
+  hospitalId: v.HospitalId,
+  phoneNumber: v.PhoneNumber,
+  email: v.Email,
+  address: v.Address,
+  doctorDepartmentMasterId: v.DepartmentId,
+  doctorDegree: v.DoctorDegree,
+  doctorSpeciality: v.DoctorSpeciality,
+  doctorRegNo: v.DoctorRegistrationNo
+};
 
     this.api.updateUser( payload).subscribe({
       next: (res: any) => {
@@ -217,6 +304,10 @@ editingUserId: string | null = null;
       Password: v.Password,
       Address: v.Address,
       UserName: v.PhoneNumber,
+      doctorDepartmentMasterId: v.DepartmentId,
+  doctorDegree: v.DoctorDegree,
+  doctorSpeciality: v.DoctorSpeciality,
+  doctorRegNo: v.DoctorRegistrationNo
     };
 
     this.api.addUser(payload).subscribe({
@@ -266,70 +357,109 @@ editingUserId: string | null = null;
       }
     }
   }
- onToggleExtend(item: any, checked: boolean) {
-  const userId = item.userId;
+onToggleExtend(item: any, checked: boolean) {
+  const userId = item.userId || item.id;
 
   if (!userId) {
     this.toast.error('Unable to determine user id');
     return;
   }
 
-  const previousStatus = item.isActive;
+  // store pending state
+  this.pendingUser = item;
+  this.pendingStatus = checked;
+  this.previousStatus = item.isActive;
 
-  // optimistic UI update
-  item._updatingExtend = true;
+  // allow UI to show toggled state temporarily
   item.isActive = checked;
 
+  // open confirmation modal
+  this.confirmModalInstance = new bootstrap.Modal(
+    this.confirmStatusModal.nativeElement
+  );
+  this.confirmModalInstance.show();
+}
+confirmUserStatusUpdate() {
+  if (!this.pendingUser) return;
+
+  const item = this.pendingUser;
+  const checked = this.pendingStatus!;
+  const userId = item.userId || item.id;
+
+  item._updatingExtend = true;
+
   this.api.updateUserStatus(userId, checked).subscribe({
-    next: (res: any) => {
+    next: () => {
       this.toast.success('User status updated');
       item._updatingExtend = false;
+
+      // ✅ clear state BEFORE closing modal
+      this.clearPendingUserState();
+
+      this.confirmModalInstance?.hide();
     },
-    error: (err: any) => {
-      // rollback UI
-      item.isActive = previousStatus;
+    error: () => {
+      // rollback on API failure
+      item.isActive = this.previousStatus;
       item._updatingExtend = false;
 
       this.toast.error('Failed to update user status');
+
+      this.clearPendingUserState();
+      this.confirmModalInstance?.hide();
     }
   });
 }
 
- editUser(user: any) {
+editUser(user: any) {
   this.isEditMode = true;
   this.editingUserId = user.userId || user.id;
-console.log(user)
+
   // remove password validation in edit mode
   this.addUserForm.get('Password')?.clearValidators();
   this.addUserForm.get('Password')?.updateValueAndValidity();
 
-  // Call GET user by id API
-  // this.api.getUserById(this.editingUserId).subscribe({
-  //   next: (res: any) => {
-  //     const u = res.data || res;
+  // 🔥 CALL API TO GET FULL USER DETAILS
+  this.api.getUserById(user.userId).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess || !res?.data) {
+        this.toast.error('Failed to load user details');
+        return;
+      }
 
-  //     this.addUserForm.patchValue({
-  //       FullName: u.fullName,
-  //       Gender: u.gender,
-  //       DateOfBirth: u.dateOfBirth?.substring(0, 10),
-  //       RoleId: u.roleId || u.role,
-  //       HospitalId: u.hospitalId,
-  //       PhoneNumber: u.phoneNumber,
-  //       Email: u.email,
-  //       Address: u.address,
-  //     });
+      const u = res.data;
 
-  //     // open modal programmatically
-  //     const modal = new bootstrap.Modal(
-  //       document.getElementById('addUserModal')
-  //     );
-  //     modal.show();
-  //   },
-  //   error: () => {
-  //     this.toast.error('Failed to load user details');
-  //   },
-  // });
+      // 🔹 PATCH FORM FROM API RESPONSE
+      this.addUserForm.patchValue({
+        FullName: u.fullName,
+        Gender: u.gender,
+        DateOfBirth: u.dob ? u.dob.substring(0, 10) : null,
+        RoleId: u.userRole, // ⚠️ if backend sends roleName
+        HospitalId: u.hospitalId,
+        PhoneNumber: u.phone,
+        Email: u.email,
+        Address: u.address,
+
+        // 👨‍⚕️ Doctor fields (safe even if null)
+        DoctorRegistrationNo: u.doctorRegistrationNo ?? '',
+        DepartmentId: u.departmentId ?? '',
+        DoctorDegree: u.doctorDegree ?? '',
+        DoctorSpeciality: u.doctorSpeciality ?? '',
+      });
+
+      // open modal AFTER patch
+      const modal = new bootstrap.Modal(
+        document.getElementById('addUserModal') as HTMLElement
+      );
+      modal.show();
+    },
+    error: () => {
+      this.toast.error('Failed to load user details');
+    },
+  });
 }
+
+
 resetEditState() {
   this.isEditMode = false;
   this.editingUserId = null;
@@ -343,6 +473,45 @@ resetEditState() {
 
   this.resetAddUserForm();
 }
+clearPendingUserState() {
+  this.pendingUser = null;
+  this.pendingStatus = null;
+  this.previousStatus = null;
+}
+openAddDepartmentModal() {
+  this.newDepartmentName = '';
+  this.showDepartmentModal = true;
+}
+closeDepartmentModal() {
+  this.showDepartmentModal = false;
+  this.newDepartmentName = '';
+}
+
+saveDepartment() {
+  if (!this.newDepartmentName?.trim()) return;
+
+  const payload = {
+    hospitalId: this.loggedInHospitalId,
+    departmentName: this.newDepartmentName.trim(),
+  };
+
+  this.api.saveDoctorDepartment(payload).subscribe({
+    next: () => {
+      this.toast.success('Department added successfully');
+
+      // refresh dropdown
+      this.loadDoctorDepartments();
+
+      // close custom modal
+      this.closeDepartmentModal();
+    },
+    error: () => {
+      this.toast.error('Failed to save department');
+    },
+  });
+}
+
+
 
 
 }

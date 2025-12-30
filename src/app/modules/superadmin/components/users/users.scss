@@ -8,3 +8,69 @@
     background: linear-gradient(135deg, #0E82FD 0%, #0E82FD 100%);
     border: none;
 }
+.add-dpt-btn {
+    background: white;
+    border: 1px solid #0E82FD;
+    color: #0E82FD;
+    padding: 0px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2000; // higher than bootstrap modal (1055)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-modal {
+  background: #fff;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.2s ease;
+}
+
+.custom-modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-modal-body {
+  padding: 16px;
+}
+
+.custom-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

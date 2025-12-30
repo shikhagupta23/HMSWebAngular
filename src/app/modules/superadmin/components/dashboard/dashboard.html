@@ -261,65 +261,9 @@
       </div>
     </div>
 
-    <!-- Hospital List -->
-    <div class="row">
-      <div class="col-md-12 d-flex">
-        <div class="card card-table flex-fill">
-          <div class="card-header">
-            <h4 class="card-title">Hospitals List</h4>
-          </div>
-
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover table-center mb-0">
-                <thead>
-                  <tr>
-                    <th>Hospital Name</th>
-                    <th>Email</th>
-                    <th>Contact No.</th>
-                    <th>Address</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr *ngFor="let h of hospitalList">
-                    <td>
-                      <h2 class="table-avatar">
-                        <span class="avatar avatar-sm me-2 d-flex align-items-center justify-content-center" style="background:#f5f6fa; border-radius:50%; width:32px; height:32px;">
-																<i class="feather feather-home"></i>
-															</span>
-                        <a>{{ h?.hospitalName || h?.name || '—' }}</a>
-                      </h2>
-                    </td>
-
-                    <td>{{ h?.hospitalEmail || '—' }}</td>
-                    <td>{{ h?.hospitalPhoneNumber  || '—' }}</td>
-                    <td>{{ h?.hospitalAddress || '—' }}</td>
-
-                    <td>
-                      <span class="badge"
-                            [ngClass]="h?.isActive ? 'bg-success' : 'bg-danger'">
-                        {{ h?.isActive ? 'Active' : 'Inactive' }}
-                      </span>
-                    </td>
-                  </tr>
-
-                  <tr *ngIf="!hospitalList || hospitalList.length === 0">
-                    <td colspan="5" class="text-center text-muted">
-                      No hospitals found
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
+    
 
   </div>
 </div>
 
-				<!-- SuperAdmin Dashboard -->
+				 
