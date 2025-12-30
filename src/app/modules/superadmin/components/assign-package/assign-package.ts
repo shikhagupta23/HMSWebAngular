@@ -1,7 +1,8 @@
 // assign-package.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AssignPackageService } from '../../services/assign-package-service';
+import { ToastService } from '../../../../shared/services/toast-service';
 
 interface PackageDropdown {
   id: string;
@@ -37,6 +38,8 @@ interface AssignmentModel {
   styleUrl: './assign-package.scss',
 })
 export class AssignPackage implements OnInit {
+
+  private toast = inject(ToastService);
   // Data arrays
   assignments: AssignmentModel[] = [];
   hospitals: HospitalDropdown[] = [];
@@ -104,11 +107,10 @@ export class AssignPackage implements OnInit {
         } else {
           this.hospitals = response.data || response.dataList || response;
         }
-        console.log('Hospitals loaded:', this.hospitals);
       },
       error: (err) => {
         console.error('Error loading hospitals:', err);
-        alert('Failed to load hospitals. Please try again.');
+        this.toast.error('Failed to load hospitals. Please try again.');
       }
     });
   }
@@ -125,11 +127,10 @@ export class AssignPackage implements OnInit {
         } else {
           this.packages = response.data || response.dataList || response;
         }
-        console.log('Packages loaded:', this.packages);
       },
       error: (err) => {
         console.error('Error loading packages:', err);
-        alert('Failed to load packages. Please try again.');
+        this.toast.error('Failed to load packages. Please try again.');
       }
     });
   }
@@ -150,12 +151,11 @@ export class AssignPackage implements OnInit {
           this.totalRecords = response.totalRecords || this.assignments.length;
         }
         this.loading = false;
-        console.log('Assignments loaded:', this.assignments);
       },
       error: (err) => {
         console.error('Error loading assignments:', err);
         this.loading = false;
-        alert('Failed to load assignments. Please try again.');
+        this.toast.error('Failed to load assignments. Please try again.');
       }
     });
   }
@@ -214,15 +214,19 @@ export class AssignPackage implements OnInit {
 
     this.assignPackageService.assignPackage(assignmentData as AssignmentModel).subscribe({
       next: (response) => {
-        console.log('Package assigned successfully:', response);
-        alert('Package assigned successfully!');
+        if(response.isSuccess){
+        this.toast.success('Package assigned successfully!');
         this.loadAssignments();
         this.closeModal('assignPackageModal');
         this.loading = false;
+        }
+        else{
+          this.toast.error(response.message);
+        }
       },
       error: (err) => {
         console.error('Error assigning package:', err);
-        alert('Failed to assign package. Please try again.');
+        this.toast.error('Failed to assign package. Please try again.');
         this.loading = false;
       }
     });
@@ -244,15 +248,19 @@ export class AssignPackage implements OnInit {
 
     this.assignPackageService.updateAssignment(assignmentData).subscribe({
       next: (response) => {
-        console.log('Assignment updated successfully:', response);
-        alert('Assignment updated successfully!');
-        this.loadAssignments();
-        this.closeModal('editAssignmentModal');
-        this.loading = false;
+        if(response.isSuccess){
+          this.toast.success('Assignment updated successfully!');
+          this.loadAssignments();
+          this.closeModal('editAssignmentModal');
+          this.loading = false;
+        }
+        else{
+          this.toast.error(response.message);
+        }
       },
       error: (err) => {
         console.error('Error updating assignment:', err);
-        alert('Failed to update assignment. Please try again.');
+        this.toast.error('Failed to update assignment. Please try again.');
         this.loading = false;
       }
     });
@@ -284,16 +292,21 @@ export class AssignPackage implements OnInit {
     
     this.assignPackageService.changeAssignmentStatus(this.confirmAssignment.hospitalPackageId!, newStatus).subscribe({
       next: (response) => {
-        console.log('Status changed successfully:', response);
-        this.confirmAssignment!.isActive = newStatus;
-        alert(`Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-        this.closeModal('confirmStatusModal');
-        this.confirmAssignment = null;
-        this.loadAssignments();
+        if(response.isSuccess){
+          this.confirmAssignment!.isActive = newStatus;
+          this.toast.success(`Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+          this.closeModal('confirmStatusModal');
+          this.confirmAssignment = null;
+          this.loadAssignments();
+        }
+        else{
+          this.toast.error(response.message);
+        }
+
       },
       error: (err) => {
         console.error('Error changing status:', err);
-        alert('Failed to change status. Please try again.');
+        this.toast.error('Failed to change status. Please try again.');
         this.closeModal('confirmStatusModal');
         this.confirmAssignment = null;
       }
@@ -321,14 +334,17 @@ export class AssignPackage implements OnInit {
       this.loading = true;
       this.assignPackageService.deleteAssignment(assignment.hospitalPackageId!).subscribe({
         next: (response) => {
-          console.log('Assignment deleted successfully:', response);
-          alert('Assignment deleted successfully!');
-          this.loadAssignments();
-          this.loading = false;
+          if(response.isSuccess){
+            this.toast.success('Assignment deleted successfully!');
+            this.loadAssignments();
+            this.loading = false;
+          }
+          else{
+            this.toast.error(response.message);
+          }
         },
         error: (err) => {
-          console.error('Error deleting assignment:', err);
-          alert('Failed to delete assignment. Please try again.');
+          this.toast.error('Failed to delete assignment. Please try again.');
           this.loading = false;
         }
       });

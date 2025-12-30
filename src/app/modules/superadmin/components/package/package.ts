@@ -1,7 +1,7 @@
-// package.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PackageService } from '../../services/package-service';
+import { ToastService } from '../../../../shared/services/toast-service';
 
 interface PackageModel {
   packageId?: string;
@@ -21,17 +21,16 @@ interface PackageModel {
   styleUrl: './package.scss',
 })
 export class Package implements OnInit {
+  private toast = inject(ToastService);
   packages: PackageModel[] = [];
   packageForm: FormGroup;
   loading = false;
   searchTerm = '';
   
-  // Pagination
   currentPage = 1;
   pageSize = 10;
   totalRecords = 0;
 
-  // Confirmation Modal
   showConfirmModal = false;
   confirmPackage: PackageModel | null = null;
   confirmAction = '';
@@ -64,14 +63,13 @@ export class Package implements OnInit {
       error: (err) => {
         console.error('Error loading packages:', err);
         this.loading = false;
-        alert('Failed to load packages. Please try again.');
+        this.toast.error('Failed to load packages. Please try again.');
       }
     });
   }
 
   openAddModal(): void {
     this.packageForm.reset({ isActive: true });
-    // Bootstrap modal trigger will handle opening
   }
 
   savePackage(): void {
@@ -90,15 +88,19 @@ export class Package implements OnInit {
     this.loading = true;
     this.packageService.addPackage(packageData).subscribe({
       next: (response) => {
-        console.log('Package added successfully:', response);
-        alert('Package added successfully!');
+        if(response.isSuccess){
+        this.toast.success(response.message || "Package saved successfully!");
         this.loadPackages();
-        this.closeModal('addPackageModal');
         this.loading = false;
+        this.closeModal('addPackageModal');
+        }
+        else{
+          this.toast.error(response.message || "Failed to saved package!!");
+        }
       },
       error: (err) => {
         console.error('Error adding package:', err);
-        alert('Failed to add package. Please try again.');
+        this.toast.error('Failed to add package. Please try again.');
         this.loading = false;
       }
     });
@@ -113,29 +115,31 @@ export class Package implements OnInit {
     
     this.packageService.updatePackage(updateData).subscribe({
       next: (response) => {
-        console.log('Package updated successfully:', response);
-        alert('Package updated successfully!');
-        this.loadPackages();
-        this.closeModal('editPackageModal');
-        this.loading = false;
+        if(response.isSuccess){
+          this.toast.success('Package updated successfully!');
+          this.loadPackages();
+          this.closeModal('editPackageModal');
+          this.loading = false;
+        }
+        else{
+          this.toast.error(response.message);
+        }
+
       },
       error: (err) => {
         console.error('Error updating package:', err);
-        alert('Failed to update package. Please try again.');
+        this.toast.error('Failed to update package. Please try again.');
         this.loading = false;
       }
     });
   }
 
   toggleStatus(pkg: PackageModel, event: Event): void {
-    // Prevent the toggle from happening immediately
     event.preventDefault();
     
-    // Store the package and action for confirmation
     this.confirmPackage = pkg;
     this.confirmAction = pkg.isActive ? 'deactivate' : 'activate';
     
-    // Open confirmation modal
     const confirmModal = document.getElementById('confirmStatusModal');
     if (confirmModal) {
       const modal = new (window as any).bootstrap.Modal(confirmModal);
@@ -150,15 +154,20 @@ export class Package implements OnInit {
     
     this.packageService.changeStatus(this.confirmPackage.packageId!, newStatus).subscribe({
       next: (response) => {
-        console.log('Status changed successfully:', response);
-        this.confirmPackage!.isActive = newStatus;
-        alert(`Package ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-        this.closeModal('confirmStatusModal');
-        this.confirmPackage = null;
+        if(response.isSuccess){
+          this.confirmPackage!.isActive = newStatus;
+          this.toast.success(`Package ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+          this.closeModal('confirmStatusModal');
+          this.confirmPackage = null;
+        }
+        else{
+          this.toast.error(response.message);
+        }
+
       },
       error: (err) => {
         console.error('Error changing status:', err);
-        alert('Failed to change status. Please try again.');
+        this.toast.error('Failed to change status. Please try again.');
         this.closeModal('confirmStatusModal');
         this.confirmPackage = null;
       }
@@ -178,18 +187,46 @@ export class Package implements OnInit {
     this.loadPackages();
   }
 
+  // closeModal(modalId: string): void {
+  //   const modalElement = document.getElementById(modalId);
+  //   if (modalElement) {
+  //     const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+  //     if (modal) {
+  //       modal.hide();
+  //     }
+  //   }
+  //   if (modalId !== 'confirmStatusModal') {
+  //     this.packageForm.reset({ isActive: true });
+  //   }
+  // }
+
   closeModal(modalId: string): void {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      }
-    }
-    if (modalId !== 'confirmStatusModal') {
-      this.packageForm.reset({ isActive: true });
-    }
+  const modalElement = document.getElementById(modalId);
+
+  if (!modalElement) return;
+
+  const modalInstance =
+    (window as any).bootstrap.Modal.getInstance(modalElement) ||
+    new (window as any).bootstrap.Modal(modalElement);
+
+  modalInstance.hide();
+
+  modalElement.addEventListener(
+    'hidden.bs.modal',
+    () => {
+      document.body.classList.remove('modal-open');
+
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(b => b.remove());
+    },
+    { once: true }
+  );
+
+  if (modalId !== 'confirmStatusModal') {
+    this.packageForm.reset({ isActive: true });
   }
+}
+
 
   get filteredPackages(): PackageModel[] {
     if (!this.searchTerm) return this.packages;

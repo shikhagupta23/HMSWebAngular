@@ -146,9 +146,6 @@ loadPatients() {
           role: roleId,
           abhaid: this.patientForm.value.abhaId,
         };
-
-        console.log(payload);
-
         this.api.postPatient(payload).subscribe({
           next: (res) => {
             if (res.isSuccess) {

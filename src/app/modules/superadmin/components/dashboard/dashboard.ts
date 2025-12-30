@@ -74,7 +74,6 @@ export class Dashboard {
 
     forkJoin({ doctors: doctors$, patients: patients$, appointments: appointments$, today: todayAppointments$ }).subscribe({
       next: res => {
-        console.log('Dashboard data:', res);
         this.doctorList = this.extractList(res.doctors?.dataList ?? res.doctors);
         this.patientList = this.extractList(res.patients?.dataList ?? res.patients);
         this.appointmentList = this.extractList(res.appointments?.dataList ?? res.appointments);

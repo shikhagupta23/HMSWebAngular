@@ -28,20 +28,6 @@ body {
   margin: 0;
 }
 
-/* Search and Action Bar */
-.dataTables_length label {
-  font-size: 14px;
-  color: #6c757d;
-  margin: 0;
-}
-
-.dataTables_length .form-select {
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 14px;
-}
-
 .search-box {
   position: relative;
   flex: 1;
@@ -285,24 +271,11 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-.modal-header {
-  background-color: #0d6efd;
-  color: white;
-  border-radius: 8px 8px 0 0;
-  padding: 20px 24px;
-  border-bottom: none;
-}
-
 .modal-title {
   font-weight: 600;
   font-size: 18px;
   display: flex;
   align-items: center;
-}
-
-.modal-header .btn-close {
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
 }
 
 .modal-body {
@@ -322,27 +295,6 @@ body {
   font-size: 14px;
 }
 
-.form-control,
-.form-select {
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 10px 12px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-  outline: none;
-}
-
-textarea.form-control {
-  resize: vertical;
-  min-height: 100px;
-}
-
 small.text-muted {
   font-size: 12px;
   color: #6c757d;
@@ -350,7 +302,6 @@ small.text-muted {
   margin-top: 4px;
 }
 
-/* Utility Classes */
 .gap-2 {
   gap: 8px;
 }

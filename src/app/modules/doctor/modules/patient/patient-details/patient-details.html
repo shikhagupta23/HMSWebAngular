@@ -31,12 +31,24 @@
     </div>
 
     <div class="patient-book">
-      <p><i class="fa-solid fa-calendar-days"></i> Last Booking</p>
       <p>
-        <i class="fa-solid fa-calendar-check appointment-date"></i>
-        {{ lastBookingDate | date : 'dd MMM yyyy' }}
+        <i class="fa-solid fa-calendar-days"></i>
+        Last Booking
       </p>
+
+      <p *ngIf="lastBookingDate; else noBooking">
+        <i class="fa-solid fa-calendar-check appointment-date"></i>
+        {{ lastBookingDate | date: 'dd MMM yyyy' }}
+      </p>
+
+      <ng-template #noBooking>
+        <p class="text-muted">
+          <i class="fa-solid fa-calendar-xmark"></i>
+          No booking found
+        </p>
+      </ng-template>
     </div>
+
   </div>
 
   <div class="tab-content pt-0">

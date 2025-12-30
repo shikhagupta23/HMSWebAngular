@@ -38,7 +38,7 @@
           </div>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal"
                   (click)="openAddModal()">
-            + Add New
+            + Add Package
           </button>
         </div>
       </div>
@@ -116,18 +116,18 @@
 
 <!-- Add Package Modal -->
 <div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="addPackageModalLabel">
-          <i class="feather feather-plus-circle me-2"></i>Add New Package
+          Add Package
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form [formGroup]="packageForm" (ngSubmit)="savePackage()">
         <div class="modal-body">
           <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-3 mb-3">
               <label class="form-label">Package Name <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="packageName"
                      [class.is-invalid]="packageForm.get('packageName')?.invalid && packageForm.get('packageName')?.touched">
@@ -136,7 +136,7 @@
               </div>
             </div>
             
-            <div class="col-md-6 mb-3">
+            <div class="col-2 mb-3">
               <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
               <input type="number" class="form-control" formControlName="price"
                      [class.is-invalid]="packageForm.get('price')?.invalid && packageForm.get('price')?.touched">
@@ -145,7 +145,7 @@
               </div>
             </div>
 
-            <div class="col-md-6 mb-3">
+            <div class="col-2 mb-3">
               <label class="form-label">Duration (Days) <span class="text-danger">*</span></label>
               <input type="number" class="form-control" formControlName="durationInDays"
                      [class.is-invalid]="packageForm.get('durationInDays')?.invalid && packageForm.get('durationInDays')?.touched">
@@ -154,9 +154,9 @@
               </div>
             </div>
 
-            <div class="col-12 mb-3">
+            <div class="col-5 mb-3">
               <label class="form-label">Description <span class="text-danger">*</span></label>
-              <textarea class="form-control" formControlName="description" rows="4"
+              <textarea class="form-control" formControlName="description" rows="1"
                         [class.is-invalid]="packageForm.get('description')?.invalid && packageForm.get('description')?.touched"></textarea>
               <div class="invalid-feedback" *ngIf="packageForm.get('description')?.invalid && packageForm.get('description')?.touched">
                 Description is required
@@ -165,10 +165,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary" [disabled]="loading">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            <i *ngIf="!loading" class="feather feather-save me-1"></i>
             Save Package
           </button>
         </div>
@@ -230,7 +228,7 @@
 
             <div class="col-12 mb-3">
               <label class="form-label">Description <span class="text-danger">*</span></label>
-              <textarea class="form-control" formControlName="description" rows="4"
+              <textarea class="form-control" formControlName="description" rows="1"
                         [class.is-invalid]="packageForm.get('description')?.invalid && packageForm.get('description')?.touched"></textarea>
               <div class="invalid-feedback" *ngIf="packageForm.get('description')?.invalid && packageForm.get('description')?.touched">
                 Description is required

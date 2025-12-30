@@ -3,7 +3,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h1 class="mb-0">Drug Duration List</h1>
                             <button class="btn customBtn" (click)="openCreateModal()" [disabled]="isLoading">
-                                <span class="me-2">+</span>Create Drug Duration
+                                + Add Drug Duration
                             </button>
                         </div>
 
@@ -164,7 +164,7 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Drug Duration</h5>
+                                        <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Add' }} Drug Duration</h5>
                                         <button type="button" class="btn-close" (click)="closeModal()"></button>
                                     </div>
                                     <div class="modal-body">
@@ -197,7 +197,7 @@
                                             Back
                                         </button>
                                         <button type="button" class="btn customBtn" (click)="saveDrugDuration()">
-                                            <i class="bi bi-check-lg"></i>Save
+                                            <i class="bi bi-check-lg"></i>Save Drug Duration
                                         </button>
                                     </div>
                                 </div>

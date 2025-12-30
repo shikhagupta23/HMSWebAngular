@@ -60,7 +60,6 @@ export class Dashboard implements OnInit{
 
     this.dashboardService.getDahBoardData().subscribe({
       next: (res) => {
-        console.log("Dashboard Data:", res);
         let dashboardData = res.data;
         let totalAllAppointment = dashboardData.pendingAllAppointments + dashboardData.completedAllAppointments + dashboardData.cancelledAllAppointments + dashboardData.scheduledAllAppointments;
 
@@ -76,7 +75,7 @@ export class Dashboard implements OnInit{
         this.pendingAppointments = dashboardData.pendingAllAppointments;
         this.completedAppointments = dashboardData.completedAllAppointments;
         this.cancelledAppointments = dashboardData.cancelledAllAppointments;
-        this.todayRevenue = dashboardData.revenue;
+        this.revenue = dashboardData.totalRevenue;
         this.totalPatients = dashboardData.totalAllPatient;
         this.totalScheduledAppointments = dashboardData.scheduledAllAppointments;
       },
