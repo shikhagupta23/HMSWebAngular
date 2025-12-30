@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../modules/auth/services/auth-service';
+import { PushNotification } from '../../modules/auth/services/push-notification';
 
 @Component({
   selector: 'app-main-layout',
@@ -9,6 +10,7 @@ import { AuthService } from '../../modules/auth/services/auth-service';
 })
 export class MainLayout {
   private auth = inject(AuthService);
+  private pushService = inject(PushNotification);
   role: string | null = null;
   isAdminOrSuperadmin: boolean = false;
   isDoctorOrReceptionist: boolean = false;

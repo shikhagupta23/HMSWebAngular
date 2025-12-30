@@ -23,13 +23,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(newReq).pipe(
     catchError((error: HttpErrorResponse) => {
 
-      if (error.status === 401) {
-          if (error.status === 401) {
+      if (error.status === 401 && !authService.isManualLogout()) {
         toast.warning('Your session has expired. Please login again.');
         setTimeout(() => {
           authService.logout();
         }, 1500);
-      }
       }
 
       return throwError(() => error);

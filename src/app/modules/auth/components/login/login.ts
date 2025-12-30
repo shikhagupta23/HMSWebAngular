@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { AuthService } from '../../services/auth-service';
+import { PushNotification } from '../../services/push-notification';
 
 type AuthStep = 'login' | 'forgot' | 'otp';
 
@@ -26,6 +27,7 @@ export class Login implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private pushService = inject(PushNotification);
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -62,6 +64,7 @@ export class Login implements OnInit {
           return;
         }
         this.authService.saveAuth(res);
+        this.pushService.requestPermission();
         this.toast.success('Login successful');
         this.handleRoleNavigation(res.data?.userRole);
       },

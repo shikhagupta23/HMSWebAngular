@@ -5,6 +5,7 @@ import { ApiService } from '../../../shared/services/api-service';
 import { AuthResponse } from '../models/auth.model';
 import { safeStorage } from '../../../shared/utils/storage.util';
 import { Router } from '@angular/router';
+import { PushNotification } from './push-notification';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,9 @@ user$ = this.userSubject.asObservable();
   private TOKEN_KEY = 'auth_token';
   private REFRESH_KEY = 'refresh_token';
   private USER_KEY = 'auth_user';
+  private pushService = inject(PushNotification);
+  
+  isLoggingOut = false;
 
   login(payload: any): Observable<any> {
     return this.api.post(ApiEndpoints.AUTH.LOGIN, payload);
@@ -55,12 +59,31 @@ saveAuth(res: AuthResponse): void {
     return user ? JSON.parse(user) : null;
   }
 
-  logout(): void {
+logout(): void {
+  // 1️⃣ Inform system that this is manual logout
+  this.isLoggingOut = true;
+
+  // 2️⃣ Call push token removal FIRST
+  this.pushService.removeToken().finally(() => {
+
+    // 3️⃣ Clear auth storage
     safeStorage.remove(this.TOKEN_KEY);
     safeStorage.remove(this.REFRESH_KEY);
     safeStorage.remove(this.USER_KEY);
+
+    // 4️⃣ Navigate to login
     this.router.navigate(['/auth']);
-  }
+
+    // 5️⃣ Reset flag
+    setTimeout(() => {
+      this.isLoggingOut = false;
+    }, 1000);
+  });
+}
+
+isManualLogout(): boolean {
+  return this.isLoggingOut;
+}
 
   isLoggedIn(): boolean {
     return !!this.getToken();

@@ -93,6 +93,7 @@ export const ApiEndpoints = {
   },
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
+    GETDASHBOARDRECORD: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,
@@ -213,5 +214,10 @@ export const ApiEndpoints = {
       `${API_BASE_URL}/HospitalPackage/GetAllHospitalPackages?page=${page}&pageSize=${pageSize}`,
 
   },
+
+  NOTIFICATION: {
+    SAVE_TOKEN: `${API_BASE_URL}/PushNotificationAPI/save-token`,
+    REMOVE_TOKEN: `${API_BASE_URL}/PushNotificationAPI/remove-token`
+  }
 
 };
