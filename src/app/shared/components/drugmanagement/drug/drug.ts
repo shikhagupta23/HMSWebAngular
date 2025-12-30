@@ -646,7 +646,7 @@ export class DrugComponent implements OnInit, OnDestroy {
       drugStrengthIds: v.strengths.length > 0 ? v.strengths : [],
       doseIds: v.doses.length > 0 ? v.doses : [],
       drugDurationIds: v.durations.length > 0 ? v.durations : [],
-      drugAdviceId: '00000000-0000-0000-0000-000000000000',
+      drugAdviceId: v.advice || ' ',
       variationNote: v.advice || ''
     }));
 

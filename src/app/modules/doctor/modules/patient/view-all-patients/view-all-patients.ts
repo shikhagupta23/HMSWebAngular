@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { DatePipe } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { SignalRService } from '../../../../../shared/services/signal-rservice';
 declare var bootstrap: any;
 
 @Component({
@@ -21,6 +23,8 @@ export class ViewAllPatients implements OnInit {
   private toast = inject(ToastService);
   private api = inject(PatientService);
   private datePipe = inject(DatePipe);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
   patientList: any[] = [];
   filteredPatients: any[] = [];
   paginatedPatients: any[] = [];
@@ -37,6 +41,27 @@ export class ViewAllPatients implements OnInit {
 
 ngOnInit() {
   this.loadPatients();
+   this.signalRService.connect().then(() => {
+
+  this.subscriptions.push(
+    this.signalRService.onPatientAdd().subscribe(() => {
+      this.onPatientAddSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCheckIn().subscribe(() => {
+      this.onPatientAddSignalR();
+    })
+  );
+
+  this.subscriptions.push(
+    this.signalRService.onReceiveCompleted().subscribe(() => {
+      this.onPatientAddSignalR();
+    })
+  );
+
+});
   this.patientForm = this.fb.group({
     fullName: ['', Validators.required],
     gender: ['', Validators.required],
@@ -218,4 +243,8 @@ getGenderIcon(gender: string): string {
   this.closeModalBtn?.nativeElement.click();
 }
 
+
+private onPatientAddSignalR(): void {
+  this.loadPatients();
+}
 }
