@@ -98,6 +98,7 @@ export const ApiEndpoints = {
     GET_DOCTOR_APPOINTMENT_BY_STATUS: `${API_BASE_URL}/AppointmentAPI/getDoctorAppointmentByStatus`,
     GET_APPOINTMENT_FEES_BY_ID: `${API_BASE_URL}/AppointmentAPI/getAppointmentFeesById`,
     GET_LAB_FEES_BY_ID: `${API_BASE_URL}/LabTest/getLabFeesById`,
+    GET_LAB_FEES_BY_AppointmentID: `${API_BASE_URL}/LabTest/getLabFeesByAppointmentId`,
     CREATE_INVOICE: `${API_BASE_URL}/Invoice/createInvoice`,
     CREATE_PAYMENT: `${API_BASE_URL}/Invoice/createPayment`
   },

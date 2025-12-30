@@ -428,10 +428,8 @@ private loadCurrentUserRole(): void {
       return;
     }
 
-    // Fetch detailed appointment data including appointmentFee
     this.loadAppointmentDetails(this.selectedAppointmentId);
-      // Lab test fee (CHANGE ID BASED ON YOUR API)
-    this.loadLabTestDetails(selected.hospitalId);
+    this.loadLabTestDetails(this.selectedAppointmentId);
   }
 
   // Load appointment details with fee
@@ -485,7 +483,7 @@ private loadCurrentUserRole(): void {
 
 loadLabTestDetails(hospitalId: string): void {
   this.http
-    .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_ID, { params: { Id: hospitalId } })
+    .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, { params: { Id: hospitalId } })
     .subscribe({
       next: (res) => {
         this.invoice.labTestFee = res.data ?? 0;
