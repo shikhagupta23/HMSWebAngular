@@ -1,1 +1,66 @@
-<p>prescription-helper-values works!</p>
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item" *ngFor="let tab of tabs">
+    <button
+      class="nav-link"
+      [class.active]="activeTab.masterId === tab.masterId"
+      (click)="onTabClick(tab)">
+      {{ tab.name }}
+    </button>
+  </li>
+</ul>
+
+<div class="card shadow-sm border-0 rounded-4">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="fw-bold mb-0">{{ activeTab.name }}</h6>
+
+      <button class="btn customBtn btn-sm" (click)="openAddPopup()">
+        + Add {{ activeTab.name }}
+      </button>
+    </div>
+
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let item of listData">
+        {{ item.value }}
+      </li>
+
+      <li *ngIf="listData.length === 0"
+          class="list-group-item text-muted text-center">
+        No records found
+      </li>
+    </ul>
+
+  </div>
+</div>
+
+
+<div class="modal fade" id="addHelperModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Add {{ activeTab.name }}
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <textarea
+          class="form-control"
+          rows="4"
+          placeholder="Enter {{ activeTab.name }}"
+          [(ngModel)]="inputValue">
+        </textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn customBtn" (click)="saveData()">
+          Save {{ activeTab.name }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -12,6 +12,20 @@ export class PrescriptionService {
   private api = inject(ApiService);
    private http = inject(HttpClient);
 
+   getPrescriptionMasterValues(): Observable<any> {
+    return this.api.get(`${ApiEndpoints.PRESCRIPTION.GET_MASTER}`);
+   }
+
+    getHelperValuesByPrescMasterIdList(masterId: string): Observable<any> {
+      return this.api.get(
+        `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`
+      );
+    }
+
+    savePrescriptionHeleprValue(payload: any): Observable<any> {
+      return this.api.post(`${ApiEndpoints.PRESCRIPTION.SAVE_PRESCRIPTION_HELPER_VALUES}`, payload);
+    }
+
 
 getPatientAsPerDoctor(page: number, pageSize: number, search: string) {
   const params = {

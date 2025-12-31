@@ -73,7 +73,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Prescription Helper Values",
     icon: "fa-solid fa-file-medical",
     route: "/prescription/prescriptionhelepervalues",
-    roles: []
+    roles: ["Doctor"]
   },
  {
   label: "Drug Management",
