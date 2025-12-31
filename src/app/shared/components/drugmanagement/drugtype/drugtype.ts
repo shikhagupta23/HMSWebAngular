@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
 // Updated interface to match API response
 interface DrugType {
@@ -42,6 +43,7 @@ interface ApiResponse {
   styleUrls: ['./drugtype.css']
 })
 export class DrugTypeComponent implements OnInit, OnDestroy {
+  private toast= inject(ToastService);
   drugTypes: DrugType[] = [];
   filteredDrugTypes: DrugType[] = [];
   paginatedDrugTypes: DrugType[] = [];
@@ -96,50 +98,52 @@ export class DrugTypeComponent implements OnInit, OnDestroy {
   }
 
   loadDrugTypes(): void {
-    this.isLoading = true;
-    this.error = '';
+  this.isLoading = true;
+  this.error = '';
 
-    let params = new HttpParams()
-      .set('page', this.currentPage.toString())
-      .set('pageSize', this.entriesPerPage.toString());
+  let params = new HttpParams()
+    .set('page', this.currentPage.toString())
+    .set('pageSize', this.entriesPerPage.toString());
 
-    // Add search term if it exists
-    if (this.searchTerm && this.searchTerm.trim()) {
-      params = params.set('searchTerm', this.searchTerm.trim());
-    }
-
-    const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
-
-    this.http.get<DrugTypeResponse>(apiUrl, { params })
-      .subscribe({
-        next: (response) => {
-          console.log('API Response:', response);
-          
-          if (response.isSuccess) {
-            this.drugTypes = response.dataList || [];
-            this.paginatedDrugTypes = response.dataList || [];
-            this.totalCount = response.totalCount;
-            this.totalPages = response.totalPages;
-            this.filteredDrugTypes = response.dataList || [];
-          } else {
-            this.error = response.message || 'Failed to load drug type data';
-            this.drugTypes = [];
-            this.paginatedDrugTypes = [];
-            this.filteredDrugTypes = [];
-          }
-          
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.error = 'Failed to load drug type data';
-          console.error('API Error:', err);
-          this.drugTypes = [];
-          this.paginatedDrugTypes = [];
-          this.filteredDrugTypes = [];
-          this.isLoading = false;
-        }
-      });
+  if (this.searchTerm?.trim()) {
+    params = params.set('searchTerm', this.searchTerm.trim());
   }
+
+  const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
+
+  this.http.get<DrugTypeResponse>(apiUrl, { params }).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to load drug types');
+        this.resetList();
+        this.isLoading = false;
+        return;
+      }
+
+      this.drugTypes = res.dataList ?? [];
+      this.filteredDrugTypes = res.dataList ?? [];
+      this.paginatedDrugTypes = res.dataList ?? [];
+      this.totalCount = res.totalCount ?? 0;
+      this.totalPages = res.totalPages ?? 1;
+
+      this.isLoading = false;
+    },
+    error: () => {
+      this.toast.error('Failed to load drug types');
+      this.resetList();
+      this.isLoading = false;
+    },
+  });
+}
+
+private resetList(): void {
+  this.drugTypes = [];
+  this.filteredDrugTypes = [];
+  this.paginatedDrugTypes = [];
+  this.totalCount = 0;
+  this.totalPages = 1;
+}
+
 
   // Updated search method - now uses debouncing
   onSearch(): void {
@@ -234,87 +238,82 @@ export class DrugTypeComponent implements OnInit, OnDestroy {
   }
 
   saveDrugType(): void {
-    if (!this.formData.typeName || !this.formData.typeName.trim()) {
-      alert('Please enter drug type name');
-      return;
-    }
-
-    if (this.isEditMode) {
-      // Update existing drug type via API
-      const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
-      
-      this.http.put<ApiResponse>(updateUrl, this.formData)
-        .subscribe({
-          next: (response) => {
-            if (response.isSuccess) {
-              console.log('Update success:', response.message);
-              this.closeModal();
-              this.loadDrugTypes();
-            } else {
-              alert(response.message || 'Failed to update drug type');
-            }
-          },
-          error: (err) => {
-            console.error('Update error:', err);
-            alert('Failed to update drug type. Please try again.');
-          }
-        });
-    } else {
-      // Create new drug type via API
-      const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
-      
-      // Don't send drugTypeId for new records
-      const createData = {
-        typeName: this.formData.typeName,
-        description: this.formData.description,
-        isActive: this.formData.isActive
-      };
-      
-      this.http.post<ApiResponse>(createUrl, createData)
-        .subscribe({
-          next: (response) => {
-            if (response.isSuccess) {
-              console.log('Create success:', response.message);
-              this.closeModal();
-              this.loadDrugTypes();
-            } else {
-              alert(response.message || 'Failed to create drug type');
-            }
-          },
-          error: (err) => {
-            console.error('Create error:', err);
-            alert('Failed to create drug type. Please try again.');
-          }
-        });
-    }
+  if (!this.formData.typeName?.trim()) {
+    this.toast.error('Drug type name is required');
+    return;
   }
 
-  deleteDrugType(drugTypeId: string): void {
-    if (confirm('Are you sure you want to delete this drug type?')) {
-      const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}`;
-      
-      const drugType = this.drugTypes.find(dt => dt.drugTypeId === drugTypeId);
-      if (!drugType) {
-        alert('Drug type not found');
+  if (this.isEditMode) {
+    this.updateDrugType();
+  } else {
+    this.createDrugType();
+  }
+}
+private createDrugType(): void {
+  const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
+
+  const payload = {
+    typeName: this.formData.typeName,
+    description: this.formData.description,
+    isActive: this.formData.isActive,
+  };
+
+  this.http.post<ApiResponse>(createUrl, payload).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to create drug type');
         return;
       }
-      
-      // Send the entire DrugType object as the backend expects
-      this.http.delete<ApiResponse>(deleteUrl, { body: drugType })
-        .subscribe({
-          next: (response) => {
-            if (response.isSuccess) {
-              console.log('Delete success:', response.message);
-              this.loadDrugTypes();
-            } else {
-              alert(response.message || 'Failed to delete drug type');
-            }
-          },
-          error: (err) => {
-            console.error('Delete error:', err);
-            alert('Failed to delete drug type. Please try again.');
-          }
-        });
-    }
+
+      this.toast.success(res?.message || 'Drug type created successfully');
+      this.closeModal();
+      this.loadDrugTypes();
+    },
+    error: () => this.toast.error('Failed to create drug type'),
+  });
+}
+private updateDrugType(): void {
+  const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
+
+  this.http.put<ApiResponse>(updateUrl, this.formData).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to update drug type');
+        return;
+      }
+
+      this.toast.success(res?.message || 'Drug type updated successfully');
+      this.closeModal();
+      this.loadDrugTypes();
+    },
+    error: () => this.toast.error('Failed to update drug type'),
+  });
+}
+
+
+ deleteDrugType(drugTypeId: string): void {
+  if (!confirm('Are you sure you want to delete this drug type?')) return;
+
+  const drugType = this.drugTypes.find(dt => dt.drugTypeId === drugTypeId);
+  if (!drugType) {
+    this.toast.error('Drug type not found');
+    return;
   }
+
+  const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}`;
+
+  this.http.delete<ApiResponse>(deleteUrl, { body: drugType }).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to delete drug type');
+        return;
+      }
+
+      this.toast.success(res?.message || 'Drug type deleted successfully');
+      this.loadDrugTypes();
+    },
+    error: () => this.toast.error('Failed to delete drug type'),
+  });
+}
+
 }

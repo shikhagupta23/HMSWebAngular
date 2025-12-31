@@ -93,7 +93,7 @@ export const ApiEndpoints = {
     updateDoctorProfile: `${API_BASE_URL}/DoctorAPI/updateDoctorProfile`,
   },
   DASHBOARD: {
-    GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
+    GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
    DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
   },
   INVOICE: {
