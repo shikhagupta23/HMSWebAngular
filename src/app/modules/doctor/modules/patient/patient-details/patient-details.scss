@@ -1,0 +1,47 @@
+.vitals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: end;
+}
+
+.vitals-row {
+  display: flex;
+  gap: 6px;
+}
+
+.vital-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vital-chip i {
+  font-size: 12px;
+}
+
+/* Color coding */
+.vital-chip.height {
+  background: #e3f2fd;
+  color: #0d6efd;
+}
+
+.vital-chip.weight {
+  background: #ede7f6;
+  color: #6f42c1;
+}
+
+.vital-chip.oxygen {
+  background: #e8f5e9;
+  color: #198754;
+}
+
+.vital-chip.pulse {
+  background: #fdecea;
+  color: #dc3545;
+}

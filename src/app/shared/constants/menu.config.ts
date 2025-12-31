@@ -34,7 +34,7 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ["Admin"]
   },
   {
-    label: "My Patients",
+    label: "Patients",
     icon: "fa-solid fa-user-injured",
     route: "/patient/allpatient",
     roles: ["Doctor", "Receptionist", "Admin"]

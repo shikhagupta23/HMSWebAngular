@@ -1139,5 +1139,17 @@ private onAppointmentSignalR(): void {
   this.loadAppointmentCounts();
 }
 
+openPatientDetails(patient: any) {
+  if (!patient?.patientId) {
+    console.error('UserId missing', patient);
+    return;
+  }
+    console.log('App', patient);
+
+  this.router.navigate(
+    ['/patient/patient-details', patient.patientId],
+    { state: { patient } }
+  );
+}
 
 }

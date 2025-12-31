@@ -55,7 +55,7 @@
 	<div class="tab-content appointment-tab-content">
 		<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
 		<ng-container *ngIf="dataList.length > 0; else noRecords">
-		<div class="appointment-wrap p-3 mb-2" *ngFor="let item of dataList">
+		<div class="appointment-wrap p-3 mb-2" *ngFor="let item of dataList" >
 			<div class="row g-3 align-items-center flex-md-nowrap">
 
 				<!-- Patient Name -->
@@ -543,8 +543,8 @@
 							+ Add LabTest
 							</button>
 						</div>
-						<div class="col-md-4 d-flex mt-4">
-							<input type="text" title="Next FollowUp" class="form-control" placeholder="Next Follow up (in days)" [(ngModel)]="prescription.nextFollowUpCount" *ngIf="!canEdit"/>
+						<div class="col-md-4 d-flex mt-4" *ngIf="isDoctor">
+							<input type="text" title="Next FollowUp" class="form-control" placeholder="Next Follow up (in days)" [(ngModel)]="prescription.nextFollowUpCount"/>
 						</div>
 						</div>
 

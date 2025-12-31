@@ -62,67 +62,54 @@
         </div>
       </div>
 
-      <div class="custom-table">
-        <div class="table-responsive">
-          <table class="table table-center mb-0">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Patient</th>
-                <th>Doctor</th>
-                <th>Appt Date</th>
-                <th>Booking Date</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th class="d-none">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let appt of appointments">
-                <td>
-                  <a class="text-blue-600 cursor-pointer"> #Apt{{ appt.appointmentViewId }} </a>
-                </td>
+      <div class="appointment-wrap p-3 mb-2" *ngFor="let appt of appointments">
+			  <div class="row g-3 align-items-center flex-md-nowrap">
 
-                <td>
-                  <h2 class="table-avatar">
-                    {{ appt.patientName }}
-                  </h2>
-                </td>
-
-                <td>
-                  <h2 class="table-avatar">
-                    <a>{{ appt.doctorName }}</a>
-                  </h2>
-                </td>
-
-                <td>{{ appt.appointmentDate | date:'dd MMM yyyy, HH:mm' }}</td>
-<td>{{ appt.appointmentBookedDate | date:'dd MMM yyyy, HH:mm' }}</td>
+                  <div class="col-12 col-lg-3">
+                  <span>#Apt{{ appt.appointmentViewId }}</span>
+                  <span>{{ appt.doctorName }}</span>
+                  </div>
 
 
-                <td>₹{{appt.appointmentFee}}</td>
-                <!-- update when backend sends amount -->
+                  <div class="col-12 col-lg-3">
+                  <span>{{ appt.appointmentDate | date:'dd MMM yyyy, HH:mm' }}</span>
+                  <span>{{ appt.appointmentBookedDate | date:'dd MMM yyyy, HH:mm' }}</span>
+                  </div>
 
-                <td>
+                  <div class="col-12 col-lg-1">
+                  <span>₹{{appt.appointmentFee}}</span>
+                  </div>
+
+                  <div class="col-12 col-lg-1">
                   <span class="badge status-badge" [ngClass]="getStatusClass(appt.appointmentStatus)">
                     {{ getStatusText(appt.appointmentStatus) }}
                   </span>
-                </td>
-
-                <td class="d-none">
-                  <div class="action-item">
-                    <a class="cursor-pointer">
-                      <i class="fa-solid fa-link"></i>
-                    </a>
                   </div>
-                </td>
-              </tr>
 
-              <!-- Empty State -->
-              <tr *ngIf="appointments.length === 0">
-                <td colspan="7" class="text-center text-muted py-4">No appointments found</td>
-              </tr>
-            </tbody>
-          </table>
+
+                  <div class=" col-12 col-lg-4 vitals-grid">
+                    <!-- Top Row -->
+                    <div class="vitals-row">
+                      <span class="vital-chip height">
+                        <i class="fa-solid fa-ruler-vertical"></i> {{ appt.height }} cm
+                      </span>
+
+                      <span class="vital-chip weight">
+                        <i class="fa-solid fa-weight-scale"></i> {{ appt.weight }} kg
+                      </span>
+                    </div>
+
+                    <!-- Bottom Row -->
+                    <div class="vitals-row">
+                      <span class="vital-chip oxygen">
+                        <i class="fa-solid fa-lungs"></i> {{ appt.oxygen }} %
+                      </span>
+
+                      <span class="vital-chip pulse">
+                        <i class="fa-solid fa-heart-pulse"></i> {{ appt.pulse }} bpm
+                      </span>
+                    </div>
+                  </div>
         </div>
       </div>
 
