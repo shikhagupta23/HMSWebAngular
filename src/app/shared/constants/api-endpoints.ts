@@ -8,14 +8,14 @@ export const ApiEndpoints = {
       `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/HospitalAPI/Post`,
     UPDATE: `${API_BASE_URL}/HospitalAPI/Put`,
-    UPDATE_STATUS: `${API_BASE_URL}/HospitalAPI/toggle-hospital-status`,
+    UPDATE_STATUS: `${API_BASE_URL}/HospitalAPI/togglehospitalstatus`,
     GETUSERSBYHOPITALID: `${API_BASE_URL}/ApplicationUserAPI/getUserListByHospitalId`,
   },
   User: {
     GET: (page: number, pageSize: number, search: string) =>
       `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
-    UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggle-user-status`,
+    UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggleuserstatus`,
     UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,
      GET_BY_ID: (id: string) =>
     `${API_BASE_URL}/ApplicationUserAPI/Get/${id}`,

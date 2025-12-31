@@ -29,7 +29,7 @@ export class HospitalDetails implements OnInit {
   addUserForm!: FormGroup;
 
   isEditMode = false;
-  editingUserId: string | null = null;
+  editingUserId!: string;
 
   loggedInHospitalId: string | null = null;
   loggedInUserRole: string | null = null;
@@ -51,7 +51,6 @@ export class HospitalDetails implements OnInit {
 
       this.hospitalId = hospitalId;
       this.hospitalDetails = state.hospitalDetails;
-      console.log('Hospital Details:', this.hospitalDetails);
     } else {
       console.warn('No state found, fallback to route params if needed');
     }
@@ -77,7 +76,6 @@ export class HospitalDetails implements OnInit {
 
     modalElcnf.addEventListener('hidden.bs.modal', () => {
       if (this.pendingUser) {
-        console.log('Reverting user status:', this.pendingUser);
         this.loadUsersByHospital();
         this.pendingUser.isActive = this.previousStatus;
         this.clearPendingUserState();
@@ -123,8 +121,6 @@ export class HospitalDetails implements OnInit {
   onSearch(): void {
     const term = this.searchTerm.toLowerCase().trim();
 
-    console.log('🔍 Search term:', term);
-
     if (!term) {
       this.filteredUsers = [...this.users];
       return;
@@ -133,8 +129,6 @@ export class HospitalDetails implements OnInit {
     this.filteredUsers = this.users.filter((u, index) => {
       const fields = [u.fullName, u.email, u.phone, u.userRole, u.address, u.gender];
 
-      console.group(`User ${index}`);
-      console.log('Fields:', fields);
 
       const match = fields.some((field) => {
         if (!field) return false;
@@ -142,12 +136,8 @@ export class HospitalDetails implements OnInit {
         const value = field.toString().toLowerCase();
         const result = value.includes(term);
 
-        console.log(`Checking "${value}" → ${result}`);
         return result;
       });
-
-      console.log('Match:', match);
-      console.groupEnd();
 
       return match;
     });
@@ -174,7 +164,7 @@ export class HospitalDetails implements OnInit {
 
     if (this.isEditMode && this.editingUserId) {
       const payload = {
-        id: this.editingUserId,
+        userId: this.editingUserId,
         FullName: v.FullName,
         Gender: v.Gender,
         DateOfBirth: v.DateOfBirth,
@@ -234,32 +224,60 @@ export class HospitalDetails implements OnInit {
 
   /* ---------------- EDIT ---------------- */
 
-  openEditUser(user: any): void {
-    this.isEditMode = true;
-    this.editingUserId = user.id;
+ openEditUser(user: any): void {
+  // 🔹 SET EDIT STATE
+  this.isEditMode = true;
+  this.editingUserId = user.userId || user.id;
 
-    this.addUserForm.patchValue({
-      FullName: user.fullName,
-      Gender: user.gender,
-      DateOfBirth: user.dateOfBirth,
-      RoleId: user.roleId,
-      HospitalId: user.hospitalId,
-      PhoneNumber: user.phoneNumber,
-      Email: user.email,
-      Address: user.address,
-    });
+  // 🔹 HANDLE PASSWORD FIELD
+  const pwd = this.addUserForm.get('Password');
+  pwd?.clearValidators();
+  pwd?.disable();
+  pwd?.updateValueAndValidity();
 
-    this.addUserForm.get('Password')?.clearValidators();
-    this.addUserForm.get('Password')?.disable();
-     const modal = new bootstrap.Modal(
-        document.getElementById('addUserModal') as HTMLElement
-      );
-      modal.show();
-  }
+  // 🔹 CALL API FOR FULL USER DATA
+  this.api.getUserById(this.editingUserId).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess || !res?.data) {
+        this.toast.error('Failed to load user details');
+        return;
+      }
+
+      const u = res.data;
+
+      // 🔹 PATCH FORM SAFELY
+      this.addUserForm.patchValue({
+        FullName: u.fullName ?? '',
+        Gender: u.gender ?? '',
+        DateOfBirth: u.dob ? u.dob.substring(0, 10) : null,
+        RoleId: u.roleId ?? u.role ?? '',
+        HospitalId: u.hospitalId ?? '',
+        PhoneNumber: u.phoneNumber ?? u.phone ?? '',
+        Email: u.email ?? '',
+        Address: u.address ?? '',
+
+        // 👨‍⚕️ Doctor fields (optional)
+        DoctorRegistrationNo: u.doctorRegistrationNo ?? '',
+        DepartmentId: u.doctorDepartmentId ?? u.doctordepartmentId ?? '',
+      });
+
+      // 🔹 OPEN MODAL AFTER PATCH
+      const modalEl = document.getElementById('addUserModal');
+      if (modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      }
+    },
+    error: () => {
+      this.toast.error('Failed to load user details');
+    },
+  });
+}
+
 
   resetEditState(): void {
     this.isEditMode = false;
-    this.editingUserId = null;
+    this.editingUserId = '';
 
     const pwd = this.addUserForm.get('Password');
     pwd?.enable();

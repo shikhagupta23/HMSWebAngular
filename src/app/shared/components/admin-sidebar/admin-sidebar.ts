@@ -27,7 +27,6 @@ export class AdminSidebar {
 
         this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
           next:(response: any) => {
-            console.log("Doctor Details : ", response );
               if (response.isSuccess) {
                 this.doctorDetails = response.data;
               }

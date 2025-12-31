@@ -18,11 +18,6 @@ export class FeatureAccessService {
   }
 
   updateStatus(id: string, isExtend: boolean): Observable<any> {
-  console.group('📡 updateStatus API');
-
-  console.log('Endpoint:', ApiEndpoints.FEATURE_ACCESS.UPDATE_STATUS);
-  console.log('Query Params:', { id, isExtend });
-
   return this.api.post(
     ApiEndpoints.FEATURE_ACCESS.UPDATE_STATUS,
     null, // 👈 no body

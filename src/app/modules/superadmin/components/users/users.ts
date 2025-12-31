@@ -119,7 +119,6 @@ private confirmModalInstance: any;
 
     modalElcnf.addEventListener('hidden.bs.modal', () => {
       if (this.pendingUser) {
-        console.log('Reverting user status:', this.pendingUser);
         this.loadUsers();
         this.pendingUser.isActive = this.previousStatus;
         this.clearPendingUserState();
@@ -215,8 +214,6 @@ loadDoctorDepartments() {
     next: (res: any) => {
       this.departments =
         res.dataList ;
-
-      console.log('Doctor Departments:', this.departments);
     },
     error: () => {
       this.toast.error('Failed to load departments');

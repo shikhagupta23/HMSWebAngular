@@ -102,7 +102,7 @@
                   <!-- Users List -->
                   <tr *ngFor="let user of filteredUsers">
                     <td>{{ user.fullName }}</td>
-                    <td>{{ user.gender }}</td>
+                    <td>{{ user.gender  | gender }}</td>
                     <td>{{ user.userRole }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.email }}</td>

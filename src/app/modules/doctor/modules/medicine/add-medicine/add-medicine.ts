@@ -37,7 +37,6 @@ export class AddMedicine implements OnInit {
   loadMedicineType(){
       this.medicineService.getMedicineType(this.searchTerm).subscribe({
         next:(response:any) =>{
-          console.log(response);
           this.medicineTypes = response.dataList || [];
 
         },
@@ -64,7 +63,6 @@ export class AddMedicine implements OnInit {
         unit: String(this.medicineForm.value.quantity),
         medicineType: this.medicineForm.value.medicineType
     };
-    console.log(payload);
     this.medicineService.postMedicine(payload).subscribe({
       next: (res) => {
         this.toast.success("Medicine Saved Successfully");
@@ -73,8 +71,7 @@ export class AddMedicine implements OnInit {
         this.router.navigate(['/doctor/medicine/allmedicine']);
       },
       error: (err) => {
-        console.error(err);
-        console.log("Validation errors:", err.error?.errors);  
+        console.error(err); 
         this.toast.error("Something went wrong");
       }
     });

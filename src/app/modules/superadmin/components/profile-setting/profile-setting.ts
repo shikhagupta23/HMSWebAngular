@@ -65,7 +65,6 @@ const doctorId = this.authService.getLoggedInUserId();
       next: (res) => {
         this.profiledata = res?.data ?? (Array.isArray(res?.dataList) ? res.dataList[0] : null);
         const data = this.profiledata;
-        console.log('Profile data loaded:', data);
         if(isDoctor){
  this.form.patchValue({
           id: data.doctorId,
@@ -128,8 +127,6 @@ const doctorId = this.authService.getLoggedInUserId();
     next: (res: any) => {
       this.departments =
         res.dataList ;
-
-      console.log('Doctor Departments:', this.departments);
     },
     error: () => {
       this.toast.error('Failed to load departments');
@@ -200,7 +197,6 @@ const doctorId = this.authService.getLoggedInUserId();
       doctorProfileId:this.profiledata?.doctorProfileId,
       AspNetUserDetailsId: this.profiledata?.aspNetUserDetailsId
     };
-console.log('Doctor Update Payload:', doctorPayload);
     this.api
       .post<any>(
         ApiEndpoints.DOCTOR.updateDoctorProfile,

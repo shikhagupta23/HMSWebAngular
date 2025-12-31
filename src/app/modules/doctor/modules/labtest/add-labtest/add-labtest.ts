@@ -32,7 +32,6 @@ export class AddLabtest {
 
   onSubmit() {
     if (this.labtestForm.valid) {
-      console.log('Labtest Data:', this.labtestForm.value);
       const savedlabtests = JSON.parse(localStorage.getItem("labtests") || "[]");
       savedlabtests.push(this.labtestForm.value);
       localStorage.setItem("labtests", JSON.stringify(savedlabtests));

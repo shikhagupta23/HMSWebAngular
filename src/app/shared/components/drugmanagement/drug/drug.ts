@@ -257,7 +257,6 @@ export class DrugComponent implements OnInit, OnDestroy {
 
     this.http.get<DrugResponse>(apiUrl, { params }).subscribe({
       next: (response) => {
-        console.log('API Response:', response);
         
         if (response.isSuccess) {
           this.allDrugs = response.dataList || [];

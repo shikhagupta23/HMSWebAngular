@@ -31,33 +31,33 @@ export class FeatureAssignment implements OnInit {
   private usersApi = inject(UsersService);
   private toast = inject(ToastService);
 
-ngOnInit(): void {
-  this.initForm();
-  this.loadList();
-  this.loadFeatureList();
-  this.loadHospitalList();
+  ngOnInit(): void {
+    this.initForm();
+    this.loadList();
+    this.loadFeatureList();
+    this.loadHospitalList();
 
-  this.assignForm.get('featureId')?.valueChanges.subscribe(featureId => {
-    if (featureId) {
-      this.assignForm.get('hospitalId')?.enable();
-      this.assignForm.get('hospitalId')?.reset();
-      this.assignForm.get('userId')?.disable();
-      this.assignForm.get('canAddAnotherUser')?.disable();
-      this.userList = [];
-    }
-  });
+    this.assignForm.get('featureId')?.valueChanges.subscribe((featureId) => {
+      if (featureId) {
+        this.assignForm.get('hospitalId')?.enable();
+        this.assignForm.get('hospitalId')?.reset();
+        this.assignForm.get('userId')?.disable();
+        this.assignForm.get('canAddAnotherUser')?.disable();
+        this.userList = [];
+      }
+    });
 
-  this.assignForm.get('hospitalId')?.valueChanges.subscribe(hospitalId => {
-    const featureId = this.assignForm.value.featureId;
+    this.assignForm.get('hospitalId')?.valueChanges.subscribe((hospitalId) => {
+      const featureId = this.assignForm.value.featureId;
 
-    if (hospitalId && featureId) {
-      this.loadUsersAsPerSelection();
-      this.assignForm.get('userId')?.enable();
-      this.assignForm.get('canAddAnotherUser')?.enable();
-    }
-  });
-}
-ngAfterViewInit(): void {
+      if (hospitalId && featureId) {
+        this.loadUsersAsPerSelection();
+        this.assignForm.get('userId')?.enable();
+        this.assignForm.get('canAddAnotherUser')?.enable();
+      }
+    });
+  }
+  ngAfterViewInit(): void {
     const modalEl = document.getElementById('featureAssignModal');
 
     if (modalEl) {
@@ -70,50 +70,56 @@ ngAfterViewInit(): void {
   loadUsersForAdminRole() {
     this.usersApi.getRoleId('admin').subscribe({
       next: (res: any) => {
-        const roles = res.dataList ;
-        const adminRole = roles.find((r: any) => (r.name || r.Name || r.roleName || r.RoleName || '').toString().toLowerCase().includes('admin'));
-        const roleId = adminRole ? (adminRole.id ?? adminRole.roleId ?? adminRole.RoleId ?? adminRole.Id) : '';
+        const roles = res.dataList;
+        const adminRole = roles.find((r: any) =>
+          (r.name || r.Name || r.roleName || r.RoleName || '')
+            .toString()
+            .toLowerCase()
+            .includes('admin')
+        );
+        const roleId = adminRole
+          ? adminRole.id ?? adminRole.roleId ?? adminRole.RoleId ?? adminRole.Id
+          : '';
         this.loadUserList(roleId);
       },
       error: (err) => {
         this.loadUserList('');
-      }
+      },
     });
   }
 
   initForm() {
-  this.assignForm = this.fb.group({
-    featureId: [null, Validators.required],
-    hospitalId: [{ value: null, disabled: true }, Validators.required],
-    userId: [{ value: null, disabled: true }, Validators.required],
-    canAddAnotherUser: [{ value: false, disabled: true }]
-  });
-}
+    this.assignForm = this.fb.group({
+      featureId: [null, Validators.required],
+      hospitalId: [{ value: null, disabled: true }, Validators.required],
+      userId: [{ value: null, disabled: true }, Validators.required],
+      canAddAnotherUser: [{ value: false, disabled: true }],
+    });
+  }
   loadList() {
     this.api.getFeatureAccess(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (res: any) => {
-        this.dataList = res.dataList ;
+        this.dataList = res.dataList;
         this.pageNumber = res.pageNumber ?? this.pageNumber;
         this.pageSize = res.pageSize ?? this.pageSize;
-        this.totalCount = res.totalCount ?? res.total ?? (this.dataList?.length ?? 0);
+        this.totalCount = res.totalCount ?? res.total ?? this.dataList?.length ?? 0;
         const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         this.totalPages = res.totalPages ?? computedPages;
       },
       error: (err) => {
-        console.error(err);
         this.toast.error('Failed to load feature assignments');
-      }
+      },
     });
   }
 
   loadFeatureList() {
     this.api.getFeatureList().subscribe({
       next: (res: any) => {
-        this.featureList = res?.dataList ;
+        this.featureList = res?.dataList;
       },
       error: (err) => {
-        console.error(err);
-      }
+        this.toast.error('Failed to load feature list');
+      },
     });
   }
 
@@ -122,8 +128,10 @@ ngAfterViewInit(): void {
       next: (res: any) => {
         this.hospitalList = res?.dataList;
       },
-      error: (err) => console.error(err)
-    })
+      error: (err) => {
+        this.toast.error('Failed to load hospital list');
+      },
+    });
   }
 
   loadUserList(role: string = '', search: string = '') {
@@ -132,7 +140,9 @@ ngAfterViewInit(): void {
       next: (res: any) => {
         this.userList = res?.data ?? res?.items ?? res ?? [];
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.toast.error('Failed to load user list');
+      }
     });
   }
 
@@ -177,7 +187,7 @@ ngAfterViewInit(): void {
       name: this.assignForm.value.name,
       hospitalId: this.assignForm.value.hospitalId,
       userId: this.assignForm.value.userId,
-      canAddAnotherUser: !!this.assignForm.value.canAddAnotherUser
+      canAddAnotherUser: !!this.assignForm.value.canAddAnotherUser,
     };
     if (this.selectedId != null) {
       payload.id = this.selectedId;
@@ -185,20 +195,27 @@ ngAfterViewInit(): void {
 
     this.api.saveFeatureAccess(payload).subscribe({
       next: (res) => {
-        this.toast.success('Feature assignment saved');
-       this.closeModal();
+        if (!res?.isSuccess) {
+          // ❌ API responded but operation failed
+          this.toast.error(res?.message || 'Failed to save feature assignment');
+          return;
+        }
+
+        // ✅ SUCCESS
+        this.toast.success(res?.message || 'Feature assignment saved');
+        this.closeModal();
         this.selectedId = null;
         this.assignForm.reset();
         this.loadList();
       },
       error: (err) => {
         this.toast.error('Failed to save feature assignment');
-      }
+      },
     });
   }
   closeModal(): void {
-  this.closeModalBtn?.nativeElement.click();
-}
+    this.closeModalBtn?.nativeElement.click();
+  }
   onEdit(item: any) {
     this.selectedId = item.id ?? item.featureAccessId ?? null;
     this.assignForm.patchValue({
@@ -206,7 +223,7 @@ ngAfterViewInit(): void {
       name: item.name ?? item.Name ?? '',
       hospitalId: item.hospitalId ?? item.HospitalId ?? null,
       userId: item.userId ?? item.UserId ?? null,
-      canAddAnotherUser: !!(item.canAddAnotherUser ?? item.canAddAnother ?? item.CanAddAnotherUser)
+      canAddAnotherUser: !!(item.canAddAnotherUser ?? item.canAddAnother ?? item.CanAddAnotherUser),
     });
 
     const modalEl = document.getElementById('featureAssignModal');
@@ -215,76 +232,80 @@ ngAfterViewInit(): void {
       m.show();
     }
   }
-//   closeModal(): void {
-//   this.closeModalBtn?.nativeElement.click();
-// }
+  //   closeModal(): void {
+  //   this.closeModalBtn?.nativeElement.click();
+  // }
 
   onToggleExtend(item: any, checked: boolean) {
-  const id = item.featureAccessId;
+    const id = item.featureAccessId;
 
-  if (!id) {
-    this.toast.error('Unable to determine record id');
+    if (!id) {
+      this.toast.error('Unable to determine record id');
+      return;
+    }
+
+    const prevExtend = item.isExtend ?? item.isExtended;
+
+    // UI: optimistic update
+    item._updatingExtend = true;
+    item.isExtend = checked;
+    item.isExtended = checked;
+
+    this.api.updateStatus(id, checked).subscribe({
+     next: (res: any) => {
+  if (!res?.isSuccess) {
+    // ❌ API responded but failed
+    this.toast.error(res?.message || 'Failed to update extend status');
+    item._updatingExtend = false;
     return;
   }
 
-  const prevExtend = item.isExtend ?? item.isExtended;
+  // ✅ SUCCESS
+  this.toast.success(res?.message || 'Extend status updated');
+  item._updatingExtend = false;
+},
 
-  // UI: optimistic update
-  item._updatingExtend = true;
-  item.isExtend = checked;
-  item.isExtended = checked;
 
-  this.api.updateStatus(id, checked).subscribe({
-    next: (res) => {
-      this.toast.success('Extend status updated');
-      item._updatingExtend = false;
-    },
+      error: (err) => {
+        // revert UI state
+        item.isExtend = prevExtend;
+        item.isExtended = prevExtend;
+        item._updatingExtend = false;
 
-    error: (err) => {
-
-      // revert UI state
-      item.isExtend = prevExtend;
-      item.isExtended = prevExtend;
-      item._updatingExtend = false;
-
-      this.toast.error('Failed to update extend status');
-    }
-  });
-}
-
+        this.toast.error('Failed to update extend status');
+      },
+    });
+  }
 
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-loadUsersAsPerSelection() {
-  const hospitalId = this.assignForm.get('hospitalId')?.value;
-  const featureId = this.assignForm.get('featureId')?.value;
-  const role = 'SuperAdmin';
+  loadUsersAsPerSelection() {
+    const hospitalId = this.assignForm.get('hospitalId')?.value;
+    const featureId = this.assignForm.get('featureId')?.value;
+    const role = 'SuperAdmin';
 
-  if (!hospitalId || !featureId) {
-    this.userList = [];
-    return;
-  }
+    if (!hospitalId || !featureId) {
+      this.userList = [];
+      return;
+    }
 
-  this.api.getUsersAsPerHospitalFeature(hospitalId, featureId, role)
-    .subscribe({
+    this.api.getUsersAsPerHospitalFeature(hospitalId, featureId, role).subscribe({
       next: (res: any) => {
         this.userList = res?.dataList ?? [];
       },
       error: () => {
         this.toast.error('Failed to load users');
         this.userList = [];
-      }
+      },
     });
-}
-resetForm() {
-  this.assignForm.reset();
-  this.assignForm.get('hospitalId')?.disable();
-  this.assignForm.get('userId')?.disable();
-  this.assignForm.get('canAddAnotherUser')?.disable();
-  this.userList = [];
-}
-
-
+  }
+  resetForm() {
+    this.assignForm.reset();
+    this.assignForm.get('hospitalId')?.disable();
+    this.assignForm.get('userId')?.disable();
+    this.assignForm.get('canAddAnotherUser')?.disable();
+    this.userList = [];
+  }
 }
