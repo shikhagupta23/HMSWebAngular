@@ -266,101 +266,129 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
+   <div class="modal-body">
 
-        <!-- Patient Name Dropdown with Search -->
-        <div class="mb-3">
-          <label class="form-label">
-            <i class="fa-solid fa-user"></i>
-            Select Patient <span class="text-danger">*</span>
-          </label>
+  <!-- Patient Name Dropdown with Search -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fa-solid fa-user"></i>
+      Select Patient <span class="text-danger">*</span>
+    </label>
 
-          <!-- Search input with icon on RIGHT -->
-          <div class="input-group search-wrapper">
-            <input type="text" class="form-control border-end-0" placeholder="Search patient by name..."
-              [(ngModel)]="searchTerm" (input)="filterAppointments()" />
-          </div>
+    <div class="input-group search-wrapper">
+      <input type="text" class="form-control border-end-0"
+             placeholder="Search patient by name..."
+             [(ngModel)]="searchTerm"
+             (input)="filterAppointments()" />
+    </div>
 
-          <!-- Patient select dropdown -->
-          <div class="patient-select-wrapper">
-            <select class="form-select" [(ngModel)]="selectedAppointmentId" (change)="onAppointmentChange()" size="5">
-              <option value="">-- Select a patient from the list --</option>
-              <option *ngFor="let appt of filteredAppointments" [value]="appt.appointmentId">
-                {{ appt.patientName }}
-              </option>
-            </select>
-          </div>
-        </div>
+    <div class="patient-select-wrapper">
+      <select class="form-select"
+              [(ngModel)]="selectedAppointmentId"
+              (change)="onAppointmentChange()"
+              size="5">
+        <option value="">-- Select a patient from the list --</option>
+        <option *ngFor="let appt of filteredAppointments"
+                [value]="appt.appointmentId">
+          {{ appt.patientName }}
+        </option>
+      </select>
+    </div>
+  </div>
 
-        <!-- Doctor Name -->
-        <div class="mb-3">
-          <label class="form-label">
-            <i class="fa-solid fa-user-doctor"></i>
-            Doctor Name
-          </label>
-          <input type="text" class="form-control" [value]="invoice.doctorName" readonly
-            placeholder="Auto-filled after patient selection" />
-        </div>
+  <hr />
 
-        <!-- Appointment Date -->
-        <div class="mb-3">
-          <label class="form-label">
-            <i class="fa-solid fa-calendar-check"></i>
-            Appointment Date
-          </label>
-          <input type="text" class="form-control" [value]="invoice.appointmentDate" readonly
-            placeholder="Auto-filled after patient selection" />
-        </div>
+ <!-- ================= TWO COLUMN SECTION ================= -->
+<div class="row">
 
-        <hr />
+  <!-- Doctor Name -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-user-doctor"></i>
+      Doctor Name
+    </label>
+    <input type="text"
+           class="form-control"
+           [value]="invoice.doctorName"
+           readonly
+           placeholder="Auto-filled after patient selection" />
+  </div>
 
-        <!-- Fee Section -->
-        <div class="row mb-3">
-          <!-- Doctor Fee -->
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="fa-solid fa-stethoscope"></i>
-              Doctor Fee (Appointment Fee)
-            </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.doctorFee" min="0" readonly
-              placeholder="₹ 0.00" />
-            <small class="text-muted">Auto-filled from appointment</small>
-          </div>
+  <!-- Appointment Date -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-calendar-check"></i>
+      Appointment Date
+    </label>
+    <input type="text"
+           class="form-control"
+           [value]="invoice.appointmentDate"
+           readonly
+           placeholder="Auto-filled after patient selection" />
+  </div>
 
-          <!-- Lab Test Fee -->
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="fa-solid fa-flask"></i>
-              Lab Test Fee
-            </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.labTestFee" (input)="calculateTotal()"
-              min="0" placeholder="₹ 0.00" />
-          </div>
-        </div>
+  <!-- Doctor Fee -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-stethoscope"></i>
+      Doctor Fee (Appointment Fee)
+    </label>
+    <input type="number"
+           class="form-control"
+           [(ngModel)]="invoice.doctorFee"
+           min="0"
+           readonly
+           placeholder="₹ 0.00" />
+    <small class="text-muted">Auto-filled from appointment</small>
+  </div>
 
-        <!-- Payment Mode -->
-        <div class="mb-3">
-          <label class="form-label">
-            <i class="fa-solid fa-credit-card"></i>
-            Payment Mode
-          </label>
-          <select class="form-select" [(ngModel)]="invoice.paymentMode">
-            <option value="Cash">💵 Cash</option>
-            <option value="Card">💳 Card</option>
-            <option value="UPI">📱 UPI</option>
-            <option value="Net Banking">🏦 Net Banking</option>
-          </select>
-        </div>
+  <!-- Lab Test Fee -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-flask"></i>
+      Lab Test Fee
+    </label>
+    <input type="number"
+           class="form-control"
+           [(ngModel)]="invoice.labTestFee"
+           (input)="calculateTotal()"
+           min="0"
+           placeholder="₹ 0.00" />
+  </div>
 
-        <!-- Total Amount Display -->
-        <div class="alert alert-info d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">
-            <i class="fa-solid fa-receipt me-2"></i>Total Amount:
-          </span>
-          <span class="fs-5 fw-bold">₹{{ totalAmount | number:'1.2-2' }}</span>
-        </div>
+  <!-- Payment Mode -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-credit-card"></i>
+      Payment Mode
+    </label>
+    <select class="form-select"
+            [(ngModel)]="invoice.paymentMode">
+      <option value="Cash">💵 Cash</option>
+      <option value="Card">💳 Card</option>
+      <option value="UPI">📱 UPI</option>
+      <option value="Net Banking">🏦 Net Banking</option>
+    </select>
+  </div>
 
-      </div>
+  <!-- Total Amount (INPUT FIELD) -->
+  <div class="col-md-6 mb-2">
+    <label class="form-label">
+      <i class="fa-solid fa-receipt"></i>
+      Total Amount
+    </label>
+    <input type="text"
+           class="form-control fw-bold"
+           [value]="'₹ ' + (totalAmount | number:'1.2-2')"
+           readonly />
+  </div>
+
+</div>
+<!-- ================= END TWO COLUMN SECTION ================= -->
+
+
+</div>
+
 
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">

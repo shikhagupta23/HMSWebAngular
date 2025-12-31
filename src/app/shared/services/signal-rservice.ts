@@ -13,6 +13,8 @@ export class SignalRService {
   private receiveCompleted$ = new Subject<any>();
   private receiveCheckIn$ = new Subject<any>();
   private appointmentBooked$ = new Subject<any>();
+  private patientAdded$ = new Subject<any>();
+
 
   // 🔗 Hub URL
   private readonly hubUrl =
@@ -104,11 +106,13 @@ export class SignalRService {
       console.log('AppointmentBooked received' );
       this.appointmentBooked$.next(data);
     });
+
+     this.hubConnection.on('UserCreated', data => {
+      this.patientAdded$.next(data);
+    });
   }
 
-  /* ================================
-     OBSERVABLES (PUBLIC)
-  ================================= */
+  
   onReceiveCompleted(): Observable<any> {
     return this.receiveCompleted$.asObservable();
   }
@@ -119,6 +123,10 @@ export class SignalRService {
 
   onAppointmentBooked(): Observable<any> {
     return this.appointmentBooked$.asObservable();
+  }
+
+  onPatientAdd(): Observable<any> {
+    return this.patientAdded$.asObservable();
   }
 
   /* ================================
