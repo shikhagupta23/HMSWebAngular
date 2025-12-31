@@ -239,64 +239,72 @@ private loadCurrentUserRole(): void {
   }
 
   // Print invoice
-  printInvoice(invoice: InvoiceData): void {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+ // Print invoice - Opens print dialog with PDF download option
+printInvoice(invoice: InvoiceData): void {
+  const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
+  
+  this.http.get<any>(apiUrl).subscribe({
+    next: (response) => {
+      // Extract and clean HTML content
+      let htmlContent = this.extractAndCleanHtml(response);
+      
+      if (!htmlContent) {
+        alert('Failed to generate invoice!');
+        return;
+      }
+      
+      // Open new window with proper dimensions
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      
+      if (!printWindow) {
+        alert('Please allow pop-ups to print the invoice');
+        return;
+      }
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Invoice #Inv0000_${invoice.invoiceNo}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 40px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .invoice-details { margin: 20px 0; }
-            .info-section { margin: 20px 0; }
-            .info-row { display: flex; justify-content: space-between; margin: 5px 0; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-            .total { font-size: 18px; font-weight: bold; text-align: right; margin-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>INVOICE</h1>
-            <p>Invoice #: Inv0000_${invoice.invoiceNo}</p>
-            <p>Date: ${this.formatDate(invoice.createdAt)}</p>
-          </div>
-          <div class="info-section">
-            <div class="info-row">
-              <strong>Patient:</strong>
-              <span>${invoice.patientName}</span>
-            </div>
-            <div class="info-row">
-              <strong>Doctor:</strong>
-              <span>${invoice.doctorName}</span>
-            </div>
-          </div>
-          <table>
-            <tr>
-              <th>Description</th>
-              <th>Amount</th>
-            </tr>
-            <tr>
-              <td>Doctor Consultation Fee</td>
-              <td>₹${invoice.doctorFee.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Lab Test Fee</td>
-              <td>₹${invoice.labTestFee.toFixed(2)}</td>
-            </tr>
-          </table>
-          <div class="total">
-            Total: ₹${invoice.totalPayment.toFixed(2)}
-          </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+      // Write the HTML content to the new window
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      // Wait for content and styles to load, then trigger print dialog
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      };
+    },
+    error: (err) => {
+      console.error('Failed to load invoice HTML', err);
+      alert('Failed to generate invoice for printing!');
+    }
+  });
+}
+
+// Helper method to extract and clean HTML from API response
+private extractAndCleanHtml(response: any): string {
+  let htmlContent = '';
+  if (response && response.data) {
+    htmlContent = response.data;
+  } else if (response && response.isSuccess && response.data) {
+    htmlContent = response.data;
+  } else if (typeof response === 'string') {
+    htmlContent = response;
+  } else {
+    console.error('Unexpected response format:', response);
+    return '';
   }
+
+  htmlContent = htmlContent
+    .replace(/\\r\\n/g, '\n')      
+    .replace(/\\n/g, '\n')         
+    .replace(/\\t/g, '\t')  
+    .replace(/\\"/g, '"')         
+    .replace(/\\'/g, "'")         
+    .replace(/\\\\/g, '\\')   
+    .trim();
+  
+  return htmlContent;
+}
 
   // Delete invoice
   deleteInvoice(invoiceId: string): void {
