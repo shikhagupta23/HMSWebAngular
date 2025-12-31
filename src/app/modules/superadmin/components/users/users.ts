@@ -165,8 +165,6 @@ get isDoctorRoleSelected(): boolean {
        // 🔹 Doctor-only fields
     DoctorRegistrationNo: [''],
     DepartmentId: [''],
-    DoctorDegree: [''],
-    DoctorSpeciality: [''],
     });
   }
 
@@ -274,8 +272,6 @@ loadDoctorDepartments() {
   email: v.Email,
   address: v.Address,
   doctorDepartmentMasterId: v.DepartmentId,
-  doctorDegree: v.DoctorDegree,
-  doctorSpeciality: v.DoctorSpeciality,
   doctorRegNo: v.DoctorRegistrationNo
 };
 
@@ -305,8 +301,7 @@ loadDoctorDepartments() {
       Address: v.Address,
       UserName: v.PhoneNumber,
       doctorDepartmentMasterId: v.DepartmentId,
-  doctorDegree: v.DoctorDegree,
-  doctorSpeciality: v.DoctorSpeciality,
+
   doctorRegNo: v.DoctorRegistrationNo
     };
 
@@ -434,7 +429,7 @@ editUser(user: any) {
         FullName: u.fullName,
         Gender: u.gender,
         DateOfBirth: u.dob ? u.dob.substring(0, 10) : null,
-        RoleId: u.userRole, // ⚠️ if backend sends roleName
+        RoleId: u.roleId, // ⚠️ if backend sends roleName
         HospitalId: u.hospitalId,
         PhoneNumber: u.phone,
         Email: u.email,
@@ -442,9 +437,8 @@ editUser(user: any) {
 
         // 👨‍⚕️ Doctor fields (safe even if null)
         DoctorRegistrationNo: u.doctorRegistrationNo ?? '',
-        DepartmentId: u.departmentId ?? '',
-        DoctorDegree: u.doctorDegree ?? '',
-        DoctorSpeciality: u.doctorSpeciality ?? '',
+        DepartmentId: u.doctordepartmentId ?? '',
+       
       });
 
       // open modal AFTER patch

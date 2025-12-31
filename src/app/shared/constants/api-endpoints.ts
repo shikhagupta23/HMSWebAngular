@@ -90,9 +90,11 @@ export const ApiEndpoints = {
     GetPrescriptionByAppointmentId: `${API_BASE_URL}/PrescriptionApi/prescription`,
     UpdateAppointment: `${API_BASE_URL}/Hub/UpdateAppointmentStatus`,
     SAVE_DEPARTMENT: `${API_BASE_URL}/DoctorAPI/saveDoctorDepartment`,
+    updateDoctorProfile: `${API_BASE_URL}/DoctorAPI/updateDoctorProfile`,
   },
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
+   DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,

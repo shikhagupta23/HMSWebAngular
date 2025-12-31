@@ -76,7 +76,7 @@
           {{ h.hospitalAddress + ', ' + h.city + ', ' + h.state }}
         </td>
         <td>{{ h.createdAt | date }}</td>
-        <td> <div class="form-check form-switch">
+        <td> <div class="form-check form-switch" (click)="$event.stopPropagation()">
             <input
               class="form-check-input"
               type="checkbox"

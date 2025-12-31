@@ -72,43 +72,43 @@ export const MENU_ITEMS: MenuItem[] = [
  {
   label: "Drug Management",
   icon: "fas fa-pills",
-  roles: ["Receptionist", "Doctor","Admin"],
+  roles: ["Receptionist", "Doctor"],
   children: [
     {
       label: "Drug",
       icon: "fas fa-pills",
       route: "/drugmanagement/drug",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     },
     {
       label: "Drug Dose",
       icon: "fas fa-syringe",
       route: "/drugmanagement/drugdose",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     },
     {
       label: "Drug Advice",
       icon: "fas fa-notes-medical",
       route: "/drugmanagement/drugadvice",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     },
     {
       label: "Drug Strength",
       icon: "fas fa-weight-hanging",
       route: "/drugmanagement/drugstrength",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     },
     {
       label: "Drug Type",
       icon: "fas fa-capsules",
       route: "/drugmanagement/drugtype",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     },
     {
       label: "Drug Duration",
       icon: "fas fa-hourglass-half",
       route: "/drugmanagement/drugduration",
-      roles: ["Receptionist", "Doctor","Admin"]
+      roles: ["Receptionist", "Doctor"]
     }
   ]
 },

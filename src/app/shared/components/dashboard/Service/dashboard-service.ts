@@ -11,4 +11,20 @@ export class DashboardService {
      getDahBoardData(): Observable<any> {
            return this.api.get(ApiEndpoints.DASHBOARD.GETDASHBOARDDATA);
          }
+     getDashboardSummary(isToday?: boolean, date?: string): Observable<any> {
+  const params: any = {};
+
+  // ✅ add IsToday ONLY if defined (true / false)
+  if (isToday !== undefined && isToday !== null) {
+    params.IsToday = isToday;
+  }
+
+  // ✅ add date ONLY if value exists
+  if (date) {
+    params.date = date;
+  }
+
+  return this.api.get(ApiEndpoints.DASHBOARD.DASHBOARDSUMMARY, params);
+}
+
 }

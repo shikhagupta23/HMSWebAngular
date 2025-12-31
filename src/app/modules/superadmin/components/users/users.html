@@ -26,7 +26,7 @@
       <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
     </div>
     <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal"
-      >+ Add New</a
+      >+ Add User</a
     >
   </div>
 </div>
@@ -134,7 +134,7 @@
       <div class="modal-body">
         <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Full Name <span class="text-danger">*</span></label
               >
@@ -151,15 +151,15 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Select Gender <span class="text-danger">*</span></label
               >
               <select class="form-control" formControlName="Gender">
                 <option value="">-- Select --</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
               </select>
               <div
                 class="text-danger small"
@@ -168,19 +168,19 @@
                 Gender is required
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold">Date of Birth</label>
               <input type="date" class="form-control" formControlName="DateOfBirth" />
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Select Role <span class="text-danger">*</span></label
               >
               <select class="form-control" formControlName="RoleId">
                 <option value="">-- Select Role --</option>
                 <option *ngFor="let r of roles" [value]="r.value">
-                  {{ r.text }} {{r.value}}
+                  {{ r.text }} 
                 </option>
               </select>
               <div
@@ -194,7 +194,7 @@
             <!-- ================= DOCTOR EXTRA FIELDS ================= -->
 
 @if(isDoctorRoleSelected){
-  <div class="col-md-3">
+  <div class="col-md-4">
   <label class="form-label small fw-semibold">
     Doctor Registration No <span class="text-danger">*</span>
   </label>
@@ -216,7 +216,7 @@
 </div>
 
 
-  <div class="col-md-3">
+  <div class="col-md-4">
   <label class="form-label small fw-semibold">
     Department <span class="text-danger">*</span> 
   </label>
@@ -248,51 +248,6 @@
     Department is required
   </div>
 </div>
-
-
- <div class="col-md-3">
-  <label class="form-label small fw-semibold">
-    Doctor Degree <span class="text-danger">*</span>
-  </label>
-  <input
-    type="text"
-    class="form-control"
-    formControlName="DoctorDegree"
-  />
-
-  <div
-    class="text-danger small"
-    *ngIf="
-      addUserForm.get('DoctorDegree')?.touched &&
-      addUserForm.get('DoctorDegree')?.errors
-    "
-  >
-    Doctor degree is required
-  </div>
-</div>
-
-
-  <div class="col-md-3">
-  <label class="form-label small fw-semibold">
-    Doctor Speciality <span class="text-danger">*</span>
-  </label>
-  <input
-    type="text"
-    class="form-control"
-    formControlName="DoctorSpeciality"
-  />
-
-  <div
-    class="text-danger small"
-    *ngIf="
-      addUserForm.get('DoctorSpeciality')?.touched &&
-      addUserForm.get('DoctorSpeciality')?.errors
-    "
-  >
-    Doctor speciality is required
-  </div>
-</div>
-
 }
 
 <!-- ======================================================= -->
@@ -318,7 +273,7 @@
               </div>
             </div> -->
 
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Phone Number <span class="text-danger">*</span></label
               >
@@ -345,7 +300,7 @@
               </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold">Email</label>
               <input
                 type="email"
@@ -364,15 +319,16 @@
               </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
-                >Password <span class="text-danger">*</span></label
+                >Password <span *ngIf="!isEditMode" class="text-danger">*</span></label
               >
               <input
                 type="password"
                 class="form-control"
                 formControlName="Password"
                 [disabled]="isEditMode"
+                [attr.readonly]="isEditMode ? true : null"
               />
               <div
                 class="text-danger small"
@@ -387,12 +343,12 @@
               </div>
             </div>
 
-            <div class="col-md-12">
+           <div [ngClass]="isDoctorRoleSelected ? 'col-md-12' : 'col-md-8'">
               <label class="form-label small fw-semibold">Address</label>
              <textarea
   class="form-control"
   formControlName="Address"
-  rows="3"
+  rows="1"
   placeholder="Enter address"
 ></textarea>
 

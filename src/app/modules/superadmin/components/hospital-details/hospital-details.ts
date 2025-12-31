@@ -251,6 +251,10 @@ export class HospitalDetails implements OnInit {
 
     this.addUserForm.get('Password')?.clearValidators();
     this.addUserForm.get('Password')?.disable();
+     const modal = new bootstrap.Modal(
+        document.getElementById('addUserModal') as HTMLElement
+      );
+      modal.show();
   }
 
   resetEditState(): void {
