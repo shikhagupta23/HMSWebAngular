@@ -1,28 +1,29 @@
 <!-- Dashboard Tabs -->
 <ul class="nav nav-pills mb-4 dashboard-tabs">
 	<li class="nav-item">
-		<button class="nav-link" [class.active]="activeTab === 'today'" (click)="activeTab = 'today'">
+		<button class="nav-link" [class.active]="activeTab === 'today'" (click)="onTabChange('today')">
 			Today
 		</button>
 	</li>
 
 	<li class="nav-item">
-		<button class="nav-link" [class.active]="activeTab === 'overall'" (click)="activeTab = 'overall'">
+		<button class="nav-link" [class.active]="activeTab === 'overall'" (click)="onTabChange('overall')">
 			Overall
 		</button>
 	</li>
 </ul>
 
-<div class="row mb-4" *ngIf="activeTab === 'today'">
+<div class="row mb-4">
 	<div class="col-12">
-		<h5 class="mb-3 fw-bold">Today's Overview</h5>
+		<h5 class="mb-3 fw-bold">  {{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}
+</h5>
 	</div>
 
 	<div class="col-xl-3 col-md-6 mb-3">
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Appointments</h6>
-				<h4>{{ todayAppointments }}</h4>
+				<h4>{{ totalAppointments }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -35,7 +36,7 @@
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Scheduled Appointments</h6>
-				<h4>{{ todayScheduledAppointments }}</h4>
+				<h4>{{ scheduledAppointments }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -48,7 +49,7 @@
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Completed Appointments</h6>
-				<h4>{{ todayCompletedAppointments }}</h4>
+				<h4>{{ completedAppointments }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -61,7 +62,7 @@
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>OnGoing Appointments</h6>
-				<h4>{{ todayPendingAppointments }}</h4>
+				<h4>{{ pendingAppointments }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -74,7 +75,7 @@
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Cancelled Appointments</h6>
-				<h4>{{ todayCancelledAppointments }}</h4>
+				<h4>{{ cancelledAppointments }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -88,7 +89,7 @@
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Patients</h6>
-				<h4>{{ totalTodayPatients}}</h4>
+				<h4>{{ totalPatients}}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">
@@ -97,102 +98,12 @@
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="row" *ngIf="activeTab === 'overall'">
-	<div class="col-12">
-		<h5 class="mb-3 fw-bold">Overall Overview</h5>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Appointments</h6>
-				<h4>{{ totalAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-calendar-check"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Scheduled Appointments</h6>
-				<h4>{{ totalScheduledAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-calendar-days"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>OnGoing Appointments</h6>
-				<h4>{{ pendingAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-hourglass-half"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Completed Appointments</h6>
-				<h4>{{ completedAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-clipboard-check"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Cancelled Appointments</h6>
-				<h4>{{ cancelledAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-ban"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Patients</h6>
-				<h4>{{ totalPatients }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-users"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-xl-3 col-md-6 mb-3">
+		<div class="col-xl-3 col-md-6 mb-3">
 		<div class="dashboard-widget-box">
 			<div class="dashboard-content-info">
 				<h6>Revenue</h6>
-				<h4>₹{{ revenue }}</h4>
+				<h4>₹{{ totalRevenue }}</h4>
 			</div>
 			<div class="dashboard-widget-icon">
 				<span class="dash-icon-box appointment-info">

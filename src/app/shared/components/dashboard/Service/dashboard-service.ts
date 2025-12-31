@@ -8,7 +8,10 @@ import { ApiService } from '../../../services/api-service';
 })
 export class DashboardService {
   private api = inject(ApiService);
-     getDahBoardData(): Observable<any> {
-           return this.api.get(ApiEndpoints.DASHBOARD.GETDASHBOARDDATA);
-         }
+    getDahBoardData(IsToday: boolean): Observable<any> {
+      const param : any = {
+        IsToday: IsToday
+      }
+       return this.api.get(ApiEndpoints.DASHBOARD.GETDASHBOARDDATA, param);
+    }
 }

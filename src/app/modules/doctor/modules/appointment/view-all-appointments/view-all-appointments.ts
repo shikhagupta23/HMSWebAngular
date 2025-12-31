@@ -35,6 +35,7 @@ interface Prescription {
   diagnosis: string;
   advice: string;
   followUp: string;
+  nextFollowUpCount?: number;
   medicines: PrescriptionMedicine[];
   labTests: PrescriptionLabTest[];
 }
@@ -103,6 +104,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
     doctorDetails: any = null;
     userRole: string = '';
     isReceptionist: boolean = false;
+    isAdmin: boolean = false;
     isDoctor: boolean = false;
 
     appointments: any[] = [];
@@ -139,6 +141,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
     diagnosis: '',
     advice: '',
     followUp: '',
+    nextFollowUpCount: 0,
     medicines: [],
     labTests: []
   };
@@ -150,7 +153,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
       fullName: ['', Validators.required],
       email: [''],
       dob: [''],
-      gender: [''],
+      gender: ['', Validators.required],
       bloodGroup: [''],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       address: [''],
@@ -174,6 +177,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
+    this.isAdmin = this.userRole === 'admin';
 
     this.loadAppointmentCounts();
     this.loadAppointments();
@@ -241,7 +245,6 @@ getMedicineDetails(drugId: string, variationId: string) {
       if (!res?.data) return;
 
       const d = res.data;
-      console.log(d);
       this.medicineForm = {
         type: d.drugTypeName || '',
         strength: d.strengths?.[0] || '',
@@ -272,6 +275,7 @@ medicineForm = {
 changeStatus(status: number) {
   this.selectedStatus = status;
   this.pageNumber = 1;
+  this.loadAppointmentCounts();
   this.loadAppointments();
 }
 
@@ -294,8 +298,6 @@ loadDoctorDetails() {
       next: (response: any) => {
         if (response.isSuccess) {
           this.doctorDetails = response.data;
-          console.log(response.data);
-
           this.addAppointmentForm.patchValue({
             doctor: response.data.doctorId
           });
@@ -320,12 +322,12 @@ loadAppointmentCounts() {
       1,
       this.countPageSize,
       this.searchText,
-      3 // ALL
+      3
     )
     .subscribe({
       next: (res: any) => {
         this.allAppointments = res.dataList ?? [];
-        this.calculateCounts(); // 🔥 DB COUNTS
+        this.calculateCounts();
       }
     });
 }
@@ -336,11 +338,11 @@ loadAppointments() {
       this.pageNumber,
       this.pageSize,
       this.searchText,
-      this.selectedStatus // 🔥 page-wise filter
+      this.selectedStatus
     )
     .subscribe({
       next: (res: any) => {
-        this.dataList = res.dataList ?? [];   // ✅ ONLY GRID
+        this.dataList = res.dataList ?? [];
         this.totalCount = res.totalCount ?? 0;
         this.totalPages = Math.ceil(this.totalCount / this.pageSize);
       },
@@ -350,6 +352,7 @@ loadAppointments() {
 
   onSearchChange() {
     this.pageNumber = 1;
+    this.loadAppointmentCounts();
     this.loadAppointments();
   }
 
@@ -509,6 +512,7 @@ onSubmit() {
         if (modalInstance) {
             modalInstance.hide();
         }
+        this.loadAppointmentCounts();
         this.loadAppointments();
         this.addAppointmentForm.reset();
 
@@ -528,7 +532,7 @@ onSubmit() {
 
 getCurrentDateTime(): string {
   const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  now.setMinutes(now.getMinutes() + 5 - now.getTimezoneOffset());
   return now.toISOString().slice(0,16);
 }
 
@@ -657,7 +661,7 @@ loadExistingPrescription(appointmentId: string) {
           diagnosis: parseArray(p.diagnosis),
           advice: parseArray(p.prescriptionAdvice),
           followUp: parseArray(p.followUp),
-
+          nextFollowUpCount: p.nextFollowUpCount ?? 0,
           medicines: (p.medicines || []).map((m: any) => ({
             prescriptionMedicineId: m.prescriptionMedicineId ?? null,
             drugId: m.medicineID,
@@ -932,7 +936,7 @@ savePrescription() {
       if (appointmentId) {
         this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
           next: () => {
-            console.log(`Appointment ${appointmentId} marked as Completed`);
+            this.loadAppointmentCounts();
             this.loadAppointments();
           },
           error: (err) => {
@@ -962,7 +966,7 @@ cancelAppointment(item: any) {
       next: (res: any) => {
         this.toast.success("Appointment cancelled successfully");
 
-        // refresh list
+        this.loadAppointmentCounts();
         this.loadAppointments();
       },
       error: () => {

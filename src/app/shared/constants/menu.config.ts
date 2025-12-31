@@ -34,7 +34,7 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ["Admin"]
   },
   {
-    label: "My Patients",
+    label: "Patients",
     icon: "fa-solid fa-user-injured",
     route: "/patient/allpatient",
     roles: ["Doctor", "Receptionist", "Admin"]
@@ -137,5 +137,16 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/superadmin/feature-assignment",
     roles: ["SuperAdmin"]
   },
- 
+  {
+    label: "Package Management",
+    icon: "fa-solid fa-kit-medical",
+    route: "/superadmin/package",
+    roles: ["SuperAdmin"]
+  },
+  {
+    label: "Assign Package",
+    icon: "fa-solid fa-file-medical",
+    route: "/superadmin/assign-package",
+    roles: ["SuperAdmin"]
+  }
 ];

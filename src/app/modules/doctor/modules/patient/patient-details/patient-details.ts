@@ -30,10 +30,7 @@ export class PatientDetails implements OnInit {
     if (nav?.patient) {
       this.patient = nav.patient;
     }
-    console.log(this.patient);
     this.patientId = this.patient.userId;
-    console.log(this.patientId);
-
     this.loadPatientAppointmentLists();
   }
 
@@ -43,8 +40,11 @@ loadPatientAppointmentLists() {
     .subscribe({
       next: (res) => {
         this.appointments = res?.dataList || [];
-        this.lastBookingDate = this.appointments[0]?.appointmentDate;
-        console.log('Appointments:', this.appointments);
+        if (this.appointments.length > 0) {
+          this.lastBookingDate = this.appointments[0].appointmentDate;
+        } else {
+          this.lastBookingDate = undefined;
+        }
       },
       error: (err) => {
         console.error('Failed to load appointments', err);
@@ -58,7 +58,6 @@ loadPatientAppointmentLists() {
   }
 
   getStatusText(status: number): string {
-    console.log(status)
   switch (status) {
     case 4:
       return 'Cancelled';

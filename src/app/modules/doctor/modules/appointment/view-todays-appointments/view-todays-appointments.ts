@@ -117,6 +117,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   doctorDetails: any = null;
   userRole: string = '';
   isReceptionist: boolean = false;
+  isAdmin: boolean = false;
   isDoctor: boolean = false;
 
   medicineSearchText = '';
@@ -167,7 +168,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       fullName: ['', Validators.required],
       email: [''],
       dob: [''],
-      gender: [''],
+      gender: ['', Validators.required],
       bloodGroup: [''],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       address: [''],
@@ -191,6 +192,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
+    this.isAdmin = this.userRole === 'admin';
 
     this.loadAppointments();
     this.loadAppointmentCounts();
@@ -260,7 +262,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         if (!res?.data) return;
 
         const d = res.data;
-        console.log(d);
         this.medicineForm = {
           type: d.drugTypeName || '',
           strength: d.strengths?.[0] || '',
@@ -284,6 +285,8 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.selectedStatus = status;
     this.pageNumber = 1;
     this.loadAppointments();
+    this.loadAppointmentCounts();
+
   }
 
   loadAllDoctors() {
@@ -305,8 +308,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         next: (response: any) => {
           if (response.isSuccess) {
             this.doctorDetails = response.data;
-            console.log(response.data);
-
             this.addAppointmentForm.patchValue({
               doctor: response.data.doctorId,
             });
@@ -386,9 +387,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       .getAppointments(this.pageNumber, this.pageSize, 0, today, this.searchText)
       .subscribe({
         next: (res: any) => {
-          console.log("API Response:", res);
-          console.log(this.searchText);
-
           this.masterData = res.dataList;
           this.filteredData = [...this.masterData];
 
@@ -404,6 +402,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   onSearchChange() {
     this.pageNumber = 1;
     this.loadAppointments();
+    this.loadAppointmentCounts();
   }
 
   paginate() {
@@ -440,7 +439,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     const term = this.addAppointmentForm.get('fullName')?.value || '';
     this.appointmentService.getPatientByNameOrPhone(term).subscribe({
       next: (res) => {
-        console.log("Patient search results:", res);
         this.patientList = res.dataList ?? [];
       },
       error: (err) => {
@@ -547,14 +545,12 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         Oxygen: Number(form.oxygen) || 0
       }
     };
-
-    console.log("Final Payload:", payload);
-
     this.appointmentService.saveAppointment(payload).subscribe({
       next: (res: any) => {
         if (res.isSuccess) {
           this.toast.success(res.message ||"Appointment added successfully");
           this.loadAppointments();
+          this.loadAppointmentCounts();
 
           const modalEl = document.getElementById('addAppointmentModal');
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -580,7 +576,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
   getCurrentDateTime(): string {
     const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    now.setMinutes(now.getMinutes() + 5 - now.getTimezoneOffset());
     return now.toISOString().slice(0,16);
   }
 
@@ -634,7 +630,6 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         // if (res && res.dataList) {
         //   this.medicineTypes = res.dataList;   // Bind API list
         // }
-        console.log(res);
       },
       error: (err) => {
         console.error('Error loading medicine types', err);
@@ -678,8 +673,8 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     if (appointmentId) {
       this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 1).subscribe({
         next: () => {
-          console.log(`Appointment ${appointmentId} marked as OnGoing`);
           this.loadAppointments();
+          this.loadAppointmentCounts();
         },
         error: (err) => {
           console.error("Error updating appointment status", err);
@@ -694,8 +689,8 @@ UpdateApptStatusToScheduled() {
 
   this.appointmentService.updateAppointmentStatus(appointmentId, 0).subscribe({
     next: () => {
-      console.log(`Appointment ${appointmentId} reverted to Scheduled`);
       this.loadAppointments();
+      this.loadAppointmentCounts();
       this.resetPrescription();
     },
     error: (err) => console.error("Failed to revert appointment status", err)
@@ -728,7 +723,6 @@ UpdateApptStatusToScheduled() {
           if (!res?.data) return;
 
           const p = res.data;
-          console.log(p);
           const parseArray = (val: string) => {
             try {
               return JSON.parse(val || '[]').join(', ');
@@ -744,7 +738,7 @@ UpdateApptStatusToScheduled() {
     diagnosis: parseArray(p.diagnosis),
     advice: parseArray(p.prescriptionAdvice),
     followUp: parseArray(p.followUp),
-
+    nextFollowUpCount: p.nextFollowUpCount ?? 0,
     medicines: (p.medicines || []).map((m: any) => ({
       prescriptionMedicineId: m.prescriptionMedicineId ?? null,
       drugId: m.medicineID,
@@ -763,7 +757,6 @@ UpdateApptStatusToScheduled() {
             value: l.labTestId
           }))
         };
-          console.log('BOUND PRESCRIPTION:', this.prescription);
         },
         error: (err) => console.error(err)
       });
@@ -962,8 +955,6 @@ UpdateApptStatusToScheduled() {
       }))
     };
 
-    console.log("DTO PAYLOAD:", payload);
-
     this.appointmentService.savePrescription(payload).subscribe({
       next: (res: any) => {
         if (res.isSuccess) {
@@ -973,9 +964,9 @@ UpdateApptStatusToScheduled() {
                   if (appointmentId) {
             this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
               next: () => {
-                console.log(`Appointment ${appointmentId} marked as Completed`);
                 this.selectedAppointment.status = 2;
                 this.loadAppointments();
+                this.loadAppointmentCounts();
               },
               error: (err) => {
                 console.error("Error updating appointment status", err);
@@ -989,6 +980,7 @@ UpdateApptStatusToScheduled() {
           }
           this.resetPrescription();
           this.loadAppointments();
+          this.loadAppointmentCounts();
           this.printPrescription(appointmentId);
         } else {
           this.toast.error(res.message || "Failed to save prescription");
@@ -1013,6 +1005,7 @@ UpdateApptStatusToScheduled() {
 
           // refresh list
           this.loadAppointments();
+          this.loadAppointmentCounts();
         },
         error: () => {
           this.toast.error("Failed to cancel appointment");
@@ -1146,5 +1139,17 @@ private onAppointmentSignalR(): void {
   this.loadAppointmentCounts();
 }
 
+openPatientDetails(patient: any) {
+  if (!patient?.patientId) {
+    console.error('UserId missing', patient);
+    return;
+  }
+    console.log('App', patient);
+
+  this.router.navigate(
+    ['/patient/patient-details', patient.patientId],
+    { state: { patient } }
+  );
+}
 
 }
