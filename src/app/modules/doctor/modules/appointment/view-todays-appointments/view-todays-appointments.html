@@ -83,7 +83,7 @@
 				<!-- Appointment Date -->
 				<div class="col-12 col-lg-3">
 					<span class="appointment-info date-tag" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
-					<span class="appointment-info date-tag" title="Created On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
+					<span class="appointment-info date-tag" title="Booked Date"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
 				</div>
 
 				<!-- Phone -->
@@ -543,11 +543,16 @@
 							+ Add LabTest
 							</button>
 						</div>
-						<div class="col-md-4 d-flex mt-4" *ngIf="isDoctor">
-							<input type="text" title="Next FollowUp" class="form-control" placeholder="Next Follow up (in days)" [(ngModel)]="prescription.nextFollowUpCount"/>
+						<div class="col-md-4 d-flex mt-4" *ngIf="isDoctor || isReceptionist || isAdmin">
+						<input
+							type="text"
+							title="Next FollowUp"
+							class="form-control"
+							placeholder="Next Follow up (in days)"
+							[(ngModel)]="prescription.nextFollowUpCount"
+							[readonly]="!isDoctor"
+							[disabled]="!isDoctor"/>
 						</div>
-						</div>
-
 						<ol class="inline-list" *ngIf="prescription.labTests.length > 0" title="LabTests">
 
 						<li *ngFor="let t of prescription.labTests; let i = index" class="mb-4">
