@@ -20,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HospitalDetails } from './components/hospital-details/hospital-details';
 import { Package } from './components/package/package';
 import { AssignPackage } from './components/assign-package/assign-package';
+import { PrescriptionHelperValues } from '../doctor/modules/prescription/prescription-helper-values/prescription-helper-values';
 @NgModule({
   declarations: [
     Dashboard,
@@ -34,7 +35,8 @@ import { AssignPackage } from './components/assign-package/assign-package';
     PrintSettingComponent,
     HospitalDetails,
     Package,
-    AssignPackage
+    AssignPackage,
+    PrescriptionHelperValues
   ],
   imports: [
     CommonModule,

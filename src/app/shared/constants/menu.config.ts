@@ -69,6 +69,12 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/doctor/prescription/add",
     roles: []
   },
+    {
+    label: "Prescription Helper Values",
+    icon: "fa-solid fa-file-medical",
+    route: "/prescription/prescriptionhelepervalues",
+    roles: []
+  },
  {
   label: "Drug Management",
   icon: "fas fa-pills",

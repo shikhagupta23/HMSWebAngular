@@ -222,6 +222,7 @@ export class AssignPackage implements OnInit {
         }
         else{
           this.toast.error(response.message);
+          this.loading = false;
         }
       },
       error: (err) => {
@@ -364,27 +365,39 @@ export class AssignPackage implements OnInit {
   /**
    * Close modal by ID
    */
-  closeModal(modalId: string): void {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      }
+closeModal(modalId: string): void {
+  const modalElement = document.getElementById(modalId);
+
+  if (modalElement) {
+    let modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+    if (!modal) {
+      modal = new (window as any).bootstrap.Modal(modalElement);
     }
-    
-    // Reset forms based on modal type
-    if (modalId === 'assignPackageModal') {
-      this.assignForm.reset({ 
-        hospitalId: '',
-        packageId: '',
-        startDate: ''
-      });
-    } else if (modalId === 'editAssignmentModal') {
-      this.editForm.reset({ isActive: true });
-      this.selectedAssignment = null;
-    }
+    modal.hide();
   }
+
+  // 🔥 FORCE REMOVE BACKDROP & BODY CLASS
+  setTimeout(() => {
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(b => b.remove());
+  }, 200);
+
+  // Reset forms
+  if (modalId === 'assignPackageModal') {
+    this.assignForm.reset({
+      hospitalId: '',
+      packageId: '',
+      startDate: ''
+    });
+  } else if (modalId === 'editAssignmentModal') {
+    this.editForm.reset({ isActive: true });
+    this.selectedAssignment = null;
+  }
+}
+
 
   /**
    * Get filtered assignments based on search term
