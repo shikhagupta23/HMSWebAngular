@@ -55,7 +55,7 @@
 	<div class="tab-content appointment-tab-content">
 		<div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
 		<ng-container *ngIf="dataList.length > 0; else noRecords">
-		<div class="appointment-wrap p-3 mb-2" *ngFor="let item of dataList">
+		<div class="appointment-wrap p-3 mb-2" *ngFor="let item of dataList" >
 			<div class="row g-3 align-items-center flex-md-nowrap">
 
 				<!-- Patient Name -->
@@ -83,7 +83,7 @@
 				<!-- Appointment Date -->
 				<div class="col-12 col-lg-3">
 					<span class="appointment-info date-tag" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
-					<span class="appointment-info date-tag" title="Created On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
+					<span class="appointment-info date-tag" title="Booked Date"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
 				</div>
 
 				<!-- Phone -->
@@ -208,9 +208,9 @@
 						<label class="form-label small fw-semibold">Gender <span class="text-danger">*</span></label>
 						<select class="form-control " formControlName="gender">
 							<option value="">Select</option>
-							<option value="Male">Male</option>
-							<option value="Female">Female</option>
-							<option value="Other">Other</option>
+							<option value="M">Male</option>
+							<option value="F">Female</option>
+							<option value="O">Other</option>
 						</select>
 						<div class="text-danger small"
 							*ngIf="addAppointmentForm.get('gender')?.touched
@@ -543,11 +543,16 @@
 							+ Add LabTest
 							</button>
 						</div>
-						<div class="col-md-4 d-flex mt-4">
-							<input type="text" title="Next FollowUp" class="form-control" placeholder="Next Follow up (in days)" [(ngModel)]="prescription.nextFollowUpCount" *ngIf="!canEdit"/>
+						<div class="col-md-4 d-flex mt-4" *ngIf="isDoctor || isReceptionist || isAdmin">
+						<input
+							type="text"
+							title="Next FollowUp"
+							class="form-control"
+							placeholder="Next Follow up (in days)"
+							[(ngModel)]="prescription.nextFollowUpCount"
+							[readonly]="!isDoctor"
+							[disabled]="!isDoctor"/>
 						</div>
-						</div>
-
 						<ol class="inline-list" *ngIf="prescription.labTests.length > 0" title="LabTests">
 
 						<li *ngFor="let t of prescription.labTests; let i = index" class="mb-4">

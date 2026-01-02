@@ -55,14 +55,10 @@ private confirmModalInstance: any;
 
   // 🔹 Confirm status modal
   if (this.confirmStatusModal?.nativeElement) {
-    console.log('Setting up confirm status modal listener');
     const modalElcnf = this.confirmStatusModal.nativeElement;
 
     modalElcnf.addEventListener('hidden.bs.modal', () => {
-      // ❌ Modal closed WITHOUT confirmation
-      console.log('Confirm status modal closed without confirmation');
       if (this.pendingHospital) {
-        console.log('Reverting status change for hospital:', this.pendingHospital);
         this.pendingHospital.isActive = this.previousStatus;
          this.loadHospitals();
         this.clearPendingState();
@@ -219,25 +215,37 @@ private confirmModalInstance: any;
       formData.append('HospitalImageFile', this.selectedFile, this.selectedFile.name);
     }
 
-    if (this.isEditMode) {
-      // ✅ UPDATE
-      this.api.updateHospital(formData, payloadEdit).subscribe({
-        next: () => {
-          this.toast.success('Hospital updated successfully');
-          this.afterSave();
-        },
-        error: () => this.toast.error('Failed to update hospital'),
-      });
-    } else {
-      // ✅ CREATE
-      this.api.addHospital(formData, payloadCreate).subscribe({
-        next: () => {
-          this.toast.success('Hospital added successfully');
-          this.afterSave();
-        },
-        error: () => this.toast.error('Failed to add hospital'),
-      });
-    }
+   if (this.isEditMode) {
+  // 🔵 UPDATE
+  this.api.updateHospital(formData, payloadEdit).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to update hospital');
+        return;
+      }
+
+      this.toast.success(res?.message || 'Hospital updated successfully');
+      this.afterSave();
+    },
+    error: () => this.toast.error('Failed to update hospital'),
+  });
+
+} else {
+  // 🟢 CREATE
+  this.api.addHospital(formData, payloadCreate).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to add hospital');
+        return;
+      }
+
+      this.toast.success(res?.message || 'Hospital added successfully');
+      this.afterSave();
+    },
+    error: () => this.toast.error('Failed to add hospital'),
+  });
+}
+
   }
 
   afterSave() {
@@ -275,7 +283,6 @@ private confirmModalInstance: any;
     return `${environment.hospitalLogoPath}${h.hospitalImage}`;
   }
   viewHospital(hospitalDetails: any) {
-    console.log(hospitalDetails);
     this.router.navigateByUrl(
       `superadmin/hospital-details/${this.slugify(hospitalDetails.hospitalName)}`,
       {
@@ -321,17 +328,26 @@ confirmStatusUpdate() {
   item.isActive = checked;
 
   this.api.updateStatus(id, checked).subscribe({
-    next: () => {
-      this.toast.success('Hospital status updated');
+   next: (res: any) => {
+  if (!res?.isSuccess) {
+    // ❌ API responded but failed
+    this.toast.error(res?.message || 'Failed to update hospital status');
+    item._updatingExtend = false;
+    return;
+  }
 
-      item._updatingExtend = false;
+  // ✅ SUCCESS
+  this.toast.success(res?.message || 'Hospital status updated');
 
-      // ✅ cleanup
-      this.clearPendingState();
+  item._updatingExtend = false;
 
-      // ✅ close modal
-      this.confirmModalInstance?.hide();
-    },
+  // ✅ cleanup
+  this.clearPendingState();
+
+  // ✅ close modal
+  this.confirmModalInstance?.hide();
+},
+
     error: () => {
       // rollback on error
       item.isActive = this.previousStatus;
@@ -350,7 +366,6 @@ confirmStatusUpdate() {
     this.isEditMode = true;
     this.editingHospitalId = h.id;
 
-    console.log(h);
     this.addHospitalForm.patchValue({
       HospitalName: h.hospitalName,
       HospitalRegistrationNumber: h.hospitalRegistrationNumber,

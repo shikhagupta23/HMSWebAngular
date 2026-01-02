@@ -76,7 +76,7 @@
             </div>
             <div>
               <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addUserModal"
-                >+ Add New</a
+                >+ Add User</a
               >
             </div>
           </div>
@@ -102,7 +102,7 @@
                   <!-- Users List -->
                   <tr *ngFor="let user of filteredUsers">
                     <td>{{ user.fullName }}</td>
-                    <td>{{ user.gender }}</td>
+                    <td>{{ user.gender  | gender }}</td>
                     <td>{{ user.userRole }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.email }}</td>
@@ -189,9 +189,9 @@
               >
               <select class="form-control" formControlName="Gender">
                 <option value="">-- Select --</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
               </select>
               <div
                 class="text-danger small"
@@ -313,7 +313,7 @@
           </div>
           <div class="mt-3 d-flex justify-content-end">
             <button type="submit" class="btn btn-primary">
-              {{ isEditMode ? 'Update' : 'Save' }}
+              {{ isEditMode ? 'Update User' : 'Save User' }}
             </button>
           </div>
         </form>

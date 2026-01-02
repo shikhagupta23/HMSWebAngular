@@ -161,7 +161,6 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
     this.http.get<DrugDoseResponse>(apiUrl, { params })
       .subscribe({
         next: (response) => {
-          console.log('API Response:', response);
           
           if (response.isSuccess) {
             this.doses = response.dataList || [];
@@ -315,7 +314,6 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Update success:', response.message);
               this.closeModal();
               this.loadDrugDoses();
             } else {
@@ -342,7 +340,6 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Create success:', response.message);
               this.closeModal();
               this.loadDrugDoses();
             } else {
@@ -372,7 +369,6 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Delete success:', response.message);
               this.loadDrugDoses();
             } else {
               alert(response.message || 'Failed to delete dose');

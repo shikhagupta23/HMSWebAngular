@@ -1,4 +1,4 @@
-        <div class="profile-setting container">
+<div class="profile-setting container">
 	<div class="card">
 		<div class="card-body">
 			<h4 class="card-title">Profile Settings</h4>
@@ -48,6 +48,39 @@
 						</select>
 					</div>
 				</div>
+<!-- ================= Doctor Fields ================= -->
+
+@if(isDoctor){
+	<div class="row">
+  <div class="col-md-6 mb-3">
+    <label class="form-label">Department </label>
+	 <select class="form-control" formControlName="department">
+      <option value="">-- Select Department --</option>
+      <option *ngFor="let d of departments" [value]="d.value">
+        {{ d.text }} 
+      </option>
+    </select>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <label class="form-label">Registration No </label>
+    <input class="form-control" formControlName="registrationNo" />
+  </div>
+</div>
+<div class="row">
+
+
+  <div class="col-md-6 mb-3">
+    <label class="form-label">Degree </label>
+    <input class="form-control" formControlName="degree" />
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <label class="form-label">Speciality </label>
+    <input class="form-control" formControlName="speciality" />
+  </div>
+</div>
+}
 
 				<div class="mb-3">
 					<label class="form-label">Address</label>

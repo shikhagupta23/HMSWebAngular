@@ -16,7 +16,6 @@ user:any
 ngOnInit(): void {
  this.role= this.auth.getUserRole();
   this.user=this.auth.getUser();
-  console.log(this.user,"admin layout user",this.role);
 }
 
   toggleProfileMenu() {

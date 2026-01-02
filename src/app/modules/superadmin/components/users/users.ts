@@ -119,7 +119,6 @@ private confirmModalInstance: any;
 
     modalElcnf.addEventListener('hidden.bs.modal', () => {
       if (this.pendingUser) {
-        console.log('Reverting user status:', this.pendingUser);
         this.loadUsers();
         this.pendingUser.isActive = this.previousStatus;
         this.clearPendingUserState();
@@ -165,8 +164,6 @@ get isDoctorRoleSelected(): boolean {
        // 🔹 Doctor-only fields
     DoctorRegistrationNo: [''],
     DepartmentId: [''],
-    DoctorDegree: [''],
-    DoctorSpeciality: [''],
     });
   }
 
@@ -217,8 +214,6 @@ loadDoctorDepartments() {
     next: (res: any) => {
       this.departments =
         res.dataList ;
-
-      console.log('Doctor Departments:', this.departments);
     },
     error: () => {
       this.toast.error('Failed to load departments');
@@ -273,10 +268,10 @@ loadDoctorDepartments() {
   phoneNumber: v.PhoneNumber,
   email: v.Email,
   address: v.Address,
-  doctorDepartmentMasterId: v.DepartmentId,
-  doctorDegree: v.DoctorDegree,
-  doctorSpeciality: v.DoctorSpeciality,
-  doctorRegNo: v.DoctorRegistrationNo
+   ...(this.isDoctorRoleSelected && {
+    doctorDepartmentMasterId: v.DepartmentId,
+    doctorRegNo: v.DoctorRegistrationNo,
+  }),
 };
 
     this.api.updateUser( payload).subscribe({
@@ -293,22 +288,24 @@ loadDoctorDepartments() {
 
   } else {
     // 🟢 ADD
-    const payload = {
-      FullName: v.FullName,
-      Gender: v.Gender,
-      DateOfBirth: v.DateOfBirth,
-      Role: v.RoleId,
-      HospitalId: v.HospitalId || this.loggedInHospitalId,
-      Email: v.Email,
-      PhoneNumber: v.PhoneNumber,
-      Password: v.Password,
-      Address: v.Address,
-      UserName: v.PhoneNumber,
-      doctorDepartmentMasterId: v.DepartmentId,
-  doctorDegree: v.DoctorDegree,
-  doctorSpeciality: v.DoctorSpeciality,
-  doctorRegNo: v.DoctorRegistrationNo
-    };
+  const payload = {
+  FullName: v.FullName,
+  Gender: v.Gender,
+  DateOfBirth: v.DateOfBirth,
+  Role: v.RoleId,
+  HospitalId: v.HospitalId || this.loggedInHospitalId,
+  Email: v.Email,
+  PhoneNumber: v.PhoneNumber,
+  Password: v.Password,
+  Address: v.Address,
+  UserName: v.PhoneNumber,
+
+  // ✅ include only if Doctor role
+  ...(this.isDoctorRoleSelected && {
+    doctorDepartmentMasterId: v.DepartmentId,
+    doctorRegNo: v.DoctorRegistrationNo,
+  }),
+};
 
     this.api.addUser(payload).subscribe({
       next: (res: any) => {
@@ -434,7 +431,7 @@ editUser(user: any) {
         FullName: u.fullName,
         Gender: u.gender,
         DateOfBirth: u.dob ? u.dob.substring(0, 10) : null,
-        RoleId: u.userRole, // ⚠️ if backend sends roleName
+        RoleId: u.roleId, // ⚠️ if backend sends roleName
         HospitalId: u.hospitalId,
         PhoneNumber: u.phone,
         Email: u.email,
@@ -442,9 +439,8 @@ editUser(user: any) {
 
         // 👨‍⚕️ Doctor fields (safe even if null)
         DoctorRegistrationNo: u.doctorRegistrationNo ?? '',
-        DepartmentId: u.departmentId ?? '',
-        DoctorDegree: u.doctorDegree ?? '',
-        DoctorSpeciality: u.doctorSpeciality ?? '',
+        DepartmentId: u.doctordepartmentId ?? '',
+       
       });
 
       // open modal AFTER patch

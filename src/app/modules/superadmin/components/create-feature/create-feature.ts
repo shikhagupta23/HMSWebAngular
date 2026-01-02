@@ -67,7 +67,6 @@ export class CreateFeature implements OnInit, AfterViewInit {
         this.totalPages = res.totalPages ?? computedPages;
       },
       error: (err) => {
-        console.error(err);
         this.toast.error('Failed to load features');
       },
     });
@@ -123,14 +122,20 @@ export class CreateFeature implements OnInit, AfterViewInit {
 
     this.api.saveFeature(payload).subscribe({
       next: (res) => {
-        this.toast.success('Feature saved successfully');
-       this.closeModal();
-        this.selectedFeatureId = null;
-        this.featureForm.reset();
-        this.loadFeatures();
+       if (!res?.isSuccess) {
+    // ❌ API responded but failed
+    this.toast.error(res?.message || 'Failed to save feature');
+    return;
+  }
+
+  // ✅ SUCCESS
+  this.toast.success(res?.message || 'Feature saved successfully');
+  this.closeModal();
+  this.selectedFeatureId = null;
+  this.featureForm.reset();
+  this.loadFeatures();
       },
       error: (err) => {
-        console.error(err);
         this.toast.error('Failed to save feature');
       },
     });

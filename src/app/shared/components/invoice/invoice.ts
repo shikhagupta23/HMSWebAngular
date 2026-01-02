@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
 import { AuthService } from '../../../modules/auth/services/auth-service';
+import { ToastService } from '../../services/toast-service';
 declare var bootstrap: any;
 
 interface InvoiceData {
@@ -108,7 +109,7 @@ export class Invoice implements OnInit {
   isSubmitting: boolean = false;
   Math = Math; // Expose Math to template
 
-  constructor(private http: HttpClient ,private authService: AuthService) {}
+  constructor(private http: HttpClient ,private authService: AuthService,private toast: ToastService) {}
 
   ngOnInit(): void {
     this.loadInvoices();
@@ -119,7 +120,6 @@ export class Invoice implements OnInit {
 
   isDoctor(): boolean {
     const role = this.currentUserRole?.toLowerCase().trim();
-    console.log('Current User Role:', role); // Add this for debugging
      return role === 'doctor';
   }
   // Initialize date range (last year to today)
@@ -141,28 +141,29 @@ isRoleLoaded: boolean = false;
 private loadCurrentUserRole(): void {
   try {
     this.currentUserRole = this.authService.getUserRole() || '';
-    console.log('Loaded role:', this.currentUserRole); // Debug log
     this.isRoleLoaded = true;
   } catch (error) {
-    console.error('Failed to load user role', error);
     this.currentUserRole = '';
     this.isRoleLoaded = true;
   }
 }
   // Load all invoices
-  loadInvoices(): void {
-    this.http
-      .get<any>(ApiEndpoints.INVOICE.GETINVOICEDATA)
-      .subscribe({
-        next: (res) => {
-          this.invoices = res.dataList ?? [];
-          this.filteredInvoices = this.invoices;
-          this.updatePagination();
-          console.log('Invoices loaded:', this.invoices);
-        },
-        error: (err) => console.error('Failed to load invoices', err)
-      });
-  }
+ loadInvoices(): void {
+  this.http.get<any>(ApiEndpoints.INVOICE.GETINVOICEDATA).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to load invoices');
+        return;
+      }
+
+      this.invoices = res.dataList ?? [];
+      this.filteredInvoices = this.invoices;
+      this.updatePagination();
+    },
+    error: () => this.toast.error('Failed to load invoices'),
+  });
+}
+
 
   // Search invoices
   searchInvoices(): void {
@@ -307,24 +308,24 @@ private extractAndCleanHtml(response: any): string {
 }
 
   // Delete invoice
-  deleteInvoice(invoiceId: string): void {
-    if (!confirm('Are you sure you want to delete this invoice?')) {
-      return;
-    }
+ deleteInvoice(invoiceId: string): void {
+  if (!confirm('Are you sure you want to delete this invoice?')) return;
 
-    this.http
-      .delete(`${ApiEndpoints.INVOICE.GETDELETEINVOICE}/${invoiceId}`)
-      .subscribe({
-        next: () => {
-          alert('Invoice deleted successfully!');
-          this.loadInvoices();
-        },
-        error: (err) => {
-          console.error('Failed to delete invoice', err);
-          alert('Failed to delete invoice!');
+  this.http
+    .delete<any>(`${ApiEndpoints.INVOICE.GETDELETEINVOICE}/${invoiceId}`)
+    .subscribe({
+      next: (res) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to delete invoice');
+          return;
         }
-      });
-  }
+
+        this.toast.success(res?.message || 'Invoice deleted successfully');
+        this.loadInvoices();
+      },
+      error: () => this.toast.error('Failed to delete invoice'),
+    });
+}
 
   onItemsPerPageChange(): void {
     this.currentPage = 1;
@@ -344,9 +345,8 @@ private extractAndCleanHtml(response: any): string {
       next: (res) => {
         this.paymentReports = res.dataList ?? [];
         this.filteredReports = this.paymentReports;
-        console.log('Payment reports loaded:', this.paymentReports);
       },
-      error: (err) => console.error('Failed to load payment reports', err)
+      error: (err) => this.toast.error('Failed to load payment reports')
     });
   }
 
@@ -399,18 +399,23 @@ private extractAndCleanHtml(response: any): string {
   }
 
   // Load appointments from API
-  loadAppointments(): void {
-    this.http
-      .get<any>(ApiEndpoints.INVOICE.GET_DOCTOR_APPOINTMENT_BY_STATUS)
-      .subscribe({
-        next: (res) => {
-          this.appointments = res.data ?? [];
-          this.filteredAppointments = this.appointments;
-          console.log('Appointments loaded:', this.appointments);
-        },
-        error: (err) => console.error('Failed to load appointments', err)
-      });
-  }
+ loadAppointments(): void {
+  this.http
+    .get<any>(ApiEndpoints.INVOICE.GET_DOCTOR_APPOINTMENT_BY_STATUS)
+    .subscribe({
+      next: (res) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to load appointments');
+          return;
+        }
+
+        this.appointments = res.data ?? [];
+        this.filteredAppointments = this.appointments;
+      },
+      error: () => this.toast.error('Failed to load appointments'),
+    });
+}
+
 
   // Filter appointments based on search term
   filterAppointments(): void {
@@ -441,69 +446,50 @@ private extractAndCleanHtml(response: any): string {
   }
 
   // Load appointment details with fee
- loadAppointmentDetails(appointmentId: string): void {
+loadAppointmentDetails(appointmentId: string): void {
   this.http
     .get<any>(`${ApiEndpoints.INVOICE.GET_APPOINTMENT_FEES_BY_ID}?Id=${appointmentId}`)
     .subscribe({
       next: (res) => {
-        // The API returns { data: feeValue }, not dataList
-        if (res.data !== undefined && res.data !== null) {
-          const appointmentFee = res.data;
-          
-          // Get basic appointment info from the selected appointment
-          const selected = this.appointments.find(
-            a => a.appointmentId === this.selectedAppointmentId
-          );
-          
-          if (selected) {
-            this.invoice.patientId = selected.patientId;
-            this.invoice.patientName = selected.patientName;
-            this.invoice.doctorId = selected.doctorId;
-            this.invoice.doctorName = selected.doctorName;
-            this.invoice.appointmentDate = this.formatDate(selected.appointmentDate);
-            this.invoice.doctorFee = appointmentFee; // Use fee from API
-            
-            // Recalculate total
-            this.calculateTotal();
-            
-            console.log('Appointment fee loaded:', appointmentFee);
-          }
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to load appointment fee');
+          return;
         }
-      },
-      error: (err) => {
-        console.error('Failed to load appointment fee', err);
-        // Fallback to basic appointment data
+
         const selected = this.appointments.find(
           a => a.appointmentId === this.selectedAppointmentId
         );
-        if (selected) {
-          this.invoice.patientId = selected.patientId;
-          this.invoice.patientName = selected.patientName;
-          this.invoice.doctorId = selected.doctorId;
-          this.invoice.doctorName = selected.doctorName;
-          this.invoice.appointmentDate = this.formatDate(selected.appointmentDate);
-          this.invoice.doctorFee = selected.appointmentFee || 0;
-          this.calculateTotal();
-        }
-      }
+
+        if (!selected) return;
+
+        this.invoice.patientId = selected.patientId;
+        this.invoice.patientName = selected.patientName;
+        this.invoice.doctorId = selected.doctorId;
+        this.invoice.doctorName = selected.doctorName;
+        this.invoice.appointmentDate = this.formatDate(selected.appointmentDate);
+        this.invoice.doctorFee = res.data ?? 0;
+
+        this.calculateTotal();
+      },
+      error: () => this.toast.error('Failed to load appointment fee'),
     });
 }
-
-loadLabTestDetails(hospitalId: string): void {
+loadLabTestDetails(appointmentId: string): void {
   this.http
-    .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, { params: { Id: hospitalId } })
+    .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, {
+      params: { Id: appointmentId },
+    })
     .subscribe({
       next: (res) => {
-        this.invoice.labTestFee = res.data ?? 0;
+        this.invoice.labTestFee = res?.isSuccess ? res.data ?? 0 : 0;
         this.calculateTotal();
       },
       error: () => {
         this.invoice.labTestFee = 0;
         this.calculateTotal();
-      }
+      },
     });
 }
-
 
   // Calculate total amount when fees change
   calculateTotal(): void {
@@ -525,91 +511,77 @@ loadLabTestDetails(hospitalId: string): void {
   }
 
   // Generate Invoice - Two API Calls
-  generateInvoice(): void {
-    if (!this.selectedAppointmentId || !this.invoice.patientId) {
-      alert('Please select a patient and enter fees');
-      return;
-    }
-
-    this.isSubmitting = true;
-
-    // Step 1: Create Invoice
-    const invoicePayload = {
-      patientId: this.invoice.patientId,
-      appointmentId: this.selectedAppointmentId,
-      doctorFee: this.invoice.doctorFee || 0,
-      labTestFee: this.invoice.labTestFee || 0,
-      createdBy: 'Admin'
-    };
-
-    console.log('Creating Invoice:', invoicePayload);
-
-    this.http.post<any>(ApiEndpoints.INVOICE.CREATE_INVOICE, invoicePayload)
-      .subscribe({
-        next: (invoiceRes) => {
-          console.log('Invoice Created:', invoiceRes);
-
-          const invoiceId = invoiceRes.id;
-
-          if (!invoiceId) {
-            alert('Invoice created but ID not received!');
-            this.isSubmitting = false;
-            return;
-          }
-
-          // Step 2: Create Payment
-          this.createPayment(invoiceId);
-        },
-        error: (err) => {
-          console.error('Failed to create invoice', err);
-          alert('Failed to create invoice!');
-          this.isSubmitting = false;
-        }
-      });
+generateInvoice(): void {
+  if (!this.selectedAppointmentId || !this.invoice.patientId) {
+    this.toast.error('Please select an appointment');
+    return;
   }
+
+  this.isSubmitting = true;
+
+  const payload = {
+    patientId: this.invoice.patientId,
+    appointmentId: this.selectedAppointmentId,
+    doctorFee: this.invoice.doctorFee || 0,
+    labTestFee: this.invoice.labTestFee || 0,
+    createdBy: 'Admin',
+  };
+
+  this.http.post<any>(ApiEndpoints.INVOICE.CREATE_INVOICE, payload).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess || !res?.id) {
+        this.toast.error(res?.message || 'Failed to create invoice');
+        this.isSubmitting = false;
+        return;
+      }
+
+      this.createPayment(res.id);
+    },
+    error: () => {
+      this.toast.error('Failed to create invoice');
+      this.isSubmitting = false;
+    },
+  });
+}
+
 
   // Create Payment
   createPayment(invoiceId: string): void {
-    const paymentPayload = {
-      invoiceId: invoiceId,
-      amount: this.totalAmount,
-      paymentMode: this.invoice.paymentMode,
-      paymentStatus: 'Paid',
-      createdBy: 'Admin'
-    };
+  const payload = {
+    invoiceId,
+    amount: this.totalAmount,
+    paymentMode: this.invoice.paymentMode,
+    paymentStatus: 'Paid',
+    createdBy: 'Admin',
+  };
 
-    console.log('Creating Payment:', paymentPayload);
+  this.http.post<any>(ApiEndpoints.INVOICE.CREATE_PAYMENT, payload).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Payment failed');
+        this.isSubmitting = false;
+        return;
+      }
 
-    this.http.post<any>(ApiEndpoints.INVOICE.CREATE_PAYMENT, paymentPayload)
-      .subscribe({
-        next: (paymentRes) => {
-          console.log('Payment Created:', paymentRes);
-          alert('Invoice and Payment generated successfully!');
-          
-          // Reload invoices
-          this.loadInvoices();
+      this.toast.success('Invoice & payment generated successfully');
 
-          this.loadAppointments();
-          
-          // Close modal
-          const modalEl = document.getElementById('generateInvoiceModal');
-          if (modalEl) {
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            modal?.hide();
-          }
-          
-          // Reset form
-          this.selectedAppointmentId = '';
-          this.searchTerm = '';
-          this.resetInvoice();
-          this.filteredAppointments = this.appointments;
-          this.isSubmitting = false;
-        },
-        error: (err) => {
-          console.error('Failed to create payment', err);
-          alert('Invoice created but payment failed!');
-          this.isSubmitting = false;
-        }
-      });
-  }
+      this.loadInvoices();
+      this.loadAppointments();
+
+      const modalEl = document.getElementById('generateInvoiceModal');
+      bootstrap.Modal.getInstance(modalEl!)?.hide();
+
+      this.resetInvoice();
+      this.selectedAppointmentId = '';
+      this.searchTerm = '';
+      this.filteredAppointments = this.appointments;
+      this.isSubmitting = false;
+    },
+    error: () => {
+      this.toast.error('Payment failed');
+      this.isSubmitting = false;
+    },
+  });
+}
+
 }

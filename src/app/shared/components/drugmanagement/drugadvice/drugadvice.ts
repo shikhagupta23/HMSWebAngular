@@ -111,7 +111,6 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
     this.http.get<DrugAdviceResponse>(apiUrl, { params })
       .subscribe({
         next: (response) => {
-          console.log('API Response:', response);
           
           if (response.isSuccess) {
             this.advices = response.dataList || [];
@@ -243,7 +242,6 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Update success:', response.message);
               this.closeModal();
               this.loadDrugAdvices();
             } else {
@@ -269,7 +267,6 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Create success:', response.message);
               this.closeModal();
               this.loadDrugAdvices();
             } else {
@@ -299,7 +296,6 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              console.log('Delete success:', response.message);
               this.loadDrugAdvices();
             } else {
               alert(response.message || 'Failed to delete advice');

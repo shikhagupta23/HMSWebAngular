@@ -1,269 +1,103 @@
-<!--  Admin Dashboard -->
-							<div class="page-wrapper" *ngIf="isAdmin">
-			
-                <div class="content container-fluid">
-					
-					<!-- Page Header -->
-					<div class="page-header">
-						<div class="row">
-							<div class="col-sm-12">
-								<h3 class="page-title">Welcome Admin!</h3>
-								<ul class="breadcrumb">
-									<li class="breadcrumb-item active">Dashboard</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-					<!-- /Page Header -->
+<!-- Dashboard Tabs -->
+<ul class="nav nav-pills mb-4 dashboard-tabs">
+  <li class="nav-item">
+    <button class="nav-link" [class.active]="activeTab === 'today'" (click)="changeTab('today')">
+      Today
+    </button>
+  </li>
 
-					<div class="row">
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										
-										<div class="dash-count">
-											<h3>{{ doctorsCount }}</h3>
-										</div>
-									</div>
-									<div class="dash-widget-info">
-										<h6 class="text-muted">Doctors</h6>
-										<div class="progress progress-sm">
-											<div class="progress-bar bg-primary w-50"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										
-										<div class="dash-count">
-											<h3>{{ patientsCount }}</h3>
-										</div>
-									</div>
-									<div class="dash-widget-info">
-										
-										<h6 class="text-muted">Patients</h6>
-										<div class="progress progress-sm">
-											<div class="progress-bar bg-success w-50"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										
-										<div class="dash-count">
-											<h3>{{ appointmentsCount }}</h3>
-										</div>
-									</div>
-									<div class="dash-widget-info">
-										
-										<h6 class="text-muted">Appointment</h6>
-										<div class="progress progress-sm">
-											<div class="progress-bar bg-danger w-50"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										
-										<div class="dash-count">
-											<h3>&#8377; {{ revenueTotal }}</h3>
-										</div>
-									</div>
-									<div class="dash-widget-info">
-										
-										<h6 class="text-muted">Revenue</h6>
-										<div class="progress progress-sm">
-											<div class="progress-bar bg-warning w-50"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div class="row">
-						<div class="col-md-6 d-flex">
-						
-							<!-- Recent Orders -->
-							<div class="card card-table flex-fill">
-								<div class="card-header">
-									<h4 class="card-title">Doctors List</h4>
-								</div>
-								<div class="card-body">
-									<div class="table-responsive">
-										<table class="table table-hover table-center mb-0">
-											<thead>
-												<tr>
-													<th>Doctor Name</th>
-													<th>Email</th>
-													<th>Contact No.</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr *ngFor="let d of doctorList">
-													<td>
-														<h2 class="table-avatar">
-															<span class="avatar avatar-sm me-2 d-flex align-items-center justify-content-center" style="background:#f5f6fa; border-radius:50%; width:32px; height:32px;">
-																<i class="feather feather-home"></i>
-															</span>
-															<a >{{ d?.doctorName || d?.fullName || d?.name || d?.userName || '—' }}</a>
-														</h2>
-													</td>
-													<td>{{ d?.email }}</td>
-													<td>{{ d?.phone }}</td>
-													
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-							<!-- /Recent Orders -->
-							
-						</div>
-						<div class="col-md-6 d-flex">
-						
-							<!-- Feed Activity -->
-							<div class="card  card-table flex-fill">
-								<div class="card-header">
-									<h4 class="card-title">Patients List</h4>
-								</div>
-								<div class="card-body">
-									<div class="table-responsive">
-										<table class="table table-hover table-center mb-0">
-											<thead>
-												<tr>													
-													<th>Patient Name</th>
-													<th>Phone</th>
-													<th>DOB</th>
-													<th>Gender</th>													
-												</tr>
-											</thead>
-											<tbody>
-												<tr *ngFor="let p of patientList">
-													<td>
-														<h2 class="table-avatar">
-															<a  class="avatar avatar-sm me-2"><img class="avatar-img rounded-circle" src="assets/img/patients/patient1.jpg" alt="User Image"></a>
-															<a >{{ p?.patientName || p?.fullName || p?.name || p?.userName || '—' }}</a>
-														</h2>
-													</td>
-													<td>{{ p?.phone || p?.phoneNumber || p?.mobile || '—' }}</td>
-													<td>{{ p?.dob | date:'dd-MM-yyyy' }}</td>
-													<td>{{ p?.gender}}</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-							<!-- /Feed Activity -->
-							
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12">
-						
-							<!-- Recent Orders -->
-							<div class="card card-table">
-								<div class="card-header">
-									<h4 class="card-title">Appointment List</h4>
-								</div>
-								<div class="card-body">
-									<div class="table-responsive">
-										<table class="table table-hover table-center mb-0">
-											<thead>
-												<tr>
-													<th>Doctor Name</th>
-													<th>Patient Name</th>
-													<th>Apointment Time</th>
-													<th>Visit Reason</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr *ngFor="let a of appointmentList">
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html" class="avatar avatar-sm me-2"><img class="avatar-img rounded-circle" src="assets/img/doctors/doctor-thumb-01.jpg" alt="User Image"></a>
-															<a href="profile.html">{{ a?.doctorName || a?.doctor || a?.doctorFullName || '—' }}</a>
-														</h2>
-													</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html" class="avatar avatar-sm me-2"><img class="avatar-img rounded-circle" src="assets/img/patients/patient1.jpg" alt="User Image"></a>
-															<a href="profile.html">{{ a?.patientName || a?.patient || a?.fullName || '—' }}</a>
-														</h2>
-													</td>
-													<td>{{ a?.appointmentDate | date:'dd-MM-yyyy hh:mm a' }} </td>
-													<td>{{ a?.visitReason}}</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-							<!-- /Recent Orders -->
-							
-						</div>
-					</div>
-					
-				</div>			
-			</div>
-			<!-- / Admin Dashboard -->
-			<!-- SuperAdmin Dashboard -->
-<div class="page-wrapper" *ngIf="isSuperAdmin">
-  <div class="content container-fluid">
+  <li class="nav-item">
+    <button
+      class="nav-link"
+      [class.active]="activeTab === 'overall'"
+      (click)="changeTab('overall')"
+    >
+      Overall
+    </button>
+  </li>
+</ul>
 
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="row">
-        <div class="col-sm-12">
-          <h3 class="page-title">Welcome Super Admin!</h3>
-          <ul class="breadcrumb">
-            <li class="breadcrumb-item active">Dashboard</li>
-          </ul>
-        </div>
+<div class="row mb-4" *ngIf="activeTab === 'today' || activeTab === 'overall'">
+  <div class="col-12">
+    <h5 class="mb-3 fw-bold">Today's Overview</h5>
+  </div>
+  @if(isSuperAdmin){
+<div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box">
+      <div class="dashboard-content-info">
+        <h6>Total Hospitals</h6>
+        <h4>{{ totalHospitals }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <i class="fa-solid fa-hospital"></i>
+        </span>
       </div>
     </div>
-    <!-- /Page Header -->
-
-    <!-- Stats Row -->
-    <div class="row">
-      <div class="col-xl-3 col-sm-6 col-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="dash-widget-header">
-             
-              <div class="dash-count">
-                <h3>{{ hospitalCount }}</h3>
-              </div>
-            </div>
-            <div class="dash-widget-info">
-              <h6 class="text-muted">Total Hospitals</h6>
-              <div class="progress progress-sm">
-                <div class="progress-bar bg-primary w-75"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  </div>
+  }
+@if(isAdmin){
+<div class="col-xl-3 col-md-6 mb-3">
+  <div class="dashboard-widget-box">
+    <div class="dashboard-content-info">
+      <h6>Doctors</h6>
+      <h4>{{ totalDoctors }}</h4>
     </div>
-
-    
-
+    <div class="dashboard-widget-icon">
+      <span class="dash-icon-box appointment-info">
+        <!-- Doctor Icon -->
+        <i class="fa-solid fa-user-doctor"></i>
+      </span>
+    </div>
   </div>
 </div>
 
-				 
+<div class="col-xl-3 col-md-6 mb-3">
+  <div class="dashboard-widget-box">
+    <div class="dashboard-content-info">
+      <h6>Patients</h6>
+      <h4>{{ totalPatients }}</h4>
+    </div>
+    <div class="dashboard-widget-icon">
+      <span class="dash-icon-box appointment-info">
+        <!-- Patients Icon -->
+        <i class="fa-solid fa-users"></i>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="col-xl-3 col-md-6 mb-3">
+  <div class="dashboard-widget-box">
+    <div class="dashboard-content-info">
+      <h6>Appointments</h6>
+      <h4>{{ totalAppointments }}</h4>
+    </div>
+    <div class="dashboard-widget-icon">
+      <span class="dash-icon-box appointment-info">
+        <!-- Appointment Icon -->
+        <i class="fa-solid fa-calendar-check"></i>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="col-xl-3 col-md-6 mb-3">
+  <div class="dashboard-widget-box">
+    <div class="dashboard-content-info">
+      <h6>Revenue</h6>
+      <h4>₹{{ totalRevenue }}</h4>
+    </div>
+    <div class="dashboard-widget-icon">
+      <span class="dash-icon-box appointment-info">
+        <!-- Revenue Icon -->
+        <i class="fa-solid fa-indian-rupee-sign"></i>
+      </span>
+    </div>
+  </div>
+</div>
+  
+}
+</div>
+
+

@@ -5,6 +5,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../../shared/services/api-service';
 import { ApiEndpoints } from '../../../../shared/constants/api-endpoints';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { AuthService } from '../../../auth/services/auth-service';
+import { UsersService } from '../../services/users-service';
+import { AsidebarService } from '../../../../shared/components/asidebar/services/asidebar-service';
 
 @Component({
   selector: 'app-profile-setting',
@@ -16,12 +19,19 @@ export class ProfileSetting implements OnInit {
   form!: FormGroup;
   loading = false;
   saving = false;
-
+   isDoctor = false;
+departments: any[] = [];
   private fb = inject(FormBuilder);
   private api = inject(ApiService);
   private toast = inject(ToastService);
-
+private authService = inject(AuthService);
+ private userApi = inject(UsersService);
+ private asidebarService = inject(AsidebarService);
+ profiledata: any ;
   ngOnInit(): void {
+    this.loadDoctorDepartments();
+    const role = this.authService.getUserRole();
+    this.isDoctor = role === 'Doctor'; // 🔥 role check
     this.form = this.fb.group({
       id: [''],
       hospitalId: [''],
@@ -32,15 +42,48 @@ export class ProfileSetting implements OnInit {
       dateOfBirth: [''],
       gender: ['']
     });
-
+if (this.isDoctor) {
+      this.form.addControl('department', this.fb.control('', Validators.required));
+      this.form.addControl('registrationNo', this.fb.control('', Validators.required));
+      this.form.addControl('degree', this.fb.control('', Validators.required));
+      this.form.addControl('speciality', this.fb.control('', Validators.required));
+    }
     this.loadProfile();
   }
 
   loadProfile() {
     this.loading = true;
-    this.api.get<any>(ApiEndpoints.PROFILE.GETPROFILE).subscribe({
+      const role = this.authService.getUserRole();
+  const isDoctor = role === 'Doctor';
+const doctorId = this.authService.getLoggedInUserId();
+  // 🔥 Decide API dynamically
+  const api$ = isDoctor
+    ? this.asidebarService.getDoctorDetailsById(doctorId)
+    : this.api.get<any>(ApiEndpoints.PROFILE.GETPROFILE);
+
+  api$.subscribe({
       next: (res) => {
-        const data = res?.data ?? (Array.isArray(res?.dataList) ? res.dataList[0] : null);
+        this.profiledata = res?.data ?? (Array.isArray(res?.dataList) ? res.dataList[0] : null);
+        const data = this.profiledata;
+        if(isDoctor){
+ this.form.patchValue({
+          id: data.doctorId,
+          userName: data.doctorName,
+          email: data.doctorEmail,
+          phoneNumber: data.doctorPhoneNumber,
+          address: data.doctorFullAddress,
+          dateOfBirth: this.normalizeDateForInput(data.dob),
+          gender: data.gender,
+
+          // doctor-only fields
+          department: data.doctorDepartmentMasterId?.toUpperCase(),
+          registrationNo: data.doctorRegNo,
+          degree: data.doctorDegree,
+          speciality: data.doctorSpeciality
+        });
+        }else{
+          
+        
         if (data) {
           // Patch form with API fields
           this.form.patchValue({
@@ -53,12 +96,22 @@ export class ProfileSetting implements OnInit {
             dateOfBirth: this.normalizeDateForInput(data.dateOfBirth),
             gender: data.gender
           });
+          if (this.isDoctor) {
+  this.form.patchValue({
+    department: data.doctorDepartmentMasterId,
+    registrationNo: data.doctorRegNo,
+    degree: data.doctorDegree,
+    speciality: data.doctorSpeciality
+  });
+}
+
           // If auth_user present in localStorage, prefer its hospitalId
           const authHospitalId = this.getAuthHospitalId();
           if (authHospitalId) {
             this.form.patchValue({ hospitalId: authHospitalId });
           }
         }
+      }
         this.loading = false;
       },
       error: (err) => {
@@ -68,6 +121,18 @@ export class ProfileSetting implements OnInit {
       }
     });
   }
+
+  loadDoctorDepartments() {
+  this.userApi.getDoctorDepartments().subscribe({
+    next: (res: any) => {
+      this.departments =
+        res.dataList ;
+    },
+    error: () => {
+      this.toast.error('Failed to load departments');
+    },
+  });
+}
 
   private normalizeDateForInput(dateStr: any): string {
     if (!dateStr) return '';
@@ -103,31 +168,82 @@ export class ProfileSetting implements OnInit {
   }
 
   submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.saving = true;
-    const payload = { ...this.form.value };
-    this.api.put<any>(ApiEndpoints.PROFILE.UPDATEPROFILE, payload).subscribe({
-      next: (res) => {
-         if (res?.isSuccess === false) {
-
-        // show toast message
-        this.toast.error(res?.message || 'Profile update failed');
-        this.saving = false;
-        return;
-      }
-        this.toast.success(res?.message ?? 'Profile updated successfully');
-        this.saving = false;
-      },
-      error: (err) => {
-        console.error('Profile update failed', err);
-        this.toast.error(err?.error?.message ?? 'Failed to update profile');
-        this.saving = false;
-      }
-    });
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  this.saving = true;
+
+  const role = this.authService.getUserRole();
+  const isDoctor = role === 'Doctor';
+
+  if (isDoctor) {
+    // ================= DOCTOR UPDATE =================
+    const doctorPayload = {
+      doctorId: this.form.value.id,
+      doctorName: this.form.value.userName,
+      doctorPhoneNumber: this.form.value.phoneNumber,
+      doctorEmail: this.form.value.email,
+      gender: this.form.value.gender,
+      dob: this.form.value.dateOfBirth,
+      doctorFullAddress: this.form.value.address,
+
+      doctorDepartmentMasterId: this.form.value.department, 
+
+      doctorDegree: this.form.value.degree,
+      doctorSpeciality: this.form.value.speciality,
+      doctorRegNo: this.form.value.registrationNo,
+      doctorProfileId:this.profiledata?.doctorProfileId,
+      AspNetUserDetailsId: this.profiledata?.aspNetUserDetailsId
+    };
+    this.api
+      .post<any>(
+        ApiEndpoints.DOCTOR.updateDoctorProfile,
+        doctorPayload
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.isSuccess === false) {
+            this.toast.error(res?.message || 'Doctor profile update failed');
+            this.saving = false;
+            return;
+          }
+          this.toast.success(res?.message || 'Doctor profile updated successfully');
+          this.saving = false;
+        },
+        error: (err) => {
+          console.error('Doctor update failed', err);
+          this.toast.error(err?.error?.message || 'Failed to update doctor profile');
+          this.saving = false;
+        }
+      });
+
+  } else {
+    // ================= NORMAL PROFILE UPDATE =================
+    const payload = { ...this.form.value };
+
+    this.api
+      .put<any>(ApiEndpoints.PROFILE.UPDATEPROFILE, payload)
+      .subscribe({
+        next: (res) => {
+          if (res?.isSuccess === false) {
+            this.toast.error(res?.message || 'Profile update failed');
+            this.saving = false;
+            return;
+          }
+          this.toast.success(res?.message || 'Profile updated successfully');
+          this.saving = false;
+        },
+        error: (err) => {
+          console.error('Profile update failed', err);
+          this.toast.error(err?.error?.message || 'Failed to update profile');
+          this.saving = false;
+        }
+      });
+  }
+}
+
 
   private getAuthHospitalId(): string | null {
     try {

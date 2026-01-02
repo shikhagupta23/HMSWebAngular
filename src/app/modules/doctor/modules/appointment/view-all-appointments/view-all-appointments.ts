@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { Appointment } from '../services/appointment';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -66,6 +66,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   isEditMode: boolean = false;
   canEdit: boolean = false; 
 
+@ViewChild('printFrame') printFrame!: any;
 
   addAppointmentForm!: FormGroup;
 
@@ -127,6 +128,9 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   totalCount = 0;
   totalPages = 0;
   countPageSize = 99999;
+
+  printHtml: string = '';
+  isPrintPreviewOpen = false;
 
   minDateTime: string = '';
 
@@ -890,70 +894,129 @@ loadMedicineOptions() {
   });
 }
 
-savePrescription() {
-  if (!this.prescription.symptoms && !this.prescription.medicines.length) {
-    this.toast.error("Add at least symptoms or medicines before saving");
-    return;
-  }
-  const payload = {
-    appointmentId: this.selectedAppointment?.appointmentId,
-    prescriptionId: this.prescription.prescriptionId ?? null,
-    symptoms: this.prescription.symptoms || '',
-    diagnosis: this.prescription.diagnosis || '',
-    advise: this.prescription.advice || '',
-    followUp: this.prescription.followUp || '',
-    nextFollowUpCount: 0,
-
-    medicines: this.prescription.medicines.map(m => ({
-      prescriptionMedicineId: m.prescriptionMedicineId ?? null,
-      drugId: m.drugId || this.selectedDrug?.drugId,
-      drugVariationid: m.variationId || this.selectedVariation?.variationId,
-      prescriptionDosage: m.dosage,
-      prescriptionAdvice: m.advice,
-      prescriptionStrength: m.strength,
-      prescriptionDuration: m.duration,
-    })),
-
-    
-    labtests: this.prescription.labTests.map(l => ({
-      prescriptionLabTestId: l.prescriptionLabTestId ?? null,
-      labTestId: l.value
-    }))
-  };
-
-  this.appointmentService.savePrescription(payload).subscribe({
-    next: (res: any) => {
-      if (res.isSuccess) {
-        this.toast.success("Prescription saved successfully!");
-
-      const modalEl: any = document.getElementById('prescriptionModal');
-      const modalInstance = bootstrap.Modal.getInstance(modalEl);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-      this.resetPrescription();
-      const appointmentId = this.selectedAppointment?.appointmentId;
-      if (appointmentId) {
-        this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
-          next: () => {
-            this.loadAppointmentCounts();
-            this.loadAppointments();
-          },
-          error: (err) => {
-            console.error("Error updating appointment status", err);
-            this.toast.error("Prescription saved but failed to update appointment status");
-          }
-        });
-      }
-      } else {
-        this.toast.error(res.message || "Failed to save prescription");
-      }
-    },
-    error: (err) => {
-      console.error("Error saving prescription", err);
-      this.toast.error("Error saving prescription");
+  savePrescription() {
+    if (!this.prescription.symptoms && !this.prescription.medicines.length) {
+      this.toast.error("Add at least symptoms or medicines before saving");
+      return;
     }
-  });
+    const payload = {
+      appointmentId: this.selectedAppointment?.appointmentId,
+      prescriptionId: this.prescription.prescriptionId ?? null,
+      symptoms: this.prescription.symptoms || '',
+      diagnosis: this.prescription.diagnosis || '',
+      advise: this.prescription.advice || '',
+      followUp: this.prescription.followUp || '',
+      nextFollowUpCount: this.prescription.nextFollowUpCount ?? 0,
+      medicines: this.prescription.medicines.map(m => ({
+        prescriptionMedicineId: m.prescriptionMedicineId ?? null,
+        drugId: m.drugId || this.selectedDrug?.drugId,
+        drugVariationid: m.variationId || this.selectedVariation?.variationId,
+        prescriptionDosage: m.dosage,
+        prescriptionAdvice: m.advice,
+        prescriptionStrength: m.strength,
+        prescriptionDuration: m.duration,
+      })),
+
+      
+      labtests: this.prescription.labTests.map(l => ({
+        prescriptionLabTestId: l.prescriptionLabTestId ?? null,
+        labTestId: l.value
+      }))
+    };
+
+    this.appointmentService.savePrescription(payload).subscribe({
+      next: (res: any) => {
+        if (res.isSuccess) {
+          this.toast.success("Prescription saved successfully!");
+        const appointmentId = this.selectedAppointment?.appointmentId;
+        const modalEl: any = document.getElementById('prescriptionModal');
+                  if (appointmentId) {
+            this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
+              next: () => {
+                this.selectedAppointment.status = 2;
+                this.loadAppointments();
+                this.loadAppointmentCounts();
+              },
+              error: (err) => {
+                console.error("Error updating appointment status", err);
+                this.toast.error("Prescription saved but failed to update appointment status");
+              }
+            });
+          }
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+          this.resetPrescription();
+          this.loadAppointments();
+          this.loadAppointmentCounts();
+          this.printPrescription(appointmentId);
+        } else {
+          this.toast.error(res.message || "Failed to save prescription");
+        }
+      },
+      error: (err) => {
+        console.error("Error saving prescription", err);
+        this.toast.error("Error saving prescription");
+      }
+    });
+  }
+
+  printPrescription(appointmentId: string) {
+    this.appointmentService
+      .getPrescriptionPrintHtml(appointmentId)
+      .subscribe({
+        next: (res: any) => {
+          this.printHtml = res.html; // backend already removed \r\n
+          this.printHtmlContent();
+        },
+        error: () => {
+          this.toast.error('Failed to load prescription print');
+        }
+      });
+  }
+
+  printHtmlContent() {
+  const iframe = this.printFrame.nativeElement as HTMLIFrameElement;
+  const doc = iframe.contentWindow?.document;
+
+  if (!doc) return;
+
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Prescription</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 0;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+        </style>
+      </head>
+      <body>
+        ${this.printHtml}
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+  }, 500);
 }
 
 cancelAppointment(item: any) {
@@ -1005,6 +1068,20 @@ resetAddAppointmentForm() {
 
   this.addAppointmentForm.markAsPristine();
   this.addAppointmentForm.markAsUntouched();
+}
+
+UpdateApptStatusToScheduled() {
+  const appointmentId = this.selectedAppointment?.appointmentId;
+  if (!appointmentId) return;
+
+  this.appointmentService.updateAppointmentStatus(appointmentId, 0).subscribe({
+    next: () => {
+      this.loadAppointments();
+      this.loadAppointmentCounts();
+      this.resetPrescription();
+    },
+    error: (err) => console.error("Failed to revert appointment status", err)
+  });
 }
 private onAppointmentSignalR(): void {
   console.log('🔔 SignalR update received');

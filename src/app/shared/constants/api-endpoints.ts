@@ -8,14 +8,14 @@ export const ApiEndpoints = {
       `${API_BASE_URL}/HospitalAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/HospitalAPI/Post`,
     UPDATE: `${API_BASE_URL}/HospitalAPI/Put`,
-    UPDATE_STATUS: `${API_BASE_URL}/HospitalAPI/toggle-hospital-status`,
+    UPDATE_STATUS: `${API_BASE_URL}/HospitalAPI/togglehospitalstatus`,
     GETUSERSBYHOPITALID: `${API_BASE_URL}/ApplicationUserAPI/getUserListByHospitalId`,
   },
   User: {
     GET: (page: number, pageSize: number, search: string) =>
       `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
-    UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggle-user-status`,
+    UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggleuserstatus`,
     UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,
      GET_BY_ID: (id: string) =>
     `${API_BASE_URL}/ApplicationUserAPI/Get/${id}`,
@@ -90,9 +90,11 @@ export const ApiEndpoints = {
     GetPrescriptionByAppointmentId: `${API_BASE_URL}/PrescriptionApi/prescription`,
     UpdateAppointment: `${API_BASE_URL}/Hub/UpdateAppointmentStatus`,
     SAVE_DEPARTMENT: `${API_BASE_URL}/DoctorAPI/saveDoctorDepartment`,
+    updateDoctorProfile: `${API_BASE_URL}/DoctorAPI/updateDoctorProfile`,
   },
   DASHBOARD: {
-    GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/todayappointments`,
+    GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+   DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,
@@ -115,7 +117,9 @@ export const ApiEndpoints = {
     GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
     GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/`, // + masterId
     SAVE: `${API_BASE_URL}/PrescriptionApi/savePrescription`,
-    PRINT_HTML: (appointmentId: string) =>`${API_BASE_URL}/PrescriptionApi/print/html/${appointmentId}`
+    PRINT_HTML: (appointmentId: string) =>`${API_BASE_URL}/PrescriptionApi/print/html/${appointmentId}`,
+    SAVE_PRESCRIPTION_HELPER_VALUES: `${API_BASE_URL}/PrescriptionApi/savePrescriptionHelperValues`,
+
   },
   FEATURE: {
     GET: (page: number, pageSize: number, search?: string) =>

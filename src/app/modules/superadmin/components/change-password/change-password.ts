@@ -69,9 +69,17 @@ export class ChangePassword implements OnInit {
 
     this.api.post<any>(ApiEndpoints.USER.CHANGE_PASSWORD, payload).subscribe({
       next: (res) => {
-        this.toast.success(res?.message ?? 'Password changed successfully');
-        this.form.reset();
-        this.submitting = false;
+          if (!res?.isSuccess) {
+      // ❌ FAILURE FROM API
+      this.toast.error(res?.message || 'Failed to change password');
+      this.submitting = false;
+      return;
+    }
+
+    // ✅ SUCCESS
+    this.toast.success(res?.message || 'Password changed successfully');
+    this.form.reset();
+    this.submitting = false;
       },
       error: (err) => {
         console.error('Change password failed', err);
