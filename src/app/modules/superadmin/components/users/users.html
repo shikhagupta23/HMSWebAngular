@@ -60,7 +60,16 @@
               <div class="fw-semibold">
                 {{ u.fullName || u.FullName || u.userName || u.UserName }}
               </div>
-              <div class="small text-muted">{{ formatDate(u.dob) }}</div>
+            <div class="small text-muted"   data-bs-toggle="tooltip"
+    data-bs-placement="top"
+    title="Date of Birth">
+  <i
+    class="fa fa-birthday-cake me-1"
+  
+  ></i>
+  {{ formatDate(u.dob) }}
+</div>
+
             </div>
           </div>
         </td>
@@ -156,7 +165,7 @@
                 >Select Gender <span class="text-danger">*</span></label
               >
               <select class="form-control" formControlName="Gender">
-                <option value="">-- Select --</option>
+                <option value="" disabled>-- Select Gender--</option>
                 <option value="M">Male</option>
                 <option value="F">Female</option>
                 <option value="O">Other</option>
@@ -169,8 +178,8 @@
               </div>
             </div>
             <div class="col-md-4">
-              <label class="form-label small fw-semibold">Date of Birth</label>
-              <input type="date" class="form-control" formControlName="DateOfBirth" />
+              <label class="form-label small fw-semibold" >Date of Birth</label>
+              <input type="date" class="form-control" formControlName="DateOfBirth"  [max]="today" />
             </div>
 
             <div class="col-md-4">
@@ -178,7 +187,7 @@
                 >Select Role <span class="text-danger">*</span></label
               >
               <select class="form-control" formControlName="RoleId">
-                <option value="">-- Select Role --</option>
+              <option value="" disabled>-- Select Role --</option>
                 <option *ngFor="let r of roles" [value]="r.value">
                   {{ r.text }} 
                 </option>

@@ -20,6 +20,7 @@ export class Users implements OnInit, AfterViewInit {
   isEditMode = false;
 editingUserId: string | null = null;
 doctorRoleId = 'A105795F-2FCC-4AEB-BC55-3FBC513D0640';
+today = new Date().toISOString().split('T')[0];
 
   pageNumber = 1;
   pageSize = 10;

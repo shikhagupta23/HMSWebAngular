@@ -126,6 +126,7 @@ export const ApiEndpoints = {
         search ? '&searchTerm=' + encodeURIComponent(search) : ''
       }`,
     SAVE: `${API_BASE_URL}/FeatureAPI/save`,
+    UPDATE: `${API_BASE_URL}/FeatureAPI/updateFeature`
   },
   FEATURE_ACCESS: {
     GET: (page: number, pageSize: number, search?: string) =>
