@@ -268,8 +268,10 @@ loadDoctorDepartments() {
   phoneNumber: v.PhoneNumber,
   email: v.Email,
   address: v.Address,
-  doctorDepartmentMasterId: v.DepartmentId,
-  doctorRegNo: v.DoctorRegistrationNo
+   ...(this.isDoctorRoleSelected && {
+    doctorDepartmentMasterId: v.DepartmentId,
+    doctorRegNo: v.DoctorRegistrationNo,
+  }),
 };
 
     this.api.updateUser( payload).subscribe({
@@ -286,21 +288,24 @@ loadDoctorDepartments() {
 
   } else {
     // 🟢 ADD
-    const payload = {
-      FullName: v.FullName,
-      Gender: v.Gender,
-      DateOfBirth: v.DateOfBirth,
-      Role: v.RoleId,
-      HospitalId: v.HospitalId || this.loggedInHospitalId,
-      Email: v.Email,
-      PhoneNumber: v.PhoneNumber,
-      Password: v.Password,
-      Address: v.Address,
-      UserName: v.PhoneNumber,
-      doctorDepartmentMasterId: v.DepartmentId,
+  const payload = {
+  FullName: v.FullName,
+  Gender: v.Gender,
+  DateOfBirth: v.DateOfBirth,
+  Role: v.RoleId,
+  HospitalId: v.HospitalId || this.loggedInHospitalId,
+  Email: v.Email,
+  PhoneNumber: v.PhoneNumber,
+  Password: v.Password,
+  Address: v.Address,
+  UserName: v.PhoneNumber,
 
-  doctorRegNo: v.DoctorRegistrationNo
-    };
+  // ✅ include only if Doctor role
+  ...(this.isDoctorRoleSelected && {
+    doctorDepartmentMasterId: v.DepartmentId,
+    doctorRegNo: v.DoctorRegistrationNo,
+  }),
+};
 
     this.api.addUser(payload).subscribe({
       next: (res: any) => {
