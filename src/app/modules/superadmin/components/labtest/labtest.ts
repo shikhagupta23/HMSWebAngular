@@ -1,7 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { Labtest } from '../../services/labtest';
+
 interface LabTest {
   id: string;
   testName: string;
@@ -17,7 +20,7 @@ interface LabTest {
   templateUrl: './labtest.html',
   styleUrls: ['./labtest.scss'],
 })
-export class LabtestComponent implements OnInit {
+export class LabtestComponent implements OnInit, OnDestroy {
   @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
 
   labTestForm!: FormGroup;
@@ -25,27 +28,21 @@ export class LabtestComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
   private labTestService = inject(Labtest);
-  testName: string = '';
-  category: string = '';
-  price: number | null = null;
-  description: string = '';
+  
+  // Add Subject for search debouncing
+  private searchSubject$ = new Subject<string>();
 
   labTests: LabTest[] = [];
-  filteredLabTests: LabTest[] = [];
   searchText: string = '';
   isEditMode: boolean = false;
   editingTestId: string | null = null;
-  showModal: boolean = false;
 
   // Pagination
-  pages: number[] = [];
-
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
   totalPages: number = 0;
   isLoading: boolean = false;
-  Math = Math; // Add Math reference for template
 
   constructor() {}
 
@@ -53,9 +50,25 @@ export class LabtestComponent implements OnInit {
     this.buildForm();
     this.loadLabTests();
     this.attachModalCloseHandler();
+    this.setupSearchDebounce();
   }
 
-  /** convenience getter */
+  ngOnDestroy(): void {
+    this.searchSubject$.complete();
+  }
+
+  setupSearchDebounce(): void {
+    this.searchSubject$
+      .pipe(
+        debounceTime(200), // Wait 200ms after user stops typing
+        distinctUntilChanged() // Only emit if value has changed
+      )
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadLabTests(1);
+      });
+  }
+
   get f() {
     return this.labTestForm.controls;
   }
@@ -96,7 +109,7 @@ export class LabtestComponent implements OnInit {
         if (res?.isSuccess) {
           this.toast.success(res.message);
           this.closeModal();
-          this.loadLabTests();
+          this.loadLabTests(this.currentPage);
         }
       },
     });
@@ -108,7 +121,7 @@ export class LabtestComponent implements OnInit {
         if (res?.isSuccess) {
           this.toast.success(res.message);
           this.closeModal();
-          this.loadLabTests();
+          this.loadLabTests(this.currentPage);
         }
       },
     });
@@ -120,6 +133,27 @@ export class LabtestComponent implements OnInit {
     this.labTestForm.patchValue(test);
   }
 
+  deleteTest(test: any) {
+    if (confirm(`Are you sure you want to delete "${test.testName}"?`)) {
+      this.labTestService.deleteLabTest(test.id).subscribe({
+        next: (res: any) => {
+          if (res?.isSuccess) {
+            this.toast.success(res.message || 'Test deleted successfully');
+            // If current page becomes empty after delete, go to previous page
+            if (this.labTests.length === 1 && this.currentPage > 1) {
+              this.loadLabTests(this.currentPage - 1);
+            } else {
+              this.loadLabTests(this.currentPage);
+            }
+          }
+        },
+        error: (err) => {
+          this.toast.error('Failed to delete test');
+        }
+      });
+    }
+  }
+
   closeModal() {
     this.closeModalBtn.nativeElement.click();
   }
@@ -127,17 +161,25 @@ export class LabtestComponent implements OnInit {
   loadLabTests(page: number = 1): void {
     this.isLoading = true;
     this.currentPage = page;
+    
     this.labTestService.getLabTests(page, this.pageSize).subscribe({
       next: (res: any) => {
         if (res) {
-          this.labTests = res.dataList;
-          this.filteredLabTests = [...this.labTests];
-          this.currentPage = res.pageNumber ?? this.currentPage;
+          this.labTests = res.dataList || [];
+          
+          // Apply client-side search filter if searchText exists
+          if (this.searchText.trim()) {
+            const searchLower = this.searchText.toLowerCase();
+            this.labTests = this.labTests.filter(test => 
+              test.testName.toLowerCase().includes(searchLower) ||
+              test.category.toLowerCase().includes(searchLower)
+            );
+          }
+          
+          this.currentPage = res.pageNumber ?? page;
           this.pageSize = res.pageSize ?? this.pageSize;
-          this.totalCount = res.totalCount ?? this.labTests.length;
-          const computedPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
-          this.totalPages = res.totalPages ?? computedPages;
-          this.buildPages();
+          this.totalCount = res.totalCount ?? 0;
+          this.totalPages = res.totalPages ?? Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         } else {
           this.resetTable();
         }
@@ -151,56 +193,44 @@ export class LabtestComponent implements OnInit {
       },
     });
   }
+
   private resetTable() {
     this.labTests = [];
-    this.filteredLabTests = [];
     this.totalCount = 0;
     this.totalPages = 1;
-    this.pages = [];
-  }
-  filterTests() {
-    const s = this.searchText.toLowerCase();
-    this.filteredLabTests = this.labTests.filter((x) => x.testName.toLowerCase().includes(s));
+    this.currentPage = 1;
   }
 
-  /**
-   * Go to specific page
-   */
+  // Updated method - now emits to Subject instead of calling API directly
+  filterTests() {
+    this.searchSubject$.next(this.searchText);
+  }
+
   goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.loadLabTests(page);
     }
   }
 
-  /**
-   * Go to previous page
-   */
   previousPage(): void {
     if (this.currentPage > 1) {
       this.loadLabTests(this.currentPage - 1);
     }
   }
 
-  /**
-   * Go to next page
-   */
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.loadLabTests(this.currentPage + 1);
     }
   }
 
-  /**
-   * Get array of page numbers for pagination
-   */
   getPageNumbers(): number[] {
-    const pages: number[] = [];
     const maxPagesToShow = 5;
+    const pages: number[] = [];
 
     let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
 
-    // Adjust start if we're near the end
     if (endPage - startPage < maxPagesToShow - 1) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
@@ -212,35 +242,16 @@ export class LabtestComponent implements OnInit {
     return pages;
   }
 
-  /**
-   * Reset the form
-   */
-  resetForm(): void {
-    this.testName = '';
-    this.category = '';
-    this.price = null;
-    this.description = '';
-    this.isEditMode = false;
-    this.editingTestId = null;
+  getDisplayRange(): string {
+    if (this.totalCount === 0) return 'Showing 0 entries';
+    
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.totalCount);
+    return `Showing ${start} to ${end} of ${this.totalCount} entries`;
   }
 
   onPageSizeChange(): void {
     this.currentPage = 1;
     this.loadLabTests(1);
-  }
-  buildPages(): void {
-    this.pages = [];
-    const maxPagesToShow = 5;
-
-    let start = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let end = Math.min(this.totalPages, start + maxPagesToShow - 1);
-
-    if (end - start < maxPagesToShow - 1) {
-      start = Math.max(1, end - maxPagesToShow + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      this.pages.push(i);
-    }
   }
 }

@@ -4,6 +4,8 @@ import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { ToastService } from '../../services/toast-service';
+import html2pdf from 'html2pdf.js';
+
 declare var bootstrap: any;
 
 interface InvoiceData {
@@ -239,8 +241,56 @@ private loadCurrentUserRole(): void {
     });
   }
 
+// pdfInvoice(invoice: InvoiceData): void {
+//   const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
+
+//   this.http.get<any>(apiUrl).subscribe({
+//     next: (response) => {
+//       let htmlContent = response?.data || '';
+
+//       if (!htmlContent || htmlContent.trim().length < 100) {
+//         this.toast.error('Failed to load invoice template');
+//         return;
+//       }
+
+//       // Set desired filename (e.g., Invoice_67.pdf)
+//       const desiredFilename = `Invoice_${invoice.invoiceNo}.pdf`;
+
+//       // Inject/Replace the <title> tag in the HTML
+//       const titleRegex = /<title>.*?<\/title>/i;
+//       if (titleRegex.test(htmlContent)) {
+//         htmlContent = htmlContent.replace(titleRegex, `<title>${desiredFilename}</title>`);
+//       } else {
+//         // If no <title>, add one in <head>
+//         htmlContent = htmlContent.replace(/<head>/i, `<head><title>${desiredFilename}</title>`);
+//       }
+
+//       const printWindow = window.open('', '_blank', 'width=1000,height=800');
+
+//       if (!printWindow) {
+//         this.toast.error('Please allow pop-ups to download PDF');
+//         return;
+//       }
+
+//       printWindow.document.open();
+//       printWindow.document.write(htmlContent);
+//       printWindow.document.close();
+
+//       printWindow.onload = () => {
+//         setTimeout(() => {
+//           printWindow.focus();
+//           printWindow.print();
+//           this.toast.success('Print dialog opened → Choose "Save as PDF"');
+//         }, 800);
+//       };
+//     },
+//     error: () => {
+//       this.toast.error('Failed to load invoice data');
+//     }
+//   });
+// }
+
   // Print invoice
- // Print invoice - Opens print dialog with PDF download option
 printInvoice(invoice: InvoiceData): void {
   const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
   
@@ -250,7 +300,7 @@ printInvoice(invoice: InvoiceData): void {
       let htmlContent = this.extractAndCleanHtml(response);
       
       if (!htmlContent) {
-        alert('Failed to generate invoice!');
+        alert(response?.message || 'No invoice data available for printing!');
         return;
       }
       
@@ -477,7 +527,7 @@ loadAppointmentDetails(appointmentId: string): void {
 loadLabTestDetails(appointmentId: string): void {
   this.http
     .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, {
-      params: { Id: appointmentId },
+      params: { appointmentId: appointmentId },
     })
     .subscribe({
       next: (res) => {
@@ -510,7 +560,7 @@ loadLabTestDetails(appointmentId: string): void {
     this.totalAmount = 0;
   }
 
-  // Generate Invoice - Two API Calls
+// Generate Invoice - Two API Calls
 generateInvoice(): void {
   if (!this.selectedAppointmentId || !this.invoice.patientId) {
     this.toast.error('Please select an appointment');
