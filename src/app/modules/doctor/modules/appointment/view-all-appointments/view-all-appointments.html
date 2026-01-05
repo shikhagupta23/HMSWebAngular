@@ -68,28 +68,28 @@
 						</div>
 						<!-- Patient Details -->
 						<div>
-							<p class="m-0 appointment-view-id">#{{ item.appointmentViewId }}</p>
-							<p class="m-0 patient-name">{{ item.patientName }}</p>
+							<p class="m-0 appointment-view-id" title="Appointment View Id">#{{ item.appointmentViewId }}</p>
+							<p class="m-0 patient-name" title="Patient Name">{{ item.patientName }}</p>
 						</div>
 
 					</div>
 				</div>
 
 				<!-- Doctor Name -->
-				<div class="d-none col-12 col-lg-3">
-					<span>{{ item.doctorName }}</span>
+				<div class="col-12 col-lg-2" *ngIf="!isDoctor">
+					<span title="Doctor Name">{{ item.doctorName }}</span>
 				</div>
 
 				<!-- Appointment Date -->
-				<div class="col-12 col-lg-3">
+				<div class="col-12 col-lg-2">
 					<span class="appointment-info date-tag" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
 					<span class="appointment-info date-tag" title="Booked On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
 				</div>
 
 				<!-- Phone -->
-				<div class="col-12 col-lg-4">
-					<span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{item.address}}</span>
-					<span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
+				<div class="col-12 col-lg-3">
+					<span class="appointment-info date-tag" title="Patient's Address"><i class="fa-solid fa-location-dot"></i> {{item.address}}</span>
+					<span class="appointment-info date-tag" title="Patient's Phone Number"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
 				</div>
 
 				<div class="col-12 col-lg-2">
