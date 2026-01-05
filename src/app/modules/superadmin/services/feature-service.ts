@@ -16,5 +16,7 @@ export class FeatureService {
   saveFeature(body: any): Observable<any> {
     return this.api.post(ApiEndpoints.FEATURE.SAVE, body);
   }
-
+   updateFeature(body: any): Observable<any> {
+    return this.api.post(ApiEndpoints.FEATURE.UPDATE, body);
+  }
 }

@@ -61,6 +61,12 @@
                 </div>
             </div>
         </div>
+@if(paginatedPatients.length === 0){
+         <div class="text-center py-5 text-muted">
+    <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
+    <p class="mb-0 fw-semibold">No patient found</p>
+  </div>
+}
     </div>
 
     <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">
