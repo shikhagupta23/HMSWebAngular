@@ -134,25 +134,28 @@ export class LabtestComponent implements OnInit, OnDestroy {
   }
 
   deleteTest(test: any) {
-    if (confirm(`Are you sure you want to delete "${test.testName}"?`)) {
-      this.labTestService.deleteLabTest(test.id).subscribe({
-        next: (res: any) => {
-          if (res?.isSuccess) {
-            this.toast.success(res.message || 'Test deleted successfully');
-            // If current page becomes empty after delete, go to previous page
-            if (this.labTests.length === 1 && this.currentPage > 1) {
-              this.loadLabTests(this.currentPage - 1);
-            } else {
-              this.loadLabTests(this.currentPage);
-            }
+  if (confirm(`Are you sure you want to delete "${test.testName}"?`)) {
+    this.labTestService.deleteLabTest(test.labTestId).subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess) {
+          this.toast.success(res.message || 'Test deleted successfully');
+
+          if (this.labTests.length === 1 && this.currentPage > 1) {
+            this.currentPage--;
+            this.loadLabTests(this.currentPage);
+          } else {
+            this.loadLabTests(this.currentPage);
           }
-        },
-        error: (err) => {
-          this.toast.error('Failed to delete test');
+        } else {
+          this.toast.error(res?.message || 'Delete failed');
         }
-      });
-    }
+      },
+      error: (err) => {
+        this.toast.error('Failed to delete test');
+      }
+    });
   }
+}
 
   closeModal() {
     this.closeModalBtn.nativeElement.click();
