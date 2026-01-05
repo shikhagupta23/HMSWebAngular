@@ -4,6 +4,8 @@ import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { environment } from '../../../../../environment/environment';
 import { Router } from '@angular/router';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -22,6 +24,8 @@ export class Hospital implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private api = inject(HospitalService);
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
   dataList: any[] = [];
   pendingHospital: any = null;
 pendingStatus: boolean | null = null;
@@ -43,6 +47,14 @@ private confirmModalInstance: any;
   ngOnInit(): void {
     this.initForm();
     this.loadHospitals();
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onHospitalAdded().subscribe(() => {
+          console.log('📡 HospitalCreated received:');
+          this.onHospitalAddSignalR();
+        })
+      );
+    })
   }
   ngAfterViewInit() {
   // 🔹 Add/Edit Hospital modal
@@ -395,6 +407,10 @@ confirmStatusUpdate() {
   this.pendingHospital = null;
   this.pendingStatus = null;
   this.previousStatus = null;
+}
+
+private onHospitalAddSignalR(): void {
+  this.loadHospitals();
 }
 
 }

@@ -3,6 +3,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AssignPackageService } from '../../services/assign-package-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 interface PackageDropdown {
   id: string;
@@ -40,6 +42,8 @@ interface AssignmentModel {
 export class AssignPackage implements OnInit {
 
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
   // Data arrays
   assignments: AssignmentModel[] = [];
   hospitals: HospitalDropdown[] = [];
@@ -93,6 +97,14 @@ export class AssignPackage implements OnInit {
     this.loadHospitalDropdown();
     this.loadPackageDropdown();
     this.loadAssignments();
+
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onPackageAssigned().subscribe(() => {
+          this.onPackageAssignSignalR();
+        })
+      )
+    })
   }
 
   /**
@@ -456,5 +468,9 @@ closeModal(modalId: string): void {
   getHospitalName(hospitalId: string): string {
     const hospital = this.hospitals.find(h => h.id === hospitalId);
     return hospital ? hospital.name : '';
+  }
+
+  private onPackageAssignSignalR(): void{
+    this.loadAssignments();
   }
 }

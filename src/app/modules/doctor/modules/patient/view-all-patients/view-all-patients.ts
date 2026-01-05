@@ -44,7 +44,7 @@ ngOnInit() {
    this.signalRService.connect().then(() => {
 
   this.subscriptions.push(
-    this.signalRService.onPatientAdd().subscribe(() => {
+    this.signalRService.onUserAdd().subscribe(() => {
       this.onPatientAddSignalR();
     })
   );

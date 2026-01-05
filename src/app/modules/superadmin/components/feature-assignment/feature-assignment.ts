@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureAccessService } from '../../services/feature-access-service';
 import { UsersService } from '../../services/users-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -30,6 +32,8 @@ export class FeatureAssignment implements OnInit {
   private api = inject(FeatureAccessService);
   private usersApi = inject(UsersService);
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initForm();
@@ -55,6 +59,14 @@ export class FeatureAssignment implements OnInit {
         this.assignForm.get('userId')?.enable();
         this.assignForm.get('canAddAnotherUser')?.enable();
       }
+    });
+
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onFeatureAssigned().subscribe(() => {
+          this.onFeatureAssignSignalR();
+        })
+      )
     });
   }
   ngAfterViewInit(): void {
@@ -307,5 +319,9 @@ export class FeatureAssignment implements OnInit {
     this.assignForm.get('userId')?.disable();
     this.assignForm.get('canAddAnotherUser')?.disable();
     this.userList = [];
+  }
+
+  private onFeatureAssignSignalR() : void{
+    this.loadList();
   }
 }
