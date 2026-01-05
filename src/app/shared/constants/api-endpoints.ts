@@ -162,10 +162,10 @@ export const ApiEndpoints = {
 
     ADD: `${API_BASE_URL}/LabTest/Post`,
 
-    UPDATE: `${API_BASE_URL}/LabTest/Put`,
+    UPDATE: `${API_BASE_URL}/LabTest/UpdateLabTest`,
 
-    DELETE: (id: string) =>
-      `${API_BASE_URL}/LabTest/Delete?id=${id}`,
+    DELETE: (labTestId: string) =>
+      `${API_BASE_URL}/LabTest/DeleteLabTest?labTestId=${labTestId}`,
   },
    PACKAGE: {
     GET: (page: number, pageSize: number) =>
