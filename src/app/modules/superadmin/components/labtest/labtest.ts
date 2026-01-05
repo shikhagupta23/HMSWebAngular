@@ -130,7 +130,11 @@ export class LabtestComponent implements OnInit, OnDestroy {
   editTest(test: any) {
     this.isEditMode = true;
     this.editingTestId = test.id;
-    this.labTestForm.patchValue(test);
+    this.labTestForm.patchValue({
+    testName: test.testName,
+    categoryId: test.categoryId,
+    price: test.price
+  });
   }
 
   deleteTest(test: any) {

@@ -9,7 +9,7 @@ export class Labtest {
 
   private api = inject(ApiService)
 
-    getLabTests(page: number, pageSize: number) {
+  getLabTests(page: number, pageSize: number) {
     return this.api.get(ApiEndpoints.LAB_TEST.GET(page, pageSize));
   }
 
@@ -23,7 +23,6 @@ export class Labtest {
 
   deleteLabTest(labTestId: string) {
     return this.api.delete(ApiEndpoints.LAB_TEST.DELETE(labTestId));
-
   }
 
 }
