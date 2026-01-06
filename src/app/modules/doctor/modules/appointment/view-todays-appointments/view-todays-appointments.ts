@@ -79,6 +79,8 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
   isEditMode: boolean = false;
   canEdit: boolean = false; 
+  isEnteringFollowUpDays = false;
+
 
   addAppointmentForm!: FormGroup;
 
@@ -156,7 +158,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     diagnosis: '',
     advice: '',
     followUp: '',
-    nextFollowUpCount: 0,
+    nextFollowUpCount: undefined,
     medicines: [],
     labTests: []
   };
@@ -638,6 +640,11 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   }
 
   openPrescriptionModal(item: any, mode: 'view' | 'start' = 'start') {
+    this.selectedLabTest = '';
+    this.medicineSearchText = '';
+    this.medicineSearchResults = [];
+    this.selectedDrug = null;
+    this.selectedVariation = null;
     this.selectedAppointment = item;
     this.currentPrescriptionMode = mode;
 
@@ -657,12 +664,11 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   const modalEl = document.getElementById('prescriptionModal');
   const modal = new bootstrap.Modal(modalEl!);
   modal.show();
-
   // Add close listener
   modalEl?.addEventListener('hidden.bs.modal', () => {
     if (this.currentPrescriptionMode === 'start' && this.selectedAppointment?.status !== 2) {
       this.UpdateApptStatusToScheduled();
-      this.resetPrescription();
+      // this.resetPrescription();
     } else {
       this.resetPrescription();
     }
@@ -691,7 +697,7 @@ UpdateApptStatusToScheduled() {
     next: () => {
       this.loadAppointments();
       this.loadAppointmentCounts();
-      this.resetPrescription();
+      // this.resetPrescription();
     },
     error: (err) => console.error("Failed to revert appointment status", err)
   });
@@ -731,7 +737,7 @@ UpdateApptStatusToScheduled() {
             }
           };
 
-  this.prescription = {
+          this.prescription = {
     prescriptionId: p.prescriptionId ?? null,
 
     symptoms: parseArray(p.symptoms),
@@ -757,6 +763,7 @@ UpdateApptStatusToScheduled() {
             value: l.labTestId
           }))
         };
+        this.selectedLabTest = '';
         },
         error: (err) => console.error(err)
       });
@@ -784,9 +791,19 @@ UpdateApptStatusToScheduled() {
       .subscribe((res: any) => {
         if (!res.isSuccess) return;
 
+        const existing =
+        this.activeField === 'Symptoms' ? this.prescription.symptoms :
+        this.activeField === 'Diagnosis' ? this.prescription.diagnosis :
+        this.activeField === 'Advice' ? this.prescription.advice :
+        this.prescription.followUp;
+
+      const selectedValues = (existing || '')
+        .split(',')
+        .map(x => x.trim());
+
         this.optionsList = res.dataList.map((x: any) => ({
           label: x.value,
-          selected: false
+          selected: selectedValues.includes(x.value)
         }));
 
         let modal = new bootstrap.Modal(document.getElementById('checklistModal'));
@@ -852,6 +869,16 @@ UpdateApptStatusToScheduled() {
       return;
     }
 
+    const isDuplicate = this.prescription.medicines.some(m =>
+      m.drugId === this.selectedDrug.drugId &&
+      m.variationId === this.selectedVariation.variationId
+    );
+
+    if (isDuplicate) {
+      this.toast.error('This medicine is already added');
+      return;
+    }
+
     this.prescription.medicines.push({
       drugId: this.selectedDrug.drugId,
       variationId: this.selectedVariation.variationId,
@@ -888,6 +915,15 @@ UpdateApptStatusToScheduled() {
       return;
     }
 
+    const isDuplicate = this.prescription.labTests.some(
+      l => l.value === selected.value
+    );
+
+    if (isDuplicate) {
+      this.toast.error('This lab test is already added');
+      return;
+    }
+
     this.prescription.labTests.push({
       name: selected.text,
       value: selected.value
@@ -895,6 +931,7 @@ UpdateApptStatusToScheduled() {
 
     this.selectedLabTest = '';
   }
+
 
   removeLabTest(index: number) {
     this.prescription.labTests.splice(index, 1);
@@ -1020,7 +1057,7 @@ UpdateApptStatusToScheduled() {
       diagnosis: '',
       advice: '',
       followUp: '',
-      nextFollowUpCount: 0,
+      nextFollowUpCount: undefined,
       medicines: [],
       labTests: []
     };
@@ -1151,5 +1188,38 @@ openPatientDetails(patient: any) {
     { state: { patient } }
   );
 }
+
+onFollowUpFocus() {
+  if (this.isEditMode && this.isDoctor) {
+    this.isEnteringFollowUpDays = true;
+  }
+}
+
+onFollowUpChange(event: Event) {
+  const val = (event.target as HTMLInputElement).value.replace(/\D/g, '');
+  this.prescription.nextFollowUpCount = val ? Number(val) : undefined;
+}
+
+getNextFollowUpDate(): string {
+  if (
+    !this.selectedAppointment?.appointmentDate ||
+    this.prescription.nextFollowUpCount == null
+  ) {
+    return '';
+  }
+
+  const baseDate = new Date(this.selectedAppointment.appointmentDate);
+  const days = this.prescription.nextFollowUpCount;
+
+  const result = new Date(baseDate);
+  result.setDate(result.getDate() + days);
+
+  const dd = String(result.getDate()).padStart(2, '0');
+  const mm = String(result.getMonth() + 1).padStart(2, '0');
+  const yyyy = result.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
+}
+
 
 }

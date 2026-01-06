@@ -492,6 +492,7 @@
 							</div>
 
 						</div>
+						<ng-container *ngIf="prescription.medicines.length > 0; else noMedicine">
 						<ol class="mt-3 left-padding" title="Medicines">
 							<li *ngFor="let m of prescription.medicines; let i = index" class="mb-4">
 
@@ -518,6 +519,11 @@
 							<!-- <p class="mb-0">{{ m.advice }}</p> -->
 							</li>
 						</ol>
+						</ng-container>
+
+						<ng-template #noMedicine>
+						<p class="text-muted mt-3">No medicine added</p>
+						</ng-template>
 					</div>
 					</div>
 
@@ -546,10 +552,14 @@
 							title="Next FollowUp"
 							class="form-control"
 							placeholder="Next Follow up (in days)"
-							[(ngModel)]="prescription.nextFollowUpCount"
-							[readonly]="!isDoctor"
-							[disabled]="!isDoctor"/>
+    						[value]="isEditMode && !isEnteringFollowUpDays 
+							? getNextFollowUpDate() 
+							: (prescription.nextFollowUpCount ?? '')"
+							[disabled]="!isDoctor && !isEnteringFollowUpDays"
+    						(focus)="onFollowUpFocus()" 
+							(input)="onFollowUpChange($event)"/>
 						</div>
+						<ng-container *ngIf="prescription.labTests.length > 0; else noLabTest">
 						<ol class="inline-list" *ngIf="prescription.labTests.length > 0" title="LabTests">
 
 						<li *ngFor="let t of prescription.labTests; let i = index" class="mb-4">
@@ -565,7 +575,11 @@
 						</div>
 						</li>
 						</ol>
+						</ng-container>
 
+						<ng-template #noLabTest>
+						<p class="text-muted">No lab test added</p>
+						</ng-template>
 					</div>
 					</div>
 				</div>
@@ -601,14 +615,14 @@
 			<div *ngFor="let item of optionsList">
 			<label class="d-flex align-items-center gap-2">
 				<input type="checkbox" [(ngModel)]="item.selected"
-					(change)="updateText()" />
+					(ngModelChange)="updateText()" />
 				<span class="txt-font">{{ item.label }}</span>
 			</label>
 			</div>
 
 		</div>
 
-		<div class="modal-footer">
+		<div class="modal-footer d-none">
 			<button class="btn customBtn" data-bs-dismiss="modal">Save {{ activeField }}</button>
 		</div>
 
