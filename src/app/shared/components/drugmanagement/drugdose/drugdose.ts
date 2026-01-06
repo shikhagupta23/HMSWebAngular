@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
 // Updated interface to match API response
 interface DrugDose {
@@ -100,6 +101,7 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
     GET_ALL_TYPE: '/DrugManagement/getAllDrugType'
   };
 
+  private toastr = inject(ToastService);
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -290,12 +292,11 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
 
   saveDose(): void {
     if (!this.formData.doseDescription || !this.formData.doseDescription.trim()) {
-      alert('Please enter dose description');
-      return;
+       this.toastr.error('Please enter dose description');
     }
 
     if (!this.formData.drugTypeId) {
-      alert('Please select drug type');
+      this.toastr.error('Please select drug type');
       return;
     }
 
@@ -317,12 +318,12 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugDoses();
             } else {
-              alert(response.message || 'Failed to update dose');
+              this.toastr.error(response.message || 'Failed to update dose');
             }
           },
           error: (err) => {
             console.error('Update error:', err);
-            alert('Failed to update dose. Please try again.');
+            this.toastr.error('Failed to update dose. Please try again.');
           }
         });
     } else {
@@ -343,12 +344,12 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugDoses();
             } else {
-              alert(response.message || 'Failed to create dose');
+              this.toastr.error(response.message || 'Failed to create dose');
             }
           },
           error: (err) => {
             console.error('Create error:', err);
-            alert('Failed to create dose. Please try again.');
+            this.toastr.error('Failed to create dose. Please try again.');
           }
         });
     }
@@ -360,7 +361,7 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
       
       const dose = this.doses.find(d => d.doseId === doseId);
       if (!dose) {
-        alert('Dose not found');
+        this.toastr.error('Dose not found');
         return;
       }
       
@@ -371,12 +372,12 @@ export class DrugdoseComponent implements OnInit, OnDestroy {
             if (response.isSuccess) {
               this.loadDrugDoses();
             } else {
-              alert(response.message || 'Failed to delete dose');
+              this.toastr.error(response.message || 'Failed to delete dose');
             }
           },
           error: (err) => {
             console.error('Delete error:', err);
-            alert('Failed to delete dose. Please try again.');
+            this.toastr.error('Failed to delete dose. Please try again.');
           }
         });
     }

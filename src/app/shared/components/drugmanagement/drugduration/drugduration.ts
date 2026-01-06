@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
 // Updated interface to match API response
 interface DrugDuration {
@@ -94,6 +95,8 @@ export class DrugDurationComponent implements OnInit, OnDestroy {
       this.applyFiltersAndPagination();
     });
   }
+
+   private toastr = inject(ToastService);
 
   ngOnDestroy(): void {
     // Clean up subscription
@@ -261,7 +264,7 @@ export class DrugDurationComponent implements OnInit, OnDestroy {
 
   saveDrugDuration(): void {
     if (!this.formData.duration || !this.formData.duration.trim()) {
-      alert('Please enter duration');
+      this.toastr.error('Please enter duration');
       return;
     }
 
@@ -283,12 +286,12 @@ export class DrugDurationComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadAllDrugDurations();
             } else {
-              alert(response.message || 'Failed to update drug duration');
+              this.toastr.error(response.message || 'Failed to update drug duration');
             }
           },
           error: (err) => {
             console.error('Update error:', err);
-            alert('Failed to update drug duration. Please try again.');
+            this.toastr.error('Failed to update drug duration. Please try again.');
           }
         });
     } else {
@@ -309,12 +312,12 @@ export class DrugDurationComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadAllDrugDurations();
             } else {
-              alert(response.message || 'Failed to create drug duration');
+              this.toastr.error(response.message || 'Failed to create drug duration');
             }
           },
           error: (err) => {
             console.error('Create error:', err);
-            alert('Failed to create drug duration. Please try again.');
+            this.toastr.error('Failed to create drug duration. Please try again.');
           }
         });
     }
@@ -331,12 +334,12 @@ export class DrugDurationComponent implements OnInit, OnDestroy {
               console.log('Delete success:', response.message);
               this.loadAllDrugDurations();
             } else {
-              alert(response.message || 'Failed to delete drug duration');
+              this.toastr.error(response.message || 'Failed to delete drug duration');
             }
           },
           error: (err) => {
             console.error('Delete error:', err);
-            alert('Failed to delete drug duration. Please try again.');
+            this.toastr.error('Failed to delete drug duration. Please try again.');
           }
         });
     }

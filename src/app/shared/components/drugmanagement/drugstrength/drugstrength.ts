@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
 // Updated interface to match API response
 interface DrugStrength {
@@ -73,6 +74,7 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
   };
 
   constructor(private http: HttpClient) {}
+   private toastr = inject(ToastService);
 
   ngOnInit(): void {
     this.loadDrugStrengths();
@@ -231,7 +233,7 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
 
   saveDrugStrength(): void {
     if (!this.formData.strength || !this.formData.strength.trim()) {
-      alert('Please enter strength');
+      this.toastr.error('Please enter strength');
       return;
     }
 
@@ -253,12 +255,12 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugStrengths();
             } else {
-              alert(response.message || 'Failed to update drug strength');
+              this.toastr.error(response.message || 'Failed to update drug strength');
             }
           },
           error: (err) => {
             console.error('Update error:', err);
-            alert('Failed to update drug strength. Please try again.');
+            this.toastr.error('Failed to update drug strength. Please try again.');
           }
         });
     } else {
@@ -279,12 +281,12 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugStrengths();
             } else {
-              alert(response.message || 'Failed to create drug strength');
+              this.toastr.error(response.message || 'Failed to create drug strength');
             }
           },
           error: (err) => {
             console.error('Create error:', err);
-            alert('Failed to create drug strength. Please try again.');
+            this.toastr.error('Failed to create drug strength. Please try again.');
           }
         });
     }
@@ -301,12 +303,12 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
               console.log('Delete success:', response.message);
               this.loadDrugStrengths();
             } else {
-              alert(response.message || 'Failed to delete drug strength');
+              this.toastr.error(response.message || 'Failed to delete drug strength');
             }
           },
           error: (err) => {
             console.error('Delete error:', err);
-            alert('Failed to delete drug strength. Please try again.');
+            this.toastr.error('Failed to delete drug strength. Please try again.');
           }
         });
     }
