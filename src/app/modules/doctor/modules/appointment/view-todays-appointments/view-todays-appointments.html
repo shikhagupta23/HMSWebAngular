@@ -263,7 +263,6 @@
 					</div>
 					</div>
 
-					<!-- APPOINTMENT DETAILS -->
 					<div class="col-12 mt-3">
 					<h6 class="fw-bold mb-3">
 						<i class="fas fa-calendar-check me-2"></i>Appointment Details
@@ -285,7 +284,6 @@
 						<div class="col-md-3">
 						<label class="form-label small fw-semibold">Doctor <span class="text-danger">*</span></label>
 
-						<!-- If role = doctor: Show disabled field -->
 						<input 
 							*ngIf="isDoctorRole"
 							type="text"
@@ -293,7 +291,6 @@
 							[value]="doctorDetails?.doctorName"
 							disabled
 						/>
-						<!-- If role = receptionist: Show normal dropdown -->
 						<select 
 							*ngIf="!isDoctorRole"
 							class="form-control"
