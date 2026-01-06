@@ -25,14 +25,55 @@ export class FeatureAssignment implements OnInit {
   totalPages = 0;
   searchTerm = '';
   selectedId: any = null;
-
+  whatsAppForm!: FormGroup;
+selectedFeatureAccessId!: string;
+selectedHospitalId!: string;
+whatsAppConfigDataAvailable = false;
+whatsAppConfigData: any 
   private fb = inject(FormBuilder);
   private api = inject(FeatureAccessService);
   private usersApi = inject(UsersService);
   private toast = inject(ToastService);
 
+ initWhatsAppForm() {
+  this.whatsAppForm = this.fb.group({
+    whatsAppNumber: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/^[0-9]{10,15}$/) // country code supported
+      ]
+    ],
+    totalMessageCount: [
+      null,
+      [
+        Validators.required,
+        Validators.min(1)
+      ]
+    ],
+    validFrom: [
+      null,
+      Validators.required
+    ],
+    validTo: [
+      null,
+      Validators.required
+    ],
+    providerName: [
+      '',
+      Validators.required
+    ],
+    apiKey: [
+      '',
+      Validators.required
+    ]
+  }, { validators: this.dateRangeValidator });
+}
+
+
   ngOnInit(): void {
     this.initForm();
+    this.initWhatsAppForm();
     this.loadList();
     this.loadFeatureList();
     this.loadHospitalList();
@@ -65,7 +106,23 @@ export class FeatureAssignment implements OnInit {
         this.resetForm();
       });
     }
+    const whatsAppModalEl = document.getElementById('whatsAppConfigModal');
+  if (whatsAppModalEl) {
+    whatsAppModalEl.addEventListener('hidden.bs.modal', () => {
+      this.resetWhatsAppForm();
+    });
   }
+  }
+  resetWhatsAppForm(): void {
+  this.whatsAppForm.reset();
+
+  this.whatsAppConfigDataAvailable = false;
+  this.whatsAppConfigData = null;
+
+  this.selectedFeatureAccessId = '';
+  this.selectedHospitalId = '';
+}
+
 
   loadUsersForAdminRole() {
     this.usersApi.getRoleId('admin').subscribe({
@@ -308,4 +365,84 @@ export class FeatureAssignment implements OnInit {
     this.assignForm.get('canAddAnotherUser')?.disable();
     this.userList = [];
   }
+  openWhatsAppModal(item: any) {
+  this.selectedFeatureAccessId = item.featureAccessId || item.id;
+  this.selectedHospitalId = item.hospitalId || item.HospitalId;
+console.log('Selected Feature Access ID:', this.selectedFeatureAccessId, item);
+  // reset form first
+  this.whatsAppForm.reset();
+
+  const modalEl = document.getElementById('whatsAppConfigModal');
+  const modal =
+    bootstrap.Modal.getInstance(modalEl!) || new bootstrap.Modal(modalEl!);
+  modal.show();
+
+  // 🔹 CALL API TO GET EXISTING DATA
+  this.api
+    .getWhatsAppFeatureDetail(this.selectedFeatureAccessId, this.selectedHospitalId)
+    .subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess ) {
+          // no config exists yet → fresh form
+          return;
+        }
+this.whatsAppConfigData=res.dataList[0];
+console.log('WhatsApp Config Data Loaded:', this.whatsAppConfigData);
+        const d = res.dataList[0];
+console.log('WhatsApp Config Data:', d, 'jjjjjjjjjjjj', res);
+this.whatsAppConfigDataAvailable = res.dataList && res.dataList.length > 0;
+        // ✅ PATCH FORM
+        this.whatsAppForm.patchValue({
+          whatsAppNumber: d.whatsAppNumber,
+          totalMessageCount: d.totalMessageCount,
+          validFrom: d.validFrom ? d.validFrom.split('T')[0] : null,
+          validTo: d.validTo ? d.validTo.split('T')[0] : null,
+          providerName: d.providerName,
+          apiKey: d.apiKey
+        });
+      },
+      error: () => {
+        // silent fail (new config scenario)
+      }
+    });
+}
+
+saveWhatsAppConfig() {
+  if (this.whatsAppForm.invalid) {
+    this.whatsAppForm.markAllAsTouched();
+    return;
+  }
+
+  const payload = {
+    featureAccessId: this.selectedFeatureAccessId,
+    hospitalId: this.selectedHospitalId,
+    ...this.whatsAppForm.value
+  };
+
+  this.api.saveWhatsAppFeatureDetail(payload).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to save WhatsApp config');
+        return;
+      }
+
+      this.toast.success('WhatsApp configured successfully');
+
+      const modalEl = document.getElementById('whatsAppConfigModal');
+      bootstrap.Modal.getInstance(modalEl!)?.hide();
+    },
+    error: () => this.toast.error('Failed to save WhatsApp config')
+  });
+}
+dateRangeValidator(group: FormGroup) {
+  const from = group.get('validFrom')?.value;
+  const to = group.get('validTo')?.value;
+
+  if (from && to && new Date(to) < new Date(from)) {
+    return { dateInvalid: true };
+  }
+  return null;
+}
+
+
 }
