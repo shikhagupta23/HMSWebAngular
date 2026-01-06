@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
-// Updated interface to match API response
 interface DrugAdvice {
   drugAdviceId: string;
   advice: string;
@@ -15,7 +15,6 @@ interface DrugAdvice {
   updatedBy?: string;
 }
 
-// Updated response interface to match backend PagedResponse
 interface DrugAdviceResponse {
   dataList: DrugAdvice[];
   pageNumber: number;
@@ -27,7 +26,6 @@ interface DrugAdviceResponse {
   id?: string;
 }
 
-// API Response for Create/Update/Delete operations
 interface ApiResponse {
   isSuccess: boolean;
   message: string;
@@ -56,15 +54,12 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
   isLoading = false;
   error = '';
 
-  // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
   totalCount: number = 0;
 
-  // Debounce search - Industry Standard
   private searchSubject = new Subject<string>();
 
-  // API Endpoints - Updated to match backend routes
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrugAdvice',
     CREATE: '/DrugManagement/createDrugAdvices',
@@ -72,24 +67,23 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
     DELETE: '/DrugManagement/deleteDrugAdvice'
   };
 
+  private toast = Inject(ToastService);
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadDrugAdvices();
     
-    // Setup debounced search - waits 500ms after user stops typing
     this.searchSubject.pipe(
-      debounceTime(500), // Wait 500ms after user stops typing
-      distinctUntilChanged() // Only trigger if search term actually changed
+      debounceTime(500),
+      distinctUntilChanged()
     ).subscribe(searchTerm => {
       this.searchTerm = searchTerm;
-      this.currentPage = 1; // Reset to first page on new search
+      this.currentPage = 1;
       this.loadDrugAdvices();
     });
   }
 
   ngOnDestroy(): void {
-    // Clean up subscription
     this.searchSubject.complete();
   }
 
@@ -101,7 +95,6 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
       .set('page', this.currentPage.toString())
       .set('pageSize', this.entriesPerPage.toString());
 
-    // Add search term if it exists
     if (this.searchTerm && this.searchTerm.trim()) {
       params = params.set('searchTerm', this.searchTerm.trim());
     }
@@ -138,9 +131,7 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Updated search method - now uses debouncing
   onSearch(): void {
-    // Push the search term to the subject - debouncing will handle the delay
     this.searchSubject.next(this.searchTerm);
   }
 
@@ -230,12 +221,11 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
 
   saveAdvice(): void {
     if (!this.formData.advice || !this.formData.advice.trim()) {
-      alert('Please enter advice text');
+      this.toast.error('Please enter advice text');
       return;
     }
 
     if (this.isEditMode) {
-      // Update existing advice via API
       const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}`;
       
       this.http.put<ApiResponse>(updateUrl, this.formData)
@@ -245,19 +235,17 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugAdvices();
             } else {
-              alert(response.message || 'Failed to update advice');
+              this.toast.error(response.message || 'Failed to update advice');
             }
           },
           error: (err) => {
             console.error('Update error:', err);
-            alert('Failed to update advice. Please try again.');
+            this.toast.error('Failed to update advice. Please try again.');
           }
         });
     } else {
-      // Create new advice via API
       const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
       
-      // Don't send drugAdviceId for new records
       const createData = {
         advice: this.formData.advice,
         isActive: this.formData.isActive
@@ -270,12 +258,12 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
               this.closeModal();
               this.loadDrugAdvices();
             } else {
-              alert(response.message || 'Failed to create advice');
+              this.toast.error(response.message || 'Failed to create advice');
             }
           },
           error: (err) => {
             console.error('Create error:', err);
-            alert('Failed to create advice. Please try again.');
+            this.toast.error('Failed to create advice. Please try again.');
           }
         });
     }
@@ -287,23 +275,22 @@ export class DrugAdviceComponent implements OnInit, OnDestroy {
       
       const advice = this.advices.find(a => a.drugAdviceId === drugAdviceId);
       if (!advice) {
-        alert('Advice not found');
+        this.toast.error('Advice not found');
         return;
       }
       
-      // Send the entire DrugAdvice object as the backend expects
       this.http.delete<ApiResponse>(deleteUrl, { body: advice })
         .subscribe({
           next: (response) => {
             if (response.isSuccess) {
               this.loadDrugAdvices();
             } else {
-              alert(response.message || 'Failed to delete advice');
+              this.toast.error(response.message || 'Failed to delete advice');
             }
           },
           error: (err) => {
             console.error('Delete error:', err);
-            alert('Failed to delete advice. Please try again.');
+            this.toast.error('Failed to delete advice. Please try again.');
           }
         });
     }
