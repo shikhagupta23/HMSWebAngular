@@ -261,7 +261,7 @@
                                             (click)="removeTag(variation.strengths, strength)">×</span>
                                     </span>
                                     <input type="text" class="chip-input-field"
-                                        placeholder="Strength, like: 3mg, 5mg"
+                                        [placeholder]="variation.strengths.length > 0 ? '' : 'Strength, like: 3mg, 5mg'"
                                         [(ngModel)]="variation.strengthSearch"
                                         (input)="filterStrengths(i)" 
                                         (focus)="showStrengthDropdown(i)"
@@ -289,7 +289,7 @@
                                             (click)="removeTag(variation.doses, dose)">×</span>
                                     </span>
                                     <input type="text" class="chip-input-field"
-                                        placeholder="Dose, like: 1+1+1, 1+0+1"
+                                        [placeholder]="variation.doses.length > 0 ? '' : 'Dose, like: 1+1+1, 1+0+1'"
                                         [(ngModel)]="variation.doseSearch" 
                                         (input)="filterDoses(i)"
                                         (focus)="showDoseDropdown(i)" 
@@ -316,7 +316,7 @@
                                             (click)="removeTag(variation.durations, duration)">×</span>
                                     </span>
                                     <input type="text" class="chip-input-field"
-                                        placeholder="Duration, like: 7 days, 15 days"
+                                        [placeholder]="variation.durations.length > 0 ? '' : 'Duration, like: 7 days, 15 days'"
                                         [(ngModel)]="variation.durationSearch"
                                         (input)="filterDurations(i)" 
                                         (focus)="showDurationDropdown(i)"
