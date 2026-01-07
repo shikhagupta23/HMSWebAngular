@@ -466,7 +466,7 @@ private extractAndCleanHtml(response: any): string {
       },
       error: () => this.toast.error('Failed to load appointments'),
     });
-}
+  }
 
 
   // Filter appointments based on search term
