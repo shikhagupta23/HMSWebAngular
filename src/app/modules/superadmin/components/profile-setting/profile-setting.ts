@@ -29,7 +29,6 @@ private authService = inject(AuthService);
  private asidebarService = inject(AsidebarService);
  profiledata: any ;
   ngOnInit(): void {
-    this.loadDoctorDepartments();
     const role = this.authService.getUserRole();
     this.isDoctor = role === 'Doctor'; // 🔥 role check
     this.form = this.fb.group({
@@ -38,79 +37,79 @@ private authService = inject(AuthService);
       userName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required]],
-      address: [''],
+      address: ['', [Validators.required]],
       dateOfBirth: [''],
-      gender: ['']
+      gender: ['', [Validators.required]]
     });
-if (this.isDoctor) {
-      this.form.addControl('department', this.fb.control('', Validators.required));
+    if (this.isDoctor) {
+      this.form.addControl('department', this.fb.control(null, Validators.required));
       this.form.addControl('registrationNo', this.fb.control('', Validators.required));
-      this.form.addControl('degree', this.fb.control('', Validators.required));
-      this.form.addControl('speciality', this.fb.control('', Validators.required));
+      this.form.addControl('degree', this.fb.control(''));
+      this.form.addControl('speciality', this.fb.control(''));
+
+      this.form.updateValueAndValidity();
     }
     this.loadProfile();
+
   }
 
   loadProfile() {
     this.loading = true;
-      const role = this.authService.getUserRole();
-  const isDoctor = role === 'Doctor';
-const doctorId = this.authService.getLoggedInUserId();
-  // 🔥 Decide API dynamically
-  const api$ = isDoctor
-    ? this.asidebarService.getDoctorDetailsById(doctorId)
-    : this.api.get<any>(ApiEndpoints.PROFILE.GETPROFILE);
+    const role = this.authService.getUserRole();
+    const isDoctor = role === 'Doctor';
+    const doctorId = this.authService.getLoggedInUserId();
+    const api$ = isDoctor
+      ? this.asidebarService.getDoctorDetailsById(doctorId)
+      : this.api.get<any>(ApiEndpoints.PROFILE.GETPROFILE);
 
   api$.subscribe({
       next: (res) => {
         this.profiledata = res?.data ?? (Array.isArray(res?.dataList) ? res.dataList[0] : null);
         const data = this.profiledata;
         if(isDoctor){
- this.form.patchValue({
-          id: data.doctorId,
-          userName: data.doctorName,
-          email: data.doctorEmail,
-          phoneNumber: data.doctorPhoneNumber,
-          address: data.doctorFullAddress,
-          dateOfBirth: this.normalizeDateForInput(data.dob),
-          gender: data.gender,
-
-          // doctor-only fields
-          department: data.doctorDepartmentMasterId?.toUpperCase(),
-          registrationNo: data.doctorRegNo,
-          degree: data.doctorDegree,
-          speciality: data.doctorSpeciality
-        });
-        }else{
-          
-        
-        if (data) {
-          // Patch form with API fields
           this.form.patchValue({
-            id: data.id,
-            hospitalId: data.hospitalId,
-            userName: data.userName,
-            email: data.email,
-            phoneNumber: data.phoneNumber,
-            address: data.address,
-            dateOfBirth: this.normalizeDateForInput(data.dateOfBirth),
-            gender: data.gender
-          });
-          if (this.isDoctor) {
-  this.form.patchValue({
-    department: data.doctorDepartmentMasterId,
-    registrationNo: data.doctorRegNo,
-    degree: data.doctorDegree,
-    speciality: data.doctorSpeciality
-  });
-}
-
-          // If auth_user present in localStorage, prefer its hospitalId
-          const authHospitalId = this.getAuthHospitalId();
-          if (authHospitalId) {
-            this.form.patchValue({ hospitalId: authHospitalId });
+            id: data.doctorId,
+            userName: data.doctorName,
+            email: data.doctorEmail,
+            phoneNumber: data.doctorPhoneNumber,
+            address: data.doctorFullAddress,
+            dateOfBirth: this.normalizeDateForInput(data.dob),
+            gender: data.gender ?? '',
+            department: data.doctorDepartmentMasterId &&
+                        data.doctorDepartmentMasterId !== '00000000-0000-0000-0000-000000000000'
+                          ? data.doctorDepartmentMasterId
+                          : null,
+            registrationNo: data.doctorRegNo,
+            degree: data.doctorDegree,
+            speciality: data.doctorSpeciality
+        });
+        this.loadDoctorDepartments();
+      }
+        else{        
+          if (data) {
+            this.form.patchValue({
+              id: data.id,
+              hospitalId: data.hospitalId,
+              userName: data.userName,
+              email: data.email,
+              phoneNumber: data.phoneNumber,
+              address: data.address,
+              dateOfBirth: this.normalizeDateForInput(data.dateOfBirth),
+              gender: data.gender
+            });
+            if (this.isDoctor) {
+              this.form.patchValue({
+                department: data.doctorDepartmentMasterId,
+                registrationNo: data.doctorRegNo,
+                degree: data.doctorDegree,
+                speciality: data.doctorSpeciality
+              });
+            }
+            const authHospitalId = this.getAuthHospitalId();
+            if (authHospitalId) {
+              this.form.patchValue({ hospitalId: authHospitalId });
+            }
           }
-        }
       }
         this.loading = false;
       },
@@ -122,11 +121,20 @@ const doctorId = this.authService.getLoggedInUserId();
     });
   }
 
-  loadDoctorDepartments() {
+loadDoctorDepartments() {
   this.userApi.getDoctorDepartments().subscribe({
     next: (res: any) => {
       this.departments =
         res.dataList ;
+
+      // Ensure saved department shows in dropdown
+      if (this.profiledata?.doctorDepartmentMasterId) {
+        setTimeout(() => {
+          this.form.patchValue({
+            department: this.profiledata.doctorDepartmentMasterId
+          });
+        });
+      }
     },
     error: () => {
       this.toast.error('Failed to load departments');
@@ -136,12 +144,10 @@ const doctorId = this.authService.getLoggedInUserId();
 
   private normalizeDateForInput(dateStr: any): string {
     if (!dateStr) return '';
-    // If already in ISO yyyy-MM-dd or yyyy-MM-ddTHH:mm:ss format
     if (typeof dateStr === 'string') {
       const isoMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}/);
       if (isoMatch) return isoMatch[0];
 
-      // If format is dd/MM/yyyy (e.g. 24/02/1999)
       const dm = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
       if (dm) {
         const day = dm[1].padStart(2, '0');
@@ -150,12 +156,9 @@ const doctorId = this.authService.getLoggedInUserId();
         return `${year}-${month}-${day}`;
       }
 
-      // If format contains T (date-time), split
       if (dateStr.indexOf('T') >= 0) {
         return dateStr.split('T')[0];
       }
-
-      // Try to parse using Date and format
       const parsed = new Date(dateStr);
       if (!isNaN(parsed.getTime())) {
         const y = parsed.getFullYear();
@@ -167,9 +170,13 @@ const doctorId = this.authService.getLoggedInUserId();
     return '';
   }
 
-  submit() {
+submit() {
+
   if (this.form.invalid) {
-    this.form.markAllAsTouched();
+    Object.values(this.form.controls).forEach(control => {
+      control.markAsTouched();
+      control.updateValueAndValidity();
+    });
     return;
   }
 
@@ -188,9 +195,9 @@ const doctorId = this.authService.getLoggedInUserId();
       gender: this.form.value.gender,
       dob: this.form.value.dateOfBirth,
       doctorFullAddress: this.form.value.address,
-
-      doctorDepartmentMasterId: this.form.value.department, 
-
+      doctorDepartmentMasterId: this.normalizeDepartment(
+        this.form.value.department
+      ),
       doctorDegree: this.form.value.degree,
       doctorSpeciality: this.form.value.speciality,
       doctorRegNo: this.form.value.registrationNo,
@@ -259,4 +266,21 @@ const doctorId = this.authService.getLoggedInUserId();
 
   // convenience getters
   get f() { return this.form.controls; }
+
+  private normalizeDepartment(value: any): string | null {
+  if (!value) return null;
+
+  // Case: "1: GUID"
+  if (typeof value === 'string' && value.includes(':')) {
+    return value.split(':').pop()?.trim() || null;
+  }
+
+  // Case: zero-guid
+  if (value === '00000000-0000-0000-0000-000000000000') {
+    return null;
+  }
+
+  return value;
+}
+
 }

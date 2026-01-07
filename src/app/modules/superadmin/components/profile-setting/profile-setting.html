@@ -8,7 +8,7 @@
 				<input formControlName="hospitalId" type="hidden">
 
 				<div class="mb-3">
-					<label class="form-label">User Name</label>
+					<label class="form-label">User Name <span class="text-danger">*</span></label>
 					<input class="form-control" formControlName="userName" placeholder="Enter user name">
 					<div *ngIf="f['userName'].touched && f['userName'].invalid" class="invalid-feedback d-block">
 						<div *ngIf="f['userName'].errors?.['required']">User name is required</div>
@@ -17,7 +17,7 @@
 
                 <div class="row">
 					<div class="col-md-6 mb-3">
-						<label class="form-label">Email</label>
+						<label class="form-label">Email <span class="text-danger">*</span></label>
 					<input class="form-control" formControlName="email" placeholder="Enter email">
 					<div *ngIf="f['email'].touched && f['email'].invalid" class="invalid-feedback d-block">
 						<div *ngIf="f['email'].errors?.['required']">Email is required</div>
@@ -25,7 +25,7 @@
 					</div>
 					</div>
 					<div class="col-md-6 mb-3">
-						<label class="form-label">Phone Number</label>
+						<label class="form-label">Phone Number <span class="text-danger">*</span></label>
 					<input class="form-control" formControlName="phoneNumber" placeholder="Enter phone number">
 					<div *ngIf="f['phoneNumber'].touched && f['phoneNumber'].invalid" class="invalid-feedback d-block">
 						<div *ngIf="f['phoneNumber'].errors?.['required']">Phone number is required</div>
@@ -33,61 +33,69 @@
 					</div>
 				</div>
 
-                	<div class="row">
+            	<div class="row">
 					<div class="col-md-6 mb-3">
 						<label class="form-label">Date of Birth</label>
 						<input type="date" class="form-control" formControlName="dateOfBirth">
 					</div>
 					<div class="col-md-6 mb-3">
-						<label class="form-label">Gender</label>
-						<select class="form-control" formControlName="gender">
+						<label class="form-label">Gender <span class="text-danger">*</span></label>
+						<select class="form-control" appSelect2 placeholder="-- Gender --"  formControlName="gender">
 							<option value="">Select gender</option>
 							<option value="M">Male</option>
 							<option value="F">Female</option>
 							<option value="O">Other</option>
 						</select>
+						<div *ngIf="f['gender'].touched && f['gender'].invalid" class="invalid-feedback d-block">
+							<div *ngIf="f['gender'].errors?.['required']">Gender is required</div>
+						</div>
 					</div>
 				</div>
 <!-- ================= Doctor Fields ================= -->
 
 @if(isDoctor){
-	<div class="row">
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Department </label>
-	 <select class="form-control" formControlName="department">
-      <option value="">-- Select Department --</option>
-      <option *ngFor="let d of departments" [value]="d.value">
-        {{ d.text }} 
-      </option>
-    </select>
-  </div>
-
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Registration No </label>
-    <input class="form-control" formControlName="registrationNo" />
-  </div>
-</div>
-<div class="row">
-
-
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Degree </label>
-    <input class="form-control" formControlName="degree" />
-  </div>
-
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Speciality </label>
-    <input class="form-control" formControlName="speciality" />
-  </div>
-</div>
-}
-
-				<div class="mb-3">
-					<label class="form-label">Address</label>
-					<textarea class="form-control" formControlName="address" rows="3"></textarea>
+				<div class="row">
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Department <span class="text-danger">*</span></label>
+					<select class="form-control" appSelect2 placeholder="-- Department --" formControlName="department">
+					<option [ngValue]="null">-- Department --</option>
+					<option *ngFor="let d of departments" [ngValue]="d.value">
+						{{ d.text }} 
+					</option>
+					</select>
+					<div *ngIf="f['department'].touched && f['department'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['department'].errors?.['required']">Department is required</div>
+					</div>
 				</div>
 
-			
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Registration No <span class="text-danger">*</span></label>
+					<input class="form-control" formControlName="registrationNo" />
+					<div *ngIf="f['registrationNo'].touched && f['registrationNo'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['registrationNo'].errors?.['required']">Registration No is required</div>
+					</div>
+				</div>
+				</div>
+
+				<div class="row">
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Degree </label>
+					<input class="form-control" formControlName="degree" />
+				</div>
+
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Speciality </label>
+					<input class="form-control" formControlName="speciality" />
+				</div>
+				</div>
+}
+				<div class="mb-3">
+					<label class="form-label">Address <span class="text-danger">*</span></label>
+					<textarea class="form-control" formControlName="address" rows="3"></textarea>
+					<div *ngIf="f['address'].touched && f['address'].invalid" class="invalid-feedback d-block">
+						<div *ngIf="f['address'].errors?.['required']">Address is required</div>
+					</div>
+				</div>			
 
 				<div class="d-flex justify-content-end">
 					<button class="btn btn-primary" type="submit" [disabled]="saving">{{ saving ? 'Saving...' : 'Save Changes' }}</button>

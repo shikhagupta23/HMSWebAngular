@@ -174,7 +174,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       gender: ['', Validators.required],
       bloodGroup: [''],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      address: [''],
+      address: ['', [Validators.required]],
       weight: [''],
       height: [''],
       pulse: [''],
@@ -315,7 +315,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
               doctor: response.data.doctorId,
             });
             this.getDoctorFee();
-            this.addAppointmentForm.get('appointmentFee')?.disable();
+            this.addAppointmentForm.get('appointmentFee');
           }
         },
         error: (err) => console.error("API Error:", err)
@@ -324,7 +324,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     else {
       // For receptionist → load all doctors
       this.loadAllDoctors();
-      this.addAppointmentForm.get('appointmentFee')?.enable();
+      this.addAppointmentForm.get('appointmentFee');
     }
   }
 
