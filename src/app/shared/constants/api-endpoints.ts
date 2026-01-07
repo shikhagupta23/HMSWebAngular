@@ -95,6 +95,7 @@ export const ApiEndpoints = {
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
     DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+    GETINACTIVE_USER: `${API_BASE_URL}/ApplicationUserAPI/getInActiveUser`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,

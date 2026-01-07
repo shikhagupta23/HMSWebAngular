@@ -13,6 +13,11 @@ export interface ActivePackageModel{
   count: number;
 }
 
+export interface InActiveUserModel{
+  Name: string;
+  Role: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -43,6 +48,10 @@ export class DashboardService {
 
   getActivePackages(): Observable<ActivePackageModel[]> {
   return this.api.get<ActivePackageModel[]>(ApiEndpoints.PACKAGE.GET_ACTIVE_PACKAGE);
+}
+
+ getInActiveUser(): Observable<InActiveUserModel[]> {
+  return this.api.get<InActiveUserModel[]>(ApiEndpoints.DASHBOARD.GETINACTIVE_USER);
 }
 
 }

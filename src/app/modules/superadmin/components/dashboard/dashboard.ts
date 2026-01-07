@@ -39,6 +39,11 @@ export class Dashboard {
   itemsPerPage = 5;
   paginatedPackages: any[] = [];
 
+  //InActive User properties
+  inactiveUsers: any[] = [];
+  inactiveUserCount = 0;
+  paginatedUsers: any[] = [];
+
   ngOnInit(): void {
     try {
       this.role = this.auth.getUserRole();
@@ -53,6 +58,7 @@ export class Dashboard {
     // 🔥 initial load → Today
     this.loadDashboardData(true);
     this.loadActivePakageData();
+    this.loadInActiveUserData()
   }
 
   /* ==============================
@@ -182,6 +188,78 @@ parseDate(dateString: string): Date | null {
   );
   
   return date;
+}
+
+ /* ==============================
+     Dashboard Package API CALL
+  ============================== */
+  loadInActiveUserData() {
+  this.dashboardService.getInActiveUser().subscribe({
+    next: (res: any[]) => {
+      this.inactiveUsers = res || [];
+      this.inactiveUserCount = this.inactiveUsers.length;
+
+      // Reset to first page and update display
+      this.currentPage = 1;
+      this.updatePaginatedUsers();
+
+      console.log('Inactive users loaded:', this.inactiveUserCount);
+    },
+    error: (err) => {
+      console.error('Error loading inactive users', err);
+      this.inactiveUsers = [];
+      this.inactiveUserCount = 0;
+      this.paginatedUsers = [];
+    }
+  });
+}
+/* ==============================
+   PAGINATION FOR INACTIVE USERS
+============================== */
+
+// Items per page for inactive users
+inactiveItemsPerPage = 5;
+inactiveCurrentPage = 1;
+
+// Calculate total pages for inactive users
+get inactiveTotalPages(): number {
+  return Math.ceil(this.inactiveUserCount / this.inactiveItemsPerPage);
+}
+
+// Get array of page numbers for inactive users
+get inactivePageNumbers(): number[] {
+  return Array.from({ length: this.inactiveTotalPages }, (_, i) => i + 1);
+}
+
+// Update paginated inactive users based on current page
+updatePaginatedUsers() {
+  const startIndex = (this.inactiveCurrentPage - 1) * this.inactiveItemsPerPage;
+  const endIndex = startIndex + this.inactiveItemsPerPage;
+  this.paginatedUsers = this.inactiveUsers.slice(startIndex, endIndex);
+}
+
+// Go to specific page for inactive users
+goToInactivePage(page: number) {
+  if (page >= 1 && page <= this.inactiveTotalPages) {
+    this.inactiveCurrentPage = page;
+    this.updatePaginatedUsers();
+  }
+}
+
+// Go to next page for inactive users
+nextInactivePage() {
+  if (this.inactiveCurrentPage < this.inactiveTotalPages) {
+    this.inactiveCurrentPage++;
+    this.updatePaginatedUsers();
+  }
+}
+
+// Go to previous page for inactive users
+previousInactivePage() {
+  if (this.inactiveCurrentPage > 1) {
+    this.inactiveCurrentPage--;
+    this.updatePaginatedUsers();
+  }
 }
 
 }
