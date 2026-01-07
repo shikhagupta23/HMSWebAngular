@@ -27,27 +27,27 @@
                                 </div>
                                 <!-- Patient Details -->
                                 <div>
-                                    <p class="m-0 appointment-view-id">#{{ p.patientViewId }}</p>
-                                    <p class="m-0 patient-name">{{ p.fullName }}</p>
+                                    <p class="m-0 appointment-view-id" title="View Id">#{{ p.patientViewId }}</p>
+                                    <p class="m-0 patient-name" title="Name">{{ p.fullName }}</p>
                                 </div>
 
                         </div>
                 </div>
                 <div class="col-12 col-lg-3">
                     <span class="appointment-info date-tag" title="Abha Id"><i class="fa-solid fa-id-card"></i> {{ p.abhaId }}</span>
-                    <span class="appointment-info date-tag"><i class="fa-solid" [ngClass]="getGenderIcon(p.gender)"></i> {{ p.gender | gender}}</span>
+                    <span class="appointment-info date-tag" title="Gender"><i class="fa-solid" [ngClass]="getGenderIcon(p.gender)"></i> {{ p.gender | gender}}</span>
                 </div>
 
                 <!-- DOB & ABHA -->
                 <div class="col-12 col-lg-3">
-                    <span class="appointment-info date-tag"><i class="fa-solid fa-cake-candles"></i> {{ formatDate(p.dob)}}</span>
-                    <span class="appointment-info date-tag"><i class="fa-solid fa-user-clock"></i> {{ p.age }} </span>                 
+                    <span class="appointment-info date-tag" title="Date of Birth"><i class="fa-solid fa-cake-candles"></i> {{ formatDate(p.dob)}}</span>
+                    <span class="appointment-info date-tag" title="Age"><i class="fa-solid fa-user-clock"></i> {{ p.age }} </span>                 
                 </div>
 
                 <!-- Phone -->
                 <div class="col-12 col-lg-3">
-                    <span class="appointment-info date-tag"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
-                    <span class="appointment-info date-tag"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
+                    <span class="appointment-info date-tag" title="Address"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
+                    <span class="appointment-info date-tag" title="Phone Number"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
                 </div>
 
             </div>
@@ -61,6 +61,12 @@
                 </div>
             </div>
         </div>
+@if(paginatedPatients.length === 0){
+         <div class="text-center py-5 text-muted">
+    <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
+    <p class="mb-0 fw-semibold">No patient found</p>
+  </div>
+}
     </div>
 
     <div class="pagination dashboard-pagination mb-5" *ngIf="totalPages > 1">

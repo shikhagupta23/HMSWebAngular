@@ -4,6 +4,8 @@ import { UsersService } from '../../services/users-service';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { AuthService } from '../../../auth/services/auth-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -20,6 +22,7 @@ export class Users implements OnInit, AfterViewInit {
   isEditMode = false;
 editingUserId: string | null = null;
 doctorRoleId = 'A105795F-2FCC-4AEB-BC55-3FBC513D0640';
+today = new Date().toISOString().split('T')[0];
 
   pageNumber = 1;
   pageSize = 10;
@@ -45,6 +48,8 @@ private confirmModalInstance: any;
   private hospitalApi = inject(HospitalService);
   private toast = inject(ToastService);
   private auth = inject(AuthService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];  
 
  ngOnInit(): void {
   // existing code
@@ -102,6 +107,14 @@ private confirmModalInstance: any;
   this.loadUsers();
   this.loadRoles();
   this.loadHospitals();
+
+  this.signalRService.connect().then(() => {
+    this.subscriptions.push(
+      this.signalRService.onUserAdd().subscribe(() => {
+        this.onUserAddSignalR();
+      })
+    )
+  });
 }
 
  ngAfterViewInit(): void {
@@ -110,6 +123,8 @@ private confirmModalInstance: any;
   if (modalEl) {
     modalEl.addEventListener('hidden.bs.modal', () => {
       this.resetAddUserForm();
+      this.resetEditState();
+      console.log('hjkhjkhkj')
     });
   }
 
@@ -154,7 +169,7 @@ get isDoctorRoleSelected(): boolean {
         this.showHospitalSelect ? Validators.required : [],
       ],
 
-      Email: ['', [Validators.required, Validators.email]],
+      Email: ['', [ Validators.email]],
 
       PhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
 
@@ -276,11 +291,16 @@ loadDoctorDepartments() {
 
     this.api.updateUser( payload).subscribe({
       next: (res: any) => {
-        this.toast.success(res.message || 'User updated successfully');
-        this.closeModal();
-        this.resetEditState();
-        this.loadUsers();
-      },
+  if (res?.isSuccess) {
+    this.toast.success(res.message || 'User saved successfully');
+
+    this.closeModal();
+    this.resetEditState();
+    this.loadUsers();
+  } else {
+    this.toast.error(res?.message || 'Operation failed');
+  }
+},
       error: () => {
         this.toast.error('Failed to update user');
       },
@@ -309,11 +329,16 @@ loadDoctorDepartments() {
 
     this.api.addUser(payload).subscribe({
       next: (res: any) => {
-        this.toast.success(res.message || 'User added successfully');
-        this.closeModal();
-        this.resetEditState();
-        this.loadUsers();
-      },
+  if (res?.isSuccess) {
+    this.toast.success(res.message || 'User added successfully');
+
+    this.closeModal();
+    this.resetEditState();
+    this.loadUsers();
+  } else {
+    this.toast.error(res?.message || 'Failed to add user');
+  }
+},
       error: () => {
         this.toast.error('Failed to add user');
       },
@@ -507,7 +532,29 @@ saveDepartment() {
   });
 }
 
+openAddUserModal() {
+  this.isEditMode = false;
+  this.editingUserId = null;
 
+  // reset form
+  this.addUserForm.reset({
+    HospitalId: this.loggedInHospitalId || '',
+  });
 
+  // 🔥 clear browser autofill AFTER modal render
+  setTimeout(() => {
+    this.addUserForm.get('Email')?.setValue('');
+  }, 0);
+
+  // open bootstrap modal
+  const modal = new bootstrap.Modal(
+    document.getElementById('addUserModal') as HTMLElement
+  );
+  modal.show();
+}
+
+private onUserAddSignalR(): void{
+  this.loadUsers();
+}
 
 }

@@ -106,12 +106,17 @@ export class LabtestComponent implements OnInit, OnDestroy {
   addNewTest(payload: any) {
     this.labTestService.addLabTest(payload).subscribe({
       next: (res: any) => {
-        if (res?.isSuccess) {
+        if (res.isSuccess) {
           this.toast.success(res.message);
           this.closeModal();
           this.loadLabTests(this.currentPage);
         }
+        else{
+          this.toast.error(res.message);
+        }
       },
+      error: () => this.toast.error("Failed to add labtest")
+
     });
   }
 

@@ -2,6 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PackageService } from '../../services/package-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 interface PackageModel {
   packageId?: string;
@@ -22,6 +24,8 @@ interface PackageModel {
 })
 export class Package implements OnInit {
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
   packages: PackageModel[] = [];
   packageForm: FormGroup;
   loading = false;
@@ -50,6 +54,13 @@ export class Package implements OnInit {
 
   ngOnInit(): void {
     this.loadPackages();
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onPackageCreated().subscribe( () => {
+          this.onPackageAddSignalR();
+        })
+      )
+    });
   }
 
   loadPackages(): void {
@@ -248,5 +259,9 @@ export class Package implements OnInit {
       month: 'short', 
       day: 'numeric' 
     });
+  }
+
+  private onPackageAddSignalR(): void{
+    this.loadPackages();
   }
 }

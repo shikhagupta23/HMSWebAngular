@@ -56,5 +56,21 @@ export class FeatureAccessService {
       ApiEndpoints.SELECT.GET_USER_AS_PER_HOSPITAL_FEATURE(hospitalId, featureId, role)
     );
   }
-  
+
+  saveWhatsAppFeatureDetail(payload: any) {
+  return this.api.post(
+    ApiEndpoints.FEATURE_ACCESS.SAVE_WHATSAPP_FEATURE_DETAIL,
+    payload
+  );
+}
+getWhatsAppFeatureDetail(featureAccessId: string, hospitalId: string) {
+  return this.api.get<any>(
+    ApiEndpoints.FEATURE_ACCESS.GET_WHATSAPP_FEATURE_DETAIL,
+    {
+      featureAccessId: featureAccessId.toString(),
+      hospitalId: hospitalId.toString()
+    }
+  );
+}
+
 }

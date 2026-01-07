@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 import { ToastService } from '../../../services/toast-service';
-
+ 
 // Updated interface to match API response
 interface DrugStrength {
   drugStrengthId: string;
@@ -15,7 +15,7 @@ interface DrugStrength {
   createdBy?: string;
   updatedBy?: string;
 }
-
+ 
 // Updated response interface to match backend PagedResponse
 interface DrugStrengthResponse {
   dataList: DrugStrength[];
@@ -27,14 +27,14 @@ interface DrugStrengthResponse {
   message: string;
   id?: string;
 }
-
+ 
 // API Response for Create/Update/Delete operations
 interface ApiResponse {
   isSuccess: boolean;
   message: string;
   id?: string;
 }
-
+ 
 @Component({
   selector: 'app-drug-strength',
   standalone: false,
@@ -47,24 +47,24 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
   paginatedDrugStrengths: DrugStrength[] = [];
   showModal = false;
   isEditMode = false;
-  formData: DrugStrength = { 
-    drugStrengthId: '', 
-    strength: '', 
-    isActive: true 
+  formData: DrugStrength = {
+    drugStrengthId: '',
+    strength: '',
+    isActive: true
   };
   entriesPerPage = 10;
   searchTerm = '';
   isLoading = false;
   error = '';
-
+ 
   // Pagination properties
   currentPage: number = 1;
   totalPages: number = 1;
   totalCount: number = 0;
-
+ 
   // Debounce search - Industry Standard
   private searchSubject = new Subject<string>();
-
+ 
   // API Endpoints
   private readonly API_ENDPOINTS = {
     GET_ALL: '/DrugManagement/getAllDrugStrength',
@@ -72,13 +72,13 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
     UPDATE: '/DrugManagement/updateDrugStrength',
     DELETE: '/DrugManagement/deleteDrugStrength'
   };
-
+ 
   constructor(private http: HttpClient) {}
    private toastr = inject(ToastService);
-
+ 
   ngOnInit(): void {
     this.loadDrugStrengths();
-    
+   
     // Setup debounced search - waits 500ms after user stops typing
     this.searchSubject.pipe(
       debounceTime(500), // Wait 500ms after user stops typing
@@ -89,32 +89,32 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
       this.loadDrugStrengths();
     });
   }
-
+ 
   ngOnDestroy(): void {
     // Clean up subscription
     this.searchSubject.complete();
   }
-
+ 
   loadDrugStrengths(): void {
     this.isLoading = true;
     this.error = '';
-
+ 
     let params = new HttpParams()
       .set('page', this.currentPage.toString())
       .set('pageSize', this.entriesPerPage.toString());
-
+ 
     // Add search term if it exists
     if (this.searchTerm && this.searchTerm.trim()) {
       params = params.set('searchTerm', this.searchTerm.trim());
     }
-
+ 
     const apiUrl = `${environment.baseUrl}${this.API_ENDPOINTS.GET_ALL}`;
-
+ 
     this.http.get<DrugStrengthResponse>(apiUrl, { params })
       .subscribe({
         next: (response) => {
           console.log('API Response:', response);
-          
+         
           if (response.isSuccess) {
             this.drugStrengths = response.dataList || [];
             this.paginatedDrugStrengths = response.dataList || [];
@@ -127,7 +127,7 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
             this.paginatedDrugStrengths = [];
             this.filteredDrugStrengths = [];
           }
-          
+         
           this.isLoading = false;
         },
         error: (err) => {
@@ -140,29 +140,29 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
         }
       });
   }
-
+ 
   // Updated search method - now uses debouncing
   onSearch(): void {
     // Push the search term to the subject - debouncing will handle the delay
     this.searchSubject.next(this.searchTerm);
   }
-
+ 
   onEntriesPerPageChange(): void {
     this.currentPage = 1;
     this.loadDrugStrengths();
   }
-
+ 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
       this.loadDrugStrengths();
     }
   }
-
+ 
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5;
-    
+   
     if (this.totalPages <= maxPagesToShow) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
@@ -190,28 +190,28 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
         pages.push(this.totalPages);
       }
     }
-    
+   
     return pages;
   }
-
+ 
   getStartIndex(): number {
     return this.totalCount === 0 ? 0 : (this.currentPage - 1) * this.entriesPerPage + 1;
   }
-
+ 
   getEndIndex(): number {
     return Math.min(this.currentPage * this.entriesPerPage, this.totalCount);
   }
-
+ 
   openCreateModal(): void {
     this.isEditMode = false;
-    this.formData = { 
-      drugStrengthId: '', 
-      strength: '', 
-      isActive: true 
+    this.formData = {
+      drugStrengthId: '',
+      strength: '',
+      isActive: true
     };
     this.showModal = true;
   }
-
+ 
   openEditModal(drugStrengthId: string): void {
     const drugStrength = this.drugStrengths.find(ds => ds.drugStrengthId === drugStrengthId);
     if (drugStrength) {
@@ -220,33 +220,33 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
       this.showModal = true;
     }
   }
-
+ 
   closeModal(): void {
     this.showModal = false;
-    this.formData = { 
-      drugStrengthId: '', 
-      strength: '', 
-      isActive: true 
+    this.formData = {
+      drugStrengthId: '',
+      strength: '',
+      isActive: true
     };
     this.isEditMode = false;
   }
-
+ 
   saveDrugStrength(): void {
     if (!this.formData.strength || !this.formData.strength.trim()) {
       this.toastr.error('Please enter strength');
       return;
     }
-
+ 
     if (this.isEditMode) {
       // Update existing drug strength via API - id in URL path
       const updateUrl = `${environment.baseUrl}${this.API_ENDPOINTS.UPDATE}/${this.formData.drugStrengthId}`;
-      
+     
       // Prepare update data without drugStrengthId (it's in the URL)
       const updateData = {
         strength: this.formData.strength,
         isActive: this.formData.isActive
       };
-      
+     
       this.http.put<ApiResponse>(updateUrl, updateData)
         .subscribe({
           next: (response) => {
@@ -266,13 +266,13 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
     } else {
       // Create new drug strength via API
       const createUrl = `${environment.baseUrl}${this.API_ENDPOINTS.CREATE}`;
-      
+     
       // Don't send drugStrengthId for new records
       const createData = {
         strength: this.formData.strength,
         isActive: this.formData.isActive
       };
-      
+     
       this.http.post<ApiResponse>(createUrl, createData)
         .subscribe({
           next: (response) => {
@@ -291,11 +291,11 @@ export class DrugStrengthComponent implements OnInit, OnDestroy {
         });
     }
   }
-
+ 
   deleteDrugStrength(drugStrengthId: string): void {
     if (confirm('Are you sure you want to delete this drug strength?')) {
       const deleteUrl = `${environment.baseUrl}${this.API_ENDPOINTS.DELETE}/${drugStrengthId}`;
-      
+     
       this.http.delete<ApiResponse>(deleteUrl)
         .subscribe({
           next: (response) => {

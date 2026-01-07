@@ -2,6 +2,8 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureService } from '../../services/feature-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -22,25 +24,39 @@ export class CreateFeature implements OnInit, AfterViewInit {
   totalPages = 0;
   searchTerm = '';
   selectedFeatureId: any = null;
-
+isEditMode = false;
   private fb = inject(FormBuilder);
   private api = inject(FeatureService);
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initForm();
     this.loadFeatures();
+    
+    this.signalRService.connect().then(() => {
+
+      this.subscriptions.push(
+        this.signalRService.onFeatureAdded().subscribe(() => {
+          this.onFeatureAddSignalR();
+        })
+      )
+    });
   }
 
   ngAfterViewInit(): void {
-    const modalEl = document.getElementById('createFeatureModal');
+  const modalEl = document.getElementById('createFeatureModal');
 
-    if (modalEl) {
-      modalEl.addEventListener('hidden.bs.modal', () => {
-        this.resetFeatureForm();
-      });
-    }
+  if (modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      this.featureForm.reset();
+      this.isEditMode = false;
+      this.selectedFeatureId = null;
+    });
   }
+}
+
 
   resetFeatureForm() {
     this.featureForm.reset();
@@ -102,62 +118,93 @@ export class CreateFeature implements OnInit, AfterViewInit {
     }
   }
 
-  onSubmit() {
-    if (this.featureForm.invalid) {
-      this.featureForm.markAllAsTouched();
-      return;
-    }
-
-    const nameVal = this.featureForm.value.name;
-    const payload: any = {
-      name: nameVal,
-      description: nameVal,
-      featureUniqueEnumKey: nameVal,
-      featureTypeId: 0,
-    };
-    if (this.selectedFeatureId != null) {
-      payload.id = this.selectedFeatureId;
-      payload.featureId = this.selectedFeatureId;
-    }
-
-    this.api.saveFeature(payload).subscribe({
-      next: (res) => {
-       if (!res?.isSuccess) {
-    // ❌ API responded but failed
-    this.toast.error(res?.message || 'Failed to save feature');
+ onSubmit() {
+  if (this.featureForm.invalid) {
+    this.featureForm.markAllAsTouched();
     return;
   }
 
-  // ✅ SUCCESS
-  this.toast.success(res?.message || 'Feature saved successfully');
-  this.closeModal();
-  this.selectedFeatureId = null;
-  this.featureForm.reset();
-  this.loadFeatures();
+  const nameVal = this.featureForm.value.name;
+
+  const payload: any = {
+    name: nameVal,
+    description: nameVal,
+    featureUniqueEnumKey: nameVal,
+    featureTypeId: 0,
+  };
+
+  // 🔁 EDIT MODE → UPDATE API
+  if (this.isEditMode && this.selectedFeatureId) {
+    payload.id = this.selectedFeatureId;
+
+    this.api.updateFeature(payload).subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to update feature');
+          return;
+        }
+
+        this.toast.success(res?.message || 'Feature updated successfully');
+        this.afterSave();
       },
-      error: (err) => {
-        this.toast.error('Failed to save feature');
-      },
+      error: () => this.toast.error('Failed to update feature'),
     });
+
+    return;
   }
+
+  // ➕ CREATE MODE → SAVE API
+  this.api.saveFeature(payload).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to save feature');
+        return;
+      }
+
+      this.toast.success(res?.message || 'Feature saved successfully');
+      this.afterSave();
+    },
+    error: () => this.toast.error('Failed to save feature'),
+  });
+}
+afterSave() {
+  this.closeModal();
+  this.featureForm.reset();
+  this.featureForm.markAsPristine();
+  this.featureForm.markAsUntouched();
+
+  this.isEditMode = false;
+  this.selectedFeatureId = null;
+
+  this.loadFeatures();
+}
+
 
   onEdit(item: any) {
-    this.selectedFeatureId = item.id ?? item.featureId ?? item.FeatureId ?? null;
-    this.featureForm.patchValue({
-      name: item.name ?? item.Name ?? '',
-    });
+  this.isEditMode = true;
+  this.selectedFeatureId = item.id ?? item.featureId ?? item.FeatureId ?? null;
 
-    const modalEl = document.getElementById('createFeatureModal');
-    if (modalEl) {
-      const m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-      m.show();
-    }
+  this.featureForm.patchValue({
+    name: item.name ?? item.Name ?? '',
+  });
+
+  const modalEl = document.getElementById('createFeatureModal');
+  if (modalEl) {
+    const modal =
+      bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modal.show();
   }
+}
+
 
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
   closeModal(): void {
   this.closeModalBtn?.nativeElement.click();
+}
+
+private onFeatureAddSignalR(): void{
+  this.loadFeatures();
 }
 }

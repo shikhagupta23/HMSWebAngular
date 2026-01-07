@@ -127,6 +127,7 @@ export const ApiEndpoints = {
         search ? '&searchTerm=' + encodeURIComponent(search) : ''
       }`,
     SAVE: `${API_BASE_URL}/FeatureAPI/save`,
+    UPDATE: `${API_BASE_URL}/FeatureAPI/updateFeature`
   },
   FEATURE_ACCESS: {
     GET: (page: number, pageSize: number, search?: string) =>
@@ -135,6 +136,8 @@ export const ApiEndpoints = {
       }`,
     SAVE: `${API_BASE_URL}/FeatureAccessAPI/saveFeatureAccess`,
     UPDATE_STATUS: `${API_BASE_URL}/FeatureAccessAPI/updateStatus`,
+    SAVE_WHATSAPP_FEATURE_DETAIL: `${API_BASE_URL}/FeatureAccessAPI/saveWhatsAppFeatureDetail`,
+    GET_WHATSAPP_FEATURE_DETAIL: `${API_BASE_URL}/FeatureAccessAPI/getWhatsAppFeatureDetail`,
   },
   SELECT: {
     GET_HOSPITAL_LIST: `${API_BASE_URL}/SelectAPI/getHospital?role=admin`,

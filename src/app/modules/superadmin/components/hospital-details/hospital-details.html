@@ -202,7 +202,7 @@
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Date of Birth</label>
-              <input type="date" class="form-control" formControlName="DateOfBirth" />
+              <input type="date" class="form-control" formControlName="DateOfBirth"  [max]="today" />
             </div>
 
             <div class="col-md-6">

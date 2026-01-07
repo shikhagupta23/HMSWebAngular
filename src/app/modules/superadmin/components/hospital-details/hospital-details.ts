@@ -22,6 +22,7 @@ export class HospitalDetails implements OnInit {
   private toast = inject(ToastService);
   private auth = inject(AuthService);
   private location = inject(Location);
+today = new Date().toISOString().split('T')[0];
 
   hospitalId!: string;
   hospitalDetails: any;

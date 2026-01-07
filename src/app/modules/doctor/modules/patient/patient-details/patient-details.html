@@ -54,6 +54,7 @@
   <div class="tab-content pt-0">
     <!-- Appointment Tab -->
     <div id="pat_appointments" class="tab-pane fade show active">
+      @if(appointments.length > 0){
       <div class="search-header d-flex justify-content-end">
         <div class="search-field">
           <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchText"
@@ -61,13 +62,13 @@
           <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
         </div>
       </div>
-
+    }
       <ng-container *ngIf="appointments.length > 0; else noRecords">
       <div class="appointment-wrap p-3 mb-2" *ngFor="let appt of appointments">
 			  <div class="row g-3 align-items-center flex-md-nowrap">
 
                   <div class="col-12 col-lg-3">
-                  <span title="Appointment View Id">#Apt{{ appt.appointmentViewId }}</span>
+                  <span class="appointment-view-id" title="Appointment View Id">#{{ appt.appointmentViewId }}</span>
                   <span title="Doctor Name">{{ appt.doctorName }}</span>
                   </div>
 
@@ -118,7 +119,7 @@
       <ng-template #noRecords>
         <div class="text-center py-5 text-muted">
           <i class="fa-solid fa-folder-open fa-2x mb-2"></i>
-          <p class="mb-0 fw-semibold">No records found</p>
+          <p class="mb-0 fw-semibold">No appointment found</p>
           <small *ngIf="searchText">
           for "<b>{{ searchText }}</b>"
           </small>
