@@ -1,10 +1,9 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
 import { ToastService } from '../../../services/toast-service';
-
 interface DropdownDto {
   id: string;
   name: string;
@@ -168,7 +167,7 @@ export class DrugComponent implements OnInit, OnDestroy {
     DROPDOWN_DURATION: '/DrugManagement/drugDurationDropdown'
   };
 
-  private toast = Inject(ToastService);
+   private toast = inject(ToastService);
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -401,6 +400,7 @@ export class DrugComponent implements OnInit, OnDestroy {
   }
 
   closeForm(): void {
+    console.log('Closing form and resetting data');
     this.showCreateForm = false;
     this.isEditMode = false;
     this.editingDrugId = null;
@@ -681,6 +681,7 @@ export class DrugComponent implements OnInit, OnDestroy {
           if (response.isSuccess) {
             this.toast.success('Drug created successfully!');
             this.closeForm();
+            console.log('Drug created with ID:', response.id);
             this.loadAllDrugs();
           } else {
             this.toast.error(response.message || 'Failed to create drug');

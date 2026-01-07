@@ -14,3 +14,14 @@
 .dashboard-menu ul {
     padding-left: 20px;
 }
+
+.profile-sidebar.profile-sidebar-new .widget-profile .profile-info-widget::after {
+    content: "";
+    width: 100%;
+    height: auto !important;
+    border-radius: 10px 10px 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
