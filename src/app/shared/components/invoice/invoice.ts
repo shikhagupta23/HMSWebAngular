@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
@@ -66,6 +66,7 @@ export class Invoice implements OnInit {
   filteredInvoices: InvoiceData[] = [];
   searchInvoiceText: string = '';
   currentUserRole: string = '';
+  private toastr = inject(ToastService);
 
   // Payment Report
   paymentReports: PaymentReportData[] = [];
@@ -300,7 +301,8 @@ printInvoice(invoice: InvoiceData): void {
       let htmlContent = this.extractAndCleanHtml(response);
       
       if (!htmlContent) {
-        alert(response?.message || 'No invoice data available for printing!');
+        this.toastr.error(response?.message || 'No invoice data available for printing!');
+        
         return;
       }
       
@@ -308,7 +310,7 @@ printInvoice(invoice: InvoiceData): void {
       const printWindow = window.open('', '_blank', 'width=900,height=700');
       
       if (!printWindow) {
-        alert('Please allow pop-ups to print the invoice');
+        this.toastr.error('Please allow pop-ups to print the invoice');
         return;
       }
 
@@ -326,7 +328,7 @@ printInvoice(invoice: InvoiceData): void {
     },
     error: (err) => {
       console.error('Failed to load invoice HTML', err);
-      alert('Failed to generate invoice for printing!');
+      this.toastr.error('Failed to generate invoice for printing!');
     }
   });
 }
@@ -385,7 +387,7 @@ private extractAndCleanHtml(response: any): string {
   // Payment Report Methods
   loadPaymentReports(): void {
     if (!this.fromDate || !this.toDate) {
-      alert('Please select from and to dates');
+      this.toast.error('Please select from and to dates');
       return;
     }
 
@@ -633,5 +635,4 @@ generateInvoice(): void {
     },
   });
 }
-
 }
