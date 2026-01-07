@@ -7,11 +7,7 @@
   </li>
 
   <li class="nav-item">
-    <button
-      class="nav-link"
-      [class.active]="activeTab === 'overall'"
-      (click)="changeTab('overall')"
-    >
+    <button class="nav-link" [class.active]="activeTab === 'overall'" (click)="changeTab('overall')">
       Overall
     </button>
   </li>
@@ -22,7 +18,7 @@
     <h5 class="mb-3 fw-bold">{{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}</h5>
   </div>
   @if(isSuperAdmin){
-<div class="col-xl-3 col-md-6 mb-3">
+  <div class="col-xl-3 col-md-6 mb-3">
     <div class="dashboard-widget-box">
       <div class="dashboard-content-info">
         <h6>Total Hospitals</h6>
@@ -36,68 +32,238 @@
     </div>
   </div>
   }
-@if(isAdmin){
-<div class="col-xl-3 col-md-6 mb-3">
-  <div class="dashboard-widget-box">
-    <div class="dashboard-content-info">
-      <h6>Doctors</h6>
-      <h4>{{ totalDoctors }}</h4>
-    </div>
-    <div class="dashboard-widget-icon">
-      <span class="dash-icon-box appointment-info">
-        <!-- Doctor Icon -->
-        <i class="fa-solid fa-user-doctor"></i>
-      </span>
-    </div>
-  </div>
-</div>
-
-<div class="col-xl-3 col-md-6 mb-3">
-  <div class="dashboard-widget-box">
-    <div class="dashboard-content-info">
-      <h6>Patients</h6>
-      <h4>{{ totalPatients }}</h4>
-    </div>
-    <div class="dashboard-widget-icon">
-      <span class="dash-icon-box appointment-info">
-        <!-- Patients Icon -->
-        <i class="fa-solid fa-users"></i>
-      </span>
+  @if(isAdmin){
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box">
+      <div class="dashboard-content-info">
+        <h6>Doctors</h6>
+        <h4>{{ totalDoctors }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <!-- Doctor Icon -->
+          <i class="fa-solid fa-user-doctor"></i>
+        </span>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="col-xl-3 col-md-6 mb-3">
-  <div class="dashboard-widget-box">
-    <div class="dashboard-content-info">
-      <h6>Appointments</h6>
-      <h4>{{ totalAppointments }}</h4>
-    </div>
-    <div class="dashboard-widget-icon">
-      <span class="dash-icon-box appointment-info">
-        <!-- Appointment Icon -->
-        <i class="fa-solid fa-calendar-check"></i>
-      </span>
-    </div>
-  </div>
-</div>
-
-<div class="col-xl-3 col-md-6 mb-3">
-  <div class="dashboard-widget-box">
-    <div class="dashboard-content-info">
-      <h6>Revenue</h6>
-      <h4>₹{{ totalRevenue }}</h4>
-    </div>
-    <div class="dashboard-widget-icon">
-      <span class="dash-icon-box appointment-info">
-        <!-- Revenue Icon -->
-        <i class="fa-solid fa-indian-rupee-sign"></i>
-      </span>
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box">
+      <div class="dashboard-content-info">
+        <h6>Patients</h6>
+        <h4>{{ totalPatients }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <!-- Patients Icon -->
+          <i class="fa-solid fa-users"></i>
+        </span>
+      </div>
     </div>
   </div>
-</div>
-  
-}
-</div>
+
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box">
+      <div class="dashboard-content-info">
+        <h6>Appointments</h6>
+        <h4>{{ totalAppointments }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <!-- Appointment Icon -->
+          <i class="fa-solid fa-calendar-check"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box">
+      <div class="dashboard-content-info">
+        <h6>Revenue</h6>
+        <h4>₹{{ totalRevenue }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <!-- Revenue Icon -->
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box cursor-pointer" data-bs-toggle="modal" data-bs-target="#activePackagesModal">
+      <div class="dashboard-content-info">
+        <h6>Active Packages</h6>
+        <h4>{{ packageCount }}</h4>
+      </div>
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box appointment-info">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Packages Modal -->
+  <div class="modal fade" id="activePackagesModal" tabindex="-1">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Assign Packages ({{ packageCount }})</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Package Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Price</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <!-- Loop through paginated packages ONLY -->
+              <tr *ngFor="let pkg of paginatedPackages">
+                <td>{{ pkg.name }}</td>
+                <td>{{ parseDate(pkg.startDate) | date: 'dd MMM yyyy' }}</td>
+                <td>{{ parseDate(pkg.endDate) | date: 'dd MMM yyyy' }}</td>
+                <td>₹{{ pkg.price }}</td>
+                <td>{{ pkg.duration }} days</td>
+              </tr>
+
+              <!-- Show if no packages -->
+              <tr *ngIf="paginatedPackages.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">
+                  No assign packages found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPages > 1">
+            <!-- Previous Button -->
+            <button class="btn btn-sm btn-outline-primary" (click)="previousPage()" [disabled]="currentPage === 1">
+              <i class="fa-solid fa-chevron-left"></i> Previous
+            </button>
+
+            <!-- Page Info -->
+            <span class="text-muted">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+
+            <!-- Next Button -->
+            <button class="btn btn-sm btn-outline-primary" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Page Number Buttons (optional) -->
+          <div class="d-flex justify-content-center gap-2 mt-3" *ngIf="totalPages > 1 && totalPages <= 10">
+            <button *ngFor="let page of pageNumbers" class="btn btn-sm" [class.btn-primary]="page === currentPage"
+              [class.btn-outline-secondary]="page !== currentPage" (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- InActive User-->
+  <div class="col-xl-3 col-md-6 mb-3">
+    <div class="dashboard-widget-box cursor-pointer" data-bs-toggle="modal" data-bs-target="#inactiveUsersModal">
+
+      <div class="dashboard-content-info">
+        <h6>Inactive Users</h6>
+        <h4>{{ inactiveUserCount }}</h4>
+      </div>
+
+      <div class="dashboard-widget-icon">
+        <span class="dash-icon-box inactive-user-info">
+          <i class="fa-solid fa-user-slash"></i>
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+    <div class="modal fade" id="inactiveUsersModal" tabindex="-1">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">InActive Users ({{ inactiveUserCount }})</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <!-- Loop through paginated packages ONLY -->
+              <tr *ngFor="let pkg of paginatedUsers">
+                <td>{{ pkg.fullName }}</td>
+                <td>{{ pkg.role }}</td>
+              </tr>
+
+              <!-- Show if no packages -->
+              <tr *ngIf="paginatedUsers.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">
+                  No active user found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPages > 1">
+            <!-- Previous Button -->
+            <button class="btn btn-sm btn-outline-primary" (click)="previousPage()" [disabled]="currentPage === 1">
+              <i class="fa-solid fa-chevron-left"></i> Previous
+            </button>
+
+            <!-- Page Info -->
+            <span class="text-muted">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+
+            <!-- Next Button -->
+            <button class="btn btn-sm btn-outline-primary" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Page Number Buttons (optional) -->
+          <div class="d-flex justify-content-center gap-2 mt-3" *ngIf="totalPages > 1 && totalPages <= 10">
+            <button *ngFor="let page of pageNumbers" class="btn btn-sm" [class.btn-primary]="page === currentPage"
+              [class.btn-outline-secondary]="page !== currentPage" (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 
+  }
+</div>

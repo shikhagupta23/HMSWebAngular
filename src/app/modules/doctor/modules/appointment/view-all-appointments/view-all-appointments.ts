@@ -830,6 +830,12 @@ addLabTest() {
     return;
   }
 
+  const duplicate= this.prescription.labTests.find(x => x.value == selected.value);
+  if(duplicate){
+    this.toast.error("Lab test already added");
+    return;
+  }
+
   this.prescription.labTests.push({
     name: selected.text,
     value: selected.value

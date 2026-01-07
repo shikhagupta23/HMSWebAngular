@@ -2,10 +2,26 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiEndpoints } from '../../../constants/api-endpoints';
 import { ApiService } from '../../../services/api-service';
+import { ApiResponse } from '../../../../modules/superadmin/services/package-service';
+
+export interface ActivePackageModel{
+  Name: string;
+  StartDate: string;
+  EndDate: string;
+  durationInDays: number;
+  price: number;
+  count: number;
+}
+
+export interface InActiveUserModel{
+  Name: string;
+  Role: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class DashboardService {
   private api = inject(ApiService);
       getDahBoardData(IsToday: boolean): Observable<any> {
@@ -28,6 +44,14 @@ export class DashboardService {
   }
 
   return this.api.get(ApiEndpoints.DASHBOARD.DASHBOARDSUMMARY, params);
+}
+
+  getActivePackages(): Observable<ActivePackageModel[]> {
+  return this.api.get<ActivePackageModel[]>(ApiEndpoints.PACKAGE.GET_ACTIVE_PACKAGE);
+}
+
+ getInActiveUser(): Observable<InActiveUserModel[]> {
+  return this.api.get<InActiveUserModel[]>(ApiEndpoints.DASHBOARD.GETINACTIVE_USER);
 }
 
 }

@@ -94,7 +94,8 @@ export const ApiEndpoints = {
   },
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
-   DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+    DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+    GETINACTIVE_USER: `${API_BASE_URL}/ApplicationUserAPI/getInActiveUser`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,
@@ -185,6 +186,9 @@ export const ApiEndpoints = {
 
     GET_PACKAGE_DROPDOWN: 
       `${API_BASE_URL}/HospitalPackage/GetAllPackageDropdown`,
+
+    GET_ACTIVE_PACKAGE: 
+      `${API_BASE_URL}/Package/getAllActivePackages`,  
   },
 
   HOSPITAL_PACKAGE: {
