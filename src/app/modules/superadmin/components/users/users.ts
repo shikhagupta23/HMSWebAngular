@@ -4,6 +4,8 @@ import { UsersService } from '../../services/users-service';
 import { HospitalService } from '../../services/hospital-service';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { AuthService } from '../../../auth/services/auth-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -46,6 +48,8 @@ private confirmModalInstance: any;
   private hospitalApi = inject(HospitalService);
   private toast = inject(ToastService);
   private auth = inject(AuthService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];  
 
  ngOnInit(): void {
   // existing code
@@ -103,6 +107,14 @@ private confirmModalInstance: any;
   this.loadUsers();
   this.loadRoles();
   this.loadHospitals();
+
+  this.signalRService.connect().then(() => {
+    this.subscriptions.push(
+      this.signalRService.onUserAdd().subscribe(() => {
+        this.onUserAddSignalR();
+      })
+    )
+  });
 }
 
  ngAfterViewInit(): void {
@@ -541,6 +553,8 @@ openAddUserModal() {
   modal.show();
 }
 
-
+private onUserAddSignalR(): void{
+  this.loadUsers();
+}
 
 }

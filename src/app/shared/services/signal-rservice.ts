@@ -13,12 +13,18 @@ export class SignalRService {
   private receiveCompleted$ = new Subject<any>();
   private receiveCheckIn$ = new Subject<any>();
   private appointmentBooked$ = new Subject<any>();
-  private patientAdded$ = new Subject<any>();
+  private userAdded$ = new Subject<any>();
+  private hospitalAdded$ = new Subject<any>();
+  private featureAdded$ = new Subject<any>();
+  private featureAssigned$ = new Subject<any>();
+  private packageAdded$ = new Subject<any>();
+  private packageAssigned$ = new Subject<any>();
 
 
   // 🔗 Hub URL
   private readonly hubUrl =
     'https://api-clinicmanagement.rsdemoprojects.in/patientHub';
+    // 'https://localhost:7220/patientHub';
 
   constructor() {}
 
@@ -107,8 +113,28 @@ export class SignalRService {
       this.appointmentBooked$.next(data);
     });
 
-     this.hubConnection.on('UserCreated', data => {
-      this.patientAdded$.next(data);
+    this.hubConnection.on('UserCreated', data => {
+      this.userAdded$.next(data);
+    });
+
+    this.hubConnection.on('HospitalCreated', data => {
+      this.hospitalAdded$.next(data);
+    });
+
+    this.hubConnection.on('FeatureCreated', data => {
+      this.featureAdded$.next(data);
+    });
+
+    this.hubConnection.on('AssignedFeature', data => {
+      this.featureAssigned$.next(data);
+    });
+
+    this.hubConnection.on('PackageCreated', data => {
+      this.packageAdded$.next(data);
+    });
+
+    this.hubConnection.on('PackageAssigned', data => {
+      this.packageAssigned$.next(data);
     });
   }
 
@@ -125,8 +151,28 @@ export class SignalRService {
     return this.appointmentBooked$.asObservable();
   }
 
-  onPatientAdd(): Observable<any> {
-    return this.patientAdded$.asObservable();
+  onUserAdd(): Observable<any> {
+    return this.userAdded$.asObservable();
+  }
+
+  onHospitalAdded(): Observable<any> {
+    return this.hospitalAdded$.asObservable();
+  }
+
+  onFeatureAdded(): Observable<any> {
+    return this.featureAdded$.asObservable();
+  }
+
+  onFeatureAssigned(): Observable<any> {
+    return this.featureAssigned$.asObservable();
+  }
+
+  onPackageCreated(): Observable<any> {
+    return this.packageAdded$.asObservable();
+  }
+
+  onPackageAssigned(): Observable<any> {
+    return this.packageAssigned$.asObservable();
   }
 
   /* ================================

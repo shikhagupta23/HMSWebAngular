@@ -32,7 +32,7 @@
       </span>
     </div>
 
-    <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#labTestModal" >
+    <a class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#labTestModal">
       + Add New
     </a>
   </div>
@@ -47,11 +47,21 @@
         <th>Test Name</th>
         <th>Category</th>
         <th class="text-end">Price</th>
+        <th class="text-center">Actions</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let test of filteredLabTests; let i = index">
+      <tr *ngIf="isLoading">
+        <td colspan="5" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span class="ms-2">Loading...</span>
+        </td>
+      </tr>
+
+      <tr *ngFor="let test of labTests; let i = index" [class.d-none]="isLoading">
         <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
         <td>{{ test.testName }}</td>
         <td>
@@ -62,10 +72,28 @@
         <td class="text-end fw-semibold">
           ₹{{ test.price }}
         </td>
+        <td class="text-center">
+          <button 
+            class="d-none btn btn-sm btn-outline-primary me-1"
+            data-bs-toggle="modal" 
+            data-bs-target="#labTestModal"
+            (click)="editTest(test)"
+            title="Edit"
+          >
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button 
+            class="btn btn-sm btn-outline-danger"
+            (click)="deleteTest(test)"
+            title="Delete"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
       </tr>
 
-      <tr *ngIf="filteredLabTests.length === 0 && !isLoading">
-        <td colspan="4" class="text-center text-muted py-4">
+      <tr *ngIf="labTests.length === 0 && !isLoading">
+        <td colspan="5" class="text-center text-muted py-4">
           No lab tests found
         </td>
       </tr>
@@ -76,15 +104,15 @@
 <!-- ================= PAGINATION ================= -->
 <div
   class="d-flex justify-content-between align-items-center mt-3"
-  *ngIf="filteredLabTests.length > 0"
+  *ngIf="labTests.length > 0 && !isLoading"
 >
-  <div class="text-muted">
-    Showing page {{ currentPage }} of {{ totalPages }}
+  <div class="text-muted small">
+    {{ getDisplayRange() }}
   </div>
 
   <ul class="pagination mb-0">
     <li class="page-item" [class.disabled]="currentPage === 1">
-      <a class="page-link" (click)="previousPage()">&laquo;</a>
+      <a class="page-link" (click)="previousPage()" style="cursor: pointer">&laquo;</a>
     </li>
 
     <li
@@ -92,13 +120,13 @@
       *ngFor="let p of getPageNumbers()"
       [class.active]="currentPage === p"
     >
-      <a class="page-link" (click)="goToPage(p)">
+      <a class="page-link" (click)="goToPage(p)" style="cursor: pointer">
         {{ p }}
       </a>
     </li>
 
     <li class="page-item" [class.disabled]="currentPage === totalPages">
-      <a class="page-link" (click)="nextPage()">&raquo;</a>
+      <a class="page-link" (click)="nextPage()" style="cursor: pointer">&raquo;</a>
     </li>
   </ul>
 </div>
@@ -159,7 +187,7 @@
 
           <div class="text-end">
             <button class="btn btn-primary" [disabled]="labTestForm.invalid">
-              Save
+              {{ isEditMode ? 'Update' : 'Save' }}
             </button>
           </div>
 

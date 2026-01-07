@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { ToastService } from '../../services/toast-service';
+import html2pdf from 'html2pdf.js';
+
 declare var bootstrap: any;
 
 interface InvoiceData {
@@ -64,6 +66,7 @@ export class Invoice implements OnInit {
   filteredInvoices: InvoiceData[] = [];
   searchInvoiceText: string = '';
   currentUserRole: string = '';
+  private toastr = inject(ToastService);
 
   // Payment Report
   paymentReports: PaymentReportData[] = [];
@@ -239,65 +242,122 @@ private loadCurrentUserRole(): void {
     });
   }
 
-  // Print invoice
-  printInvoice(invoice: InvoiceData): void {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+// pdfInvoice(invoice: InvoiceData): void {
+//   const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Invoice #Inv0000_${invoice.invoiceNo}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 40px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .invoice-details { margin: 20px 0; }
-            .info-section { margin: 20px 0; }
-            .info-row { display: flex; justify-content: space-between; margin: 5px 0; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-            .total { font-size: 18px; font-weight: bold; text-align: right; margin-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>INVOICE</h1>
-            <p>Invoice #: Inv0000_${invoice.invoiceNo}</p>
-            <p>Date: ${this.formatDate(invoice.createdAt)}</p>
-          </div>
-          <div class="info-section">
-            <div class="info-row">
-              <strong>Patient:</strong>
-              <span>${invoice.patientName}</span>
-            </div>
-            <div class="info-row">
-              <strong>Doctor:</strong>
-              <span>${invoice.doctorName}</span>
-            </div>
-          </div>
-          <table>
-            <tr>
-              <th>Description</th>
-              <th>Amount</th>
-            </tr>
-            <tr>
-              <td>Doctor Consultation Fee</td>
-              <td>₹${invoice.doctorFee.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Lab Test Fee</td>
-              <td>₹${invoice.labTestFee.toFixed(2)}</td>
-            </tr>
-          </table>
-          <div class="total">
-            Total: ₹${invoice.totalPayment.toFixed(2)}
-          </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+//   this.http.get<any>(apiUrl).subscribe({
+//     next: (response) => {
+//       let htmlContent = response?.data || '';
+
+//       if (!htmlContent || htmlContent.trim().length < 100) {
+//         this.toast.error('Failed to load invoice template');
+//         return;
+//       }
+
+//       // Set desired filename (e.g., Invoice_67.pdf)
+//       const desiredFilename = `Invoice_${invoice.invoiceNo}.pdf`;
+
+//       // Inject/Replace the <title> tag in the HTML
+//       const titleRegex = /<title>.*?<\/title>/i;
+//       if (titleRegex.test(htmlContent)) {
+//         htmlContent = htmlContent.replace(titleRegex, `<title>${desiredFilename}</title>`);
+//       } else {
+//         // If no <title>, add one in <head>
+//         htmlContent = htmlContent.replace(/<head>/i, `<head><title>${desiredFilename}</title>`);
+//       }
+
+//       const printWindow = window.open('', '_blank', 'width=1000,height=800');
+
+//       if (!printWindow) {
+//         this.toast.error('Please allow pop-ups to download PDF');
+//         return;
+//       }
+
+//       printWindow.document.open();
+//       printWindow.document.write(htmlContent);
+//       printWindow.document.close();
+
+//       printWindow.onload = () => {
+//         setTimeout(() => {
+//           printWindow.focus();
+//           printWindow.print();
+//           this.toast.success('Print dialog opened → Choose "Save as PDF"');
+//         }, 800);
+//       };
+//     },
+//     error: () => {
+//       this.toast.error('Failed to load invoice data');
+//     }
+//   });
+// }
+
+  // Print invoice
+printInvoice(invoice: InvoiceData): void {
+  const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
+  
+  this.http.get<any>(apiUrl).subscribe({
+    next: (response) => {
+      // Extract and clean HTML content
+      let htmlContent = this.extractAndCleanHtml(response);
+      
+      if (!htmlContent) {
+        this.toastr.error(response?.message || 'No invoice data available for printing!');
+        
+        return;
+      }
+      
+      // Open new window with proper dimensions
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      
+      if (!printWindow) {
+        this.toastr.error('Please allow pop-ups to print the invoice');
+        return;
+      }
+
+      // Write the HTML content to the new window
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      // Wait for content and styles to load, then trigger print dialog
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      };
+    },
+    error: (err) => {
+      console.error('Failed to load invoice HTML', err);
+      this.toastr.error('Failed to generate invoice for printing!');
+    }
+  });
+}
+
+// Helper method to extract and clean HTML from API response
+private extractAndCleanHtml(response: any): string {
+  let htmlContent = '';
+  if (response && response.data) {
+    htmlContent = response.data;
+  } else if (response && response.isSuccess && response.data) {
+    htmlContent = response.data;
+  } else if (typeof response === 'string') {
+    htmlContent = response;
+  } else {
+    console.error('Unexpected response format:', response);
+    return '';
   }
+
+  htmlContent = htmlContent
+    .replace(/\\r\\n/g, '\n')      
+    .replace(/\\n/g, '\n')         
+    .replace(/\\t/g, '\t')  
+    .replace(/\\"/g, '"')         
+    .replace(/\\'/g, "'")         
+    .replace(/\\\\/g, '\\')   
+    .trim();
+  
+  return htmlContent;
+}
 
   // Delete invoice
  deleteInvoice(invoiceId: string): void {
@@ -327,7 +387,7 @@ private loadCurrentUserRole(): void {
   // Payment Report Methods
   loadPaymentReports(): void {
     if (!this.fromDate || !this.toDate) {
-      alert('Please select from and to dates');
+      this.toast.error('Please select from and to dates');
       return;
     }
 
@@ -406,7 +466,7 @@ private loadCurrentUserRole(): void {
       },
       error: () => this.toast.error('Failed to load appointments'),
     });
-}
+  }
 
 
   // Filter appointments based on search term
@@ -469,7 +529,7 @@ loadAppointmentDetails(appointmentId: string): void {
 loadLabTestDetails(appointmentId: string): void {
   this.http
     .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, {
-      params: { Id: appointmentId },
+      params: { appointmentId: appointmentId },
     })
     .subscribe({
       next: (res) => {
@@ -502,7 +562,7 @@ loadLabTestDetails(appointmentId: string): void {
     this.totalAmount = 0;
   }
 
-  // Generate Invoice - Two API Calls
+// Generate Invoice - Two API Calls
 generateInvoice(): void {
   if (!this.selectedAppointmentId || !this.invoice.patientId) {
     this.toast.error('Please select an appointment');
@@ -575,5 +635,4 @@ generateInvoice(): void {
     },
   });
 }
-
 }

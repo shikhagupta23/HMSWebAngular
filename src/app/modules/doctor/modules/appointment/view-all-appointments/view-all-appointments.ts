@@ -65,6 +65,8 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   // isViewMode: boolean = false;
   isEditMode: boolean = false;
   canEdit: boolean = false; 
+  isEnteringFollowUpDays = false;
+
 
 @ViewChild('printFrame') printFrame!: any;
 
@@ -1087,6 +1089,35 @@ private onAppointmentSignalR(): void {
   console.log('🔔 SignalR update received');
   this.loadAppointmentCounts();
   this.loadAppointments();
+}
+
+onFollowUpFocus() {
+  if (this.isEditMode && this.isDoctor) {
+    this.isEnteringFollowUpDays = true;
+  }
+}
+
+onFollowUpChange(event: Event) {
+  const val = (event.target as HTMLInputElement).value.replace(/\D/g, '');
+  this.prescription.nextFollowUpCount = Number(val);
+}
+
+getNextFollowUpDate(): string {
+  if (!this.selectedAppointment?.appointmentDate || !this.prescription.nextFollowUpCount) {
+    return '';
+  }
+
+  const baseDate = new Date(this.selectedAppointment.appointmentDate);
+  const days = Number(this.prescription.nextFollowUpCount);
+
+  const result = new Date(baseDate);
+  result.setDate(result.getDate() + days);
+
+  const dd = String(result.getDate()).padStart(2, '0');
+  const mm = String(result.getMonth() + 1).padStart(2, '0');
+  const yyyy = result.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
 }
 
 }

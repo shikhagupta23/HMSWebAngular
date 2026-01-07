@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureAccessService } from '../../services/feature-access-service';
 import { UsersService } from '../../services/users-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -70,6 +72,8 @@ whatsAppConfigData: any
   }, { validators: this.dateRangeValidator });
 }
 
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initForm();
@@ -96,6 +100,14 @@ whatsAppConfigData: any
         this.assignForm.get('userId')?.enable();
         this.assignForm.get('canAddAnotherUser')?.enable();
       }
+    });
+
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onFeatureAssigned().subscribe(() => {
+          this.onFeatureAssignSignalR();
+        })
+      )
     });
   }
   ngAfterViewInit(): void {
@@ -445,4 +457,8 @@ dateRangeValidator(group: FormGroup) {
 }
 
 
+
+  private onFeatureAssignSignalR() : void{
+    this.loadList();
+  }
 }

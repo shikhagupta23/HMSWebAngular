@@ -2,6 +2,8 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FeatureService } from '../../services/feature-service';
 import { ToastService } from '../../../../shared/services/toast-service';
+import { SignalRService } from '../../../../shared/services/signal-rservice';
+import { Subscription } from 'rxjs';
 
 declare const bootstrap: any;
 
@@ -26,10 +28,21 @@ isEditMode = false;
   private fb = inject(FormBuilder);
   private api = inject(FeatureService);
   private toast = inject(ToastService);
+  private signalRService = inject(SignalRService);
+  private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     this.initForm();
     this.loadFeatures();
+    
+    this.signalRService.connect().then(() => {
+
+      this.subscriptions.push(
+        this.signalRService.onFeatureAdded().subscribe(() => {
+          this.onFeatureAddSignalR();
+        })
+      )
+    });
   }
 
   ngAfterViewInit(): void {
@@ -189,5 +202,9 @@ afterSave() {
   }
   closeModal(): void {
   this.closeModalBtn?.nativeElement.click();
+}
+
+private onFeatureAddSignalR(): void{
+  this.loadFeatures();
 }
 }

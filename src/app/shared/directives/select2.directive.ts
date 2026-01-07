@@ -1,4 +1,4 @@
-import { Directive, ElementRef, inject, Input, OnInit, OnDestroy  } from '@angular/core';
+import { Directive, ElementRef, inject, Input, OnInit, OnDestroy, SimpleChanges  } from '@angular/core';
 import { NgControl } from '@angular/forms';
 declare var $: any;
 
@@ -30,8 +30,16 @@ export class Select2Directive implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (!this.el?.nativeElement) return;
+
+    const value = this.control.control?.value ?? '';
+    $(this.el.nativeElement).val(value).trigger('change.select2');
+  }
   ngOnDestroy() {
     $(this.el.nativeElement).off('change');
   }
+
+  
   
 }

@@ -105,7 +105,8 @@ export const ApiEndpoints = {
     GET_LAB_FEES_BY_ID: `${API_BASE_URL}/LabTest/getLabFeesById`,
     GET_LAB_FEES_BY_AppointmentID: `${API_BASE_URL}/LabTest/getLabFeesByAppointmentId`,
     CREATE_INVOICE: `${API_BASE_URL}/Invoice/createInvoice`,
-    CREATE_PAYMENT: `${API_BASE_URL}/Invoice/createPayment`
+    CREATE_PAYMENT: `${API_BASE_URL}/Invoice/createPayment`,
+    PRINT_INVOICE: `${API_BASE_URL}/Invoice/print-invoice`,
   },
   PROFILE: {
     GETPROFILE: `${API_BASE_URL}/ProfileAPI/getProfile`,
@@ -163,10 +164,10 @@ export const ApiEndpoints = {
 
     ADD: `${API_BASE_URL}/LabTest/Post`,
 
-    UPDATE: `${API_BASE_URL}/LabTest/Put`,
+    UPDATE: `${API_BASE_URL}/LabTest/UpdateLabTest`,
 
-    DELETE: (id: string) =>
-      `${API_BASE_URL}/LabTest/Delete?id=${id}`,
+    DELETE: (labTestId: string) =>
+      `${API_BASE_URL}/LabTest/DeleteLabTest?labTestId=${labTestId}`,
   },
    PACKAGE: {
     GET: (page: number, pageSize: number) =>

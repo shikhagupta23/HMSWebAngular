@@ -1,16 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../../environment/environment.delvelopment';
+import { ToastService } from '../../../services/toast-service';
 
-// Dropdown interface
 interface DropdownDto {
   id: string;
   name: string;
 }
 
-// API Response Variation (from backend)
 interface ApiDrugVariation {
   drugVariationId?: string;
   drugTypeId: string;
@@ -21,7 +20,6 @@ interface ApiDrugVariation {
   isActive?: boolean;
 }
 
-// Form Variation (for UI - stores TEXT for display)
 interface FormDrugVariation {
   drugVariationId?: string;
   drugTypeId: string;
@@ -82,7 +80,6 @@ interface FormData {
   variations: FormDrugVariation[];
 }
 
-// Backend DTO interfaces
 interface DrugVariationCreateDto {
   drugTypeId: string;
   drugStrengthIds: string[];
@@ -123,16 +120,12 @@ interface DrugUpdateDto {
   styleUrls: ['./drug.css']
 })
 export class DrugComponent implements OnInit, OnDestroy {
-  // Drugs from backend (current page)
   allDrugs: Drug[] = [];
   
-  // Filtered list based on type filter (client-side)
   filteredDrugList: Drug[] = [];
   
-  // Paginated list for current page
   paginatedDrugList: Drug[] = [];
   
-  // UI controls
   entriesPerPage: number = 10;
   searchTerm: string = '';
   selectedFilterType: string = '';
@@ -142,15 +135,12 @@ export class DrugComponent implements OnInit, OnDestroy {
   isLoading = false;
   error = '';
 
-  // Pagination
   currentPage: number = 1;
   totalPages: number = 1;
   totalCount: number = 0;
 
-  // Debounce search - Industry Standard
   private searchSubject = new Subject<string>();
 
-  // Dropdowns
   drugTypes: DropdownDto[] = [];
   drugStrengths: DropdownDto[] = [];
   drugDoses: DropdownDto[] = [];
@@ -178,25 +168,24 @@ export class DrugComponent implements OnInit, OnDestroy {
     DROPDOWN_DURATION: '/DrugManagement/drugDurationDropdown'
   };
 
+  private toast = Inject(ToastService);
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadAllDropdowns();
     this.loadAllDrugs();
     
-    // Setup debounced search - waits 500ms after user stops typing
     this.searchSubject.pipe(
-      debounceTime(500), // Wait 500ms after user stops typing
-      distinctUntilChanged() // Only trigger if search term actually changed
+      debounceTime(500),
+      distinctUntilChanged()
     ).subscribe(searchTerm => {
       this.searchTerm = searchTerm;
-      this.currentPage = 1; // Reset to first page on new search
+      this.currentPage = 1;
       this.loadAllDrugs();
     });
   }
 
   ngOnDestroy(): void {
-    // Clean up subscription
     this.searchSubject.complete();
   }
 
@@ -239,7 +228,6 @@ export class DrugComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Load drugs with backend pagination and search
   loadAllDrugs(): void {
     this.isLoading = true;
     this.error = '';
@@ -250,7 +238,6 @@ export class DrugComponent implements OnInit, OnDestroy {
       .set('page', this.currentPage.toString())
       .set('pageSize', this.entriesPerPage.toString());
 
-    // Add search term if it exists
     if (this.searchTerm && this.searchTerm.trim()) {
       params = params.set('search', this.searchTerm.trim());
     }
@@ -282,11 +269,9 @@ export class DrugComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Apply client-side type filter only (search is on backend)
   applyClientSideFilter(): void {
     let filtered = [...this.allDrugs];
 
-    // Apply type filter on client side
     if (this.selectedFilterType) {
       filtered = filtered.filter(drug =>
         drug.variations.some(v => v.drugTypeId === this.selectedFilterType)
@@ -297,9 +282,7 @@ export class DrugComponent implements OnInit, OnDestroy {
     this.paginatedDrugList = filtered;
   }
 
-  // Updated search method - now uses debouncing with backend API
   onSearch(): void {
-    // Push the search term to the subject - debouncing will handle the delay
     this.searchSubject.next(this.searchTerm);
   }
 
@@ -446,7 +429,6 @@ export class DrugComponent implements OnInit, OnDestroy {
     this.formData.variations.splice(index, 1);
   }
 
-  // Searchable dropdown methods
   filterStrengths(index: number): void {
     const variation = this.formData.variations[index];
     const searchTerm = (variation.strengthSearch || '').toLowerCase().trim();
@@ -623,19 +605,19 @@ export class DrugComponent implements OnInit, OnDestroy {
 
   saveDrug(): void {
     if (!this.formData.tradeName.trim() || !this.formData.genericName.trim()) {
-      alert('Please fill in Trade name and Generic name');
+      this.toast.error('Please fill in Trade name and Generic name');
       return;
     }
 
     if (this.formData.variations.length === 0) {
-      alert('Please add at least one drug variation');
+      this.toast.error('Please add at least one drug variation');
       return;
     }
 
     for (let i = 0; i < this.formData.variations.length; i++) {
       const variation = this.formData.variations[i];
       if (!variation.drugTypeId) {
-        alert(`Please select a drug type for variation ${i + 1}`);
+        this.toast.error(`Please select a drug type for variation ${i + 1}`);
         return;
       }
     }
@@ -668,16 +650,16 @@ export class DrugComponent implements OnInit, OnDestroy {
       this.http.put<ApiResponse>(updateUrl, updateData).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            alert('Drug updated successfully!');
+            this.toast.success('Drug updated successfully!');
             this.closeForm();
             this.loadAllDrugs();
           } else {
-            alert(response.message || 'Failed to update drug');
+            this.toast.error(response.message || 'Failed to update drug');
           }
         },
         error: (err) => {
           console.error('Update error:', err);
-          alert(err.error?.message || err.error?.title || 'Failed to update drug. Please try again.');
+          this.toast.error(err.error?.message || err.error?.title || 'Failed to update drug. Please try again.');
         }
       });
     } else {
@@ -697,16 +679,16 @@ export class DrugComponent implements OnInit, OnDestroy {
       this.http.post<ApiResponse>(createUrl, createData).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            alert('Drug created successfully!');
+            this.toast.success('Drug created successfully!');
             this.closeForm();
             this.loadAllDrugs();
           } else {
-            alert(response.message || 'Failed to create drug');
+            this.toast.error(response.message || 'Failed to create drug');
           }
         },
         error: (err) => {
           console.error('Create error:', err);
-          alert(err.error?.message || err.error?.title || 'Failed to create drug. Please try again.');
+          this.toast.error(err.error?.message || err.error?.title || 'Failed to create drug. Please try again.');
         }
       });
     }
@@ -723,15 +705,15 @@ export class DrugComponent implements OnInit, OnDestroy {
       this.http.delete<ApiResponse>(deleteUrl).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            alert('Drug deleted successfully!');
+            this.toast.success('Drug deleted successfully!');
             this.loadAllDrugs();
           } else {
-            alert(response.message || 'Failed to delete drug');
+            this.toast.error(response.message || 'Failed to delete drug');
           }
         },
         error: (err) => {
           console.error('Delete error:', err);
-          alert('Failed to delete drug. Please try again.');
+          this.toast.error('Failed to delete drug. Please try again.');
         }
       });
     }
