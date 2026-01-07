@@ -40,6 +40,7 @@
         <th>Hospital Name</th>
         <th>User Name</th>
         <th>Is Extend</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -65,7 +66,21 @@
             />
           </div>
         </td>
-      
+     <td class="text-center">
+<button  (click)="openWhatsAppModal(f)"
+  *ngIf="f.featureName === 'whatsapp'; else noConfig"
+  class="btn btn-sm btn-outline-success"
+>
+  <i class="fa-brands fa-whatsapp"></i> Configure
+</button>
+
+
+  <ng-template #noConfig>
+    <span class="text-muted">—</span>
+  </ng-template>
+</td>
+
+
       </tr>
     </tbody>
   </table>
@@ -149,6 +164,134 @@
           </div>
         </form>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Whatsapp Configuration Modal -->
+<div class="modal fade" id="whatsAppConfigModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          WhatsApp Configuration
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      @if(whatsAppConfigDataAvailable){
+      <div class="row m-3">
+  <div class="col-md-4">
+    <div class="border rounded p-2 text-center bg-light">
+      <div class="small text-muted">Total Count</div>
+      <div class="fw-bold fs-5 text-primary">
+     {{whatsAppConfigData?.totalMessageCount || 0}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="border rounded p-2 text-center bg-light">
+      <div class="small text-muted">Used Count</div>
+      <div class="fw-bold fs-5 text-success">
+      {{whatsAppConfigData?.usedMessageCount || 0}}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="border rounded p-2 text-center bg-light">
+      <div class="small text-muted">Pending Count</div>
+      <div class="fw-bold fs-5 text-warning">
+      {{whatsAppConfigData?.availableMessageCount || 0}}
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+      <form [formGroup]="whatsAppForm" (ngSubmit)="saveWhatsAppConfig()">
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label small">WhatsApp Number <span class="text-danger">*</span></label>
+            <input class="form-control" formControlName="whatsAppNumber" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('whatsAppNumber')?.touched && whatsAppForm.get('whatsAppNumber')?.invalid">
+  <div *ngIf="whatsAppForm.get('whatsAppNumber')?.errors?.['required']">
+    WhatsApp number is required
+  </div>
+  <div *ngIf="whatsAppForm.get('whatsAppNumber')?.errors?.['pattern']">
+    Enter a valid WhatsApp number
+  </div>
+</div>
+
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Total Message Count <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="totalMessageCount" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('totalMessageCount')?.touched && whatsAppForm.get('totalMessageCount')?.invalid">
+  <div *ngIf="whatsAppForm.get('totalMessageCount')?.errors?.['required']">
+    Total message count is required
+  </div>
+  <div *ngIf="whatsAppForm.get('totalMessageCount')?.errors?.['min']">
+    Message count must be greater than 0
+  </div>
+</div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-2">
+              <label class="form-label small">Valid From <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="validFrom" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('validFrom')?.touched && whatsAppForm.get('validFrom')?.invalid">
+  Valid from date is required
+</div>
+
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label small">Valid To <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="validTo" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('validTo')?.touched && whatsAppForm.get('validTo')?.invalid">
+  Valid to date is required
+</div>
+
+<div class="text-danger small"
+     *ngIf="whatsAppForm.errors?.['dateInvalid']">
+  Valid To must be greater than Valid From
+</div>
+
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Provider Name<span class="text-danger">*</span></label>
+            <input class="form-control" formControlName="providerName" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('providerName')?.touched && whatsAppForm.get('providerName')?.invalid">
+  Provider name is required
+</div>
+
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">API Key<span class="text-danger">*</span></label>
+            <input class="form-control" formControlName="apiKey" />
+<div class="text-danger small"
+     *ngIf="whatsAppForm.get('apiKey')?.touched && whatsAppForm.get('apiKey')?.invalid">
+  API key is required
+</div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
