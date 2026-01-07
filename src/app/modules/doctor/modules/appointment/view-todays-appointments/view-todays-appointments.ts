@@ -9,6 +9,7 @@ import { Appointment } from '../services/appointment';
 import { SignalRService } from '../../../../../shared/services/signal-rservice';
 import { OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { Console } from 'console';
 
 declare var bootstrap: any;
 
@@ -916,7 +917,7 @@ UpdateApptStatusToScheduled() {
     }
 
     const isDuplicate = this.prescription.labTests.some(
-      l => l.value === selected.value
+      l => String(l.value) === String(selected.value)
     );
 
     if (isDuplicate) {
@@ -931,7 +932,6 @@ UpdateApptStatusToScheduled() {
 
     this.selectedLabTest = '';
   }
-
 
   removeLabTest(index: number) {
     this.prescription.labTests.splice(index, 1);
