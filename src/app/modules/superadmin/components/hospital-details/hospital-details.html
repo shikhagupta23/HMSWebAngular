@@ -106,7 +106,7 @@
                     <td>{{ user.userRole }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.address }}</td>
+                    <td> <span class="address-ellipsis" [attr.title]="user.address"> {{ user.address }} </span> </td>
                     <td>{{ user.createdAt | date : 'dd MMM yyyy' }}</td>
                     <td>
                       <div class="form-check form-switch">
@@ -148,7 +148,7 @@
   </div>
 </div>
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
         <h5 class="modal-title">
@@ -166,7 +166,7 @@
       <div class="modal-body">
         <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Full Name <span class="text-danger">*</span></label
               >
@@ -183,7 +183,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Select Gender <span class="text-danger">*</span></label
               >
@@ -200,12 +200,12 @@
                 Gender is required
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold">Date of Birth</label>
               <input type="date" class="form-control" formControlName="DateOfBirth"  [max]="today" />
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Select Role <span class="text-danger">*</span></label
               >
@@ -223,7 +223,7 @@
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Phone Number <span class="text-danger">*</span></label
               >
@@ -250,7 +250,7 @@
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold">Email</label>
               <input
                 type="email"
@@ -269,7 +269,7 @@
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label small fw-semibold"
                 >Password <span class="text-danger">*</span></label
               >

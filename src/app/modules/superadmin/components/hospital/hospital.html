@@ -72,8 +72,8 @@
         </td>
         <td>{{ h.hospitalRegistrationNumber || h.HospitalRegistrationNumber || '-' }}</td>
         <td>{{ h.hospitalPhoneNumber || h.HospitalPhoneNumber || h.phone || '-' }}</td>
-        <td class="address-cell">
-          {{ h.hospitalAddress + ', ' + h.city + ', ' + h.state }}
+        <td >
+          <span class="address-ellipsis" [attr.title]="h.hospitalAddress + ', ' + h.city + ', ' + h.state"> {{ h.hospitalAddress + ', ' + h.city + ', ' + h.state }}</span>
         </td>
         <td>{{ h.createdAt | date }}</td>
         <td> <div class="form-check form-switch" (click)="$event.stopPropagation()">

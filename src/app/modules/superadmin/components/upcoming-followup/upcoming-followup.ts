@@ -16,8 +16,9 @@ export class UpcomingFollowup implements OnInit {
   pages: number[] = [];
 
   searchTerm = '';
-  fromDateInput: string = ''; // default empty
-  noOfDays: any = ''; // default empty
+ fromDateInput: string = '';   // yyyy-mm-dd
+toDateInput: string = '';     // yyyy-mm-dd
+noOfDays: number | '' = '';
 
   loading = false;
 
@@ -55,24 +56,44 @@ export class UpcomingFollowup implements OnInit {
     return `${parts[1]}-${parts[2]}-${parts[0]}`; // mm-dd-yyyy
   }
 
-  fetchData(): void {
-    this.loading = true;
-    const dateForApi = this.formatDateFromInputToApi(this.fromDateInput);
+fetchData(): void {
+  this.loading = true;
 
-    if (this.activeTab === 'upcoming') {
-      this.api.getUpcomingFollowUps(this.pageNumber, this.pageSize, this.searchTerm || '', 2, dateForApi, this.noOfDays ?? '').subscribe({
+  const dateForApi = this.formatDateFromInputToApi(this.fromDateInput);
+  const daysForApi = this.noOfDays || '';
+
+  if (this.activeTab === 'upcoming') {
+    this.api
+      .getUpcomingFollowUps(
+        this.pageNumber,
+        this.pageSize,
+        this.searchTerm || '',
+        2,
+        dateForApi,
+        daysForApi
+      )
+      .subscribe({
         next: res => this.handleResponse(res),
-        error: () => this.handleError()
+        error: () => this.handleError(),
       });
-      return;
-    }
-
-    // past followups
-    this.api.getPastFollowUps(this.pageNumber, this.pageSize, this.searchTerm || '', 3, dateForApi, this.noOfDays ?? '').subscribe({
-      next: res => this.handleResponse(res),
-      error: () => this.handleError()
-    });
+    return;
   }
+
+  this.api
+    .getPastFollowUps(
+      this.pageNumber,
+      this.pageSize,
+      this.searchTerm || '',
+      3,
+      dateForApi,
+      daysForApi
+    )
+    .subscribe({
+      next: res => this.handleResponse(res),
+      error: () => this.handleError(),
+    });
+}
+
 
   private handleResponse(res: any) {
     this.dataList = res?.dataList || [];
@@ -144,5 +165,35 @@ export class UpcomingFollowup implements OnInit {
   trackById(index: number, item: any) {
     return item?.id || index;
   }
+onDateRangeChange(): void {
+  if (!this.fromDateInput || !this.toDateInput) {
+    this.noOfDays = '';
+    return;
+  }
+
+  const from = new Date(this.fromDateInput);
+  const to = new Date(this.toDateInput);
+
+  if (to < from) {
+    this.noOfDays = '';
+    return;
+  }
+
+  const diffTime = to.getTime() - from.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  this.noOfDays = diffDays;
+}
+switchToDate(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  input.type = 'date';
+}
+
+switchToTextIfEmpty(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.value) {
+    input.type = 'text';
+  }
+}
 
 }

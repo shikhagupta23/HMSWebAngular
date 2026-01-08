@@ -3,6 +3,17 @@
 
         <ul class="header-list-btns">
             <li class="me-2">
+                <select class="form-select" style="border-radius: 10px; height: 36px; min-height: 36px;"
+                        [(ngModel)]="selectedGender"
+                        (change)="onGenderChange()">
+                    <option value="">All</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Others</option>
+                </select>
+            </li>
+
+            <li class="me-2">
                 <div class="input-block dash-search-input">
                     <input type="text" class="form-control" placeholder="Search Patient..."
                         [(ngModel)]="searchText" (input)="searchPatients()">
@@ -46,7 +57,7 @@
 
                 <!-- Phone -->
                 <div class="col-12 col-lg-3">
-                    <span class="appointment-info date-tag" title="Address"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
+                    <span class="appointment-info date-tag address-ellipsis" [attr.title]="p.address"><i class="fa-solid fa-location-dot"></i> {{p.address}}</span>
                     <span class="appointment-info date-tag" title="Phone Number"><i class="fa-solid fa-phone"></i> {{ p.phone }}</span>
                 </div>
 

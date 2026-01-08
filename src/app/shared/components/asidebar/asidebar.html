@@ -8,11 +8,12 @@
         <div class="patient-details">
           <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
         </div>
-
-        <span class="badge doctor-role-badge">
+@if(doctorDetails?.doctorSpeciality){
+        <span  class="badge doctor-role-badge">
           <i class="fa-solid fa-circle"></i>
           {{ doctorDetails.doctorSpeciality }}
         </span>
+      }
       </div>
     </div>
   </div>

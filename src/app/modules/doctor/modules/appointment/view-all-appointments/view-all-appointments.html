@@ -18,7 +18,7 @@
 		</ul>
 	</div>
 
-	<div class="appointment-tabs mt-3">
+	<div class="appointment-tabs mt-3 sticky-tabs">
 	<ul class="nav nav-pills inner-tab" id="pills-tab">
 		<li class="nav-item">
 		<button class="nav-link" [class.active]="selectedStatus===3" (click)="changeStatus(3)">
@@ -68,28 +68,29 @@
 						</div>
 						<!-- Patient Details -->
 						<div>
-							<p class="m-0 appointment-view-id" title="Appointment View Id">#{{ item.appointmentViewId }}</p>
-							<p class="m-0 patient-name" title="Patient Name">{{ item.patientName }}</p>
+							<p class="m-0 appointment-view-id cursor" title="Appointment View Id">#{{ item.appointmentViewId }}</p>
+							<p class="m-0 patient-name cursor" title="Patient Name">{{ item.patientName }}</p>
 						</div>
 
 					</div>
 				</div>
 
 				<!-- Doctor Name -->
-				<div class="col-12 col-lg-2" *ngIf="!isDoctor">
-					<span title="Doctor Name">{{ item.doctorName }}</span>
+				<div class="col-12 col-lg-2 " *ngIf="!isDoctor">
+					<span class="cursor" title="Doctor Name">Dr. {{ item.doctorName }}</span>
 				</div>
+
 
 				<!-- Appointment Date -->
 				<div class="col-12 col-lg-2">
-					<span class="appointment-info date-tag" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
-					<span class="appointment-info date-tag" title="Booked On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
+					<span class="appointment-info date-tag cursor" title="Appointment Date"> <i class="fa-solid fa-calendar-check appointment-date"></i> {{ formatDate(item.appointmentDate) }}</span>
+					<span class="appointment-info date-tag cursor" title="Booked On"> <i class="fa-solid fa-calendar-plus created-date"></i> {{ formatDate(item.createdAt) }}</span>
 				</div>
 
 				<!-- Phone -->
 				<div class="col-12 col-lg-3">
-					<span class="appointment-info date-tag" title="Patient's Address"><i class="fa-solid fa-location-dot"></i> {{item.address}}</span>
-					<span class="appointment-info date-tag" title="Patient's Phone Number"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
+					<span class="appointment-info date-tag address-ellipsis" [attr.title]="item.address"><i class="fa-solid fa-location-dot"></i> {{item.address}}</span>
+					<span class="appointment-info date-tag cursor" title="Patient's Phone Number"><i class="fa-solid fa-phone"></i> {{ item.patientPhone }}</span>
 				</div>
 
 				<div class="col-12 col-lg-2">
@@ -232,8 +233,13 @@
 						</div>
 
 						<div class="col-md-3">
-						<label class="form-label small fw-semibold">Address</label>
+						<label class="form-label small fw-semibold">Address <span class="text-danger">*</span></label>
 						<input type="text" class="form-control " formControlName="address">
+						<div class="text-danger small"
+							*ngIf="addAppointmentForm.get('address')?.touched
+									&& addAppointmentForm.get('address')?.invalid">
+						Address is required
+						</div>
 						</div>
 
 					</div>

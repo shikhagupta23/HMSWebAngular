@@ -46,22 +46,17 @@ interface AppointmentItem {
   appointmentStatus: number;
 }
 
-
 @Component({
   selector: 'app-view-todays-appointments',
   standalone: false,
   templateUrl: './view-todays-appointments.html',
   styleUrl: './view-todays-appointments.scss',
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
-
-
-
-export class ViewTodaysAppointments implements OnInit,OnDestroy  {
+export class ViewTodaysAppointments implements OnInit, OnDestroy {
   ngOnDestroy(): void {
-  this.subscriptions.forEach(sub => sub.unsubscribe());
-}
-
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
 
   private appointmentService = inject(Appointment);
   private toast = inject(ToastService);
@@ -71,26 +66,23 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   private datePipe = inject(DatePipe);
   private asidebarService = inject(AsidebarService);
   private authService = inject(AuthService);
-   private signalRService = inject(SignalRService);
+  private signalRService = inject(SignalRService);
   private subscriptions: Subscription[] = [];
 
-
-  
-@ViewChild('printFrame') printFrame!: any;
+  @ViewChild('printFrame') printFrame!: any;
 
   isEditMode: boolean = false;
-  canEdit: boolean = false; 
+  canEdit: boolean = false;
   isEnteringFollowUpDays = false;
-
 
   addAppointmentForm!: FormGroup;
 
   masterData: any[] = [];
   filteredData: any[] = [];
   dataList: any[] = [];
-  searchText: string = "";
+  searchText: string = '';
   appointmentList: any[] = [];
- 
+
   activeField: string = '';
   optionsList: any[] = [];
   medicineTypes: any[] = [];
@@ -100,10 +92,10 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   frequencyOptions: any[] = [];
   timingOptions: any[] = [];
   instructionOptions: any[] = [];
-  selectedAppointment: any = null; 
-  selectedMedicineType:any = '';
+  selectedAppointment: any = null;
+  selectedMedicineType: any = '';
   selectedMedicineName = '';
-  medicineQty: number = 1;  
+  medicineQty: number = 1;
   selectedUnit: string = '';
   selectedStatus: number = 0;
   prescriptionHelperMaster: any[] = [];
@@ -131,12 +123,13 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   currentPrescriptionMode: 'start' | 'view' = 'start';
   minDateTime: string = '';
 
+  today = new Date().toISOString().split('T')[0];
 
   masterIds = {
     Symptoms: '',
     Diagnosis: '',
     Advice: '',
-    FollowUp: ''
+    FollowUp: '',
   };
 
   pageNumber = 1;
@@ -148,11 +141,10 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   printHtml: string = '';
   isPrintPreviewOpen = false;
 
-
-  activeTab: string = "All";
-  doctorList : any[] = [];
+  activeTab: string = 'All';
+  doctorList: any[] = [];
   patientList: any[] = [];
-    
+
   prescription: Prescription = {
     prescriptionId: null,
     symptoms: '',
@@ -161,11 +153,10 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     followUp: '',
     nextFollowUpCount: undefined,
     medicines: [],
-    labTests: []
+    labTests: [],
   };
 
   ngOnInit(): void {
-    
     this.addAppointmentForm = this.fb.group({
       patientId: [''],
       fullName: ['', Validators.required],
@@ -174,7 +165,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       gender: ['', Validators.required],
       bloodGroup: [''],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      address: [''],
+      address: ['', [Validators.required]],
       weight: [''],
       height: [''],
       pulse: [''],
@@ -189,7 +180,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       doctor: ['', Validators.required],
       appointmentFee: [''],
       visitReason: [''],
-      doctorId: [''],  
+      doctorId: [''],
     });
 
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
@@ -200,39 +191,36 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.loadAppointments();
     this.loadAppointmentCounts();
     this.loadMedicineTypes();
-    this.loadLabTests();  
+    this.loadLabTests();
     this.loadDoctorDetails();
     this.onAppointmentSignalR();
 
     this.setMinDateTime();
-  this.signalRService.connect().then(() => {
+    this.signalRService.connect().then(() => {
+      this.subscriptions.push(
+        this.signalRService.onAppointmentBooked().subscribe(() => {
+          this.onAppointmentSignalR();
+        })
+      );
 
-  this.subscriptions.push(
-    this.signalRService.onAppointmentBooked().subscribe(() => {
-      this.onAppointmentSignalR();
-    })
-  );
+      this.subscriptions.push(
+        this.signalRService.onReceiveCheckIn().subscribe(() => {
+          this.onAppointmentSignalR();
+        })
+      );
 
-  this.subscriptions.push(
-    this.signalRService.onReceiveCheckIn().subscribe(() => {
-      this.onAppointmentSignalR();
-    })
-  );
-
-  this.subscriptions.push(
-    this.signalRService.onReceiveCompleted().subscribe(() => {
-      this.onAppointmentSignalR();
-    })
-  );
-
-});
-
+      this.subscriptions.push(
+        this.signalRService.onReceiveCompleted().subscribe(() => {
+          this.onAppointmentSignalR();
+        })
+      );
+    });
   }
 
   setMinDateTime() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // timezone adjustment
-    this.minDateTime = now.toISOString().slice(0,16); // "YYYY-MM-DDTHH:MM"
+    this.minDateTime = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
   }
 
   searchMedicine() {
@@ -241,11 +229,9 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       return;
     }
 
-    this.appointmentService
-      .searchDrugByName(this.medicineSearchText)
-      .subscribe((res: any) => {
-        this.medicineSearchResults = res?.dataList || [];
-      });
+    this.appointmentService.searchDrugByName(this.medicineSearchText).subscribe((res: any) => {
+      this.medicineSearchResults = res?.dataList || [];
+    });
   }
 
   selectMedicineType(drug: any, type: any) {
@@ -259,25 +245,23 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   }
 
   getMedicineDetails(drugId: string, variationId: string) {
-    this.appointmentService
-      .getMedicineDetails(drugId, variationId)
-      .subscribe((res: any) => {
-        if (!res?.data) return;
+    this.appointmentService.getMedicineDetails(drugId, variationId).subscribe((res: any) => {
+      if (!res?.data) return;
 
-        const d = res.data;
-        this.medicineForm = {
-          type: d.drugTypeName || '',
-          strength: d.strengths?.[0] || '',
-          dosage: d.doses?.[0] || '',
-          duration: d.durations?.[0] || '',
-          advice: d.advice || ''
-        };
-      });
+      const d = res.data;
+      this.medicineForm = {
+        type: d.drugTypeName || '',
+        strength: d.strengths?.[0] || '',
+        dosage: d.doses?.[0] || '',
+        duration: d.durations?.[0] || '',
+        advice: d.advice || '',
+      };
+    });
   }
-    
+
   @HostListener('document:click')
-    clickOutside() {
-      this.patientList = [];
+  clickOutside() {
+    this.patientList = [];
   }
 
   getTodayDate(): string {
@@ -289,22 +273,21 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.pageNumber = 1;
     this.loadAppointments();
     this.loadAppointmentCounts();
-
   }
 
   loadAllDoctors() {
-        this.appointmentService.getDoctor().subscribe({
-          next: (res) => {
-            this.doctorList = res.dataList;
-          }
-      });
+    this.appointmentService.getDoctor().subscribe({
+      next: (res) => {
+        this.doctorList = res.dataList;
+      },
+    });
   }
 
   loadDoctorDetails() {
     const role = this.authService.getUserRole();
     const doctorId = this.authService.getLoggedInUserId();
 
-    this.isDoctorRole = (role?.toLowerCase() === 'doctor');
+    this.isDoctorRole = role?.toLowerCase() === 'doctor';
 
     if (this.isDoctorRole) {
       this.asidebarService.getDoctorDetailsById(doctorId).subscribe({
@@ -315,16 +298,15 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
               doctor: response.data.doctorId,
             });
             this.getDoctorFee();
-            this.addAppointmentForm.get('appointmentFee')?.disable();
+            this.addAppointmentForm.get('appointmentFee');
           }
         },
-        error: (err) => console.error("API Error:", err)
+        error: (err) => console.error('API Error:', err),
       });
-    } 
-    else {
+    } else {
       // For receptionist → load all doctors
       this.loadAllDoctors();
-      this.addAppointmentForm.get('appointmentFee')?.enable();
+      this.addAppointmentForm.get('appointmentFee');
     }
   }
 
@@ -341,17 +323,17 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       )
       .subscribe({
         next: (response: any) => {
-
           this.masterData = response.dataList ?? [];
           this.filteredData = [...this.masterData];
 
           if (this.searchText?.trim()) {
             const text = this.searchText.trim().toLowerCase();
-            this.filteredData = this.filteredData.filter(x =>
-              x.patientName?.toLowerCase().includes(text) ||
-              x.mobileNo?.includes(text) ||
-              x.uhid?.toLowerCase().includes(text) ||
-              x.appointmentNo?.toLowerCase().includes(text)
+            this.filteredData = this.filteredData.filter(
+              (x) =>
+                x.patientName?.toLowerCase().includes(text) ||
+                x.mobileNo?.includes(text) ||
+                x.uhid?.toLowerCase().includes(text) ||
+                x.appointmentNo?.toLowerCase().includes(text)
             );
           }
 
@@ -361,7 +343,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
           const start = (this.pageNumber - 1) * this.pageSize;
           this.dataList = this.filteredData.slice(start, start + this.pageSize);
         },
-        error: () => this.toast.error("Failed to load appointments")
+        error: () => this.toast.error('Failed to load appointments'),
       });
   }
 
@@ -371,17 +353,15 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     this.appointmentService
       .getAllPatientAsPerDoctor(this.pageNumber, this.apiPageSize, '', 3, today)
       .subscribe((res: any) => {
-      const data: AppointmentItem[] = res.dataList ?? [];
+        const data: AppointmentItem[] = res.dataList ?? [];
 
-      this.totalAll = data.length;
-      this.totalScheduled = data.filter((x: AppointmentItem) => x.appointmentStatus === 0).length;
-      this.totalPending   = data.filter((x: AppointmentItem) => x.appointmentStatus === 1).length;
-      this.totalCompleted = data.filter((x: AppointmentItem) => x.appointmentStatus === 2).length;
-      this.totalCancelled = data.filter((x: AppointmentItem) => x.appointmentStatus === 4).length;
-
+        this.totalAll = data.length;
+        this.totalScheduled = data.filter((x: AppointmentItem) => x.appointmentStatus === 0).length;
+        this.totalPending = data.filter((x: AppointmentItem) => x.appointmentStatus === 1).length;
+        this.totalCompleted = data.filter((x: AppointmentItem) => x.appointmentStatus === 2).length;
+        this.totalCancelled = data.filter((x: AppointmentItem) => x.appointmentStatus === 4).length;
       });
   }
-
 
   loadFullData() {
     const today = this.getTodayDate();
@@ -398,7 +378,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
           this.paginate();
         },
-        error: () => this.toast.error("Something went wrong"),
+        error: () => this.toast.error('Something went wrong'),
       });
   }
 
@@ -436,29 +416,27 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   formatDate(date: string): string {
     return (this.datePipe.transform(date, 'dd MMM yyyy hh.mm a') || '').toUpperCase();
   }
-    
-  getPatientByTerm()
-  {
+
+  getPatientByTerm() {
     const term = this.addAppointmentForm.get('fullName')?.value || '';
     this.appointmentService.getPatientByNameOrPhone(term).subscribe({
       next: (res) => {
         this.patientList = res.dataList ?? [];
       },
       error: (err) => {
-        console.error("Error fetching patient data:", err);
-      }
+        console.error('Error fetching patient data:', err);
+      },
     });
   }
 
   selectPatient(p: any) {
-
     this.patientList = [];
 
     this.addAppointmentForm.patchValue({
-      patientId: p.userId || p.id,   
+      patientId: p.userId || p.id,
       fullName: p.userName,
       gender: p.gender,
-      dob: p.dob ? p.dob.split(" ")[0] : "",
+      dob: p.dob ? p.dob.split(' ')[0] : '',
       phoneNumber: p.phone,
       address: p.address,
 
@@ -466,7 +444,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       // height: p.height,
       // pulse: p.pulse,
       // oxygen: p.oxygen,
-      abhaId: p.abhaId
+      abhaId: p.abhaId,
     });
 
     this.selectedPatientId = p.userId || p.id;
@@ -476,9 +454,8 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     const control = this.addAppointmentForm.get(controlName);
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
-  
-  onCancel()
-  {
+
+  onCancel() {
     this.router.navigate(['/doctor/appointment/todayappointments']);
   }
 
@@ -504,12 +481,12 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         if (res.isSuccess) {
           this.addAppointmentForm.get('appointmentFee')?.setValue(res.data);
         } else {
-          this.toast.error(res.message || "Failed to fetch doctor fee");
+          this.toast.error(res.message || 'Failed to fetch doctor fee');
         }
       },
       error: () => {
-        this.toast.error("Error fetching doctor fee");
-      }
+        this.toast.error('Error fetching doctor fee');
+      },
     });
   }
 
@@ -519,7 +496,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     const now = new Date();
 
     if (appointmentDate < now) {
-      this.toast.error("Please select a future date and time");
+      this.toast.error('Please select a future date and time');
       return;
     }
     if (this.addAppointmentForm.invalid) {
@@ -528,9 +505,9 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     }
 
     const payload = {
-      PatientId: this.selectedPatientId || "",
+      PatientId: this.selectedPatientId || '',
       DoctorId: form.doctor,
-      VisitReason: form.visitReason || "",
+      VisitReason: form.visitReason || '',
       AppointmentFee: Number(form.appointmentFee) || 0,
       AppointmentDate: new Date(form.appointmentDate).toISOString(),
 
@@ -540,47 +517,46 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
         DateOfBirth: form.dob ? new Date(form.dob).toISOString() : null,
         PhoneNumber: form.phoneNumber,
         Address: form.address,
-        ReferDoctorName: form.referDoctor || "",
-        ABHAID: form.abhaId || "",
+        ReferDoctorName: form.referDoctor || '',
+        ABHAID: form.abhaId || '',
         Weight: Number(form.weight) || 0,
         Height: Number(form.height) || 0,
         Pulse: Number(form.pulse) || 0,
-        Oxygen: Number(form.oxygen) || 0
-      }
+        Oxygen: Number(form.oxygen) || 0,
+      },
     };
     this.appointmentService.saveAppointment(payload).subscribe({
       next: (res: any) => {
         if (res.isSuccess) {
-          this.toast.success(res.message ||"Appointment added successfully");
+          this.toast.success(res.message || 'Appointment added successfully');
           this.loadAppointments();
           this.loadAppointmentCounts();
 
           const modalEl = document.getElementById('addAppointmentModal');
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) {
-              modalInstance.hide();
+            modalInstance.hide();
           }
           this.addAppointmentForm.reset();
-
         } else {
-          this.toast.error(res.message || "Failed to add appointment");
+          this.toast.error(res.message || 'Failed to add appointment');
         }
       },
       error: (err) => {
-        this.toast.error("Error occurred while saving appointment");
-      }
+        this.toast.error('Error occurred while saving appointment');
+      },
     });
   }
 
   openAddAppointmentModal() {
-      const modal = new bootstrap.Modal(document.getElementById('addAppointmentModal'));
-      modal.show();
+    const modal = new bootstrap.Modal(document.getElementById('addAppointmentModal'));
+    modal.show();
   }
 
   getCurrentDateTime(): string {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5 - now.getTimezoneOffset());
-    return now.toISOString().slice(0,16);
+    return now.toISOString().slice(0, 16);
   }
 
   convertTimingToNumber(t: string): number {
@@ -589,7 +565,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
   }
 
   getFrequencyId(freqName: string): number {
-    const f = this.frequencyOptions.find(x => x.label === freqName);
+    const f = this.frequencyOptions.find((x) => x.label === freqName);
     return f ? f.value : 0;
   }
 
@@ -597,26 +573,28 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     Tablet: ['Paracetamol', 'Azithromycin', 'Levocetirizine'],
     Capsule: ['Amoxicillin', 'Omeprazole'],
     Syrup: ['Cough Syrup', 'Vitamin C Syrup'],
-    Injection: ['Insulin', 'Diclofenac']
+    Injection: ['Insulin', 'Diclofenac'],
   };
 
   medicineAutoData: any = {
-    1: { // Drop
+    1: {
+      // Drop
       Panadol: {
         strength: '300mg',
         dosage: '1 drop every 5 minutes',
         duration: 6,
-        advice: 'Sed perferendis ipsam eum at laboriosam sequi provident.'
-      }
+        advice: 'Sed perferendis ipsam eum at laboriosam sequi provident.',
+      },
     },
-    2: { // Eye Ointment
+    2: {
+      // Eye Ointment
       Augmentin: {
         strength: '5mg',
         dosage: '1+1+1',
         duration: 6,
-        advice: 'Deserunt et quos quia excepturi fugiat dolor.'
-      }
-    }
+        advice: 'Deserunt et quos quia excepturi fugiat dolor.',
+      },
+    },
   };
 
   medicineForm = {
@@ -624,7 +602,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
     strength: '',
     dosage: '',
     duration: '',
-    advice: ''
+    advice: '',
   };
 
   loadMedicineTypes() {
@@ -636,7 +614,7 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
       },
       error: (err) => {
         console.error('Error loading medicine types', err);
-      }
+      },
     });
   }
 
@@ -662,21 +640,25 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
 
     this.loadPrescriptionMaster();
 
-  const modalEl = document.getElementById('prescriptionModal');
-  const modal = new bootstrap.Modal(modalEl!);
-  modal.show();
-  // Add close listener
-  modalEl?.addEventListener('hidden.bs.modal', () => {
-    if (this.currentPrescriptionMode === 'start' && this.selectedAppointment?.status !== 2) {
-      this.UpdateApptStatusToScheduled();
-      // this.resetPrescription();
-    } else {
-      this.resetPrescription();
-    }
-  }, { once: true });
+    const modalEl = document.getElementById('prescriptionModal');
+    const modal = new bootstrap.Modal(modalEl!);
+    modal.show();
+    // Add close listener
+    modalEl?.addEventListener(
+      'hidden.bs.modal',
+      () => {
+        if (this.currentPrescriptionMode === 'start' && this.selectedAppointment?.status !== 2) {
+          this.UpdateApptStatusToScheduled();
+          // this.resetPrescription();
+        } else {
+          this.resetPrescription();
+        }
+      },
+      { once: true }
+    );
   }
 
-  UpdateApptStatusToOnGoing(appointmentId: string){
+  UpdateApptStatusToOnGoing(appointmentId: string) {
     if (appointmentId) {
       this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 1).subscribe({
         next: () => {
@@ -684,103 +666,103 @@ export class ViewTodaysAppointments implements OnInit,OnDestroy  {
           this.loadAppointmentCounts();
         },
         error: (err) => {
-          console.error("Error updating appointment status", err);
-        }
+          console.error('Error updating appointment status', err);
+        },
       });
     }
   }
 
-UpdateApptStatusToScheduled() {
-  const appointmentId = this.selectedAppointment?.appointmentId;
-  if (!appointmentId) return;
+  UpdateApptStatusToScheduled() {
+    const appointmentId = this.selectedAppointment?.appointmentId;
+    if (!appointmentId) return;
 
-  this.appointmentService.updateAppointmentStatus(appointmentId, 0).subscribe({
-    next: () => {
-      this.loadAppointments();
-      this.loadAppointmentCounts();
-      // this.resetPrescription();
-    },
-    error: (err) => console.error("Failed to revert appointment status", err)
-  });
-}
-
+    this.appointmentService.updateAppointmentStatus(appointmentId, 0).subscribe({
+      next: () => {
+        this.loadAppointments();
+        this.loadAppointmentCounts();
+        // this.resetPrescription();
+      },
+      error: (err) => console.error('Failed to revert appointment status', err),
+    });
+  }
 
   loadPrescriptionMaster() {
-    this.appointmentService.getPrescriptionMaster()
-      .subscribe((res: any) => {
+    this.appointmentService.getPrescriptionMaster().subscribe((res: any) => {
+      if (!res.isSuccess) return;
 
-        if (!res.isSuccess) return;
+      this.prescriptionHelperMaster = res.dataList;
 
-        this.prescriptionHelperMaster = res.dataList;
-
-        res.dataList.forEach((x: any) => {
-          if (x.text === "Symptoms") this.masterIds.Symptoms = x.value;
-          if (x.text === "Diagnosis") this.masterIds.Diagnosis = x.value;
-          if (x.text === "Advise") this.masterIds.Advice = x.value;
-          if (x.text === "FollowUp") this.masterIds.FollowUp = x.value;
-        });
+      res.dataList.forEach((x: any) => {
+        if (x.text === 'Symptoms') this.masterIds.Symptoms = x.value;
+        if (x.text === 'Diagnosis') this.masterIds.Diagnosis = x.value;
+        if (x.text === 'Advise') this.masterIds.Advice = x.value;
+        if (x.text === 'FollowUp') this.masterIds.FollowUp = x.value;
       });
+    });
   }
 
   loadExistingPrescription(appointmentId: string) {
-    this.appointmentService
-      .getPrescriptionByAppointmentId(appointmentId)
-      .subscribe({
-        next: (res: any) => {
-          if (!res?.data) return;
+    this.appointmentService.getPrescriptionByAppointmentId(appointmentId).subscribe({
+      next: (res: any) => {
+        if (!res?.data) return;
 
-          const p = res.data;
-          const parseArray = (val: string) => {
-            try {
-              return JSON.parse(val || '[]').join(', ');
-            } catch {
-              return val || '';
-            }
-          };
+        const p = res.data;
+        const parseArray = (val: string) => {
+          try {
+            return JSON.parse(val || '[]').join(', ');
+          } catch {
+            return val || '';
+          }
+        };
 
-          this.prescription = {
-    prescriptionId: p.prescriptionId ?? null,
+        this.prescription = {
+          prescriptionId: p.prescriptionId ?? null,
 
-    symptoms: parseArray(p.symptoms),
-    diagnosis: parseArray(p.diagnosis),
-    advice: parseArray(p.prescriptionAdvice),
-    followUp: parseArray(p.followUp),
-    nextFollowUpCount: p.nextFollowUpCount ?? 0,
-    medicines: (p.medicines || []).map((m: any) => ({
-      prescriptionMedicineId: m.prescriptionMedicineId ?? null,
-      drugId: m.medicineID,
-      variationId: m.drugVariationId,
-      type: m.typeName,
-      name: m.tradeName,
-      strength: m.prescriptionStrength,
-      dosage: m.prescriptionDosage,
-      duration: m.prescriptionDuration,
-      advice: m.prescriptionAdvice
-    })),
+          symptoms: parseArray(p.symptoms),
+          diagnosis: parseArray(p.diagnosis),
+          advice: parseArray(p.prescriptionAdvice),
+          followUp: parseArray(p.followUp),
+          nextFollowUpCount: p.nextFollowUpCount ?? 0,
+          medicines: (p.medicines || []).map((m: any) => ({
+            prescriptionMedicineId: m.prescriptionMedicineId ?? null,
+            drugId: m.medicineID,
+            variationId: m.drugVariationId,
+            type: m.typeName,
+            name: m.tradeName,
+            strength: m.prescriptionStrength,
+            dosage: m.prescriptionDosage,
+            duration: m.prescriptionDuration,
+            advice: m.prescriptionAdvice,
+          })),
 
           labTests: (p.labTests || []).map((l: any) => ({
             prescriptionLabTestId: l.prescriptionLabTestId ?? null,
             name: l.testName,
-            value: l.labTestId
-          }))
+            value: l.labTestId,
+          })),
         };
         this.selectedLabTest = '';
-        },
-        error: (err) => console.error(err)
-      });
+      },
+      error: (err) => console.error(err),
+    });
   }
 
   openList(type: string) {
     this.activeField = type;
 
     const masterId =
-      type === "Symptoms" ? this.masterIds.Symptoms :
-      type === "Diagnosis" ? this.masterIds.Diagnosis :
-      type === "Advice" ? this.masterIds.Advice :
-      type === "FollowUp" ? this.masterIds.FollowUp : '';
+      type === 'Symptoms'
+        ? this.masterIds.Symptoms
+        : type === 'Diagnosis'
+        ? this.masterIds.Diagnosis
+        : type === 'Advice'
+        ? this.masterIds.Advice
+        : type === 'FollowUp'
+        ? this.masterIds.FollowUp
+        : '';
 
     if (!masterId) {
-      console.error("Master ID not found!");
+      console.error('Master ID not found!');
       return;
     }
 
@@ -788,70 +770,65 @@ UpdateApptStatusToScheduled() {
   }
 
   loadHelperValues(masterId: string) {
-    this.appointmentService.getPrescriptionValues(masterId)
-      .subscribe((res: any) => {
-        if (!res.isSuccess) return;
+    this.appointmentService.getPrescriptionValues(masterId).subscribe((res: any) => {
+      if (!res.isSuccess) return;
 
-        const existing =
-        this.activeField === 'Symptoms' ? this.prescription.symptoms :
-        this.activeField === 'Diagnosis' ? this.prescription.diagnosis :
-        this.activeField === 'Advice' ? this.prescription.advice :
-        this.prescription.followUp;
+      const existing =
+        this.activeField === 'Symptoms'
+          ? this.prescription.symptoms
+          : this.activeField === 'Diagnosis'
+          ? this.prescription.diagnosis
+          : this.activeField === 'Advice'
+          ? this.prescription.advice
+          : this.prescription.followUp;
 
-      const selectedValues = (existing || '')
-        .split(',')
-        .map(x => x.trim());
+      const selectedValues = (existing || '').split(',').map((x) => x.trim());
 
-        this.optionsList = res.dataList.map((x: any) => ({
-          label: x.value,
-          selected: selectedValues.includes(x.value)
-        }));
+      this.optionsList = res.dataList.map((x: any) => ({
+        label: x.value,
+        selected: selectedValues.includes(x.value),
+      }));
 
-        let modal = new bootstrap.Modal(document.getElementById('checklistModal'));
-        modal.show();
-      });
+      let modal = new bootstrap.Modal(document.getElementById('checklistModal'));
+      modal.show();
+    });
   }
 
   updateText() {
     const selectedValues = this.optionsList
-      .filter(x => x.selected)
-      .map(x => x.label)
+      .filter((x) => x.selected)
+      .map((x) => x.label)
       .join(', ');
 
-    if (this.activeField === 'Symptoms')
-      this.prescription.symptoms = selectedValues;
+    if (this.activeField === 'Symptoms') this.prescription.symptoms = selectedValues;
 
-    if (this.activeField === 'Diagnosis')
-      this.prescription.diagnosis = selectedValues;
+    if (this.activeField === 'Diagnosis') this.prescription.diagnosis = selectedValues;
 
-    if (this.activeField === 'Advice')
-      this.prescription.advice = selectedValues;
+    if (this.activeField === 'Advice') this.prescription.advice = selectedValues;
 
-    if (this.activeField === 'FollowUp')
-      this.prescription.followUp = selectedValues;
+    if (this.activeField === 'FollowUp') this.prescription.followUp = selectedValues;
   }
 
   onMedicineTypeChange() {
-    const selected = this.medicineTypes.find(x => x.value == this.selectedMedicineType);
+    const selected = this.medicineTypes.find((x) => x.value == this.selectedMedicineType);
 
     this.selectedUnit = selected?.unit || '';
 
-      this.medicineForm = {
-      type:'',
+    this.medicineForm = {
+      type: '',
       strength: '',
       dosage: '',
       duration: '',
-      advice: ''
+      advice: '',
     };
     this.loadMedicines();
   }
 
   onMedicineNameChange() {
-    const med = this.medicineNames.find(m => m.value == this.selectedMedicineName);
+    const med = this.medicineNames.find((m) => m.value == this.selectedMedicineName);
     if (!med) return;
 
-    const auto =
-      this.medicineAutoData[this.selectedMedicineType]?.[med.text];
+    const auto = this.medicineAutoData[this.selectedMedicineType]?.[med.text];
 
     if (auto) {
       this.medicineForm = {
@@ -859,7 +836,7 @@ UpdateApptStatusToScheduled() {
         strength: auto.strength,
         dosage: auto.dosage,
         duration: auto.duration,
-        advice: auto.advice
+        advice: auto.advice,
       };
     }
   }
@@ -870,9 +847,10 @@ UpdateApptStatusToScheduled() {
       return;
     }
 
-    const isDuplicate = this.prescription.medicines.some(m =>
-      m.drugId === this.selectedDrug.drugId &&
-      m.variationId === this.selectedVariation.variationId
+    const isDuplicate = this.prescription.medicines.some(
+      (m) =>
+        m.drugId === this.selectedDrug.drugId &&
+        m.variationId === this.selectedVariation.variationId
     );
 
     if (isDuplicate) {
@@ -888,7 +866,7 @@ UpdateApptStatusToScheduled() {
       strength: this.medicineForm.strength,
       dosage: this.medicineForm.dosage,
       duration: this.medicineForm.duration,
-      advice: this.medicineForm.advice
+      advice: this.medicineForm.advice,
     });
 
     // Reset
@@ -896,11 +874,11 @@ UpdateApptStatusToScheduled() {
     this.selectedVariation = null;
     this.medicineSearchText = '';
     this.medicineForm = {
-      type:'',
+      type: '',
       strength: '',
       dosage: '',
       duration: '',
-      advice: ''
+      advice: '',
     };
   }
 
@@ -909,15 +887,15 @@ UpdateApptStatusToScheduled() {
   }
 
   addLabTest() {
-    const selected = this.labTests.find(x => x.value == this.selectedLabTest);
+    const selected = this.labTests.find((x) => x.value == this.selectedLabTest);
 
     if (!selected) {
-      this.toast.error("Please select a lab test");
+      this.toast.error('Please select a lab test');
       return;
     }
 
     const isDuplicate = this.prescription.labTests.some(
-      l => String(l.value) === String(selected.value)
+      (l) => String(l.value) === String(selected.value)
     );
 
     if (isDuplicate) {
@@ -927,7 +905,7 @@ UpdateApptStatusToScheduled() {
 
     this.prescription.labTests.push({
       name: selected.text,
-      value: selected.value
+      value: selected.value,
     });
 
     this.selectedLabTest = '';
@@ -945,11 +923,11 @@ UpdateApptStatusToScheduled() {
 
     this.appointmentService.getMedicineList(this.selectedMedicineType).subscribe({
       next: (res) => {
-        this.medicineNames = res.dataList;   
+        this.medicineNames = res.dataList;
       },
       error: () => {
         this.medicineNames = [];
-      }
+      },
     });
   }
 
@@ -958,13 +936,13 @@ UpdateApptStatusToScheduled() {
       next: (res) => {
         this.labTests = res?.dataList || [];
       },
-      error: (err) => console.error("Error loading lab tests", err)
+      error: (err) => console.error('Error loading lab tests', err),
     });
   }
 
   savePrescription() {
     if (!this.prescription.symptoms && !this.prescription.medicines.length) {
-      this.toast.error("Add at least symptoms or medicines before saving");
+      this.toast.error('Add at least symptoms or medicines before saving');
       return;
     }
     const payload = {
@@ -975,7 +953,7 @@ UpdateApptStatusToScheduled() {
       advise: this.prescription.advice || '',
       followUp: this.prescription.followUp || '',
       nextFollowUpCount: this.prescription.nextFollowUpCount ?? 0,
-      medicines: this.prescription.medicines.map(m => ({
+      medicines: this.prescription.medicines.map((m) => ({
         prescriptionMedicineId: m.prescriptionMedicineId ?? null,
         drugId: m.drugId || this.selectedDrug?.drugId,
         drugVariationid: m.variationId || this.selectedVariation?.variationId,
@@ -985,20 +963,19 @@ UpdateApptStatusToScheduled() {
         prescriptionDuration: m.duration,
       })),
 
-      
-      labtests: this.prescription.labTests.map(l => ({
+      labtests: this.prescription.labTests.map((l) => ({
         prescriptionLabTestId: l.prescriptionLabTestId ?? null,
-        labTestId: l.value
-      }))
+        labTestId: l.value,
+      })),
     };
 
     this.appointmentService.savePrescription(payload).subscribe({
       next: (res: any) => {
         if (res.isSuccess) {
-          this.toast.success("Prescription saved successfully!");
-        const appointmentId = this.selectedAppointment?.appointmentId;
-        const modalEl: any = document.getElementById('prescriptionModal');
-                  if (appointmentId) {
+          this.toast.success('Prescription saved successfully!');
+          const appointmentId = this.selectedAppointment?.appointmentId;
+          const modalEl: any = document.getElementById('prescriptionModal');
+          if (appointmentId) {
             this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 2).subscribe({
               next: () => {
                 this.selectedAppointment.status = 2;
@@ -1006,12 +983,12 @@ UpdateApptStatusToScheduled() {
                 this.loadAppointmentCounts();
               },
               error: (err) => {
-                console.error("Error updating appointment status", err);
-                this.toast.error("Prescription saved but failed to update appointment status");
-              }
+                console.error('Error updating appointment status', err);
+                this.toast.error('Prescription saved but failed to update appointment status');
+              },
             });
           }
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) {
             modalInstance.hide();
           }
@@ -1020,13 +997,13 @@ UpdateApptStatusToScheduled() {
           this.loadAppointmentCounts();
           this.printPrescription(appointmentId);
         } else {
-          this.toast.error(res.message || "Failed to save prescription");
+          this.toast.error(res.message || 'Failed to save prescription');
         }
       },
       error: (err) => {
-        console.error("Error saving prescription", err);
-        this.toast.error("Error saving prescription");
-      }
+        console.error('Error saving prescription', err);
+        this.toast.error('Error saving prescription');
+      },
     });
   }
 
@@ -1035,19 +1012,18 @@ UpdateApptStatusToScheduled() {
 
     if (!appointmentId) return;
 
-    this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 4)
-      .subscribe({
-        next: (res: any) => {
-          this.toast.success("Appointment cancelled successfully");
+    this.appointmentService.updateAppointmentStatus(appointmentId.toString(), 4).subscribe({
+      next: (res: any) => {
+        this.toast.success('Appointment cancelled successfully');
 
-          // refresh list
-          this.loadAppointments();
-          this.loadAppointmentCounts();
-        },
-        error: () => {
-          this.toast.error("Failed to cancel appointment");
-        }
-      });
+        // refresh list
+        this.loadAppointments();
+        this.loadAppointmentCounts();
+      },
+      error: () => {
+        this.toast.error('Failed to cancel appointment');
+      },
+    });
   }
 
   resetPrescription() {
@@ -1059,13 +1035,13 @@ UpdateApptStatusToScheduled() {
       followUp: '',
       nextFollowUpCount: undefined,
       medicines: [],
-      labTests: []
+      labTests: [],
     };
 
-    this.symptomOptions.forEach(x => x.selected = false);
-    this.diagnosisOptions.forEach(x => x.selected = false);
-    this.adviceOptions.forEach(x => x.selected = false);
-    this.followUpOptions.forEach(x => x.selected = false);
+    this.symptomOptions.forEach((x) => (x.selected = false));
+    this.diagnosisOptions.forEach((x) => (x.selected = false));
+    this.adviceOptions.forEach((x) => (x.selected = false));
+    this.followUpOptions.forEach((x) => (x.selected = false));
 
     this.selectedDrug = null;
     this.selectedVariation = null;
@@ -1078,16 +1054,16 @@ UpdateApptStatusToScheduled() {
       strength: '',
       dosage: '',
       duration: '',
-      advice: ''
+      advice: '',
     };
   }
 
   resetAddAppointmentForm() {
     this.addAppointmentForm.reset({
       appointmentDate: this.getCurrentDateTime(),
-      doctor: this.isDoctorRole ? this.doctorDetails?.doctorId : ''
+      doctor: this.isDoctorRole ? this.doctorDetails?.doctorId : '',
     });
-      this.getDoctorFee();
+    this.getDoctorFee();
 
     this.patientList = [];
     this.selectedPatientId = null;
@@ -1097,23 +1073,19 @@ UpdateApptStatusToScheduled() {
   }
 
   printPrescription(appointmentId: string) {
-    this.appointmentService
-      .getPrescriptionPrintHtml(appointmentId)
-      .subscribe({
-        next: (res: any) => {
-          this.printHtml = res.html; // backend already removed \r\n
-          this.printHtmlContent();
-        },
-        error: () => {
-          this.toast.error('Failed to load prescription print');
-        }
-      });
+    this.appointmentService.getPrescriptionPrintHtml(appointmentId).subscribe({
+      next: (res: any) => {
+        this.printHtml = res.html; // backend already removed \r\n
+        this.printHtmlContent();
+      },
+      error: () => {
+        this.toast.error('Failed to load prescription print');
+      },
+    });
   }
 
   openPrintPreview() {
-    const modal = new bootstrap.Modal(
-      document.getElementById('printPreviewModal')!
-    );
+    const modal = new bootstrap.Modal(document.getElementById('printPreviewModal')!);
     modal.show();
 
     setTimeout(() => {
@@ -1128,14 +1100,14 @@ UpdateApptStatusToScheduled() {
     }, 100);
   }
 
-printHtmlContent() {
-  const iframe = this.printFrame.nativeElement as HTMLIFrameElement;
-  const doc = iframe.contentWindow?.document;
+  printHtmlContent() {
+    const iframe = this.printFrame.nativeElement as HTMLIFrameElement;
+    const doc = iframe.contentWindow?.document;
 
-  if (!doc) return;
+    if (!doc) return;
 
-  doc.open();
-  doc.write(`
+    doc.open();
+    doc.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -1163,63 +1135,55 @@ printHtmlContent() {
       </body>
     </html>
   `);
-  doc.close();
+    doc.close();
 
-  setTimeout(() => {
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-  }, 500);
-}
-
-private onAppointmentSignalR(): void {
-  this.loadAppointments();
-  this.loadAppointmentCounts();
-}
-
-openPatientDetails(patient: any) {
-  if (!patient?.patientId) {
-    console.error('UserId missing', patient);
-    return;
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    }, 500);
   }
+
+  private onAppointmentSignalR(): void {
+    this.loadAppointments();
+    this.loadAppointmentCounts();
+  }
+
+  openPatientDetails(patient: any) {
+    if (!patient?.patientId) {
+      console.error('UserId missing', patient);
+      return;
+    }
     console.log('App', patient);
 
-  this.router.navigate(
-    ['/patient/patient-details', patient.patientId],
-    { state: { patient } }
-  );
-}
-
-onFollowUpFocus() {
-  if (this.isEditMode && this.isDoctor) {
-    this.isEnteringFollowUpDays = true;
-  }
-}
-
-onFollowUpChange(event: Event) {
-  const val = (event.target as HTMLInputElement).value.replace(/\D/g, '');
-  this.prescription.nextFollowUpCount = val ? Number(val) : undefined;
-}
-
-getNextFollowUpDate(): string {
-  if (
-    !this.selectedAppointment?.appointmentDate ||
-    this.prescription.nextFollowUpCount == null
-  ) {
-    return '';
+    this.router.navigate(['/patient/patient-details', patient.patientId], { state: { patient } });
   }
 
-  const baseDate = new Date(this.selectedAppointment.appointmentDate);
-  const days = this.prescription.nextFollowUpCount;
+  onFollowUpFocus() {
+    if (this.isEditMode && this.isDoctor) {
+      this.isEnteringFollowUpDays = true;
+    }
+  }
 
-  const result = new Date(baseDate);
-  result.setDate(result.getDate() + days);
+  onFollowUpChange(event: Event) {
+    const val = (event.target as HTMLInputElement).value.replace(/\D/g, '');
+    this.prescription.nextFollowUpCount = val ? Number(val) : undefined;
+  }
 
-  const dd = String(result.getDate()).padStart(2, '0');
-  const mm = String(result.getMonth() + 1).padStart(2, '0');
-  const yyyy = result.getFullYear();
+  getNextFollowUpDate(): string {
+    if (!this.selectedAppointment?.appointmentDate || this.prescription.nextFollowUpCount == null) {
+      return '';
+    }
 
-  return `${dd}-${mm}-${yyyy}`;
-}
+    const baseDate = new Date(this.selectedAppointment.appointmentDate);
+    const days = this.prescription.nextFollowUpCount;
 
+    const result = new Date(baseDate);
+    result.setDate(result.getDate() + days);
 
+    const dd = String(result.getDate()).padStart(2, '0');
+    const mm = String(result.getMonth() + 1).padStart(2, '0');
+    const yyyy = result.getFullYear();
+
+    return `${dd}-${mm}-${yyyy}`;
+  }
 }

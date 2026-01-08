@@ -91,7 +91,7 @@
 
         <td>{{ u.phoneNumber || u.PhoneNumber || u.phone || '-' }}</td>
         <td>{{ u.email }}</td>
-        <td class="address-cell">{{ u.address }}</td>
+        <td> <span class="address-ellipsis" [attr.title]="u.address">  {{ u.address }} </span></td>
         <td>
           <div class="form-check form-switch">
             <input
