@@ -6,15 +6,15 @@
 
     <ul class="sidebar-menu">
 
-      <li *ngFor="let item of menu"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
+      <li *ngFor="let item of menu">
 
         <!-- =========================
              NORMAL MENU (NO CHILDREN)
         ========================== -->
         <a *ngIf="!item.children && item.route"
-           [routerLink]="resolveRoute(item)">
+           [routerLink]="resolveRoute(item)"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }">
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
         </a>
@@ -46,7 +46,8 @@
         <ul *ngIf="item.children && item.expanded"
             class="submenu">
           <li *ngFor="let child of item.children"
-              routerLinkActive="active">
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }">
             <a [routerLink]="resolveRoute(child)">
               <i [class]="child.icon"></i>
               <span>{{ child.label }}</span>
