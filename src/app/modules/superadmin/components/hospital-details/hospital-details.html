@@ -106,7 +106,7 @@
                     <td>{{ user.userRole }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.address }}</td>
+                    <td> <span class="address-ellipsis" [attr.title]="user.address"> {{ user.address }} </span> </td>
                     <td>{{ user.createdAt | date : 'dd MMM yyyy' }}</td>
                     <td>
                       <div class="form-check form-switch">

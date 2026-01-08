@@ -34,6 +34,7 @@ export class ViewAllPatients implements OnInit {
   pageNumber = 1;
   pageSize = 10;
   totalPages = 0;
+  selectedGender: string = '';
 
   formatDate(date: string): string {
     return (this.datePipe.transform(date, 'dd MMM yyyy') || '').toUpperCase();
@@ -93,6 +94,11 @@ openPatientDetails(patient: any) {
   );
 }
 
+onGenderChange() {
+  this.pageNumber = 1;
+  this.searchText = this.selectedGender;
+  this.loadPatients();
+}
 
 
 loadPatients() {
@@ -124,6 +130,7 @@ loadPatients() {
 
   searchPatients() {
     this.pageNumber = 1;
+    this.selectedGender = '';
     this.loadPatients();
   }
 

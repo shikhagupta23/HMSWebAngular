@@ -3,6 +3,17 @@
 
         <ul class="header-list-btns">
             <li class="me-2">
+                <select class="form-select" style="border-radius: 10px; height: 36px; min-height: 36px;"
+                        [(ngModel)]="selectedGender"
+                        (change)="onGenderChange()">
+                    <option value="">All</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Others</option>
+                </select>
+            </li>
+
+            <li class="me-2">
                 <div class="input-block dash-search-input">
                     <input type="text" class="form-control" placeholder="Search Patient..."
                         [(ngModel)]="searchText" (input)="searchPatients()">
