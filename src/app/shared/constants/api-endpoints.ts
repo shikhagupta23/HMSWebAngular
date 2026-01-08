@@ -12,8 +12,8 @@ export const ApiEndpoints = {
     GETUSERSBYHOPITALID: `${API_BASE_URL}/ApplicationUserAPI/getUserListByHospitalId`,
   },
   User: {
-    GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
+    GET: (page: number, pageSize: number, search: string, role: string) =>
+      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}&filterRole=${role}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
     UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggleuserstatus`,
     UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,
@@ -94,7 +94,8 @@ export const ApiEndpoints = {
   },
   DASHBOARD: {
     GETDASHBOARDDATA: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
-   DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+    DASHBOARDSUMMARY: `${API_BASE_URL}/DashboardAPI/dashBoardSummary`,
+    GETINACTIVE_USER: `${API_BASE_URL}/ApplicationUserAPI/getInActiveUser`,
   },
   INVOICE: {
     GETINVOICEDATA: `${API_BASE_URL}/Invoice/getAll`,
@@ -185,6 +186,9 @@ export const ApiEndpoints = {
 
     GET_PACKAGE_DROPDOWN: 
       `${API_BASE_URL}/HospitalPackage/GetAllPackageDropdown`,
+
+    GET_ACTIVE_PACKAGE: 
+      `${API_BASE_URL}/Package/getAllActivePackages`,  
   },
 
   HOSPITAL_PACKAGE: {

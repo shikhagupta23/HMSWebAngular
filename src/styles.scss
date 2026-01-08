@@ -600,3 +600,118 @@ section .tel-form:has(.mat-form-field-appearance-fill){
 background-color: #fff !important;
 border-radius: 6px !important;
 }
+
+.sticky-tabs {
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+  background: #fff;
+}
+
+.sticky-tabs {
+  transition: box-shadow 0.3s ease;
+}
+
+body:has(.sticky-tabs:sticky) .sticky-tabs {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.address-ellipsis {
+  display: inline-block;
+  max-width: 220px;          /* adjust as needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.cursor{
+  cursor: pointer;
+}
+
+.pointer-select {
+    cursor: pointer;
+}
+.pointer-select option {
+    cursor: pointer;
+}
+
+.medicine-dropdown {
+  position: absolute;
+  top: 35%;
+  left: 0;
+  width: 33%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  margin-top: 6px;
+  padding: 8px;
+  z-index: 1000;
+}
+
+/* Individual medicine card */
+.medicine-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f9fafb;
+  margin-bottom: 8px;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.medicine-item:last-child {
+  margin-bottom: 0;
+}
+
+.medicine-item:hover {
+  background: #eef4ff;
+  transform: translateY(-1px);
+}
+
+/* Medicine name */
+.medicine-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #212529;
+}
+
+/* Types container */
+.medicine-types {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+/* Badge style */
+.medicine-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.medicine-badge:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+/* Scrollbar styling */
+.medicine-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.medicine-dropdown::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 10px;
+}
+
+.medicine-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+

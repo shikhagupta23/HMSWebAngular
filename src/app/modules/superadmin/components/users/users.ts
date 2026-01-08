@@ -40,6 +40,7 @@ pendingStatus: boolean | null = null;
 previousStatus: boolean | null = null;
 newDepartmentName = '';
 showDepartmentModal = false;
+selectedFilterRole: string = '';
 private addDeptModal: any;
 
 private confirmModalInstance: any;
@@ -183,7 +184,7 @@ get isDoctorRoleSelected(): boolean {
   }
 
   loadUsers() {
-    this.api.getUsers(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
+    this.api.getUsers(this.pageNumber, this.pageSize, this.searchTerm, this.selectedFilterRole).subscribe({
       next: (res: any) => {
         this.dataList =
           res.dataList ?? res.items ?? res.data ?? res.result ?? (Array.isArray(res) ? res : []);
@@ -200,6 +201,11 @@ get isDoctorRoleSelected(): boolean {
     });
   }
 
+  onRoleFilterChange() {
+      this.pageNumber = 1;
+      this.loadUsers();
+  }  
+  
   loadRoles() {
     this.api.getSystemRoles().subscribe({
       next: (res: any) => {
