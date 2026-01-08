@@ -18,6 +18,13 @@
     cursor: pointer;
 }
 
+.address-cell {
+  min-width: 220px;
+  max-width: 320px;
+  white-space: normal;
+  word-break: break-word;
+}
+
 .custom-modal-overlay {
   position: fixed;
   inset: 0;

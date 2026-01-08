@@ -50,7 +50,7 @@
       <tr>
         <th>User</th>
         <th>Role</th>
-        <th>Hospital</th>
+        <!-- <th>Hospital</th> -->
         <th>Phone</th>
 
         <th>Email</th>
@@ -87,11 +87,11 @@
           </div>
         </td>
         <td>{{ u.userRole }}</td>
-        <td>{{ u.hospitalName || u.HospitalName || u.hospital || '-' }}</td>
+        <!-- <td>{{ u.hospitalName || u.HospitalName || u.hospital || '-' }}</td> -->
 
         <td>{{ u.phoneNumber || u.PhoneNumber || u.phone || '-' }}</td>
         <td>{{ u.email }}</td>
-        <td>{{ u.address }}</td>
+        <td class="address-cell">{{ u.address }}</td>
         <td>
           <div class="form-check form-switch">
             <input
