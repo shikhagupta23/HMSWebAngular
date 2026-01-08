@@ -12,8 +12,8 @@ export const ApiEndpoints = {
     GETUSERSBYHOPITALID: `${API_BASE_URL}/ApplicationUserAPI/getUserListByHospitalId`,
   },
   User: {
-    GET: (page: number, pageSize: number, search: string) =>
-      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}`,
+    GET: (page: number, pageSize: number, search: string, role: string) =>
+      `${API_BASE_URL}/ApplicationUserAPI/Get?page=${page}&pageSize=${pageSize}&searchTerm=${search}&filterRole=${role}`,
     ADD: `${API_BASE_URL}/ApplicationUserAPI/CreateUser`,
     UPDATE_STATUS: `${API_BASE_URL}/ApplicationUserAPI/toggleuserstatus`,
     UPDATE: `${API_BASE_URL}/ApplicationUserAPI/UpdateUser`,

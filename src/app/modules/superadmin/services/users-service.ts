@@ -9,8 +9,8 @@ import { ApiEndpoints } from '../../../shared/constants/api-endpoints';
 export class UsersService {
   private api = inject(ApiService);
 
-  getUsers(page: number, pageSize: number, search: string): Observable<any> {
-    return this.api.get(ApiEndpoints.User.GET(page, pageSize, search));
+  getUsers(page: number, pageSize: number, search: string, role: string): Observable<any> {
+    return this.api.get(ApiEndpoints.User.GET(page, pageSize, search, role));
   }
 
   getRoleId(roleName?: string): Observable<any> {
