@@ -474,7 +474,7 @@ export class DrugComponent implements OnInit, OnDestroy {
   }
 
   onStrengthKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key==='Tab') {
       event.preventDefault();
       const variation = this.formData.variations[index];
       const value = variation.strengthSearch?.trim();
@@ -532,7 +532,7 @@ export class DrugComponent implements OnInit, OnDestroy {
   }
 
   onDoseKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key==='Tab') {
       event.preventDefault();
       const variation = this.formData.variations[index];
       const value = variation.doseSearch?.trim();
@@ -590,7 +590,7 @@ export class DrugComponent implements OnInit, OnDestroy {
   }
 
   onDurationKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key==='Tab') {
       event.preventDefault();
       const variation = this.formData.variations[index];
       const value = variation.durationSearch?.trim();

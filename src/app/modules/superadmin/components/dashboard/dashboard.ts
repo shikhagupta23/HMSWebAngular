@@ -167,27 +167,89 @@ export class Dashboard {
     }
   }
 
-  /* ==============================
+/* ==============================
    HELPER METHOD - Convert date string to Date object
+   Handles multiple formats safely
 ============================== */
-parseDate(dateString: string): Date | null {
-  if (!dateString) return null;
-  
-  // Format: "29-12-2025 12:13:47" (DD-MM-YYYY HH:mm:ss)
-  const parts = dateString.split(' ');
-  const dateParts = parts[0].split('-');
-  const timeParts = parts[1]?.split(':') || ['00', '00', '00'];
-  
-  const date = new Date(
-    parseInt(dateParts[2]), 
-    parseInt(dateParts[1]) - 1, 
-    parseInt(dateParts[0]),
-    parseInt(timeParts[0]), 
-    parseInt(timeParts[1]), 
-    parseInt(timeParts[2])  
-  );
-  
-  return date;
+parseDate(dateValue: any): Date | null {
+  // Handle null, undefined, or empty values
+  if (!dateValue) {
+    return null;
+  }
+
+  // If it's already a Date object
+  if (dateValue instanceof Date) {
+    return isNaN(dateValue.getTime()) ? null : dateValue;
+  }
+
+  // If it's a number (timestamp)
+  if (typeof dateValue === 'number') {
+    const date = new Date(dateValue);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  // If it's a string
+  if (typeof dateValue === 'string') {
+    const dateString = dateValue.trim();
+    
+    // Handle empty string
+    if (dateString === '') {
+      return null;
+    }
+
+    try {
+      // Check if it contains a space (datetime format: "DD-MM-YYYY HH:mm:ss")
+      if (dateString.includes(' ')) {
+        const parts = dateString.split(' ');
+        const dateParts = parts[0].split('-');
+        const timeParts = parts[1]?.split(':') || ['00', '00', '00'];
+        
+        // Validate we have all required parts
+        if (dateParts.length === 3) {
+          const day = parseInt(dateParts[0], 10);
+          const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+          const year = parseInt(dateParts[2], 10);
+          const hour = parseInt(timeParts[0] || '0', 10);
+          const minute = parseInt(timeParts[1] || '0', 10);
+          const second = parseInt(timeParts[2] || '0', 10);
+          
+          // Validate values
+          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            const date = new Date(year, month, day, hour, minute, second);
+            return isNaN(date.getTime()) ? null : date;
+          }
+        }
+      }
+      // Check if it's date only format (DD-MM-YYYY or DD/MM/YYYY)
+      else if (dateString.includes('-') || dateString.includes('/')) {
+        const separator = dateString.includes('-') ? '-' : '/';
+        const dateParts = dateString.split(separator);
+        
+        if (dateParts.length === 3) {
+          const day = parseInt(dateParts[0], 10);
+          const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+          const year = parseInt(dateParts[2], 10);
+          
+          // Validate values
+          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            const date = new Date(year, month, day);
+            return isNaN(date.getTime()) ? null : date;
+          }
+        }
+      }
+      // Try ISO format or other standard formats
+      else {
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? null : date;
+      }
+    } catch (error) {
+      console.error('Error parsing date:', dateString, error);
+      return null;
+    }
+  }
+
+  // If none of the above worked
+  return null;
 }
 
  /* ==============================
