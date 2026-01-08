@@ -20,7 +20,6 @@ interface DashboardSummary {
 })
 export class Dashboard implements OnInit{
 
-
   masterData: any[] = [];
   filteredData: any[] = [];
   today: string = '';
@@ -39,6 +38,18 @@ export class Dashboard implements OnInit{
   
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
+
+  // Dashboard card shortcut routes
+  dashboardShortcuts = {
+    todayAppointments: '/appointment/todayappointments',
+    allAppointments: '/appointment/allappointments',
+    scheduledAppointments: '/appointment/allappointments',
+    completedAppointments: '/appointment/allappointments',
+    cancelledAppointments: '/appointment/allappointments',
+    patients: '/patient/allpatient',
+    revenue: '/invoice'
+  };
+
   constructor() {}
 
   ngOnInit(): void {
@@ -83,5 +94,34 @@ export class Dashboard implements OnInit{
       }
     });
   }
+
+  navigateByCard(cardType: 
+    'appointments' | 
+    'scheduled' | 
+    'ongoing' | 
+    'completed' | 
+    'cancelled'
+  ) {
+
+    if (this.activeTab === 'today') {
+      this.router.navigate(['/appointment/todayappointments']);
+      return;
+    }
+
+    const statusMap: any = {
+      appointments: 3,
+      scheduled: 0,
+      ongoing: 1,
+      completed: 2,
+      cancelled: 4
+    };
+
+    this.router.navigate(
+      ['/appointment/allappointments'],
+      { queryParams: { status: statusMap[cardType] } }
+    );
+  }
+
+
 
 }

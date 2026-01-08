@@ -258,15 +258,6 @@
                 formControlName="Email"
                 (input)="onEmailInput()"
               />
-              <div
-                class="text-danger small"
-                *ngIf="addUserForm.get('Email')?.touched && addUserForm.get('Email')?.errors"
-              >
-                <div *ngIf="addUserForm.get('Email')?.errors?.['required']">Email is required</div>
-                <div *ngIf="addUserForm.get('Email')?.errors?.['email']">
-                  Enter a valid email address
-                </div>
-              </div>
             </div>
 
             <div class="col-md-4">

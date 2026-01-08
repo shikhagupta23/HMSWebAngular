@@ -20,7 +20,7 @@
 	</div>
 
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
+		<div class="dashboard-widget-box" (click)="navigateByCard('appointments')">
 			<div class="dashboard-content-info">
 				<h6>Appointments</h6>
 				<h4>{{ totalAppointments }}</h4>
@@ -33,7 +33,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
+		<div class="dashboard-widget-box" (click)="navigateByCard('scheduled')">
 			<div class="dashboard-content-info">
 				<h6>Scheduled Appointments</h6>
 				<h4>{{ scheduledAppointments }}</h4>
@@ -46,7 +46,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
+		<div class="dashboard-widget-box" (click)="navigateByCard('completed')">
 			<div class="dashboard-content-info">
 				<h6>Completed Appointments</h6>
 				<h4>{{ completedAppointments }}</h4>
@@ -59,7 +59,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
+		<div class="dashboard-widget-box" (click)="navigateByCard('ongoing')">
 			<div class="dashboard-content-info">
 				<h6>OnGoing Appointments</h6>
 				<h4>{{ pendingAppointments }}</h4>
@@ -72,7 +72,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
+		<div class="dashboard-widget-box" (click)="navigateByCard('cancelled')">
 			<div class="dashboard-content-info">
 				<h6>Cancelled Appointments</h6>
 				<h4>{{ cancelledAppointments }}</h4>

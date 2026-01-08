@@ -94,7 +94,7 @@ today = new Date().toISOString().split('T')[0];
       DateOfBirth: [''],
       RoleId: ['', Validators.required],
       HospitalId: [this.loggedInHospitalId, ,],
-      Email: ['', [Validators.required, Validators.email]],
+      Email: ['', [Validators.email]],
       PhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
       Password: ['', [Validators.required, Validators.minLength(6)]],
       Address: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(250)]],
