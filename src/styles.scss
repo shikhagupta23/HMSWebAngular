@@ -618,7 +618,7 @@ body:has(.sticky-tabs:sticky) .sticky-tabs {
 
 .address-ellipsis {
   display: inline-block;
-  max-width: 220px;          /* adjust as needed */
+  max-width: 220px; 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -627,7 +627,7 @@ body:has(.sticky-tabs:sticky) .sticky-tabs {
 }
 
 .cursor{
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 .pointer-select {

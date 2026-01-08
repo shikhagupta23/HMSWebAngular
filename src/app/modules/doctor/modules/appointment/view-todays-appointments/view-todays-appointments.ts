@@ -98,7 +98,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   selectedMedicineName = '';
   medicineQty: number = 1;
   selectedUnit: string = '';
-  selectedStatus: number = 0;
+  selectedStatus!: number;
   prescriptionHelperMaster: any[] = [];
   symptomOptions: any[] = [];
   diagnosisOptions: any[] = [];
@@ -184,22 +184,20 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
       doctorId: [''],
     });
 
-      this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe(params => {
 
-    // 🎯 dashboard → param present
-    if (params['status'] !== undefined) {
-      this.selectedStatus = +params['status'];
-    } 
-    // 🎯 direct page load → default Scheduled
-    else {
-      this.selectedStatus = 0;
-    }
+      if (params['status'] !== undefined) {
+        this.selectedStatus = Number(params['status']);
+      } 
+      else {
+        this.selectedStatus = 0;
+      }
 
-    // 🔥 load data ONLY after status is set
-    this.pageNumber = 1;
-    this.loadAppointments();
-    this.loadAppointmentCounts();
-  });
+      this.pageNumber = 1;
+      this.loadAppointments();
+      this.loadAppointmentCounts();
+    });
+
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
@@ -288,11 +286,13 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   changeStatus(status: number) {
     this.selectedStatus = status;
     this.pageNumber = 1;
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { status },
       queryParamsHandling: 'merge'
     });
+
     this.loadAppointments();
     this.loadAppointmentCounts();
   }
@@ -1208,4 +1208,5 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
 
     return `${dd}-${mm}-${yyyy}`;
   }
+
 }
