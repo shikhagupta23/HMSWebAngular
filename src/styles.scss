@@ -630,3 +630,11 @@ body:has(.sticky-tabs:sticky) .sticky-tabs {
   cursor: pointer;
 }
 
+.pointer-select {
+    cursor: pointer;
+}
+.pointer-select option {
+    cursor: pointer;
+}
+
+
