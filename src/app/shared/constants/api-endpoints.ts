@@ -108,6 +108,7 @@ export const ApiEndpoints = {
     CREATE_INVOICE: `${API_BASE_URL}/Invoice/createInvoice`,
     CREATE_PAYMENT: `${API_BASE_URL}/Invoice/createPayment`,
     PRINT_INVOICE: `${API_BASE_URL}/Invoice/print-invoice`,
+    GET_REMAINING_AMOUNT: `${API_BASE_URL}/Invoice/getRemainingAmount`
   },
   PROFILE: {
     GETPROFILE: `${API_BASE_URL}/ProfileAPI/getProfile`,
