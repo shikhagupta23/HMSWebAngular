@@ -34,7 +34,7 @@
   }
   @if(isAdmin){
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor">
       <div class="dashboard-content-info">
         <h6>Active Doctors</h6>
         <h4>{{ totalDoctors }}</h4>
@@ -49,7 +49,7 @@
   </div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('patients')">
       <div class="dashboard-content-info">
         <h6>Patients</h6>
         <h4>{{ totalPatients }}</h4>
@@ -64,7 +64,7 @@
   </div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('appointments')">
       <div class="dashboard-content-info">
         <h6>Appointments</h6>
         <h4>{{ totalAppointments }}</h4>
@@ -78,7 +78,7 @@
     </div>
   </div>
   	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('scheduled')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('scheduled')">
 			<div class="dashboard-content-info">
 				<h6>Scheduled Appointments</h6>
 				<h4>{{ scheduledAppointments }}</h4>
@@ -90,8 +90,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('completed')">
+	<div class="col-xl-3 col-md-6 mb-3 ">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('completed')">
 			<div class="dashboard-content-info">
 				<h6>Completed Appointments</h6>
 				<h4>{{ completedAppointments }}</h4>
@@ -104,7 +104,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('ongoing')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('ongoing')">
 			<div class="dashboard-content-info">
 				<h6>OnGoing Appointments</h6>
 				<h4>{{ ongoingAppointments }}</h4>
@@ -117,7 +117,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('cancelled')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('cancelled')">
 			<div class="dashboard-content-info">
 				<h6>Cancelled Appointments</h6>
 				<h4>{{ cancelledAppointments }}</h4>

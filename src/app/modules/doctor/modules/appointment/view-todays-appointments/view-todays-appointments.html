@@ -201,7 +201,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="fullName"
+                    formControlName="fullName"                    
                     (input)="getPatientByTerm()"
                   />
                   <div
@@ -257,7 +257,8 @@
                     type="text"
                     class="form-control"
                     formControlName="phoneNumber"
-                    (input)="checkPhone()"
+                    numbersOnly
+                    maxlength="10"
                   />
                   <div
                     class="text-danger small"

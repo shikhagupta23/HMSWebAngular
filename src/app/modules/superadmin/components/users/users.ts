@@ -157,7 +157,7 @@ get isDoctorRoleSelected(): boolean {
 
   initForm() {
     this.addUserForm = this.fb.group({
-      FullName: ['', [Validators.required, Validators.minLength(3)]],
+      FullName: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[A-Za-z\s]+$/)]],
 
       Gender: ['', Validators.required],
 

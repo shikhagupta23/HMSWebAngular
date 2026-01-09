@@ -10,6 +10,7 @@ import { GenderPipe } from './pipe/gender-pipe';
 import { Asidebar } from './components/asidebar/asidebar';
 import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
 import { Invoice } from './components/invoice/invoice';
+import { OnlyCharacters } from './directives/only-characters';
 
 
 @NgModule({
@@ -23,8 +24,7 @@ import { Invoice } from './components/invoice/invoice';
     Asidebar,
     AdminSidebar,
     Invoice,
-    
-    
+    OnlyCharacters,    
   ],
   imports: [
     CommonModule,
@@ -41,7 +41,8 @@ import { Invoice } from './components/invoice/invoice';
     Select2Directive,
     GenderPipe,
     AdminSidebar,
-    Invoice
+    Invoice,
+    OnlyCharacters
   ]
 })
 export class SharedModule { }

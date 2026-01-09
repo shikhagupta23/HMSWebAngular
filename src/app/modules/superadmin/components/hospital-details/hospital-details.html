@@ -170,7 +170,7 @@
               <label class="form-label small fw-semibold"
                 >Full Name <span class="text-danger">*</span></label
               >
-              <input type="text" class="form-control" formControlName="FullName" />
+              <input type="text" class="form-control" formControlName="FullName" onlyCharacters />
               <div
                 class="text-danger small"
                 *ngIf="addUserForm.get('FullName')?.touched && addUserForm.get('FullName')?.errors"
