@@ -94,7 +94,7 @@
                     </td>
                     <td>{{ formatDate(assignment.startDate) }}</td>
                     <td>{{ assignment.endDate ? formatDate(assignment.endDate) : 'Ongoing' }}</td>
-                    <td><strong>₹{{ assignment.price | number:'1.0-0' }}</strong></td>
+                    <td><strong>₹{{ assignment.fee | number:'1.0-0' }}</strong></td>
                     <td>
                       <label class="toggle-switch">
                         <input type="checkbox" 
