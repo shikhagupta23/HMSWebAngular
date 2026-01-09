@@ -1,4 +1,4 @@
-<!-- Header -->
+<!-- Header - UNCHANGED -->
 <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
   <h3>Invoice Management</h3>
   <div>
@@ -13,11 +13,10 @@
     <button class="btn btn-success ms-2" (click)="openGenerateInvoice()" *ngIf="!isDoctor()">
       <i class="fa-solid fa-circle-plus me-2"></i> Generate Invoice
     </button>
-
   </div>
 </div>
 
-<!-- Search Bar -->
+<!-- Search Bar - UNCHANGED -->
 <div class="card mb-4" *ngIf="activeView === 'invoices'">
   <div class="card-body">
     <div class="row align-items-center">
@@ -49,7 +48,7 @@
   </div>
 </div>
 
-<!-- Payment Report Filters -->
+<!-- Payment Report Filters - UNCHANGED -->
 <div class="card mb-4" *ngIf="activeView === 'reports'">
   <div class="card-body">
     <div class="row align-items-end">
@@ -96,7 +95,7 @@
   </div>
 </div>
 
-<!-- Invoice Table -->
+<!-- Invoice Table - ONLY ADDED 3 COLUMNS -->
 <div class="card" *ngIf="activeView === 'invoices'">
   <div class="card-body">
     <div class="table-responsive">
@@ -109,7 +108,12 @@
             <th>Doctor Fee</th>
             <th>Lab Test Fee</th>
             <th>Total Amount</th>
-            <th>Created At</th>
+            <!-- ✅ NEW COLUMNS -->
+            <th>Paid Amount</th>
+            <th>Remaining Amount</th>
+            <th>Payment Status</th>
+            <!-- END NEW COLUMNS -->
+            <!-- <th>Created At</th> -->
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -131,22 +135,44 @@
             <td>₹{{ invoice.doctorFee | number:'1.2-2' }}</td>
             <td>₹{{ invoice.labTestFee | number:'1.2-2' }}</td>
             <td><strong class="text-success">₹{{ invoice.totalPayment | number:'1.2-2' }}</strong></td>
-            <td>{{ formatDate(invoice.createdAt) }}</td>
+            
+            <!-- ✅ NEW: Paid Amount Column -->
+            <td>
+              <strong class="text-info">₹{{ invoice.paidAmount | number:'1.2-2' }}</strong>
+            </td>
+            
+            <!-- ✅ NEW: Remaining Amount Column -->
+            <td>
+              <strong 
+                [class.text-success]="invoice.remainingAmount === 0"
+                [class.text-warning]="invoice.remainingAmount > 0 && invoice.remainingAmount < invoice.totalPayment"
+                [class.text-danger]="invoice.remainingAmount === invoice.totalPayment">
+                ₹{{ invoice.remainingAmount | number:'1.2-2' }}
+              </strong>
+            </td>
+            
+            <!-- ✅ NEW: Payment Status Column -->
+            <td>
+              <span class="badge" 
+                [class.bg-success]="invoice.paymentStatus === 'Complete'"
+                [class.bg-warning]="invoice.paymentStatus === 'Partial'"
+                [class.bg-danger]="invoice.paymentStatus === 'Pending'">
+                {{ invoice.paymentStatus }}
+              </span>
+            </td>
+            
+            <!-- <td>{{ formatDate(invoice.createdAt) }}</td> -->
             <td class="text-center">
               <div class="d-flex gap-2 justify-content-center">
-
-                <!-- Print Invoice -->
                 <button class="btn btn-sm btn-outline-primary icon-btn" (click)="printInvoice(invoice)"
                   title="Print Invoice">
                   <i class="fa-solid fa-print"></i>
                 </button>
-
               </div>
             </td>
-
           </tr>
           <tr *ngIf="paginatedInvoices.length === 0">
-            <td colspan="8" class="text-center text-muted py-4">
+            <td colspan="11" class="text-center text-muted py-4">
               No invoices found
             </td>
           </tr>
@@ -154,7 +180,7 @@
       </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- Pagination - UNCHANGED -->
     <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPages > 1">
       <div class="text-muted">
         Page {{ currentPage }} of {{ totalPages }}
@@ -184,7 +210,7 @@
   </div>
 </div>
 
-<!-- Payment Report Table -->
+<!-- Payment Report Table - UNCHANGED -->
 <div class="card" *ngIf="activeView === 'reports'">
   <div class="card-body">
     <div class="table-responsive">
@@ -229,7 +255,7 @@
       </table>
     </div>
 
-    <!-- Report Pagination -->
+    <!-- Report Pagination - UNCHANGED -->
     <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="paymentReports.length > 0">
       <div class="text-muted">
         Page {{ reportPage }}
@@ -255,7 +281,7 @@
   </div>
 </div>
 
-<!-- Generate Invoice Modal - IMPROVED VERSION -->
+<!-- Generate Invoice Modal - UNCHANGED -->
 <div class="modal fade" id="generateInvoiceModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -291,11 +317,19 @@
 
         <hr />
 
-        <!-- ================= TWO COLUMN SECTION ================= -->
+        <!-- Payment Information Alert -->
+        <div class="alert alert-info d-flex align-items-center mb-3" *ngIf="existingPayments > 0">
+          <i class="fa-solid fa-info-circle me-2"></i>
+          <div>
+            <strong>Previous Payments:</strong> ₹{{ existingPayments | number:'1.2-2' }} already paid
+          </div>
+        </div>
+
+        <!-- TWO COLUMN SECTION -->
         <div class="row">
 
           <!-- Doctor Name -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-user-doctor"></i>
               Doctor Name
@@ -305,7 +339,7 @@
           </div>
 
           <!-- Appointment Date -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-calendar-check"></i>
               Appointment Date
@@ -315,28 +349,39 @@
           </div>
 
           <!-- Doctor Fee -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-stethoscope"></i>
               Doctor Fee (Appointment Fee)
             </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.doctorFee" min="0" readonly
+            <input type="number" class="form-control" [value]="invoice.doctorFee" readonly
               placeholder="₹ 0.00" />
             <small class="text-muted">Auto-filled from appointment</small>
           </div>
 
           <!-- Lab Test Fee -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-flask"></i>
               Lab Test Fee
             </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.labTestFee" (input)="calculateTotal()"
-              min="0" placeholder="₹ 0.00" />
+            <input type="number" class="form-control" [value]="invoice.labTestFee" readonly
+              placeholder="₹ 0.00" />
+            <small class="text-muted">Auto-filled from lab tests</small>
+          </div>
+
+          <!-- Total Amount (Read-only) -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-receipt"></i>
+              Total Amount
+            </label>
+            <input type="text" class="form-control bg-light fw-bold" 
+              [value]="'₹ ' + (totalAmount | number:'1.2-2')" readonly />
           </div>
 
           <!-- Payment Mode -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-credit-card"></i>
               Payment Mode
@@ -349,28 +394,63 @@
             </select>
           </div>
 
-          <!-- Total Amount (INPUT FIELD) -->
-          <div class="col-md-6 mb-2">
+          <!-- Payment Amount (User Input) -->
+          <div class="col-md-6 mb-3">
             <label class="form-label">
-              <i class="fa-solid fa-receipt"></i>
-              Total Amount
+              <i class="fa-solid fa-money-bill-wave"></i>
+              Payment Amount <span class="text-danger">*</span>
             </label>
-            <input type="text" class="form-control fw-bold" [value]="'₹ ' + (totalAmount | number:'1.2-2')" readonly />
+            <input type="number" class="form-control" [(ngModel)]="paymentAmount" 
+              (input)="onPaymentAmountChange()" min="0" 
+              [max]="totalAmount - existingPayments"
+              placeholder="₹ 0.00" />
+            <small class="text-muted">
+              Max payable: ₹{{ (totalAmount - existingPayments) | number:'1.2-2' }}
+            </small>
+          </div>
+
+          <!-- Payment Status (Auto-calculated) -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-check-circle"></i>
+              Payment Status
+            </label>
+            <select class="form-select" [(ngModel)]="paymentStatus" disabled>
+              <option value="Complete">✅ Complete</option>
+              <option value="Partial">⚠️ Partial</option>
+              <option value="Pending">⏳ Pending</option>
+            </select>
+            <small class="text-muted">Auto-calculated based on payment</small>
+          </div>
+
+          <!-- Remaining Amount (Auto-calculated) -->
+          <div class="col-md-12 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-calculator"></i>
+              Remaining Amount
+            </label>
+            <input type="text" 
+              class="form-control fw-bold" 
+              [class.text-success]="remainingAmount === 0"
+              [class.text-warning]="remainingAmount > 0 && remainingAmount < totalAmount"
+              [class.text-danger]="remainingAmount === totalAmount"
+              [value]="'₹ ' + (remainingAmount | number:'1.2-2')" 
+              readonly />
           </div>
 
         </div>
-        <!-- ================= END TWO COLUMN SECTION ================= -->
-
+        <!-- END TWO COLUMN SECTION -->
 
       </div>
-
 
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">
           <i class="fa-solid fa-times me-2"></i>Cancel
         </button>
 
-        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting" (click)="generateInvoice()">
+        <button class="btn btn-primary" 
+          [disabled]="!selectedAppointmentId || isSubmitting || paymentAmount <= 0" 
+          (click)="generateInvoice()">
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
           <i *ngIf="!isSubmitting" class="fa-solid fa-check me-2"></i>
           {{ isSubmitting ? 'Generating...' : 'Generate Invoice' }}
