@@ -2,7 +2,7 @@ import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/cor
 import { Appointment } from '../services/appointment';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AsidebarService } from '../../../../../shared/components/asidebar/services/asidebar-service';
 import { AuthService } from '../../../../auth/services/auth-service';
@@ -62,6 +62,8 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   private authService = inject(AuthService);
   private signalRService = inject(SignalRService);
   private subscriptions: Subscription[] = [];
+  private route = inject(ActivatedRoute);
+
   // isViewMode: boolean = false;
   isEditMode: boolean = false;
   canEdit: boolean = false; 
@@ -179,6 +181,20 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
       visitReason: [''],
       doctorId: [''],  
     });
+
+        this.route.queryParams.subscribe(params => {
+
+      if (params['status'] !== undefined) {
+        this.selectedStatus = Number(params['status']);
+      } 
+      else {
+        this.selectedStatus = 0;
+      }
+
+      this.pageNumber = 1;
+      this.loadAppointments();
+      this.loadAppointmentCounts();
+    });
     
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
@@ -278,9 +294,16 @@ medicineForm = {
     return new Date().toISOString().split('T')[0];
   }
 
-changeStatus(status: number) {
-  this.selectedStatus = status;
-  this.pageNumber = 1;
+  changeStatus(status: number) {
+    this.selectedStatus = status;
+    this.pageNumber = 1;
+
+    this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: { status },
+    queryParamsHandling: 'merge'
+  });
+
   this.loadAppointmentCounts();
   this.loadAppointments();
 }

@@ -201,7 +201,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="fullName"
+                    formControlName="fullName"                    
                     (input)="getPatientByTerm()"
                   />
                   <div
@@ -257,7 +257,8 @@
                     type="text"
                     class="form-control"
                     formControlName="phoneNumber"
-                    (input)="checkPhone()"
+                    numbersOnly
+                    maxlength="10"
                   />
                   <div
                     class="text-danger small"
@@ -427,6 +428,7 @@
                         class="plus-btn"
                         (click)="openList('Symptoms')"
                         *ngIf="canEdit"
+                        title="Quick Select"
                       >
                         <i class="fa fa-plus"></i>
                       </button>
@@ -449,6 +451,7 @@
                         class="plus-btn"
                         (click)="openList('Diagnosis')"
                         *ngIf="isDoctor"
+                        title="Quick Select"
                       >
                         <i class="fa fa-plus"></i>
                       </button>
@@ -471,6 +474,7 @@
                         class="plus-btn"
                         (click)="openList('Advice')"
                         *ngIf="isDoctor"
+                        title="Quick Select"
                       >
                         <i class="fa fa-plus"></i>
                       </button>
@@ -493,6 +497,7 @@
                         class="plus-btn"
                         (click)="openList('FollowUp')"
                         *ngIf="isDoctor"
+                        title="Quick Select"
                       >
                         <i class="fa fa-plus"></i>
                       </button>
@@ -507,27 +512,6 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body">
                 <div class="row g-4" *ngIf="isDoctor">
-                  <div class="col-md-2">
-                    <select
-                      class="d-none form-control"
-                      [(ngModel)]="selectedMedicineType"
-                      (change)="onMedicineTypeChange()"
-                    >
-                      <option value="">-- Type --</option>
-
-                      <option *ngFor="let m of medicineTypes" [value]="m.id">
-                        {{ m.typeName }}
-                      </option>
-                    </select>
-
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Type"
-                      [(ngModel)]="medicineForm.type"
-                    />
-                  </div>
-
                   <div class="col-md-4">
                     <input
                       type="text"
@@ -540,11 +524,11 @@
 
                     <div class="medicine-dropdown" *ngIf="medicineSearchResults.length">
                       <div class="medicine-item" *ngFor="let d of medicineSearchResults">
-                        <div class="fw-bold">{{ d.drugName }}</div>
+                        <div class="medicine-name">{{ d.drugName }}</div>
 
-                        <div class="d-flex gap-2 mt-1 flex-wrap">
-                          <span style="cursor: pointer;"
-                            class="badge bg-primary cursor-pointer "
+                        <div class="medicine-types">
+                          <span
+                            class="medicine-badge cursor"
                             *ngFor="let t of d.types"
                             (click)="selectMedicineType(d, t)"
                           >
@@ -553,6 +537,15 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  <div class="col-md-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Type"
+                      [(ngModel)]="medicineForm.type"
+                    />
                   </div>
 
                   <div class="col-md-2">

@@ -1,7 +1,7 @@
 import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { ToastService } from '../../../../../shared/services/toast-service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AsidebarService } from '../../../../../shared/components/asidebar/services/asidebar-service';
 import { AuthService } from '../../../../auth/services/auth-service';
@@ -68,6 +68,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private signalRService = inject(SignalRService);
   private subscriptions: Subscription[] = [];
+  private route = inject(ActivatedRoute);
 
   @ViewChild('printFrame') printFrame!: any;
 
@@ -97,7 +98,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   selectedMedicineName = '';
   medicineQty: number = 1;
   selectedUnit: string = '';
-  selectedStatus: number = 0;
+  selectedStatus!: number;
   prescriptionHelperMaster: any[] = [];
   symptomOptions: any[] = [];
   diagnosisOptions: any[] = [];
@@ -183,13 +184,27 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
       doctorId: [''],
     });
 
+    this.route.queryParams.subscribe(params => {
+
+      if (params['status'] !== undefined) {
+        this.selectedStatus = Number(params['status']);
+      } 
+      else {
+        this.selectedStatus = 0;
+      }
+
+      this.pageNumber = 1;
+      this.loadAppointments();
+      this.loadAppointmentCounts();
+    });
+
     this.userRole = this.authService.getUserRole()?.toLowerCase() || '';
     this.isReceptionist = this.userRole === 'receptionist';
     this.isDoctor = this.userRole === 'doctor';
     this.isAdmin = this.userRole === 'admin';
 
-    this.loadAppointments();
-    this.loadAppointmentCounts();
+    // this.loadAppointments();
+    // this.loadAppointmentCounts();
     this.loadMedicineTypes();
     this.loadLabTests();
     this.loadDoctorDetails();
@@ -271,6 +286,13 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   changeStatus(status: number) {
     this.selectedStatus = status;
     this.pageNumber = 1;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { status },
+      queryParamsHandling: 'merge'
+    });
+
     this.loadAppointments();
     this.loadAppointmentCounts();
   }
@@ -1186,4 +1208,5 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
 
     return `${dd}-${mm}-${yyyy}`;
   }
+
 }

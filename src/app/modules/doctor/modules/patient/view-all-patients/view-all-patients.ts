@@ -64,7 +64,7 @@ ngOnInit() {
 
 });
   this.patientForm = this.fb.group({
-    fullName: ['', Validators.required],
+    fullName: ['', Validators.required, Validators.pattern(/^[A-Za-z\s]+$/)],
     gender: ['', Validators.required],
     dob: ['', Validators.required],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],

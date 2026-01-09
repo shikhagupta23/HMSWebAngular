@@ -372,7 +372,7 @@
 								<button type="button"
 										class="plus-btn"
 										(click)="openList('Symptoms')"
-										*ngIf="canEdit">
+										*ngIf="canEdit" title="Quick Select">
 								<i class="fa fa-plus"></i>
 								</button>
 							</div>
@@ -388,7 +388,7 @@
 								<button type="button"
 									class="plus-btn"
 									(click)="openList('Diagnosis')"
-									*ngIf="isDoctor">
+									*ngIf="isDoctor" title="Quick Select">
 								<i class="fa fa-plus"></i>
 								</button>
 							</div>
@@ -404,7 +404,7 @@
 								<button type="button"
 									class="plus-btn"
 									(click)="openList('Advice')"
-									*ngIf="isDoctor">
+									*ngIf="isDoctor" title="Quick Select">
 								<i class="fa fa-plus"></i>
 								</button>
 							</div>
@@ -420,7 +420,7 @@
 								<button type="button"
 									class="plus-btn"
 									(click)="openList('FollowUp')"
-									*ngIf="isDoctor">
+									*ngIf="isDoctor" title="Quick Select">
 								<i class="fa fa-plus"></i>
 								</button>
 							</div>
@@ -436,23 +436,6 @@
 					<div class="card-body">
 						<div class="row g-4" *ngIf="isDoctor">
 
-						<div class="col-md-2">
-							<select class="d-none form-control"
-									[(ngModel)]="selectedMedicineType"
-									(change)="onMedicineTypeChange()"
-									>
-
-							<option value="">-- Type --</option>
-
-							<option *ngFor="let m of medicineTypes" [value]="m.id">
-								{{ m.typeName }}
-							</option>
-
-							</select>
-
-							<input type="text" class="form-control" placeholder="Type" [(ngModel)]="medicineForm.type"/>
-						</div>
-
 							<div class="col-md-4">
 								<input
 								type="text"
@@ -465,11 +448,11 @@
 
 								<div class="medicine-dropdown" *ngIf="medicineSearchResults.length">
 								<div class="medicine-item" *ngFor="let d of medicineSearchResults">
-									<div class="fw-bold">{{ d.drugName }}</div>
+									<div class="medicine-name">{{ d.drugName }}</div>
 
-									<div class="d-flex gap-2 mt-1 flex-wrap">
+									<div class="medicine-types">
 									<span
-										class="badge bg-primary cursor-pointer"
+										class="medicine-badge cursor"
 										*ngFor="let t of d.types"
 										(click)="selectMedicineType(d, t)">
 										{{ t.typeName }}
@@ -477,6 +460,10 @@
 									</div>
 								</div>
 								</div>
+							</div>
+
+							<div class="col-md-2">
+								<input type="text" class="form-control" placeholder="Type" [(ngModel)]="medicineForm.type"/>
 							</div>
 							
 							<div class="col-md-2">
