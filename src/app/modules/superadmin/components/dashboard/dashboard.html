@@ -19,7 +19,7 @@
   </div>
   @if(isSuperAdmin){
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('hospital')">
       <div class="dashboard-content-info">
         <h6>Total Hospitals</h6>
         <h4>{{ totalHospitals }}</h4>
@@ -131,7 +131,7 @@
 	</div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor">
       <div class="dashboard-content-info">
         <h6>Revenue</h6>
         <h4>₹{{ totalRevenue }}</h4>

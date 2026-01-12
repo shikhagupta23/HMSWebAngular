@@ -316,10 +316,15 @@ previousInactivePage() {
   }
 }
 
-  navigateByCard(cardType: 'appointments' | 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'patients') {
+  navigateByCard(cardType: 'appointments' | 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'patients' | 'hospital') {
 
     if (cardType === 'patients') {
       this.router.navigate(['/patient/allpatient']);
+      return;
+    }
+
+    if (cardType === 'hospital') {
+      this.router.navigate(['/superadmin/hospital']);
       return;
     }
 

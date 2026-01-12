@@ -1131,22 +1131,25 @@ onFollowUpChange(event: Event) {
   this.prescription.nextFollowUpCount = Number(val);
 }
 
-getNextFollowUpDate(): string {
-  if (!this.selectedAppointment?.appointmentDate || !this.prescription.nextFollowUpCount) {
-    return '';
+  getNextFollowUpDate(): string {
+    if (!this.selectedAppointment?.appointmentDate) return '';
+    if (this.prescription.nextFollowUpCount == null || this.prescription.nextFollowUpCount <= 0) {
+      return '';
+    }
+
+    const apptDateStr = this.selectedAppointment.appointmentDate.split('T')[0];
+    const baseDate = new Date(apptDateStr + 'T00:00:00');
+
+    const days = Number(this.prescription.nextFollowUpCount);
+
+    const result = new Date(baseDate);
+    result.setDate(result.getDate() + days);
+
+    const dd = String(result.getDate()).padStart(2, '0');
+    const mm = String(result.getMonth() + 1).padStart(2, '0');
+    const yyyy = result.getFullYear();
+
+    return `${dd}-${mm}-${yyyy}`;
   }
-
-  const baseDate = new Date(this.selectedAppointment.appointmentDate);
-  const days = Number(this.prescription.nextFollowUpCount);
-
-  const result = new Date(baseDate);
-  result.setDate(result.getDate() + days);
-
-  const dd = String(result.getDate()).padStart(2, '0');
-  const mm = String(result.getMonth() + 1).padStart(2, '0');
-  const yyyy = result.getFullYear();
-
-  return `${dd}-${mm}-${yyyy}`;
-}
 
 }

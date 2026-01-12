@@ -628,7 +628,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body">
                 <div class="row g-4">
-                  <div class="col-md-4" *ngIf="isDoctor">
+                  <div class="col-md-3" *ngIf="isDoctor">
                     <label class="d-none form-label fw-bold">Select Lab Test</label>
                     <select
                       class="form-control"
@@ -643,12 +643,12 @@
                       </option>
                     </select>
                   </div>
-                  <div class="col-md-3 d-flex mt-4" *ngIf="isDoctor">
+                  <div class="col-md-2 d-flex mt-4" *ngIf="isDoctor">
                     <button class="btn customBtn" *ngIf="canEdit" (click)="addLabTest()">
                       + Add LabTest
                     </button>
                   </div>
-                  <div class="col-md-4 d-flex mt-4" *ngIf="isDoctor || isReceptionist || isAdmin">
+                  <div class="col-md-3 d-flex mt-4" *ngIf="isDoctor || isReceptionist || isAdmin">
                     <input
                       type="text"
                       title="Next FollowUp"
@@ -663,6 +663,16 @@
                       (focus)="onFollowUpFocus()"
                       (input)="onFollowUpChange($event)"
                     />
+                  </div>
+                  <div class="col-md-4 d-flex mt-4" *ngIf="isDoctor || isReceptionist || isAdmin">
+                    <textarea
+                        class="form-control"
+                        rows="1"
+                        [(ngModel)]="prescription.notes"
+                        [readonly]="!canEdit"
+                        placeholder="Enter additional notes..."
+                        title="Additional Notes"
+                    ></textarea>
                   </div>
                   <ng-container *ngIf="prescription.labTests.length > 0; else noLabTest">
                     <ol

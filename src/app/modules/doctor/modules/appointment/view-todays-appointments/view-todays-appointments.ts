@@ -33,6 +33,7 @@ interface PrescriptionLabTest {
 
 interface Prescription {
   prescriptionId?: string | null;
+  notes?: string | '';
   symptoms: string;
   diagnosis: string;
   advice: string;
@@ -148,6 +149,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
 
   prescription: Prescription = {
     prescriptionId: null,
+    notes: '',
     symptoms: '',
     diagnosis: '',
     advice: '',
@@ -739,7 +741,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
 
         this.prescription = {
           prescriptionId: p.prescriptionId ?? null,
-
+          notes: p.notes,
           symptoms: parseArray(p.symptoms),
           diagnosis: parseArray(p.diagnosis),
           advice: parseArray(p.prescriptionAdvice),
@@ -970,6 +972,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
     const payload = {
       appointmentId: this.selectedAppointment?.appointmentId,
       prescriptionId: this.prescription.prescriptionId ?? null,
+      notes: this.prescription.notes || '',
       symptoms: this.prescription.symptoms || '',
       diagnosis: this.prescription.diagnosis || '',
       advise: this.prescription.advice || '',
@@ -1051,6 +1054,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   resetPrescription() {
     this.prescription = {
       prescriptionId: null,
+      notes: '',
       symptoms: '',
       diagnosis: '',
       advice: '',
@@ -1192,12 +1196,15 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   }
 
   getNextFollowUpDate(): string {
-    if (!this.selectedAppointment?.appointmentDate || this.prescription.nextFollowUpCount == null) {
+    if (!this.selectedAppointment?.appointmentDate) return '';
+    if (this.prescription.nextFollowUpCount == null || this.prescription.nextFollowUpCount <= 0) {
       return '';
     }
 
-    const baseDate = new Date(this.selectedAppointment.appointmentDate);
-    const days = this.prescription.nextFollowUpCount;
+    const apptDateStr = this.selectedAppointment.appointmentDate.split('T')[0];
+    const baseDate = new Date(apptDateStr + 'T00:00:00');
+
+    const days = Number(this.prescription.nextFollowUpCount);
 
     const result = new Date(baseDate);
     result.setDate(result.getDate() + days);
