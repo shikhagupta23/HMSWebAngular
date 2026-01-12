@@ -25,6 +25,7 @@ interface InvoiceData {
   remainingAmount: number;
   paymentStatus: string;
   createdAt: string;
+  appointmentNumber: number
 }
 
 interface PaymentReportData {
@@ -266,10 +267,10 @@ export class Invoice implements OnInit {
     });
   }
 
-  getAppointmentNumber(appointmentId: string): string {
-    if (!appointmentId) return 'N/A';
-    return appointmentId;
-  }
+  getAppointmentNumber(appointmentNumber: number | string): string {
+  if (!appointmentNumber) return 'N/A';
+  return `#${appointmentNumber}`;
+}
 
   // ✅ NEW: Show all invoices for a specific appointment
   viewInvoicesByAppointment(appointmentId: string): void {

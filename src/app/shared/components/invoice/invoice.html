@@ -121,24 +121,24 @@
 
             <!-- ✅ Clickable Appointment Info with Invoice Count Badge -->
             <td>
-              <div class="appointment-link" style="cursor: pointer;"
-                (click)="viewInvoicesByAppointment(invoice.appointmentId)">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                  <span class="badge bg-info text-white" style="font-size: 0.8rem;">
-                    <i class="fa-solid fa-calendar-check me-1"></i>
-                    {{ getAppointmentNumber(invoice.appointmentId).substring(0, 8) }}...
-                  </span>
-                  <span class="badge bg-primary" style="font-size: 0.7rem;" title="Total invoices for this appointment">
-                    {{ getInvoiceCountForAppointment(invoice.appointmentId) }}
-                    <i class="fa-solid fa-file-invoice ms-1"></i>
-                  </span>
-                </div>
-                <div class="text-muted" style="font-size: 0.75rem;">
-                  <i class="fa-solid fa-clock me-1"></i>
-                  {{ invoice.appointmentDate ? formatAppointmentDate(invoice.appointmentDate) : 'N/A' }}
-                </div>
-              </div>
-            </td>
+  <div class="appointment-link" style="cursor: pointer;"
+    (click)="viewInvoicesByAppointment(invoice.appointmentId)">
+    <div class="d-flex align-items-center justify-content-between mb-1">
+      <span class="badge bg-info text-white" style="font-size: 0.8rem;">
+        <i class="fa-solid fa-calendar-check me-1"></i>
+        {{ getAppointmentNumber(invoice.appointmentNumber) }}
+      </span>
+      <span class="badge bg-primary" style="font-size: 0.7rem;" title="Total invoices for this appointment">
+        {{ getInvoiceCountForAppointment(invoice.appointmentId) }}
+        <i class="fa-solid fa-file-invoice ms-1"></i>
+      </span>
+    </div>
+    <div class="text-muted" style="font-size: 0.75rem;">
+      <i class="fa-solid fa-clock me-1"></i>
+      {{ invoice.appointmentDate ? formatAppointmentDate(invoice.appointmentDate) : 'N/A' }}
+    </div>
+  </div>
+</td>
 
             <td>
               <div class="d-flex align-items-center">
@@ -384,8 +384,8 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-3">
-                <small class="text-muted">Appointment ID</small>
-                <div class="fw-bold">{{ getAppointmentNumber(appointmentInvoices[0].appointmentId) }}</div>
+                <small class="text-muted">Appointment Number</small>
+                <div class="fw-bold">{{ getAppointmentNumber(appointmentInvoices[0].appointmentNumber) }}</div>
               </div>
               <div class="col-md-3">
                 <small class="text-muted">Appointment Date</small>
