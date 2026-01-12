@@ -26,7 +26,7 @@ interface AssignmentModel {
   packageName?: string;
   startDate: string;
   endDate?: string;
-  price?: number;
+  fee?: number;
   durationInDays?: number;
   isActive?: boolean;
   createdAt?: Date;
@@ -421,7 +421,7 @@ closeModal(modalId: string): void {
     return this.assignments.filter(assignment =>
       assignment.hospitalName?.toLowerCase().includes(term) ||
       assignment.packageName?.toLowerCase().includes(term) ||
-      assignment.price?.toString().includes(term)
+      assignment.fee?.toString().includes(term)
     );
   }
 

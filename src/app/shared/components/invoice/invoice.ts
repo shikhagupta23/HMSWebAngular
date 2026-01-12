@@ -14,6 +14,8 @@ interface InvoiceData {
   patientId: string;
   patientName: string;
   appointmentId: string;
+  appointmentDate: string;
+  appointmentStatus: string;
   doctorId: string;
   doctorName: string;
   doctorFee: number;
@@ -101,13 +103,12 @@ export class Invoice implements OnInit {
   paymentStatus: string = 'Pending';
   existingPayments: number = 0;
 
-  // Add Payment Modal properties
-  selectedInvoiceForPayment: InvoiceData | null = null;
-  additionalPaymentAmount: number = 0;
-  additionalPaymentMode: string = 'Cash';
-  additionalPaymentStatus: string = 'Partial';
-  newRemainingAmount: number = 0;
-  isAddingPayment: boolean = false;
+  // Appointment details modal
+  selectedInvoiceForDetails: InvoiceData | null = null;
+
+  // ✅ NEW: Appointment Invoices Modal
+  appointmentInvoices: InvoiceData[] = [];
+  selectedAppointmentIdForInvoices: string = '';
 
   invoice = {
     patientId: '',
@@ -126,7 +127,6 @@ export class Invoice implements OnInit {
   Math = Math;
   isRoleLoaded: boolean = false;
   
-  // Flags to track loading state
   private appointmentFeesLoaded: boolean = false;
   private labFeesLoaded: boolean = false;
 
@@ -175,7 +175,6 @@ export class Invoice implements OnInit {
           return;
         }
 
-        // Backend now returns paidAmount, remainingAmount, and paymentStatus
         this.invoices = res.dataList ?? [];
         this.filteredInvoices = this.invoices;
         this.updatePagination();
@@ -246,6 +245,7 @@ export class Invoice implements OnInit {
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -254,6 +254,67 @@ export class Invoice implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  formatAppointmentDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  getAppointmentNumber(appointmentId: string): string {
+    if (!appointmentId) return 'N/A';
+    return appointmentId;
+  }
+
+  // ✅ NEW: Show all invoices for a specific appointment
+  viewInvoicesByAppointment(appointmentId: string): void {
+    this.selectedAppointmentIdForInvoices = appointmentId;
+    
+    // Filter invoices by appointment ID
+    this.appointmentInvoices = this.invoices.filter(
+      inv => inv.appointmentId === appointmentId
+    );
+    
+    // Open the modal
+    const modalEl = document.getElementById('appointmentInvoicesModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  // ✅ NEW: Get total paid for an appointment
+  getAppointmentTotalPaid(appointmentId: string): number {
+    return this.invoices
+      .filter(inv => inv.appointmentId === appointmentId)
+      .reduce((sum, inv) => sum + inv.paidAmount, 0);
+  }
+
+  // ✅ NEW: Get total remaining for an appointment
+  getAppointmentTotalRemaining(appointmentId: string): number {
+    return this.invoices
+      .filter(inv => inv.appointmentId === appointmentId)
+      .reduce((sum, inv) => sum + inv.remainingAmount, 0);
+  }
+
+  // ✅ NEW: Get invoice count for an appointment
+  getInvoiceCountForAppointment(appointmentId: string): number {
+    return this.invoices.filter(inv => inv.appointmentId === appointmentId).length;
+  }
+
+  viewAppointmentDetails(invoice: InvoiceData): void {
+    this.selectedInvoiceForDetails = invoice;
+    
+    const modalEl = document.getElementById('appointmentDetailsModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
   }
 
   printInvoice(invoice: InvoiceData): void {
@@ -638,6 +699,18 @@ export class Invoice implements OnInit {
     });
   }
 
+  getTotalAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.totalPayment, 0);
+}
+
+getTotalPaidAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.paidAmount, 0);
+}
+
+getTotalRemainingAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.remainingAmount, 0);
+}
+
   createPayment(invoiceId: string): void {
     const payload = {
       invoiceId,
@@ -676,94 +749,6 @@ export class Invoice implements OnInit {
       error: () => {
         this.toast.error('Payment failed');
         this.isSubmitting = false;
-      },
-    });
-  }
-
-  // ============================================
-  // ADD PAYMENT MODAL METHODS
-  // ============================================
-
-  openAddPayment(invoice: InvoiceData): void {
-    this.selectedInvoiceForPayment = invoice;
-    this.additionalPaymentAmount = 0;
-    this.additionalPaymentMode = 'Cash';
-    this.additionalPaymentStatus = 'Partial';
-    this.newRemainingAmount = invoice.remainingAmount;
-
-    const modalEl = document.getElementById('addPaymentModal');
-    if (modalEl) {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
-    }
-  }
-
-  onAdditionalPaymentChange(): void {
-    if (!this.selectedInvoiceForPayment) return;
-
-    const currentPayment = this.additionalPaymentAmount || 0;
-    this.newRemainingAmount = Math.max(0, this.selectedInvoiceForPayment.remainingAmount - currentPayment);
-
-    if (this.newRemainingAmount === 0) {
-      this.additionalPaymentStatus = 'Complete';
-    } else {
-      this.additionalPaymentStatus = 'Partial';
-    }
-  }
-
-  submitAdditionalPayment(): void {
-    if (!this.selectedInvoiceForPayment) {
-      this.toast.error('No invoice selected');
-      return;
-    }
-
-    if (this.additionalPaymentAmount <= 0) {
-      this.toast.error('Payment amount must be greater than 0');
-      return;
-    }
-
-    if (this.additionalPaymentAmount > this.selectedInvoiceForPayment.remainingAmount) {
-      this.toast.error('Payment amount cannot exceed remaining amount');
-      return;
-    }
-
-    this.isAddingPayment = true;
-
-    const payload = {
-      invoiceId: this.selectedInvoiceForPayment.id,
-      amount: this.additionalPaymentAmount,
-      paymentMode: this.additionalPaymentMode,
-      paymentStatus: this.additionalPaymentStatus,
-      createdBy: 'Admin',
-    };
-
-    this.http.post<any>(ApiEndpoints.INVOICE.CREATE_PAYMENT, payload).subscribe({
-      next: (res) => {
-        if (!res?.isSuccess) {
-          this.toast.error(res?.message || 'Payment failed');
-          this.isAddingPayment = false;
-          return;
-        }
-
-        const message = this.additionalPaymentStatus === 'Complete' 
-          ? 'Payment completed successfully!'
-          : `Partial payment recorded. Remaining: ₹${this.newRemainingAmount.toFixed(2)}`;
-        
-        this.toast.success(message);
-
-        this.loadInvoices();
-
-        const modalEl = document.getElementById('addPaymentModal');
-        bootstrap.Modal.getInstance(modalEl!)?.hide();
-
-        this.selectedInvoiceForPayment = null;
-        this.additionalPaymentAmount = 0;
-        this.additionalPaymentMode = 'Cash';
-        this.isAddingPayment = false;
-      },
-      error: () => {
-        this.toast.error('Payment failed');
-        this.isAddingPayment = false;
       },
     });
   }
