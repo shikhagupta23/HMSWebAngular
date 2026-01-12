@@ -121,24 +121,24 @@
 
             <!-- ✅ Clickable Appointment Info with Invoice Count Badge -->
             <td>
-  <div class="appointment-link" style="cursor: pointer;"
-    (click)="viewInvoicesByAppointment(invoice.appointmentId)">
-    <div class="d-flex align-items-center justify-content-between mb-1">
-      <span class="badge bg-info text-white" style="font-size: 0.8rem;">
-        <i class="fa-solid fa-calendar-check me-1"></i>
-        {{ getAppointmentNumber(invoice.appointmentNumber) }}
-      </span>
-      <span class="badge bg-primary" style="font-size: 0.7rem;" title="Total invoices for this appointment">
-        {{ getInvoiceCountForAppointment(invoice.appointmentId) }}
-        <i class="fa-solid fa-file-invoice ms-1"></i>
-      </span>
-    </div>
-    <div class="text-muted" style="font-size: 0.75rem;">
-      <i class="fa-solid fa-clock me-1"></i>
-      {{ invoice.appointmentDate ? formatAppointmentDate(invoice.appointmentDate) : 'N/A' }}
-    </div>
-  </div>
-</td>
+              <div class="appointment-link" style="cursor: pointer;"
+                (click)="viewInvoicesByAppointment(invoice.appointmentId)">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="badge bg-info text-white" style="font-size: 0.8rem;">
+                    <i class="fa-solid fa-calendar-check me-1"></i>
+                    {{ getAppointmentNumber(invoice.appointmentNumber) }}
+                  </span>
+                  <span class="badge bg-primary" style="font-size: 0.7rem;" title="Total invoices for this appointment">
+                    {{ getInvoiceCountForAppointment(invoice.appointmentId) }}
+                    <i class="fa-solid fa-file-invoice ms-1"></i>
+                  </span>
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem;">
+                  <i class="fa-solid fa-clock me-1"></i>
+                  {{ invoice.appointmentDate ? formatAppointmentDate(invoice.appointmentDate) : 'N/A' }}
+                </div>
+              </div>
+            </td>
 
             <td>
               <div class="d-flex align-items-center">
@@ -225,12 +225,16 @@
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
           <i class="fa-solid fa-file-invoice-dollar me-2"></i>
-          Invoices for Appointment: {{ getAppointmentNumber(selectedAppointmentIdForInvoices) }}
+          Invoices for Appointment: {{ appointmentInvoices.length > 0 ?
+          getAppointmentNumber(appointmentInvoices[0].appointmentNumber) : 'N/A' }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
+        <!-- Summary Cards -->
+        <!-- ✅ REPLACE THIS SECTION IN YOUR appointmentInvoicesModal -->
+
         <!-- Summary Cards -->
         <div class="row mb-4">
           <div class="col-md-4">
@@ -250,7 +254,7 @@
                 <h6 class="text-muted mb-2">Total Paid</h6>
                 <h3 class="text-success mb-0">
                   <i class="fa-solid fa-money-bill-wave me-2"></i>
-                  ₹{{ getAppointmentTotalPaid(selectedAppointmentIdForInvoices) | number:'1.2-2' }}
+                  ₹{{ getTotalPaidAmount() | number:'1.2-2' }}
                 </h3>
               </div>
             </div>
@@ -259,12 +263,37 @@
             <div class="card border-warning">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Total Remaining</h6>
-                <h3 class="text-warning mb-0">
+                <h3 [class.text-success]="getDisplayRemainingAmount() === 0"
+                  [class.text-warning]="getDisplayRemainingAmount() > 0" class="mb-0">
                   <i class="fa-solid fa-hourglass-half me-2"></i>
-                  ₹{{ getAppointmentTotalRemaining(selectedAppointmentIdForInvoices) | number:'1.2-2' }}
+                  ₹{{ getDisplayRemainingAmount() | number:'1.2-2' }}
                 </h3>
+                <small class="badge" [class.bg-success]="getAppointmentPaymentStatus() === 'Complete'"
+                  [class.bg-warning]="getAppointmentPaymentStatus() === 'Partial'"
+                  [class.bg-danger]="getAppointmentPaymentStatus() === 'Pending'">
+                  {{ getAppointmentPaymentStatus() }}
+                </small>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- ✅ Optional: Add info alert showing backend calculation -->
+        <div class="alert alert-info d-flex align-items-center mb-3"
+          *ngIf="getDisplayRemainingAmount() === 0 && getTotalPaidAmount() > 0">
+          <i class="fa-solid fa-check-circle me-2 fs-4"></i>
+          <div>
+            <strong>Payment Complete!</strong>
+            <p class="mb-0">All payments for this appointment have been received.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning d-flex align-items-center mb-3"
+          *ngIf="getDisplayRemainingAmount() > 0 && getTotalPaidAmount() > 0">
+          <i class="fa-solid fa-exclamation-triangle me-2 fs-4"></i>
+          <div>
+            <strong>Partial Payment</strong>
+            <p class="mb-0">₹{{ getDisplayRemainingAmount() | number:'1.2-2' }} remaining to be paid.</p>
           </div>
         </div>
 
@@ -340,12 +369,12 @@
                 </td>
               </tr>
             </tbody>
-            <tfoot class="table-light">
+            <!-- <tfoot class="table-light">
               <tr>
                 <td colspan="6" class="text-end"><strong>Totals:</strong></td>
                 <td>
                   <strong class="text-success">
-                    ₹{{ getTotalAmount() | number:'1.2-2' }}
+                    ₹{{ getTotalPaidAmount()| number:'1.2-2' }}
                   </strong>
                 </td>
                 <td>
@@ -355,12 +384,12 @@
                 </td>
                 <td>
                   <strong class="text-warning">
-                    ₹{{ getTotalRemainingAmount() | number:'1.2-2' }}
+                      ₹{{ getDisplayRemainingAmount() | number:'1.2-2' }}
                   </strong>
                 </td>
                 <td colspan="2"></td>
               </tr>
-            </tfoot>
+            </tfoot> -->
           </table>
         </div>
 
@@ -385,7 +414,8 @@
             <div class="row">
               <div class="col-md-3">
                 <small class="text-muted">Appointment Number</small>
-                <div class="fw-bold">{{ getAppointmentNumber(appointmentInvoices[0].appointmentNumber) }}</div>
+                <div class="fw-bold">{{ appointmentInvoices.length > 0 ?
+                  getAppointmentNumber(appointmentInvoices[0].appointmentNumber) : 'N/A' }}</div>
               </div>
               <div class="col-md-3">
                 <small class="text-muted">Appointment Date</small>
@@ -603,9 +633,10 @@
               Payment Amount <span class="text-danger">*</span>
             </label>
             <input type="number" class="form-control" [(ngModel)]="paymentAmount" (input)="onPaymentAmountChange()"
-              min="0" [max]="totalAmount - existingPayments" placeholder="₹ 0.00" />
+              min="0" [max]="totalAmount - existingPayments"
+              [placeholder]="'Max payable: ₹' + ((totalAmount - existingPayments) | number:'1.2-2')" />
             <small class="text-muted">
-              Max payable: ₹{{ (totalAmount - existingPayments) | number:'1.2-2' }}
+              Enter amount to pay
             </small>
           </div>
 
