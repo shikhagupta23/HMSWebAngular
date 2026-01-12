@@ -106,6 +106,10 @@ export class Invoice implements OnInit {
   // Appointment details modal
   selectedInvoiceForDetails: InvoiceData | null = null;
 
+  // ✅ NEW: Appointment Invoices Modal
+  appointmentInvoices: InvoiceData[] = [];
+  selectedAppointmentIdForInvoices: string = '';
+
   invoice = {
     patientId: '',
     patientName: '',
@@ -252,7 +256,6 @@ export class Invoice implements OnInit {
     });
   }
 
-  // Format appointment date (short format for table)
   formatAppointmentDate(dateString: string): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -263,13 +266,47 @@ export class Invoice implements OnInit {
     });
   }
 
-  // Generate appointment number from GUID
   getAppointmentNumber(appointmentId: string): string {
-  if (!appointmentId) return 'N/A';
-  return appointmentId; // Full GUID
-}
+    if (!appointmentId) return 'N/A';
+    return appointmentId;
+  }
 
-  // Open appointment details modal
+  // ✅ NEW: Show all invoices for a specific appointment
+  viewInvoicesByAppointment(appointmentId: string): void {
+    this.selectedAppointmentIdForInvoices = appointmentId;
+    
+    // Filter invoices by appointment ID
+    this.appointmentInvoices = this.invoices.filter(
+      inv => inv.appointmentId === appointmentId
+    );
+    
+    // Open the modal
+    const modalEl = document.getElementById('appointmentInvoicesModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  // ✅ NEW: Get total paid for an appointment
+  getAppointmentTotalPaid(appointmentId: string): number {
+    return this.invoices
+      .filter(inv => inv.appointmentId === appointmentId)
+      .reduce((sum, inv) => sum + inv.paidAmount, 0);
+  }
+
+  // ✅ NEW: Get total remaining for an appointment
+  getAppointmentTotalRemaining(appointmentId: string): number {
+    return this.invoices
+      .filter(inv => inv.appointmentId === appointmentId)
+      .reduce((sum, inv) => sum + inv.remainingAmount, 0);
+  }
+
+  // ✅ NEW: Get invoice count for an appointment
+  getInvoiceCountForAppointment(appointmentId: string): number {
+    return this.invoices.filter(inv => inv.appointmentId === appointmentId).length;
+  }
+
   viewAppointmentDetails(invoice: InvoiceData): void {
     this.selectedInvoiceForDetails = invoice;
     
@@ -661,6 +698,18 @@ export class Invoice implements OnInit {
       },
     });
   }
+
+  getTotalAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.totalPayment, 0);
+}
+
+getTotalPaidAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.paidAmount, 0);
+}
+
+getTotalRemainingAmount(): number {
+  return this.appointmentInvoices.reduce((sum, inv) => sum + inv.remainingAmount, 0);
+}
 
   createPayment(invoiceId: string): void {
     const payload = {
