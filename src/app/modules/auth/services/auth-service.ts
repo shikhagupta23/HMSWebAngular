@@ -109,43 +109,87 @@ saveAuth(res: AuthResponse): void {
     return user ? user.userId : null;
   }
 
-forgotPassword(phoneNumber: string): Observable<any> {
-  return this.api.post(
-    ApiEndpoints.AUTH.FORGOT_PASSWORD,
-    null, // body must be null
-    {
-      params: {
-        userid: phoneNumber
+  forgotPassword(phoneNumber: string): Observable<any> {
+    return this.api.post(
+      ApiEndpoints.AUTH.FORGOT_PASSWORD,
+      null, // body must be null
+      {
+        params: {
+          userid: phoneNumber
+        }
       }
-    }
-  );
-}
+    );
+  }
 
-verifyOtp(phoneNumber: string, otp: string): Observable<any> {
-  return this.api.get(
-    ApiEndpoints.AUTH.VERIFY_OTP,
-    {
-      userId: phoneNumber,
-      otp: otp
-    }
-  );
-}
+  verifyOtp(phoneNumber: string, otp: string): Observable<any> {
+    return this.api.get(
+      ApiEndpoints.AUTH.VERIFY_OTP,
+      {
+        userId: phoneNumber,
+        otp: otp
+      }
+    );
+  }
 
-updateUserName(userName: string): void {
-  const user = this.getUser();
-  if (!user) return;
+  updateUserName(userName: string): void {
+    const user = this.getUser();
+    if (!user) return;
 
-  const updatedUser = {
-    ...user,
-    userName
-  };
+    const updatedUser = {
+      ...user,
+      userName
+    };
 
-  this.setUser(updatedUser);
-}
+    this.setUser(updatedUser);
+  }
 
-setUser(user: any): void {
-  safeStorage.set(this.USER_KEY, JSON.stringify(user));
-  this.userSubject.next(user);
-}
+  setUser(user: any): void {
+    safeStorage.set(this.USER_KEY, JSON.stringify(user));
+    this.userSubject.next(user);
+  }
+
+  get currentUser(): any {
+    return this.userSubject.value;
+  }
+
+  get featureList(): any[] {
+    return this.currentUser?.featureList ?? [];
+  }
+
+  hasFeature(featureKey: string): boolean {
+    const user = this.getUser();
+    if (!user || !user.featureList) return false;
+
+    return user.featureList.some(
+      (f: any) =>
+        f.featureUniqueKey === featureKey && f.isAccess === true
+    );
+  }
+
+  get role(): string | null {
+    return this.getUserRole();
+  }
+
+  canExtend(featureKey: string): boolean {
+    const user = this.getUser();
+    if (!user || !user.featureList) return false;
+
+    return user.featureList.some(
+      (f: any) =>
+        f.featureUniqueKey === featureKey &&
+        f.isAccess === true &&
+        f.isExtend === true
+    );
+  }
+
+  hasAnyExtendableFeature(): boolean {
+    const user = this.getUser();
+    if (!user || !user.featureList) return false;
+
+    return user.featureList.some(
+      (f: any) => f.isAccess === true && f.isExtend === true
+    );
+  }
+
 
 }

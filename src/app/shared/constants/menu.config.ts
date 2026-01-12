@@ -1,3 +1,5 @@
+import { FeatureAccessKeys } from "./feature-access-keys";
+
 export interface MenuItem {
   label: string;
   icon: string;
@@ -5,7 +7,8 @@ route?: string | ((role: string) => string);  roles: string[];
   hidden?: boolean;
   action?: string;   
   expanded?: boolean;
-  children?: MenuItem[];  
+  children?: MenuItem[]; 
+  featureKey?: string; 
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -55,7 +58,8 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "FollowUp Appointments",
     icon: "fa-solid fa-clock-rotate-left",
     route: "/superadmin/upcoming-followup",
-    roles: ["Admin", "Receptionist", "Doctor"]
+    roles: ["Admin", "Receptionist", "Doctor"],
+    featureKey: FeatureAccessKeys.UpcomingFollowUp
   },  
   {
     label: "Invoice",

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { AsidebarService } from './services/asidebar-service';
 import { MENU_ITEMS, MenuItem } from '../../constants/menu.config';
+import { MenuService } from '../../services/menu-service';
 
 @Component({
   selector: 'app-asidebar',
@@ -12,6 +13,8 @@ import { MENU_ITEMS, MenuItem } from '../../constants/menu.config';
 export class Asidebar {
   private authService = inject(AuthService);
   private asidebarService = inject(AsidebarService);
+  private menuService = inject(MenuService);
+  
   activeMenu: string | null = null;
   doctorDetails: any = null;
   menu:MenuItem[] = [];
@@ -19,8 +22,8 @@ export class Asidebar {
 
   ngOnInit(): void {
     this.role = this.authService.getUserRole() ?? '';
-  this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
-  this.loadDoctorDetails();
+    this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
+    this.loadDoctorDetails();
   }
 
   loadDoctorDetails(){
