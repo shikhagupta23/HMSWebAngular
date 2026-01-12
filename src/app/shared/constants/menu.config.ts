@@ -3,7 +3,7 @@ import { FeatureAccessKeys } from "./feature-access-keys";
 export interface MenuItem {
   label: string;
   icon: string;
-route?: string | ((role: string) => string);  roles: string[];
+  route?: string | ((role: string) => string);  roles: string[];
   hidden?: boolean;
   action?: string;   
   expanded?: boolean;
@@ -145,7 +145,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Feature Assignment",
     icon: "fa-solid fa-user-gear",
     route: "/superadmin/feature-assignment",
-    roles: ["SuperAdmin"]
+    roles: ["SuperAdmin", "Admin"]
   },
   {
     label: "Package Management",
