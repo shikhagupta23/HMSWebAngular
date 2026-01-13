@@ -109,6 +109,9 @@ export class Invoice implements OnInit {
   paymentStatus: string = 'Pending';
   existingPayments: number = 0;
   isSubmitting: boolean = false;
+  private lastValidFromDate: string = '';
+  private lastValidToDate: string = '';
+
   
   // ===== APPOINTMENT INVOICES MODAL =====
   appointmentInvoices: InvoiceData[] = [];
@@ -157,14 +160,18 @@ export class Invoice implements OnInit {
   // =============================================
   // DATE UTILITIES
   // =============================================
-  initializeDateRange(): void {
-    const today = new Date();
-    const lastYear = new Date();
-    lastYear.setFullYear(today.getFullYear() - 1);
-    
-    this.toDate = this.formatDateForInput(today);
-    this.fromDate = this.formatDateForInput(lastYear);
-  }
+ initializeDateRange(): void {
+  const today = new Date();
+  const lastYear = new Date();
+  lastYear.setFullYear(today.getFullYear() - 1);
+
+  this.toDate = this.formatDateForInput(today);
+  this.fromDate = this.formatDateForInput(lastYear);
+
+  this.lastValidFromDate = this.fromDate;
+  this.lastValidToDate = this.toDate;
+}
+
 
   formatDateForInput(date: Date): string {
     return date.toISOString().slice(0, 16);
@@ -408,22 +415,70 @@ export class Invoice implements OnInit {
   // =============================================
   // PAYMENT REPORTS
   // =============================================
-  loadPaymentReports(): void {
-    if (!this.fromDate || !this.toDate) {
-      this.toast.error('Please select from and to dates');
+ // Also update your loadPaymentReports method to add validation:
+loadPaymentReports(): void {
+  // Check if dates are selected
+  if (!this.fromDate || !this.toDate) {
+    this.toast.error('Please select both From Date and To Date');
+    return;
+  }
+
+  // Validate date range before making API call
+  const fromDateTime = new Date(this.fromDate).getTime();
+  const toDateTime = new Date(this.toDate).getTime();
+
+  // Check if dates are valid
+  if (isNaN(fromDateTime) || isNaN(toDateTime)) {
+    this.toast.error('Invalid date format. Please select valid dates');
+    return;
+  }
+
+  // Check if From Date is after To Date
+  if (fromDateTime > toDateTime) {
+    this.toast.error('From Date cannot be greater than To Date. Please adjust your date range.');
+    
+    // Highlight the issue by resetting to last valid dates
+    this.fromDate = this.lastValidFromDate;
+    this.toDate = this.lastValidToDate;
+    return;
+  }
+
+  // Check if date range is reasonable (optional - prevent very large ranges)
+  const daysDifference = (toDateTime - fromDateTime) / (1000 * 60 * 60 * 24);
+  if (daysDifference > 730) { // More than 2 years
+    const confirmLoad = confirm(
+      `You've selected a date range of ${Math.round(daysDifference)} days (${(daysDifference / 365).toFixed(1)} years). ` +
+      'This may take longer to load. Do you want to continue?'
+    );
+    if (!confirmLoad) {
       return;
     }
-
-    const url = `${ApiEndpoints.INVOICE.PAYMENTREPORT}?fromDate=${encodeURIComponent(this.fromDate)}&toDate=${encodeURIComponent(this.toDate)}&page=${this.reportPage}&pageSize=${this.reportPageSize}&filterBy=${this.filterBy}`;
-
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        this.paymentReports = res.dataList ?? [];
-        this.filteredReports = this.paymentReports;
-      },
-      error: () => this.toast.error('Failed to load payment reports')
-    });
   }
+
+  const url = `${ApiEndpoints.INVOICE.PAYMENTREPORT}?fromDate=${encodeURIComponent(this.fromDate)}&toDate=${encodeURIComponent(this.toDate)}&page=${this.reportPage}&pageSize=${this.reportPageSize}&filterBy=${this.filterBy}`;
+
+  this.http.get<any>(url).subscribe({
+    next: (res) => {
+      if (!res?.isSuccess) {
+        this.toast.error(res?.message || 'Failed to load payment reports');
+        return;
+      }
+      this.paymentReports = res.dataList ?? [];
+      this.filteredReports = this.paymentReports;
+      
+      // Show success message with count
+      if (this.paymentReports.length === 0) {
+        this.toast.info('No payment reports found for the selected date range');
+      } else {
+        this.toast.success(`Loaded ${this.paymentReports.length} payment report(s) ${this.fromDate && this.toDate ? `from ${new Date(this.fromDate).toLocaleDateString()} to ${new Date(this.toDate).toLocaleDateString()}` : ''}`);
+      }
+    },
+    error: (error) => {
+      console.error('Payment report error:', error);
+      this.toast.error('Failed to load payment reports. Please try again.');
+    }
+  });
+}
 
   searchReports(): void {
     if (!this.searchReportText.trim()) {
@@ -752,4 +807,67 @@ export class Invoice implements OnInit {
       bootstrap.Modal.getInstance(modalEl)?.hide();
     }
   }
+
+  onFromDateChange() {
+  if (!this.fromDate) {
+    return;
+  }
+
+  // If toDate is not set, just save the from date
+  if (!this.toDate) {
+    this.lastValidFromDate = this.fromDate;
+    return;
+  }
+
+  // Convert to Date objects for proper comparison
+  const fromDateTime = new Date(this.fromDate).getTime();
+  const toDateTime = new Date(this.toDate).getTime();
+
+  console.log('From Date:', this.fromDate, 'Time:', fromDateTime);
+  console.log('To Date:', this.toDate, 'Time:', toDateTime);
+  console.log('Is From > To?', fromDateTime > toDateTime);
+
+  if (fromDateTime > toDateTime) {
+    this.toast.error('From Date cannot be greater than To Date');
+    // Use setTimeout to ensure the UI updates properly
+    setTimeout(() => {
+      this.fromDate = this.lastValidFromDate;
+    }, 0);
+    return;
+  }
+
+  this.lastValidFromDate = this.fromDate;
 }
+
+onToDateChange() {
+  if (!this.toDate) {
+    return;
+  }
+
+  // If fromDate is not set, just save the to date
+  if (!this.fromDate) {
+    this.lastValidToDate = this.toDate;
+    return;
+  }
+
+  // Convert to Date objects for proper comparison
+  const fromDateTime = new Date(this.fromDate).getTime();
+  const toDateTime = new Date(this.toDate).getTime();
+
+  console.log('From Date:', this.fromDate, 'Time:', fromDateTime);
+  console.log('To Date:', this.toDate, 'Time:', toDateTime);
+  console.log('Is To < From?', toDateTime < fromDateTime);
+
+  if (toDateTime < fromDateTime) {
+    this.toast.error('To Date cannot be less than From Date');
+    // Use setTimeout to ensure the UI updates properly
+    setTimeout(() => {
+      this.toDate = this.lastValidToDate;
+    }, 0);
+    return;
+  }
+
+  this.lastValidToDate = this.toDate;
+}
+}
+
