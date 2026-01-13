@@ -187,7 +187,7 @@
               <label class="form-label small fw-semibold"
                 >Select Gender <span class="text-danger">*</span></label
               >
-              <select class="form-control" formControlName="Gender">
+              <select class="form-control" appSelect2 formControlName="Gender">
                 <option value="">-- Select --</option>
                 <option value="M">Male</option>
                 <option value="F">Female</option>
@@ -209,7 +209,7 @@
               <label class="form-label small fw-semibold"
                 >Select Role <span class="text-danger">*</span></label
               >
-              <select class="form-control" formControlName="RoleId">
+              <select class="form-control" appSelect2 formControlName="RoleId">
                 <option value="">-- Select Role --</option>
                 <option *ngFor="let r of roles" [value]="r.id || r.roleId || r.value">
                   {{ r.name || r.roleName || r.text || r }}
