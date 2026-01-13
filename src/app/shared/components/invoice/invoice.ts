@@ -104,7 +104,7 @@ export class Invoice implements OnInit {
     paymentStatus: 'Pending'
   };
   totalAmount: number = 0;
-  paymentAmount: number = 0;
+  paymentAmount: number | null = null;
   remainingAmount: number = 0;
   paymentStatus: string = 'Pending';
   existingPayments: number = 0;
@@ -611,7 +611,7 @@ export class Invoice implements OnInit {
   private updatePaymentStatus(): void {
     if (this.remainingAmount === 0) {
       this.paymentStatus = 'Complete';
-    } else if (this.paymentAmount > 0 || this.existingPayments > 0) {
+    } else if ((this.paymentAmount && this.paymentAmount > 0) || this.existingPayments > 0) {
       this.paymentStatus = 'Partial';
     } else {
       this.paymentStatus = 'Pending';
@@ -619,20 +619,28 @@ export class Invoice implements OnInit {
   }
 
   validatePaymentAmount(): boolean {
-    if (this.paymentAmount <= 0) {
-      this.toast.error('Payment amount must be greater than 0');
-      return false;
-    }
-    
-    const maxPayable = this.totalAmount - this.existingPayments;
-    
-    if (this.paymentAmount > maxPayable) {
-      this.toast.error(`Payment amount (₹${this.paymentAmount.toFixed(2)}) cannot exceed remaining amount (₹${maxPayable.toFixed(2)})`);
-      return false;
-    }
-    
-    return true;
+  // Check if payment amount is null, undefined, or empty
+  const amount = Number(this.paymentAmount);
+  
+  if (!amount || amount <= 0) {
+    this.toast.error('Payment amount must be greater than 0');
+    return false;
   }
+  
+  const maxPayable = this.totalAmount - this.existingPayments;
+  
+  if (maxPayable <= 0) {
+    this.toast.error('No remaining amount to pay');
+    return false;
+  }
+  
+  if (amount > maxPayable) {
+    this.toast.error(`Payment amount (₹${amount.toFixed(2)}) cannot exceed remaining amount (₹${maxPayable.toFixed(2)})`);
+    return false;
+  }
+  
+  return true;
+}
 
   generateInvoice(): void {
     if (!this.selectedAppointmentId || !this.invoice.patientId) {
