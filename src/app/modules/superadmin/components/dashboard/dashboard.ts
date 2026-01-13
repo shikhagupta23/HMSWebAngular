@@ -47,6 +47,13 @@ export class Dashboard {
   inactiveUserCount = 0;
   paginatedUsers: any[] = [];
 
+  // Doctors list properties
+doctorsList: any[] = [];
+doctorsCurrentPage = 1;
+doctorsItemsPerPage = 5;
+paginatedDoctors: any[] = [];
+
+
   ngOnInit(): void {
     try {
       this.role = this.auth.getUserRole();
@@ -94,6 +101,12 @@ export class Dashboard {
         this.totalReceptionists = d.totalReceptionists || 0;
         this.totalPatients = d.totalPatients || 0;
         this.totalFollowUpCount = d.totalFollowUpCount || 0;
+
+        this.doctorsList = d.doctors || [];
+        this.doctorsCurrentPage = 1;
+        this.updatePaginatedDoctors();
+
+        
       },
       error: (err) => {
         console.error('Error loading dashboard data', err);
@@ -316,20 +329,19 @@ previousInactivePage() {
   }
 }
 
-  navigateByCard(cardType: 
-    'appointments' | 
-    'scheduled' | 
-    'ongoing' | 
-    'completed' | 
-    'cancelled'
-  ) {
+  navigateByCard(cardType: 'appointments' | 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'patients' | 'hospital') {
 
-    if (this.activeTab === 'today') {
-      this.router.navigate(['/appointment/todayappointments']);
+    if (cardType === 'patients') {
+      this.router.navigate(['/patient/allpatient']);
       return;
     }
 
-    const statusMap: any = {
+    if (cardType === 'hospital') {
+      this.router.navigate(['/superadmin/hospital']);
+      return;
+    }
+
+    const statusMap = {
       appointments: 3,
       scheduled: 0,
       ongoing: 1,
@@ -337,11 +349,59 @@ previousInactivePage() {
       cancelled: 4
     };
 
+    const route =
+      this.activeTab === 'today'
+        ? '/appointment/todayappointments'
+        : '/appointment/allappointments';
+
     this.router.navigate(
-      ['/appointment/allappointments'],
+      [route],
       { queryParams: { status: statusMap[cardType] } }
     );
   }
+
+  //Doctor Pagination Methods
+   
+  // Calculate total pages for doctors
+get doctorsTotalPages(): number {
+  return Math.ceil(this.doctorsList.length / this.doctorsItemsPerPage);
+}
+
+// Get array of page numbers for doctors
+get doctorsPageNumbers(): number[] {
+  return Array.from({ length: this.doctorsTotalPages }, (_, i) => i + 1);
+}
+
+// Update paginated doctors based on current page
+updatePaginatedDoctors() {
+  const startIndex = (this.doctorsCurrentPage - 1) * this.doctorsItemsPerPage;
+  const endIndex = startIndex + this.doctorsItemsPerPage;
+  this.paginatedDoctors = this.doctorsList.slice(startIndex, endIndex);
+}
+
+// Go to specific page for doctors
+goToDoctorsPage(page: number) {
+  if (page >= 1 && page <= this.doctorsTotalPages) {
+    this.doctorsCurrentPage = page;
+    this.updatePaginatedDoctors();
+  }
+}
+
+// Go to next page for doctors
+nextDoctorsPage() {
+  if (this.doctorsCurrentPage < this.doctorsTotalPages) {
+    this.doctorsCurrentPage++;
+    this.updatePaginatedDoctors();
+  }
+}
+
+// Go to previous page for doctors
+previousDoctorsPage() {
+  if (this.doctorsCurrentPage > 1) {
+    this.doctorsCurrentPage--;
+    this.updatePaginatedDoctors();
+  }
+}
 
 }
 

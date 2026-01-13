@@ -68,6 +68,7 @@ isEditMode = false;
   initForm() {
     this.featureForm = this.fb.group({
       name: ['', Validators.required],
+      featureKey: ['', Validators.required],
     });
   }
 
@@ -125,11 +126,12 @@ isEditMode = false;
   }
 
   const nameVal = this.featureForm.value.name;
+  const featureKeyVal = this.featureForm.value.featureKey;
 
   const payload: any = {
     name: nameVal,
     description: nameVal,
-    featureUniqueEnumKey: nameVal,
+    featureUniqueEnumKey: featureKeyVal,
     featureTypeId: 0,
   };
 
@@ -186,6 +188,7 @@ afterSave() {
 
   this.featureForm.patchValue({
     name: item.name ?? item.Name ?? '',
+    featureKey: item.featureUniqueEnumKey ?? item.FeatureUniqueEnumKey ?? '',
   });
 
   const modalEl = document.getElementById('createFeatureModal');

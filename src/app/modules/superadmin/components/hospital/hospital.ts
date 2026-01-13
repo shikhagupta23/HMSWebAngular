@@ -19,7 +19,7 @@ export class Hospital implements OnInit, AfterViewInit {
   @ViewChild('addHospitalModal') addHospitalModal!: ElementRef;
   @ViewChild('closeModalBtn') closeModalBtn!: ElementRef<HTMLButtonElement>;
   @ViewChild('confirmCloseBtn') confirmCloseBtn!: ElementRef<HTMLButtonElement>;
- @ViewChild('confirmStatusModal') confirmStatusModal!: ElementRef;
+  @ViewChild('confirmStatusModal') confirmStatusModal!: ElementRef;
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private api = inject(HospitalService);
@@ -82,7 +82,7 @@ private confirmModalInstance: any;
 
   initForm() {
     this.addHospitalForm = this.fb.group({
-      HospitalName: ['', [Validators.required, Validators.minLength(3)]],
+      HospitalName: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[A-Za-z\s]+$/)]],
 
       HospitalPhoneNumber: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
 

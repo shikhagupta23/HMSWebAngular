@@ -19,7 +19,7 @@
   </div>
   @if(isSuperAdmin){
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('hospital')">
       <div class="dashboard-content-info">
         <h6>Total Hospitals</h6>
         <h4>{{ totalHospitals }}</h4>
@@ -34,7 +34,7 @@
   }
   @if(isAdmin){
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+     <div class="dashboard-widget-box cursor-pointer" data-bs-toggle="modal" data-bs-target="#activeDoctorsModal">
       <div class="dashboard-content-info">
         <h6>Active Doctors</h6>
         <h4>{{ totalDoctors }}</h4>
@@ -49,7 +49,7 @@
   </div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('patients')">
       <div class="dashboard-content-info">
         <h6>Patients</h6>
         <h4>{{ totalPatients }}</h4>
@@ -64,7 +64,7 @@
   </div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor" (click)="navigateByCard('appointments')">
       <div class="dashboard-content-info">
         <h6>Appointments</h6>
         <h4>{{ totalAppointments }}</h4>
@@ -78,7 +78,7 @@
     </div>
   </div>
   	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('scheduled')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('scheduled')">
 			<div class="dashboard-content-info">
 				<h6>Scheduled Appointments</h6>
 				<h4>{{ scheduledAppointments }}</h4>
@@ -90,8 +90,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('completed')">
+	<div class="col-xl-3 col-md-6 mb-3 ">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('completed')">
 			<div class="dashboard-content-info">
 				<h6>Completed Appointments</h6>
 				<h4>{{ completedAppointments }}</h4>
@@ -104,7 +104,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('ongoing')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('ongoing')">
 			<div class="dashboard-content-info">
 				<h6>OnGoing Appointments</h6>
 				<h4>{{ ongoingAppointments }}</h4>
@@ -117,7 +117,7 @@
 		</div>
 	</div>
 	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box" (click)="navigateByCard('cancelled')">
+		<div class="dashboard-widget-box cursor" (click)="navigateByCard('cancelled')">
 			<div class="dashboard-content-info">
 				<h6>Cancelled Appointments</h6>
 				<h4>{{ cancelledAppointments }}</h4>
@@ -131,7 +131,7 @@
 	</div>
 
   <div class="col-xl-3 col-md-6 mb-3">
-    <div class="dashboard-widget-box">
+    <div class="dashboard-widget-box cursor">
       <div class="dashboard-content-info">
         <h6>Revenue</h6>
         <h4>₹{{ totalRevenue }}</h4>
@@ -290,7 +290,7 @@
               <!-- Show if no packages -->
               <tr *ngIf="paginatedUsers.length === 0">
                 <td colspan="5" class="text-center text-muted py-4">
-                  No active user found
+                  No inactive user found
                 </td>
               </tr>
             </tbody>
@@ -328,6 +328,64 @@
     </div>
   </div>
 
+  <!-- Active Doctors Modal -->
+<div class="modal fade" id="activeDoctorsModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Active Doctors ({{ doctorsList.length }})</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
+      <div class="modal-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Doctor Name</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let doctor of paginatedDoctors">
+              <td>{{ doctor?.name || 'N/A' }}</td>
+              <td>{{ doctor?.phone || 'N/A' }}</td>
+            </tr>
+
+            <tr *ngIf="doctorsList.length === 0">
+              <td colspan="2" class="text-center text-muted py-4">
+                No active doctors found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination Controls for Doctors -->
+        <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="doctorsTotalPages > 1">
+          <button class="btn btn-sm btn-outline-primary" (click)="previousDoctorsPage()" [disabled]="doctorsCurrentPage === 1">
+            <i class="fa-solid fa-chevron-left"></i> Previous
+          </button>
+
+          <span class="text-muted">
+            Page {{ doctorsCurrentPage }} of {{ doctorsTotalPages }}
+          </span>
+
+          <button class="btn btn-sm btn-outline-primary" (click)="nextDoctorsPage()" [disabled]="doctorsCurrentPage === doctorsTotalPages">
+            Next <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2 mt-3" *ngIf="doctorsTotalPages > 1 && doctorsTotalPages <= 10">
+          <button *ngFor="let page of doctorsPageNumbers" class="btn btn-sm" 
+            [class.btn-primary]="page === doctorsCurrentPage"
+            [class.btn-outline-secondary]="page !== doctorsCurrentPage" 
+            (click)="goToDoctorsPage(page)">
+            {{ page }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   }
 </div>

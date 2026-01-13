@@ -13,7 +13,6 @@
     <button class="btn btn-success ms-2" (click)="openGenerateInvoice()" *ngIf="!isDoctor()">
       <i class="fa-solid fa-circle-plus me-2"></i> Generate Invoice
     </button>
-
   </div>
 </div>
 
@@ -96,7 +95,7 @@
   </div>
 </div>
 
-<!-- Invoice Table -->
+<!-- ✅ Invoice Table with Clickable Appointment Column -->
 <div class="card" *ngIf="activeView === 'invoices'">
   <div class="card-body">
     <div class="table-responsive">
@@ -104,18 +103,43 @@
         <thead class="table-light">
           <tr>
             <th>Invoice No</th>
+            <th>Appointment</th>
             <th>Patient Name</th>
             <th>Doctor Name</th>
             <th>Doctor Fee</th>
             <th>Lab Test Fee</th>
             <th>Total Amount</th>
-            <th>Created At</th>
+            <th>Paid Amount</th>
+            <th>Remaining Amount</th>
+            <th>Payment Status</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let invoice of paginatedInvoices">
             <td><strong>#Inv0000_{{ invoice.invoiceNo }}</strong></td>
+
+            <!-- ✅ Clickable Appointment Info with Invoice Count Badge -->
+            <td>
+              <div class="appointment-link" style="cursor: pointer;"
+                (click)="viewInvoicesByAppointment(invoice.appointmentId)">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="badge bg-info text-white" style="font-size: 0.8rem;">
+                    <i class="fa-solid fa-calendar-check me-1"></i>
+                    {{ getAppointmentNumber(invoice.appointmentNumber) }}
+                  </span>
+                  <span class="badge bg-primary" style="font-size: 0.7rem;" title="Total invoices for this appointment">
+                    {{ getInvoiceCountForAppointment(invoice.appointmentId) }}
+                    <i class="fa-solid fa-file-invoice ms-1"></i>
+                  </span>
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem;">
+                  <i class="fa-solid fa-clock me-1"></i>
+                  {{ invoice.appointmentDate ? formatAppointmentDate(invoice.appointmentDate) : 'N/A' }}
+                </div>
+              </div>
+            </td>
+
             <td>
               <div class="d-flex align-items-center">
                 <i class="fa-solid fa-user text-primary me-2"></i>
@@ -131,22 +155,34 @@
             <td>₹{{ invoice.doctorFee | number:'1.2-2' }}</td>
             <td>₹{{ invoice.labTestFee | number:'1.2-2' }}</td>
             <td><strong class="text-success">₹{{ invoice.totalPayment | number:'1.2-2' }}</strong></td>
-            <td>{{ formatDate(invoice.createdAt) }}</td>
+            <td>
+              <strong class="text-info">₹{{ invoice.paidAmount | number:'1.2-2' }}</strong>
+            </td>
+            <td>
+              <strong [class.text-success]="invoice.remainingAmount === 0"
+                [class.text-warning]="invoice.remainingAmount > 0 && invoice.remainingAmount < invoice.totalPayment"
+                [class.text-danger]="invoice.remainingAmount === invoice.totalPayment">
+                ₹{{ invoice.remainingAmount | number:'1.2-2' }}
+              </strong>
+            </td>
+            <td>
+              <span class="badge" [class.bg-success]="invoice.paymentStatus === 'Complete'"
+                [class.bg-warning]="invoice.paymentStatus === 'Partial'"
+                [class.bg-danger]="invoice.paymentStatus === 'Pending'">
+                {{ invoice.paymentStatus }}
+              </span>
+            </td>
             <td class="text-center">
               <div class="d-flex gap-2 justify-content-center">
-
-                <!-- Print Invoice -->
                 <button class="btn btn-sm btn-outline-primary icon-btn" (click)="printInvoice(invoice)"
                   title="Print Invoice">
                   <i class="fa-solid fa-print"></i>
                 </button>
-
               </div>
             </td>
-
           </tr>
           <tr *ngIf="paginatedInvoices.length === 0">
-            <td colspan="8" class="text-center text-muted py-4">
+            <td colspan="11" class="text-center text-muted py-4">
               No invoices found
             </td>
           </tr>
@@ -166,13 +202,11 @@
               <i class="fa-solid fa-chevron-left"></i> Previous
             </a>
           </li>
-
           <li class="page-item" *ngFor="let page of pageNumbers" [class.active]="page === currentPage">
             <a class="page-link" (click)="goToPage(page)" style="cursor: pointer;">
               {{ page }}
             </a>
           </li>
-
           <li class="page-item" [class.disabled]="currentPage === totalPages">
             <a class="page-link" (click)="nextPage()" style="cursor: pointer;">
               Next <i class="fa-solid fa-chevron-right"></i>
@@ -180,6 +214,231 @@
           </li>
         </ul>
       </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ NEW: Appointment Invoices List Modal -->
+<div class="modal fade" id="appointmentInvoicesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-file-invoice-dollar me-2"></i>
+          Invoices for Appointment: {{ appointmentInvoices.length > 0 ?
+          getAppointmentNumber(appointmentInvoices[0].appointmentNumber) : 'N/A' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Summary Cards -->
+        <!-- ✅ REPLACE THIS SECTION IN YOUR appointmentInvoicesModal -->
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Invoices</h6>
+                <h3 class="text-info mb-0">
+                  <i class="fa-solid fa-receipt me-2"></i>
+                  {{ appointmentInvoices.length }}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Paid</h6>
+                <h3 class="text-success mb-0">
+                  <i class="fa-solid fa-money-bill-wave me-2"></i>
+                  ₹{{ getTotalPaidAmount() | number:'1.2-2' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-warning">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Remaining</h6>
+                <h3 [class.text-success]="getDisplayRemainingAmount() === 0"
+                  [class.text-warning]="getDisplayRemainingAmount() > 0" class="mb-0">
+                  <i class="fa-solid fa-hourglass-half me-2"></i>
+                  ₹{{ getDisplayRemainingAmount() | number:'1.2-2' }}
+                </h3>
+                <small class="badge" [class.bg-success]="getAppointmentPaymentStatus() === 'Complete'"
+                  [class.bg-warning]="getAppointmentPaymentStatus() === 'Partial'"
+                  [class.bg-danger]="getAppointmentPaymentStatus() === 'Pending'">
+                  {{ getAppointmentPaymentStatus() }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Optional: Add info alert showing backend calculation -->
+        <div class="alert alert-info d-flex align-items-center mb-3"
+          *ngIf="getDisplayRemainingAmount() === 0 && getTotalPaidAmount() > 0">
+          <i class="fa-solid fa-check-circle me-2 fs-4"></i>
+          <div>
+            <strong>Payment Complete!</strong>
+            <p class="mb-0">All payments for this appointment have been received.</p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning d-flex align-items-center mb-3"
+          *ngIf="getDisplayRemainingAmount() > 0 && getTotalPaidAmount() > 0">
+          <i class="fa-solid fa-exclamation-triangle me-2 fs-4"></i>
+          <div>
+            <strong>Partial Payment</strong>
+            <p class="mb-0">₹{{ getDisplayRemainingAmount() | number:'1.2-2' }} remaining to be paid.</p>
+          </div>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="table-responsive" *ngIf="appointmentInvoices.length > 0">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Invoice No</th>
+                <th>Invoice Date</th>
+                <th>Patient Name</th>
+                <th>Doctor Name</th>
+                <th>Doctor Fee</th>
+                <th>Lab Test Fee</th>
+                <th>Total Amount</th>
+                <th>Paid Amount</th>
+                <th>Remaining</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of appointmentInvoices; let i = index">
+                <td>
+                  <strong class="text-primary">#Inv0000_{{ invoice.invoiceNo }}</strong>
+                  <br>
+                  <small class="badge bg-secondary">Invoice {{ i + 1 }}</small>
+                </td>
+                <td>
+                  <small>{{ formatDate(invoice.createdAt) }}</small>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-user text-primary me-2"></i>
+                    <span>{{ invoice.patientName }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-user-doctor text-success me-2"></i>
+                    <span>{{ invoice.doctorName }}</span>
+                  </div>
+                </td>
+                <td>₹{{ invoice.doctorFee | number:'1.2-2' }}</td>
+                <td>₹{{ invoice.labTestFee | number:'1.2-2' }}</td>
+                <td>
+                  <strong class="text-success">₹{{ invoice.totalPayment | number:'1.2-2' }}</strong>
+                </td>
+                <td>
+                  <strong class="text-info">₹{{ invoice.paidAmount | number:'1.2-2' }}</strong>
+                </td>
+                <td>
+                  <strong [class.text-success]="invoice.remainingAmount === 0"
+                    [class.text-warning]="invoice.remainingAmount > 0 && invoice.remainingAmount < invoice.totalPayment"
+                    [class.text-danger]="invoice.remainingAmount === invoice.totalPayment">
+                    ₹{{ invoice.remainingAmount | number:'1.2-2' }}
+                  </strong>
+                </td>
+                <td>
+                  <span class="badge" [class.bg-success]="invoice.paymentStatus === 'Complete'"
+                    [class.bg-warning]="invoice.paymentStatus === 'Partial'"
+                    [class.bg-danger]="invoice.paymentStatus === 'Pending'">
+                    {{ invoice.paymentStatus }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-sm btn-outline-primary" (click)="printInvoice(invoice)"
+                      title="Print Invoice">
+                      <i class="fa-solid fa-print"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <!-- <tfoot class="table-light">
+              <tr>
+                <td colspan="6" class="text-end"><strong>Totals:</strong></td>
+                <td>
+                  <strong class="text-success">
+                    ₹{{ getTotalPaidAmount()| number:'1.2-2' }}
+                  </strong>
+                </td>
+                <td>
+                  <strong class="text-info">
+                    ₹{{ getTotalPaidAmount() | number:'1.2-2' }}
+                  </strong>
+                </td>
+                <td>
+                  <strong class="text-warning">
+                      ₹{{ getDisplayRemainingAmount() | number:'1.2-2' }}
+                  </strong>
+                </td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot> -->
+          </table>
+        </div>
+
+        <!-- No Invoices Message -->
+        <div class="alert alert-info d-flex align-items-center" *ngIf="appointmentInvoices.length === 0">
+          <i class="fa-solid fa-info-circle me-2 fs-4"></i>
+          <div>
+            <strong>No Invoices Found</strong>
+            <p class="mb-0">No invoices have been generated for this appointment yet.</p>
+          </div>
+        </div>
+
+        <!-- Appointment Info (if available) -->
+        <div class="card border-info mt-3" *ngIf="appointmentInvoices.length > 0">
+          <div class="card-header bg-info text-white">
+            <h6 class="mb-0">
+              <i class="fa-solid fa-info-circle me-2"></i>
+              Appointment Information
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <small class="text-muted">Appointment Number</small>
+                <div class="fw-bold">{{ appointmentInvoices.length > 0 ?
+                  getAppointmentNumber(appointmentInvoices[0].appointmentNumber) : 'N/A' }}</div>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Appointment Date</small>
+                <div class="fw-bold">{{ formatDate(appointmentInvoices[0].appointmentDate) }}</div>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Patient</small>
+                <div class="fw-bold">{{ appointmentInvoices[0].patientName }}</div>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Doctor</small>
+                <div class="fw-bold">{{ appointmentInvoices[0].doctorName }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa-solid fa-times me-2"></i>Close
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -252,10 +511,11 @@
         </ul>
       </nav>
     </div>
+
   </div>
 </div>
 
-<!-- Generate Invoice Modal - IMPROVED VERSION -->
+<!-- Generate Invoice Modal -->
 <div class="modal fade" id="generateInvoiceModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -291,11 +551,19 @@
 
         <hr />
 
-        <!-- ================= TWO COLUMN SECTION ================= -->
+        <!-- Payment Information Alert -->
+        <div class="alert alert-info d-flex align-items-center mb-3" *ngIf="existingPayments > 0">
+          <i class="fa-solid fa-info-circle me-2"></i>
+          <div>
+            <strong>Previous Payments:</strong> ₹{{ existingPayments | number:'1.2-2' }} already paid
+          </div>
+        </div>
+
+        <!-- TWO COLUMN SECTION -->
         <div class="row">
 
           <!-- Doctor Name -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-user-doctor"></i>
               Doctor Name
@@ -305,7 +573,7 @@
           </div>
 
           <!-- Appointment Date -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-calendar-check"></i>
               Appointment Date
@@ -315,28 +583,37 @@
           </div>
 
           <!-- Doctor Fee -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-stethoscope"></i>
               Doctor Fee (Appointment Fee)
             </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.doctorFee" min="0" readonly
-              placeholder="₹ 0.00" />
+            <input type="number" class="form-control" [value]="invoice.doctorFee" readonly placeholder="₹ 0.00" />
             <small class="text-muted">Auto-filled from appointment</small>
           </div>
 
           <!-- Lab Test Fee -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-flask"></i>
               Lab Test Fee
             </label>
-            <input type="number" class="form-control" [(ngModel)]="invoice.labTestFee" (input)="calculateTotal()"
-              min="0" placeholder="₹ 0.00" />
+            <input type="number" class="form-control" [value]="invoice.labTestFee" readonly placeholder="₹ 0.00" />
+            <small class="text-muted">Auto-filled from lab tests</small>
+          </div>
+
+          <!-- Total Amount (Read-only) -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-receipt"></i>
+              Total Amount
+            </label>
+            <input type="text" class="form-control bg-light fw-bold" [value]="'₹ ' + (totalAmount | number:'1.2-2')"
+              readonly />
           </div>
 
           <!-- Payment Mode -->
-          <div class="col-md-6 mb-2">
+          <div class="col-md-6 mb-3">
             <label class="form-label">
               <i class="fa-solid fa-credit-card"></i>
               Payment Mode
@@ -349,28 +626,64 @@
             </select>
           </div>
 
-          <!-- Total Amount (INPUT FIELD) -->
-          <div class="col-md-6 mb-2">
+          <!-- Payment Amount (User Input) -->
+          <div class="col-md-6 mb-3">
             <label class="form-label">
-              <i class="fa-solid fa-receipt"></i>
-              Total Amount
+              <i class="fa-solid fa-money-bill-wave"></i>
+              Payment Amount <span class="text-danger">*</span>
             </label>
-            <input type="text" class="form-control fw-bold" [value]="'₹ ' + (totalAmount | number:'1.2-2')" readonly />
+           <input 
+  type="number" 
+  class="form-control" 
+  [(ngModel)]="paymentAmount" 
+  (input)="onPaymentAmountChange()"
+  min="0" 
+  [max]="totalAmount - existingPayments"
+  [attr.placeholder]="'Max payable: ₹' + ((totalAmount - existingPayments) | number:'1.2-2')" 
+/>
+            <small class="text-muted">
+              Enter amount to pay
+            </small>
+          </div>
+
+          <!-- Payment Status (Auto-calculated) -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-check-circle"></i>
+              Payment Status
+            </label>
+            <select class="form-select" [(ngModel)]="paymentStatus" disabled>
+              <option value="Complete">✅ Complete</option>
+              <option value="Partial">⚠️ Partial</option>
+              <option value="Pending">⏳ Pending</option>
+            </select>
+            <small class="text-muted">Auto-calculated based on payment</small>
+          </div>
+
+          <!-- Remaining Amount (Auto-calculated) -->
+          <div class="col-md-12 mb-3">
+            <label class="form-label">
+              <i class="fa-solid fa-calculator"></i>
+              Remaining Amount
+            </label>
+            <input type="text" class="form-control fw-bold" [class.text-success]="remainingAmount === 0"
+              [class.text-warning]="remainingAmount > 0 && remainingAmount < totalAmount"
+              [class.text-danger]="remainingAmount === totalAmount" [value]="'₹ ' + (remainingAmount | number:'1.2-2')"
+              readonly />
           </div>
 
         </div>
-        <!-- ================= END TWO COLUMN SECTION ================= -->
-
+        <!-- END TWO COLUMN SECTION -->
 
       </div>
-
 
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">
           <i class="fa-solid fa-times me-2"></i>Cancel
         </button>
 
-        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting" (click)="generateInvoice()">
+        <button class="btn btn-primary" [disabled]="!selectedAppointmentId || isSubmitting || !paymentAmount || paymentAmount <= 0"
+          (click)="generateInvoice()">
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
           <i *ngIf="!isSubmitting" class="fa-solid fa-check me-2"></i>
           {{ isSubmitting ? 'Generating...' : 'Generate Invoice' }}

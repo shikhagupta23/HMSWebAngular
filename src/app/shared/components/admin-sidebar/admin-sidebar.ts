@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { MENU_ITEMS, MenuItem } from '../../constants/menu.config';
 import { AsidebarService } from '../asidebar/services/asidebar-service';
+import { MenuService } from '../../services/menu-service';
 @Component({
   selector: 'app-admin-sidebar',
   standalone: false,
@@ -9,15 +10,17 @@ import { AsidebarService } from '../asidebar/services/asidebar-service';
   styleUrl: './admin-sidebar.scss',
 })
 export class AdminSidebar {
- private authService = inject(AuthService);
+  private authService = inject(AuthService);
   private asidebarService = inject(AsidebarService);
+  private menuService = inject(MenuService);
+  
   activeMenu: string | null = null;
   doctorDetails: any = null;
   menu:MenuItem[] = [];
   role: string='';
   ngOnInit(): void {
     this.role = this.authService.getUserRole() ?? '';
-    this.menu = MENU_ITEMS.filter(m => m.roles.includes(this.role));
+    this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
     this.loadDoctorDetails();
   }
 

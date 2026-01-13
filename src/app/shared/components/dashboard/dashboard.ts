@@ -95,20 +95,14 @@ export class Dashboard implements OnInit{
     });
   }
 
-  navigateByCard(cardType: 
-    'appointments' | 
-    'scheduled' | 
-    'ongoing' | 
-    'completed' | 
-    'cancelled'
-  ) {
+  navigateByCard(cardType: 'appointments' | 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'patients') {
 
-    if (this.activeTab === 'today') {
-      this.router.navigate(['/appointment/todayappointments']);
+    if (cardType === 'patients') {
+      this.router.navigate(['/patient/allpatient']);
       return;
     }
 
-    const statusMap: any = {
+    const statusMap = {
       appointments: 3,
       scheduled: 0,
       ongoing: 1,
@@ -116,12 +110,15 @@ export class Dashboard implements OnInit{
       cancelled: 4
     };
 
+    const route =
+      this.activeTab === 'today'
+        ? '/appointment/todayappointments'
+        : '/appointment/allappointments';
+
     this.router.navigate(
-      ['/appointment/allappointments'],
+      [route],
       { queryParams: { status: statusMap[cardType] } }
     );
   }
-
-
-
+  
 }

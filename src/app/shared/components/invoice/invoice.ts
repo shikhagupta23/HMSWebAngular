@@ -1,10 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environment/environment.delvelopment';
 import { ApiEndpoints } from '../../constants/api-endpoints';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { ToastService } from '../../services/toast-service';
-import html2pdf from 'html2pdf.js';
 
 declare var bootstrap: any;
 
@@ -14,12 +12,18 @@ interface InvoiceData {
   patientId: string;
   patientName: string;
   appointmentId: string;
+  appointmentDate: string;
+  appointmentStatus: string;
   doctorId: string;
   doctorName: string;
   doctorFee: number;
   labTestFee: number;
   totalPayment: number;
+  paidAmount: number;
+  remainingAmount: number;
+  paymentStatus: string;
   createdAt: string;
+  appointmentNumber: number;
 }
 
 interface PaymentReportData {
@@ -44,12 +48,8 @@ interface Appointment {
   patientName: string;
   doctorId: string;
   doctorName: string;
-  hospitalId: string;  
+  hospitalId: string;
   appointmentDate: string;
-  appointmentFee?: number;
-}
-
-interface LabTest {
   appointmentFee?: number;
 }
 
@@ -60,43 +60,38 @@ interface LabTest {
   styleUrl: './invoice.scss',
 })
 export class Invoice implements OnInit {
-
-  // Invoice List
+  // ===== INVOICE LIST =====
   invoices: InvoiceData[] = [];
   filteredInvoices: InvoiceData[] = [];
   searchInvoiceText: string = '';
-  currentUserRole: string = '';
-  private toastr = inject(ToastService);
-
-  // Payment Report
-  paymentReports: PaymentReportData[] = [];
-  filteredReports: PaymentReportData[] = [];
-  searchReportText: string = '';
   
-  // Report Filters
-  filterBy: string = 'month'; // 'month', 'week', 'date'
-  fromDate: string = '';
-  toDate: string = '';
-  reportPage: number = 1;
-  reportPageSize: number = 10;
-  totalReportPages: number = 0;
-  
-  // View Toggle
-  activeView: string = 'invoices'; // 'invoices' or 'reports'
-
-  // Pagination
+  // ===== PAGINATION =====
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 0;
   paginatedInvoices: InvoiceData[] = [];
+  Math = Math;
 
-  // Appointment Data
+  // ===== PAYMENT REPORT =====
+  paymentReports: PaymentReportData[] = [];
+  filteredReports: PaymentReportData[] = [];
+  searchReportText: string = '';
+  filterBy: string = 'month';
+  fromDate: string = '';
+  toDate: string = '';
+  reportPage: number = 1;
+  reportPageSize: number = 10;
+
+  // ===== VIEW TOGGLE =====
+  activeView: string = 'invoices';
+
+  // ===== APPOINTMENTS =====
   appointments: Appointment[] = [];
-  labtest: Appointment[] = [];
   filteredAppointments: Appointment[] = [];
   selectedAppointmentId: string = '';
   searchTerm: string = '';
 
+  // ===== INVOICE GENERATION =====
   invoice = {
     patientId: '',
     patientName: '',
@@ -105,27 +100,63 @@ export class Invoice implements OnInit {
     appointmentDate: '',
     doctorFee: 0,
     labTestFee: 0,
-    paymentMode: 'Cash'
+    paymentMode: 'Cash',
+    paymentStatus: 'Pending'
   };
-
   totalAmount: number = 0;
+  paymentAmount: number | null = null;
+  remainingAmount: number = 0;
+  paymentStatus: string = 'Pending';
+  existingPayments: number = 0;
   isSubmitting: boolean = false;
-  Math = Math; // Expose Math to template
+  
+  // ===== APPOINTMENT INVOICES MODAL =====
+  appointmentInvoices: InvoiceData[] = [];
+  selectedAppointmentIdForInvoices: string = '';
+  backendRemainingAmount: number = 0;
 
-  constructor(private http: HttpClient ,private authService: AuthService,private toast: ToastService) {}
+  // ===== USER ROLE =====
+  currentUserRole: string = '';
+  isRoleLoaded: boolean = false;
+
+  // ===== PRIVATE FLAGS =====
+  private appointmentFeesLoaded: boolean = false;
+  private labFeesLoaded: boolean = false;
+  private toastr = inject(ToastService);
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private toast: ToastService
+  ) {}
 
   ngOnInit(): void {
-    this.loadInvoices();
-    this.loadAppointments();
     this.initializeDateRange();
     this.loadCurrentUserRole();
+    this.loadInvoices();
+    this.loadAppointments();
+  }
+
+  // =============================================
+  // USER ROLE
+  // =============================================
+  private loadCurrentUserRole(): void {
+    try {
+      this.currentUserRole = this.authService.getUserRole() || '';
+    } catch (error) {
+      this.currentUserRole = '';
+    } finally {
+      this.isRoleLoaded = true;
+    }
   }
 
   isDoctor(): boolean {
-    const role = this.currentUserRole?.toLowerCase().trim();
-     return role === 'doctor';
+    return this.currentUserRole?.toLowerCase().trim() === 'doctor';
   }
-  // Initialize date range (last year to today)
+
+  // =============================================
+  // DATE UTILITIES
+  // =============================================
   initializeDateRange(): void {
     const today = new Date();
     const lastYear = new Date();
@@ -139,36 +170,50 @@ export class Invoice implements OnInit {
     return date.toISOString().slice(0, 16);
   }
 
-isRoleLoaded: boolean = false;
-
-private loadCurrentUserRole(): void {
-  try {
-    this.currentUserRole = this.authService.getUserRole() || '';
-    this.isRoleLoaded = true;
-  } catch (error) {
-    this.currentUserRole = '';
-    this.isRoleLoaded = true;
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
-}
-  // Load all invoices
- loadInvoices(): void {
-  this.http.get<any>(ApiEndpoints.INVOICE.GETINVOICEDATA).subscribe({
-    next: (res) => {
-      if (!res?.isSuccess) {
-        this.toast.error(res?.message || 'Failed to load invoices');
-        return;
-      }
 
-      this.invoices = res.dataList ?? [];
-      this.filteredInvoices = this.invoices;
-      this.updatePagination();
-    },
-    error: () => this.toast.error('Failed to load invoices'),
-  });
-}
+  formatAppointmentDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
 
+  getAppointmentNumber(appointmentNumber: number | string): string {
+    return appointmentNumber ? `#${appointmentNumber}` : 'N/A';
+  }
 
-  // Search invoices
+  // =============================================
+  // INVOICE LIST
+  // =============================================
+  loadInvoices(): void {
+    this.http.get<any>(ApiEndpoints.INVOICE.GETINVOICEDATA).subscribe({
+      next: (res) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to load invoices');
+          return;
+        }
+        this.invoices = res.dataList ?? [];
+        this.filteredInvoices = this.invoices;
+        this.updatePagination();
+      },
+      error: () => this.toast.error('Failed to load invoices'),
+    });
+  }
+
   searchInvoices(): void {
     if (!this.searchInvoiceText.trim()) {
       this.filteredInvoices = this.invoices;
@@ -178,14 +223,33 @@ private loadCurrentUserRole(): void {
         inv.invoiceNo.toString().includes(search) ||
         inv.totalPayment.toString().includes(search) ||
         inv.patientName.toLowerCase().includes(search) ||
-        inv.doctorName.toLowerCase().includes(search)
+        inv.doctorName.toLowerCase().includes(search) ||
+        inv.paymentStatus.toLowerCase().includes(search)
       );
     }
     this.currentPage = 1;
     this.updatePagination();
   }
 
-  // Pagination methods
+  deleteInvoice(invoiceId: string): void {
+    if (!confirm('Are you sure you want to delete this invoice?')) return;
+
+    this.http.delete<any>(`${ApiEndpoints.INVOICE.GETDELETEINVOICE}/${invoiceId}`).subscribe({
+      next: (res) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Failed to delete invoice');
+          return;
+        }
+        this.toast.success(res?.message || 'Invoice deleted successfully');
+        this.loadInvoices();
+      },
+      error: () => this.toast.error('Failed to delete invoice'),
+    });
+  }
+
+  // =============================================
+  // PAGINATION
+  // =============================================
   updatePagination(): void {
     this.totalPages = Math.ceil(this.filteredInvoices.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -230,161 +294,120 @@ private loadCurrentUserRole(): void {
     return pages;
   }
 
-  // Format date
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-// pdfInvoice(invoice: InvoiceData): void {
-//   const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
-
-//   this.http.get<any>(apiUrl).subscribe({
-//     next: (response) => {
-//       let htmlContent = response?.data || '';
-
-//       if (!htmlContent || htmlContent.trim().length < 100) {
-//         this.toast.error('Failed to load invoice template');
-//         return;
-//       }
-
-//       // Set desired filename (e.g., Invoice_67.pdf)
-//       const desiredFilename = `Invoice_${invoice.invoiceNo}.pdf`;
-
-//       // Inject/Replace the <title> tag in the HTML
-//       const titleRegex = /<title>.*?<\/title>/i;
-//       if (titleRegex.test(htmlContent)) {
-//         htmlContent = htmlContent.replace(titleRegex, `<title>${desiredFilename}</title>`);
-//       } else {
-//         // If no <title>, add one in <head>
-//         htmlContent = htmlContent.replace(/<head>/i, `<head><title>${desiredFilename}</title>`);
-//       }
-
-//       const printWindow = window.open('', '_blank', 'width=1000,height=800');
-
-//       if (!printWindow) {
-//         this.toast.error('Please allow pop-ups to download PDF');
-//         return;
-//       }
-
-//       printWindow.document.open();
-//       printWindow.document.write(htmlContent);
-//       printWindow.document.close();
-
-//       printWindow.onload = () => {
-//         setTimeout(() => {
-//           printWindow.focus();
-//           printWindow.print();
-//           this.toast.success('Print dialog opened → Choose "Save as PDF"');
-//         }, 800);
-//       };
-//     },
-//     error: () => {
-//       this.toast.error('Failed to load invoice data');
-//     }
-//   });
-// }
-
-  // Print invoice
-printInvoice(invoice: InvoiceData): void {
-  const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
-  
-  this.http.get<any>(apiUrl).subscribe({
-    next: (response) => {
-      // Extract and clean HTML content
-      let htmlContent = this.extractAndCleanHtml(response);
-      
-      if (!htmlContent) {
-        this.toastr.error(response?.message || 'No invoice data available for printing!');
-        
-        return;
-      }
-      
-      // Open new window with proper dimensions
-      const printWindow = window.open('', '_blank', 'width=900,height=700');
-      
-      if (!printWindow) {
-        this.toastr.error('Please allow pop-ups to print the invoice');
-        return;
-      }
-
-      // Write the HTML content to the new window
-      printWindow.document.open();
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
-      
-      // Wait for content and styles to load, then trigger print dialog
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-        }, 500);
-      };
-    },
-    error: (err) => {
-      console.error('Failed to load invoice HTML', err);
-      this.toastr.error('Failed to generate invoice for printing!');
-    }
-  });
-}
-
-// Helper method to extract and clean HTML from API response
-private extractAndCleanHtml(response: any): string {
-  let htmlContent = '';
-  if (response && response.data) {
-    htmlContent = response.data;
-  } else if (response && response.isSuccess && response.data) {
-    htmlContent = response.data;
-  } else if (typeof response === 'string') {
-    htmlContent = response;
-  } else {
-    console.error('Unexpected response format:', response);
-    return '';
-  }
-
-  htmlContent = htmlContent
-    .replace(/\\r\\n/g, '\n')      
-    .replace(/\\n/g, '\n')         
-    .replace(/\\t/g, '\t')  
-    .replace(/\\"/g, '"')         
-    .replace(/\\'/g, "'")         
-    .replace(/\\\\/g, '\\')   
-    .trim();
-  
-  return htmlContent;
-}
-
-  // Delete invoice
- deleteInvoice(invoiceId: string): void {
-  if (!confirm('Are you sure you want to delete this invoice?')) return;
-
-  this.http
-    .delete<any>(`${ApiEndpoints.INVOICE.GETDELETEINVOICE}/${invoiceId}`)
-    .subscribe({
-      next: (res) => {
-        if (!res?.isSuccess) {
-          this.toast.error(res?.message || 'Failed to delete invoice');
-          return;
-        }
-
-        this.toast.success(res?.message || 'Invoice deleted successfully');
-        this.loadInvoices();
-      },
-      error: () => this.toast.error('Failed to delete invoice'),
-    });
-}
-
   onItemsPerPageChange(): void {
     this.currentPage = 1;
     this.updatePagination();
   }
 
-  // Payment Report Methods
+  // =============================================
+  // APPOINTMENT INVOICES MODAL
+  // =============================================
+  viewInvoicesByAppointment(appointmentId: string): void {
+    this.selectedAppointmentIdForInvoices = appointmentId;
+    this.appointmentInvoices = this.invoices.filter(inv => inv.appointmentId === appointmentId);
+    
+    // Fetch remaining amount from backend
+    const apiUrl = `${ApiEndpoints.INVOICE.GET_REMAINING_AMOUNT}?appointmentId=${appointmentId}`;
+    
+    this.http.get<any>(apiUrl).subscribe({
+      next: (response) => {
+        this.backendRemainingAmount = response?.isSuccess ? (response.data ?? 0) : this.getTotalRemainingAmount();
+        this.openModal('appointmentInvoicesModal');
+      },
+      error: () => {
+        this.backendRemainingAmount = this.getTotalRemainingAmount();
+        this.openModal('appointmentInvoicesModal');
+      }
+    });
+  }
+
+  getTotalAmount(): number {
+    return this.appointmentInvoices.reduce((sum, inv) => sum + (Number(inv.totalPayment) || 0), 0);
+  }
+
+  getTotalPaidAmount(): number {
+    return this.appointmentInvoices.reduce((sum, inv) => sum + (Number(inv.paidAmount) || 0), 0);
+  }
+
+  getTotalRemainingAmount(): number {
+    return Math.max(0, this.getTotalAmount() - this.getTotalPaidAmount());
+  }
+
+  getDisplayRemainingAmount(): number {
+    return this.backendRemainingAmount;
+  }
+
+  getAppointmentPaymentStatus(): string {
+    const remaining = this.backendRemainingAmount;
+    const paid = this.getTotalPaidAmount();
+    
+    if (remaining === 0 && paid > 0) return 'Complete';
+    if (paid > 0 && remaining > 0) return 'Partial';
+    return 'Pending';
+  }
+
+  getInvoiceCountForAppointment(appointmentId: string): number {
+    return this.invoices.filter(inv => inv.appointmentId === appointmentId).length;
+  }
+
+  // =============================================
+  // PRINT INVOICE
+  // =============================================
+  printInvoice(invoice: InvoiceData): void {
+    const apiUrl = `${ApiEndpoints.INVOICE.PRINT_INVOICE}/${invoice.id}`;
+    
+    this.http.get<any>(apiUrl).subscribe({
+      next: (response) => {
+        const htmlContent = this.extractAndCleanHtml(response);
+        
+        if (!htmlContent) {
+          this.toastr.error(response?.message || 'No invoice data available for printing!');
+          return;
+        }
+        
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        
+        if (!printWindow) {
+          this.toastr.error('Please allow pop-ups to print the invoice');
+          return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        
+        printWindow.onload = () => {
+          setTimeout(() => printWindow.print(), 500);
+        };
+      },
+      error: () => this.toastr.error('Failed to generate invoice for printing!'),
+    });
+  }
+
+  private extractAndCleanHtml(response: any): string {
+    let htmlContent = '';
+    
+    if (response?.data) {
+      htmlContent = response.data;
+    } else if (typeof response === 'string') {
+      htmlContent = response;
+    } else {
+      return '';
+    }
+
+    return htmlContent
+      .replace(/\\r\\n/g, '\n')
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"')
+      .replace(/\\'/g, "'")
+      .replace(/\\\\/g, '\\')
+      .trim();
+  }
+
+  // =============================================
+  // PAYMENT REPORTS
+  // =============================================
   loadPaymentReports(): void {
     if (!this.fromDate || !this.toDate) {
       this.toast.error('Please select from and to dates');
@@ -398,7 +421,7 @@ private extractAndCleanHtml(response: any): string {
         this.paymentReports = res.dataList ?? [];
         this.filteredReports = this.paymentReports;
       },
-      error: (err) => this.toast.error('Failed to load payment reports')
+      error: () => this.toast.error('Failed to load payment reports')
     });
   }
 
@@ -423,13 +446,6 @@ private extractAndCleanHtml(response: any): string {
     this.loadPaymentReports();
   }
 
-  switchView(view: string): void {
-    this.activeView = view;
-    if (view === 'reports' && this.paymentReports.length === 0) {
-      this.loadPaymentReports();
-    }
-  }
-
   nextReportPage(): void {
     this.reportPage++;
     this.loadPaymentReports();
@@ -442,25 +458,26 @@ private extractAndCleanHtml(response: any): string {
     }
   }
 
-  openGenerateInvoice(): void {
-    const modalEl = document.getElementById('generateInvoiceModal');
-    if (modalEl) {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
+  // =============================================
+  // VIEW SWITCHING
+  // =============================================
+  switchView(view: string): void {
+    this.activeView = view;
+    if (view === 'reports' && this.paymentReports.length === 0) {
+      this.loadPaymentReports();
     }
   }
 
-  // Load appointments from API
- loadAppointments(): void {
-  this.http
-    .get<any>(ApiEndpoints.INVOICE.GET_DOCTOR_APPOINTMENT_BY_STATUS)
-    .subscribe({
+  // =============================================
+  // APPOINTMENTS
+  // =============================================
+  loadAppointments(): void {
+    this.http.get<any>(ApiEndpoints.INVOICE.GET_DOCTOR_APPOINTMENT_BY_STATUS).subscribe({
       next: (res) => {
         if (!res?.isSuccess) {
           this.toast.error(res?.message || 'Failed to load appointments');
           return;
         }
-
         this.appointments = res.data ?? [];
         this.filteredAppointments = this.appointments;
       },
@@ -468,8 +485,6 @@ private extractAndCleanHtml(response: any): string {
     });
   }
 
-
-  // Filter appointments based on search term
   filterAppointments(): void {
     if (!this.searchTerm.trim()) {
       this.filteredAppointments = this.appointments;
@@ -482,36 +497,38 @@ private extractAndCleanHtml(response: any): string {
     );
   }
 
-  // Dropdown change handler
+  // =============================================
+  // INVOICE GENERATION
+  // =============================================
+  openGenerateInvoice(): void {
+    this.openModal('generateInvoiceModal');
+  }
+
   onAppointmentChange(): void {
-    const selected = this.appointments.find(
-      a => a.appointmentId === this.selectedAppointmentId
-    );
+    const selected = this.appointments.find(a => a.appointmentId === this.selectedAppointmentId);
 
     if (!selected) {
       this.resetInvoice();
       return;
     }
 
+    this.appointmentFeesLoaded = false;
+    this.labFeesLoaded = false;
     this.loadAppointmentDetails(this.selectedAppointmentId);
     this.loadLabTestDetails(this.selectedAppointmentId);
   }
 
-  // Load appointment details with fee
-loadAppointmentDetails(appointmentId: string): void {
-  this.http
-    .get<any>(`${ApiEndpoints.INVOICE.GET_APPOINTMENT_FEES_BY_ID}?Id=${appointmentId}`)
-    .subscribe({
+  loadAppointmentDetails(appointmentId: string): void {
+    this.http.get<any>(`${ApiEndpoints.INVOICE.GET_APPOINTMENT_FEES_BY_ID}?Id=${appointmentId}`).subscribe({
       next: (res) => {
         if (!res?.isSuccess) {
           this.toast.error(res?.message || 'Failed to load appointment fee');
+          this.appointmentFeesLoaded = true;
+          this.checkAndLoadRemainingAmount(appointmentId);
           return;
         }
 
-        const selected = this.appointments.find(
-          a => a.appointmentId === this.selectedAppointmentId
-        );
-
+        const selected = this.appointments.find(a => a.appointmentId === this.selectedAppointmentId);
         if (!selected) return;
 
         this.invoice.patientId = selected.patientId;
@@ -521,31 +538,180 @@ loadAppointmentDetails(appointmentId: string): void {
         this.invoice.appointmentDate = this.formatDate(selected.appointmentDate);
         this.invoice.doctorFee = res.data ?? 0;
 
+        this.appointmentFeesLoaded = true;
         this.calculateTotal();
+        this.checkAndLoadRemainingAmount(appointmentId);
       },
-      error: () => this.toast.error('Failed to load appointment fee'),
+      error: () => {
+        this.toast.error('Failed to load appointment fee');
+        this.appointmentFeesLoaded = true;
+        this.checkAndLoadRemainingAmount(appointmentId);
+      },
     });
-}
-loadLabTestDetails(appointmentId: string): void {
-  this.http
-    .get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, {
-      params: { appointmentId: appointmentId },
-    })
-    .subscribe({
+  }
+
+  loadLabTestDetails(appointmentId: string): void {
+    this.http.get<any>(ApiEndpoints.INVOICE.GET_LAB_FEES_BY_AppointmentID, {
+      params: { appointmentId }
+    }).subscribe({
       next: (res) => {
-        this.invoice.labTestFee = res?.isSuccess ? res.data ?? 0 : 0;
+        this.invoice.labTestFee = res?.isSuccess ? (res.data ?? 0) : 0;
+        this.labFeesLoaded = true;
         this.calculateTotal();
+        this.checkAndLoadRemainingAmount(appointmentId);
       },
       error: () => {
         this.invoice.labTestFee = 0;
+        this.labFeesLoaded = true;
         this.calculateTotal();
+        this.checkAndLoadRemainingAmount(appointmentId);
       },
     });
-}
+  }
 
-  // Calculate total amount when fees change
+  private checkAndLoadRemainingAmount(appointmentId: string): void {
+    if (this.appointmentFeesLoaded && this.labFeesLoaded) {
+      this.loadRemainingAmount(appointmentId);
+    }
+  }
+
+  loadRemainingAmount(appointmentId: string): void {
+    const apiUrl = `${ApiEndpoints.INVOICE.GET_REMAINING_AMOUNT}?appointmentId=${appointmentId}`;
+    
+    this.http.get<any>(apiUrl).subscribe({
+      next: (res) => {
+        if (res?.isSuccess) {
+          const apiRemainingAmount = res.data ?? this.totalAmount;
+          this.existingPayments = Math.max(0, this.totalAmount - apiRemainingAmount);
+          this.remainingAmount = apiRemainingAmount;
+          this.paymentAmount = 0;
+          this.updatePaymentStatus();
+        }
+      },
+      error: () => {
+        this.remainingAmount = this.totalAmount;
+        this.existingPayments = 0;
+        this.paymentAmount = 0;
+        this.paymentStatus = 'Pending';
+      }
+    });
+  }
+
   calculateTotal(): void {
     this.totalAmount = (this.invoice.doctorFee || 0) + (this.invoice.labTestFee || 0);
+  }
+
+  onPaymentAmountChange(): void {
+    const currentPayment = this.paymentAmount || 0;
+    const maxPayable = this.totalAmount - this.existingPayments;
+    this.remainingAmount = Math.max(0, maxPayable - currentPayment);
+    this.updatePaymentStatus();
+  }
+
+  private updatePaymentStatus(): void {
+    if (this.remainingAmount === 0) {
+      this.paymentStatus = 'Complete';
+    } else if ((this.paymentAmount && this.paymentAmount > 0) || this.existingPayments > 0) {
+      this.paymentStatus = 'Partial';
+    } else {
+      this.paymentStatus = 'Pending';
+    }
+  }
+
+  validatePaymentAmount(): boolean {
+  // Check if payment amount is null, undefined, or empty
+  const amount = Number(this.paymentAmount);
+  
+  if (!amount || amount <= 0) {
+    this.toast.error('Payment amount must be greater than 0');
+    return false;
+  }
+  
+  const maxPayable = this.totalAmount - this.existingPayments;
+  
+  if (maxPayable <= 0) {
+    this.toast.error('No remaining amount to pay');
+    return false;
+  }
+  
+  if (amount > maxPayable) {
+    this.toast.error(`Payment amount (₹${amount.toFixed(2)}) cannot exceed remaining amount (₹${maxPayable.toFixed(2)})`);
+    return false;
+  }
+  
+  return true;
+}
+
+  generateInvoice(): void {
+    if (!this.selectedAppointmentId || !this.invoice.patientId) {
+      this.toast.error('Please select an appointment');
+      return;
+    }
+
+    if (!this.validatePaymentAmount()) return;
+
+    this.isSubmitting = true;
+
+    const payload = {
+      patientId: this.invoice.patientId,
+      appointmentId: this.selectedAppointmentId,
+      doctorFee: this.invoice.doctorFee || 0,
+      labTestFee: this.invoice.labTestFee || 0,
+      createdBy: 'Admin',
+    };
+
+    this.http.post<any>(ApiEndpoints.INVOICE.CREATE_INVOICE, payload).subscribe({
+      next: (res) => {
+        if (!res?.isSuccess || !res?.id) {
+          this.toast.error(res?.message || 'Failed to create invoice');
+          this.isSubmitting = false;
+          return;
+        }
+        this.createPayment(res.id);
+      },
+      error: () => {
+        this.toast.error('Failed to create invoice');
+        this.isSubmitting = false;
+      },
+    });
+  }
+
+  createPayment(invoiceId: string): void {
+    const payload = {
+      invoiceId,
+      amount: this.paymentAmount,
+      paymentMode: this.invoice.paymentMode,
+      paymentStatus: this.paymentStatus,
+      createdBy: 'Admin',
+    };
+
+    this.http.post<any>(ApiEndpoints.INVOICE.CREATE_PAYMENT, payload).subscribe({
+      next: (res) => {
+        if (!res?.isSuccess) {
+          this.toast.error(res?.message || 'Payment failed');
+          this.isSubmitting = false;
+          return;
+        }
+
+        const message = this.paymentStatus === 'Complete'
+          ? 'Invoice & payment completed successfully'
+          : `Partial payment recorded. Remaining: ₹${this.remainingAmount.toFixed(2)}`;
+        
+        this.toast.success(message);
+        this.loadInvoices();
+        this.loadAppointments();
+        this.closeModal('generateInvoiceModal');
+        this.resetInvoice();
+        this.selectedAppointmentId = '';
+        this.searchTerm = '';
+        this.filteredAppointments = this.appointments;
+        this.isSubmitting = false;
+      },
+      error: () => {
+        this.toast.error('Payment failed');
+        this.isSubmitting = false;
+      },
+    });
   }
 
   resetInvoice(): void {
@@ -557,82 +723,33 @@ loadLabTestDetails(appointmentId: string): void {
       appointmentDate: '',
       doctorFee: 0,
       labTestFee: 0,
-      paymentMode: 'Cash'
+      paymentMode: 'Cash',
+      paymentStatus: 'Pending'
     };
     this.totalAmount = 0;
+    this.paymentAmount = 0;
+    this.remainingAmount = 0;
+    this.existingPayments = 0;
+    this.paymentStatus = 'Pending';
+    this.appointmentFeesLoaded = false;
+    this.labFeesLoaded = false;
   }
 
-// Generate Invoice - Two API Calls
-generateInvoice(): void {
-  if (!this.selectedAppointmentId || !this.invoice.patientId) {
-    this.toast.error('Please select an appointment');
-    return;
+  // =============================================
+  // MODAL UTILITIES
+  // =============================================
+  private openModal(modalId: string): void {
+    const modalEl = document.getElementById(modalId);
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
   }
 
-  this.isSubmitting = true;
-
-  const payload = {
-    patientId: this.invoice.patientId,
-    appointmentId: this.selectedAppointmentId,
-    doctorFee: this.invoice.doctorFee || 0,
-    labTestFee: this.invoice.labTestFee || 0,
-    createdBy: 'Admin',
-  };
-
-  this.http.post<any>(ApiEndpoints.INVOICE.CREATE_INVOICE, payload).subscribe({
-    next: (res) => {
-      if (!res?.isSuccess || !res?.id) {
-        this.toast.error(res?.message || 'Failed to create invoice');
-        this.isSubmitting = false;
-        return;
-      }
-
-      this.createPayment(res.id);
-    },
-    error: () => {
-      this.toast.error('Failed to create invoice');
-      this.isSubmitting = false;
-    },
-  });
-}
-
-
-  // Create Payment
-  createPayment(invoiceId: string): void {
-  const payload = {
-    invoiceId,
-    amount: this.totalAmount,
-    paymentMode: this.invoice.paymentMode,
-    paymentStatus: 'Paid',
-    createdBy: 'Admin',
-  };
-
-  this.http.post<any>(ApiEndpoints.INVOICE.CREATE_PAYMENT, payload).subscribe({
-    next: (res) => {
-      if (!res?.isSuccess) {
-        this.toast.error(res?.message || 'Payment failed');
-        this.isSubmitting = false;
-        return;
-      }
-
-      this.toast.success('Invoice & payment generated successfully');
-
-      this.loadInvoices();
-      this.loadAppointments();
-
-      const modalEl = document.getElementById('generateInvoiceModal');
-      bootstrap.Modal.getInstance(modalEl!)?.hide();
-
-      this.resetInvoice();
-      this.selectedAppointmentId = '';
-      this.searchTerm = '';
-      this.filteredAppointments = this.appointments;
-      this.isSubmitting = false;
-    },
-    error: () => {
-      this.toast.error('Payment failed');
-      this.isSubmitting = false;
-    },
-  });
-}
+  private closeModal(modalId: string): void {
+    const modalEl = document.getElementById(modalId);
+    if (modalEl) {
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    }
+  }
 }
