@@ -39,7 +39,7 @@
         <th>Feature Name</th>
         <th>Hospital Name</th>
         <th>User Name</th>
-        <th>Is Extend</th>
+        <th *ngIf="isSuperAdmin">Is Extend</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -55,7 +55,7 @@
               (f.user?.firstName ? f.user.firstName + ' ' + (f.user.lastName || '') : '')
           }}
         </td>
-        <td>
+        <td *ngIf="isSuperAdmin">
           <div class="form-check form-switch">
             <input
               class="form-check-input"
@@ -120,7 +120,7 @@
                 </option>
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6"  *ngIf="isSuperAdmin">
               <label class="form-label small fw-semibold"
                 >Hospital <span class="text-danger">*</span></label
               >
@@ -145,7 +145,7 @@
                 </option>
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" *ngIf="isSuperAdmin">
               <div class="form-check mt-2">
                 <input
                   class="form-check-input"

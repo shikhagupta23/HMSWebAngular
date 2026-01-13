@@ -5,6 +5,7 @@ import { UsersService } from '../../services/users-service';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { SignalRService } from '../../../../shared/services/signal-rservice';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../auth/services/auth-service';
 
 declare const bootstrap: any;
 
@@ -28,14 +29,15 @@ export class FeatureAssignment implements OnInit {
   searchTerm = '';
   selectedId: any = null;
   whatsAppForm!: FormGroup;
-selectedFeatureAccessId!: string;
-selectedHospitalId!: string;
-whatsAppConfigDataAvailable = false;
-whatsAppConfigData: any 
+  selectedFeatureAccessId!: string;
+  selectedHospitalId!: string;
+  whatsAppConfigDataAvailable = false;
+  whatsAppConfigData: any 
   private fb = inject(FormBuilder);
   private api = inject(FeatureAccessService);
   private usersApi = inject(UsersService);
   private toast = inject(ToastService);
+  private authService = inject(AuthService);
 
  initWhatsAppForm() {
   this.whatsAppForm = this.fb.group({
@@ -80,24 +82,46 @@ whatsAppConfigData: any
     this.initWhatsAppForm();
     this.loadList();
     this.loadFeatureList();
-    this.loadHospitalList();
+    
+    if (this.isSuperAdmin) {
+      this.loadHospitalList();
+    } else {
+      const hospitalId = this.loggedInHospitalId;
 
-    this.assignForm.get('featureId')?.valueChanges.subscribe((featureId) => {
-      if (featureId) {
+      this.assignForm.patchValue({
+        hospitalId: hospitalId
+      });
+
+      this.assignForm.get('hospitalId')?.disable();
+
+      this.loadUsersForNonSuperAdmin();
+    }
+
+    this.assignForm.get('featureId')?.valueChanges.subscribe(featureId => {
+      if (!featureId) return;
+
+      if (this.isSuperAdmin) {
         this.assignForm.get('hospitalId')?.enable();
         this.assignForm.get('hospitalId')?.reset();
         this.assignForm.get('userId')?.disable();
-        this.assignForm.get('canAddAnotherUser')?.disable();
         this.userList = [];
+      } else {
+        this.loadUsersForNonSuperAdmin();
       }
     });
 
-    this.assignForm.get('hospitalId')?.valueChanges.subscribe((hospitalId) => {
-      const featureId = this.assignForm.value.featureId;
+      // 🔥 HOSPITAL CHANGE HANDLER (SuperAdmin only)
+    this.assignForm.get('hospitalId')?.valueChanges.subscribe(hospitalId => {
+      if (!hospitalId || !this.isSuperAdmin) return;
 
-      if (hospitalId && featureId) {
-        this.loadUsersAsPerSelection();
-        this.assignForm.get('userId')?.enable();
+      const featureId = this.assignForm.get('featureId')?.value;
+      if (!featureId) return;
+
+      this.loadUsersForSuperAdmin(hospitalId, featureId);
+    });
+
+    this.assignForm.get('featureId')?.valueChanges.subscribe(v => {
+      if (this.isSuperAdmin) {
         this.assignForm.get('canAddAnotherUser')?.enable();
       }
     });
@@ -254,9 +278,10 @@ whatsAppConfigData: any
     const payload: any = {
       featureId: this.assignForm.value.featureId,
       name: this.assignForm.value.name,
-      hospitalId: this.assignForm.value.hospitalId,
+      hospitalId: this.isSuperAdmin ? this.assignForm.value.hospitalId : this.loggedInHospitalId,
       userId: this.assignForm.value.userId,
       canAddAnotherUser: !!this.assignForm.value.canAddAnotherUser,
+      assignedBy: this.authService.getLoggedInUserId(),
     };
     if (this.selectedId != null) {
       payload.id = this.selectedId;
@@ -455,10 +480,62 @@ dateRangeValidator(group: FormGroup) {
   }
   return null;
 }
-
-
-
   private onFeatureAssignSignalR() : void{
     this.loadList();
   }
+
+  get isSuperAdmin(): boolean {
+    return this.authService.role?.toLowerCase() === 'superadmin';
+  }
+
+  get loggedInHospitalId(): string | null {
+    return this.authService.currentUser?.hospitalId ?? null;
+  }
+
+  loadUsersForNonSuperAdmin() {
+    const featureId = this.assignForm.get('featureId')?.value;
+    const hospitalId = this.loggedInHospitalId;
+
+    if (!featureId || !hospitalId) {
+      this.userList = [];
+      return;
+    }
+
+    this.api
+      .getUsersAsPerHospitalFeature(
+        hospitalId,
+        featureId,
+        this.authService.role ?? ''
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.userList = res?.dataList ?? [];
+          this.assignForm.get('userId')?.enable();
+        },
+        error: () => {
+          this.toast.error('Failed to load users');
+          this.userList = [];
+        }
+      });
+  }
+
+  loadUsersForSuperAdmin(hospitalId: string, featureId: string) {
+    this.api
+      .getUsersAsPerHospitalFeature(
+        hospitalId,
+        featureId,
+        'SuperAdmin'
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.userList = res?.dataList ?? [];
+          this.assignForm.get('userId')?.enable();
+        },
+        error: () => {
+          this.toast.error('Failed to load users');
+          this.userList = [];
+        }
+      });
+  }
+
 }
