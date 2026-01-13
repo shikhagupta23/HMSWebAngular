@@ -203,7 +203,14 @@ loadPatients() {
     });
   }
  resetPatientForm() {
-    this.patientForm.reset();
+     this.patientForm.reset({
+    fullName: '',
+    gender: '',
+    dob: '',
+    phoneNumber: '',
+    address: '',
+    abhaId: ''
+  });
 
     this.patientForm.markAsPristine();
     this.patientForm.markAsUntouched();

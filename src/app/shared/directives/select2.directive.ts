@@ -1,45 +1,95 @@
-import { Directive, ElementRef, inject, Input, OnInit, OnDestroy, SimpleChanges  } from '@angular/core';
-import { NgControl } from '@angular/forms';
+import {
+  Directive,
+  ElementRef,
+  Input,
+  OnDestroy,
+  AfterViewInit,
+  forwardRef
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR
+} from '@angular/forms';
+
 declare var $: any;
 
 @Directive({
   selector: '[appSelect2]',
-  standalone: false,
+    standalone: false,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => Select2Directive),
+      multi: true
+    }
+  ]
 })
-export class Select2Directive implements OnInit, OnDestroy {
+export class Select2Directive
+  implements ControlValueAccessor, AfterViewInit, OnDestroy {
 
-  @Input() placeholder: string = 'Select option';
-    private el = inject(ElementRef);
-    private control = inject(NgControl);
-    constructor() {}
+  @Input() placeholder = 'Select option';
 
-  ngOnInit() {
-    setTimeout(() => {
-        $(this.el.nativeElement).select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            placeholder: this.placeholder,
-            allowClear: true
-        });
-    }, 0);
+  private onChange = (_: any) => {};
+  private onTouched = () => {};
+  private pendingValue: any = null;
+  private observer!: MutationObserver;
 
-    $(this.el.nativeElement).on('change', () => {
-      const value = $(this.el.nativeElement).val();
-      this.control.control?.setValue(value);
-      this.control.control?.markAsTouched();
+  constructor(private el: ElementRef) {}
+
+  ngAfterViewInit(): void {
+    const element = this.el.nativeElement;
+
+    $(element).select2({
+      theme: 'bootstrap-5',
+      width: '100%',
+      placeholder: this.placeholder,
+      allowClear: true
+    });
+
+    // 🔥 OBSERVE OPTION CHANGES
+    this.observer = new MutationObserver(() => {
+      if (this.pendingValue !== null) {
+        $(element)
+          .val(this.pendingValue)
+          .trigger('change.select2');
+      }
+    });
+
+    this.observer.observe(element, {
+      childList: true,
+      subtree: true
+    });
+
+    $(element).on('change', () => {
+      const value = $(element).val();
+      this.onChange(value);
+      this.onTouched();
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (!this.el?.nativeElement) return;
+  writeValue(value: any): void {
+    this.pendingValue = value;
 
-    const value = this.control.control?.value ?? '';
-    $(this.el.nativeElement).val(value).trigger('change.select2');
+    $(this.el.nativeElement)
+      .val(value ?? '')
+      .trigger('change.select2');
   }
-  ngOnDestroy() {
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    $(this.el.nativeElement).prop('disabled', isDisabled);
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
     $(this.el.nativeElement).off('change');
+    $(this.el.nativeElement).select2('destroy');
   }
-
-  
-  
 }

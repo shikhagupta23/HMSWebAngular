@@ -53,16 +53,24 @@
 				</div>
 <!-- ================= Doctor Fields ================= -->
 
-@if(isDoctor){
-				<div class="row">
+<!-- @if(isDoctor){ -->
+				<div class="row" [hidden]="!isDoctor">
 				<div class="col-md-6 mb-3">
 					<label class="form-label">Department <span class="text-danger">*</span></label>
-					<select class="form-control" appSelect2 placeholder="-- Department --" formControlName="department">
-					<option [ngValue]="null">-- Department --</option>
-					<option *ngFor="let d of departments" [ngValue]="d.value">
-						{{ d.text }} 
-					</option>
-					</select>
+					<select
+  class="form-control"
+  appSelect2
+  placeholder="-- Department --"
+  formControlName="department">
+
+  <option value="">-- Department --</option>
+
+  <option *ngFor="let d of departments" [value]="d.value">
+    {{ d.text | uppercase }}
+  </option>
+
+</select>
+
 					<div *ngIf="f['department'].touched && f['department'].invalid" class="invalid-feedback d-block">
 						<div *ngIf="f['department'].errors?.['required']">Department is required</div>
 					</div>
@@ -77,7 +85,7 @@
 				</div>
 				</div>
 
-				<div class="row">
+				<div class="row" [hidden]="!isDoctor">
 				<div class="col-md-6 mb-3">
 					<label class="form-label">Degree </label>
 					<input class="form-control" formControlName="degree" />
@@ -88,7 +96,7 @@
 					<input class="form-control" formControlName="speciality" />
 				</div>
 				</div>
-}
+<!-- } -->
 				<div class="mb-3">
 					<label class="form-label">Address <span class="text-danger">*</span></label>
 					<textarea class="form-control" formControlName="address" rows="3"></textarea>
