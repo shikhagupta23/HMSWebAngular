@@ -40,7 +40,7 @@ export class Dashboard implements OnInit{
   
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
 
   // Dashboard card shortcut routes
   dashboardShortcuts = {
