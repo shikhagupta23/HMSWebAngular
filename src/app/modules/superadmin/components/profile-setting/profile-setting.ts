@@ -28,6 +28,7 @@ private authService = inject(AuthService);
  private userApi = inject(UsersService);
  private asidebarService = inject(AsidebarService);
  profiledata: any ;
+ private departmentToPatch: string | null = null;
   ngOnInit(): void {
     const role = this.authService.getUserRole();
     this.isDoctor = role === 'Doctor'; // 🔥 role check
@@ -66,7 +67,10 @@ private authService = inject(AuthService);
       next: (res) => {
         this.profiledata = res?.data ?? (Array.isArray(res?.dataList) ? res.dataList[0] : null);
         const data = this.profiledata;
+
         if(isDoctor){
+          console.log(this.toUpperCaseSafe(data.doctorDepartmentMasterId))
+          this.departmentToPatch = this.toUpperCaseSafe(data.doctorDepartmentMasterId);
           this.form.patchValue({
             id: data.doctorId,
             userName: data.doctorName,
@@ -75,10 +79,6 @@ private authService = inject(AuthService);
             address: data.doctorFullAddress,
             dateOfBirth: this.normalizeDateForInput(data.dob),
             gender: data.gender ?? '',
-            department: data.doctorDepartmentMasterId &&
-                        data.doctorDepartmentMasterId !== '00000000-0000-0000-0000-000000000000'
-                          ? data.doctorDepartmentMasterId
-                          : null,
             registrationNo: data.doctorRegNo,
             degree: data.doctorDegree,
             speciality: data.doctorSpeciality
@@ -121,24 +121,64 @@ private authService = inject(AuthService);
     });
   }
 
+  toUpperCaseSafe(value: string | null | undefined): string | null {
+  return value ? value.toUpperCase() : null;
+}
+
 loadDoctorDepartments() {
   this.userApi.getDoctorDepartments().subscribe({
     next: (res: any) => {
-      this.departments =
-        res.dataList ;
+      console.group('🔍 Department Patch Debug');
 
-      // Ensure saved department shows in dropdown
-      if (this.profiledata?.doctorDepartmentMasterId) {
-        setTimeout(() => {
-          this.form.patchValue({
-            department: this.profiledata.doctorDepartmentMasterId
-          });
-        });
+      console.log('Raw API response:', res);
+
+      this.departments = res.dataList ?? [];
+      console.log('Departments list:', this.departments);
+
+      console.log('departmentToPatch (raw):', this.departmentToPatch);
+      console.log(
+        'departmentToPatch type:',
+        typeof this.departmentToPatch
+      );
+
+      if (!this.departmentToPatch) {
+        console.warn('❌ departmentToPatch is null/undefined');
+        console.groupEnd();
+        return;
       }
+
+      const normalizedId = this.departmentToPatch.toUpperCase().trim();
+      console.log('Normalized ID:', normalizedId);
+
+      const departmentValues = this.departments.map(d =>
+        String(d.value).trim()
+      );
+
+      console.log('All department values:', departmentValues);
+
+      const exists = departmentValues.includes(normalizedId);
+      console.log('Does normalizedId exist?', exists);
+
+      if (exists) {
+        console.log('✅ Setting department control to:', normalizedId);
+
+        this.form.get('department')?.setValue(normalizedId);
+
+        console.log(
+          'Form control value AFTER set:',
+          this.form.get('department')?.value
+        );
+      } else {
+        console.warn('❌ No matching department found');
+        this.form.get('department')?.setValue('');
+      }
+
+      console.groupEnd();
     },
-    error: () => {
+    error: (err) => {
+      console.error('❌ Failed to load departments', err);
       this.toast.error('Failed to load departments');
-    },
+    }
   });
 }
 
