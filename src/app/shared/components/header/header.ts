@@ -13,15 +13,11 @@ export class Header {
   private auth = inject(AuthService);
   private router = inject(Router);
   showProfileMenu = false;
-  role: string | null = null;
-  user:any
+  role = this.auth.getUserRole();
+  user$ = this.auth.user$;
 
   ngOnInit(): void {
-    this.role= this.auth.getUserRole();
-    this.auth.user$.subscribe(user => {
-      this.user = user;
-      this.role = this.auth.getUserRole();
-    });
+
   }
 
   toggleProfileMenu() {

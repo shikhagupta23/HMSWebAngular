@@ -21,9 +21,9 @@
     <i class="feather feather-user"></i>
   </div>
 
-  <div class="profile-info d-none d-md-block">
-	<div class="hospitalName">{{user.hospitalName}}</div>
-    <div class="name">{{ user?.userName }}</div>
+  <div class="profile-info d-none d-md-block" *ngIf="user$ | async as user">
+	  <div class="hospitalName">{{user.hospitalName}}</div>
+    <div class="name">{{ user.userName }}</div>
     <div class="status">{{ role }}</div>
   </div>
 

@@ -1,12 +1,20 @@
 export const safeStorage = {
-  get(key: string): string | null {
+  get(key: string): any {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem(key);
+
+    const value = localStorage.getItem(key);
+    if (!value) return null;
+
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   },
 
-  set(key: string, value: string): void {
+  set(key: string, value: any): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem(key, value);
+    localStorage.setItem(key, JSON.stringify(value));
   },
 
   remove(key: string): void {

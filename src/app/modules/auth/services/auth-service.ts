@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  private userSubject = new BehaviorSubject<any>(this.getUser());
+  private userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable();
   private api = inject(ApiService);
   private router = inject(Router);
@@ -18,6 +18,12 @@ export class AuthService {
   private REFRESH_KEY = 'refresh_token';
   private USER_KEY = 'auth_user';
   
+  private _ = (() => {
+    const user = this.getUser();
+    if (user) {
+      this.userSubject.next(user);
+    }
+  })();
 
   login(payload: any): Observable<any> {
     return this.api.post(ApiEndpoints.AUTH.LOGIN, payload);
@@ -53,7 +59,20 @@ saveAuth(res: AuthResponse): void {
 
   getUser() {
     const user = safeStorage.get(this.USER_KEY);
-    return user ? JSON.parse(user) : null;
+
+    if (!user) return null;
+
+    // already parsed
+    if (typeof user === 'object') {
+      return user;
+    }
+
+    // stringified
+    try {
+      return JSON.parse(user);
+    } catch {
+      return null;
+    }
   }
 
   logout(): void {
@@ -145,7 +164,7 @@ saveAuth(res: AuthResponse): void {
   }
 
   setUser(user: any): void {
-    safeStorage.set(this.USER_KEY, JSON.stringify(user));
+    safeStorage.set(this.USER_KEY, user);
     this.userSubject.next(user);
   }
 
