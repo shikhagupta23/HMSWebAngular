@@ -274,6 +274,7 @@ loadDoctorDepartments() {
   }
 
   const v = this.addUserForm.value;
+  const selectedRole = this.roles.find(r => r.value === v.RoleId);
 
   if (this.isEditMode && this.editingUserId) {
     // 🔵 EDIT (PATCH)
@@ -284,7 +285,7 @@ loadDoctorDepartments() {
   dateOfBirth: v.DateOfBirth
     ? new Date(v.DateOfBirth).toISOString()
     : null,
-  roleName: v.userRole,        
+  roleName: selectedRole?.text,        
   hospitalId: v.HospitalId,
   phoneNumber: v.PhoneNumber,
   email: v.Email,

@@ -1,11 +1,14 @@
+import { FeatureAccessKeys } from "./feature-access-keys";
+
 export interface MenuItem {
   label: string;
   icon: string;
-route?: string | ((role: string) => string);  roles: string[];
+  route?: string | ((role: string) => string);  roles: string[];
   hidden?: boolean;
   action?: string;   
   expanded?: boolean;
-  children?: MenuItem[];  
+  children?: MenuItem[]; 
+  featureKey?: string; 
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -55,7 +58,8 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "FollowUp Appointments",
     icon: "fa-solid fa-clock-rotate-left",
     route: "/superadmin/upcoming-followup",
-    roles: ["Admin", "Receptionist", "Doctor"]
+    roles: ["Admin", "Receptionist", "Doctor"],
+    featureKey: FeatureAccessKeys.UpcomingFollowUp
   },  
   {
     label: "Invoice",
@@ -63,12 +67,6 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/invoice",
     roles: ["Admin", "Receptionist"]
   },  
-  {
-    label: "Prescriptions",
-    icon: "fa-solid fa-file-medical",
-    route: "/doctor/prescription/add",
-    roles: []
-  },
     {
     label: "Prescription Helper Values",
     icon: "fa-solid fa-file-medical",
@@ -141,7 +139,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Feature Assignment",
     icon: "fa-solid fa-user-gear",
     route: "/superadmin/feature-assignment",
-    roles: ["SuperAdmin"]
+    roles: ["SuperAdmin", "Admin"]
   },
   {
     label: "Package Management",
