@@ -223,9 +223,15 @@ toggleStatus(pkg: PackageModel, event: Event): void {
           this.toast.error(response.message);
         }
       },
-      error: () => {
-        this.toast.error('Failed to change status');
-        this.closeModal('confirmStatusModal');
+      error: (err) => {
+      const apiMessage =
+        err?.error?.message ||  
+        err?.error ||          
+        err?.message ||          
+        'Failed to change status';
+
+      this.toast.error(apiMessage);
+      this.closeModal('confirmStatusModal');
       }
     });
 }

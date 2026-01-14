@@ -303,33 +303,41 @@ export class AssignPackage implements OnInit {
   /**
    * Confirm status change
    */
-  confirmStatusChange(): void {
-    if (!this.confirmAssignment) return;
-    
-    const newStatus = !this.confirmAssignment.isActive;
-    
-    this.assignPackageService.changeAssignmentStatus(this.confirmAssignment.hospitalPackageId!, newStatus).subscribe({
+ confirmStatusChange(): void {
+  if (!this.confirmAssignment) return;
+
+  const newStatus = !this.confirmAssignment.isActive;
+
+  this.assignPackageService
+    .changeAssignmentStatus(this.confirmAssignment.hospitalPackageId!, newStatus)
+    .subscribe({
       next: (response) => {
-        if(response.isSuccess){
+        if (response.isSuccess) {
           this.confirmAssignment!.isActive = newStatus;
-          this.toast.success(`Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+          this.toast.success(
+            `Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`
+          );
           this.closeModal('confirmStatusModal');
           this.confirmAssignment = null;
           this.loadAssignments();
-        }
-        else{
+        } else {
+          // API returned 200 but isSuccess = false
           this.toast.error(response.message);
         }
-
       },
       error: (err) => {
-        console.error('Error changing status:', err);
-        this.toast.error(err.message || 'Failed to change status. Please try again.');
+        // ✅ ALWAYS read API message first
+        const apiMessage =
+          err?.error?.message ||   // structured API response
+          err?.error ||            // plain string response
+          'Failed to change status. Please try again.';
+
+        this.toast.error(apiMessage);
         this.closeModal('confirmStatusModal');
         this.confirmAssignment = null;
       }
     });
-  }
+}
 
   /**
    * Cancel status change
