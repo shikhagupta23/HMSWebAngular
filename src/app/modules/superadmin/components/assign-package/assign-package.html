@@ -95,12 +95,12 @@
                     <td>{{ assignment.endDate ? formatDate(assignment.endDate) : 'Ongoing' }}</td>
                     <td><strong>₹{{ assignment.fee | number:'1.0-0' }}</strong></td>
                     <td>
-                      <label class="toggle-switch">
-                        <input type="checkbox" [checked]="assignment.isActive"
-                          (change)="toggleStatus(assignment, $event)">
-                        <span class="toggle-slider"></span>
-                      </label>
-                    </td>
+  <label class="toggle-switch">
+    <input type="checkbox" 
+           [checked]="assignment.isActive"
+           (click)="toggleStatus(assignment, $event)"> <span class="toggle-slider"></span>
+  </label>
+</td>
                     <!-- <td>
                       <div class="d-flex align-items-center">
 

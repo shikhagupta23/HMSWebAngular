@@ -89,9 +89,9 @@
                     <td>{{ package.durationInDays }} days</td>
                     <td>
                       <label class="toggle-switch">
-                        <input type="checkbox" 
-                               [checked]="package.isActive"
-                               (change)="toggleStatus(package, $event)">
+                       <input type="checkbox" 
+       [checked]="package.isActive"
+       (click)="toggleStatus(package, $event)">
                         <span class="toggle-slider"></span>
                       </label>
                     </td>

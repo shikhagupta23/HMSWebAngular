@@ -179,51 +179,56 @@ export class Package implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error updating package:', err);
-        this.toast.error('Failed to update package. Please try again.');
+        this.toast.error(err.error || 'Failed to update package. Please try again.');
         this.loading = false;
       }
     });
   }
 
-  toggleStatus(pkg: PackageModel, event: Event): void {
-    event.preventDefault();
-    
-    this.confirmPackage = pkg;
-    this.confirmAction = pkg.isActive ? 'deactivate' : 'activate';
-    
-    const confirmModal = document.getElementById('confirmStatusModal');
-    if (confirmModal) {
-      const modal = new (window as any).bootstrap.Modal(confirmModal);
-      modal.show();
-    }
-  }
+toggleStatus(pkg: PackageModel, event: Event): void {
+  // 1. Stop the checkbox from visually changing immediately
+  event.preventDefault();
+  event.stopPropagation();
 
-  confirmStatusChange(): void {
-    if (!this.confirmPackage) return;
-    
-    const newStatus = !this.confirmPackage.isActive;
-    
-    this.packageService.changeStatus(this.confirmPackage.packageId!, newStatus).subscribe({
+  // 2. Store the package we want to change
+  this.confirmPackage = { ...pkg }; 
+  this.confirmAction = pkg.isActive ? 'deactivate' : 'activate';
+
+  // 3. Open the modal
+  const confirmModalEl = document.getElementById('confirmStatusModal');
+  if (confirmModalEl) {
+    const modal = new (window as any).bootstrap.Modal(confirmModalEl);
+    modal.show();
+  }
+}
+
+ confirmStatusChange(): void {
+  if (!this.confirmPackage) return;
+  
+  const newStatus = !this.confirmPackage.isActive;
+  
+  this.packageService.changeStatus(this.confirmPackage.packageId!, newStatus)
+    .subscribe({
       next: (response) => {
-        if(response.isSuccess){
-          this.confirmPackage!.isActive = newStatus;
+        if (response.isSuccess) {
+          // Find the actual package in our list and update its status
+          const pkg = this.packages.find(p => p.packageId === this.confirmPackage?.packageId);
+          if (pkg) {
+            pkg.isActive = newStatus; // UI updates here via data binding
+          }
+          
           this.toast.success(`Package ${newStatus ? 'activated' : 'deactivated'} successfully!`);
           this.closeModal('confirmStatusModal');
-          this.confirmPackage = null;
-        }
-        else{
+        } else {
           this.toast.error(response.message);
         }
       },
-      error: (err) => {
-        console.error('Error changing status:', err);
-        this.toast.error('Failed to change status. Please try again.');
+      error: () => {
+        this.toast.error('Failed to change status');
         this.closeModal('confirmStatusModal');
-        this.confirmPackage = null;
       }
     });
-  }
+}
 
   cancelStatusChange(): void {
     this.confirmPackage = null;

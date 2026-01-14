@@ -18,6 +18,7 @@ interface HospitalDropdown {
   name: string;
 }
 
+
 interface AssignmentModel {
   hospitalPackageId?: string;
   hospitalId: string;
@@ -66,7 +67,7 @@ export class AssignPackage implements OnInit {
   
   // Confirmation modal
   confirmAction = '';
-  confirmAssignment: AssignmentModel | null = null;
+  confirmAssignment: any | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -282,18 +283,22 @@ export class AssignPackage implements OnInit {
   /**
    * Toggle assignment status with confirmation
    */
-  toggleStatus(assignment: AssignmentModel, event: Event): void {
-    event.preventDefault();
-    
-    this.confirmAssignment = assignment;
-    this.confirmAction = assignment.isActive ? 'deactivate' : 'activate';
-    
-    const confirmModal = document.getElementById('confirmStatusModal');
-    if (confirmModal) {
-      const modal = new (window as any).bootstrap.Modal(confirmModal);
-      modal.show();
-    }
+  toggleStatus(assignment: any, event: Event): void {
+  // Prevent the checkbox from flipping visually right now
+  event.preventDefault();
+  event.stopPropagation();
+
+  // Store the data for the modal
+  this.confirmAssignment = { ...assignment };
+  this.confirmAction = assignment.isActive ? 'deactivate' : 'activate';
+
+  // Open the confirmation modal manually
+  const confirmModalEl = document.getElementById('confirmStatusModal');
+  if (confirmModalEl) {
+    const modal = new (window as any).bootstrap.Modal(confirmModalEl);
+    modal.show();
   }
+}
 
   /**
    * Confirm status change
