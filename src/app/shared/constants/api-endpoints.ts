@@ -177,7 +177,7 @@ export const ApiEndpoints = {
 
     ADD: `${API_BASE_URL}/Package/createPackage`,
 
-    UPDATE: `${API_BASE_URL}/Package/Put`,
+    UPDATE: `${API_BASE_URL}/Package/updatePackage`,
 
     CHANGE_STATUS: (id: string, isActive: boolean) =>
       `${API_BASE_URL}/Package/activate-deactivate?id=${id}&isActive=${isActive}`,

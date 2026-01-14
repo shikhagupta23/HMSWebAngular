@@ -18,6 +18,7 @@ interface HospitalDropdown {
   name: string;
 }
 
+
 interface AssignmentModel {
   hospitalPackageId?: string;
   hospitalId: string;
@@ -66,7 +67,7 @@ export class AssignPackage implements OnInit {
   
   // Confirmation modal
   confirmAction = '';
-  confirmAssignment: AssignmentModel | null = null;
+  confirmAssignment: any | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -282,49 +283,61 @@ export class AssignPackage implements OnInit {
   /**
    * Toggle assignment status with confirmation
    */
-  toggleStatus(assignment: AssignmentModel, event: Event): void {
-    event.preventDefault();
-    
-    this.confirmAssignment = assignment;
-    this.confirmAction = assignment.isActive ? 'deactivate' : 'activate';
-    
-    const confirmModal = document.getElementById('confirmStatusModal');
-    if (confirmModal) {
-      const modal = new (window as any).bootstrap.Modal(confirmModal);
-      modal.show();
-    }
+  toggleStatus(assignment: any, event: Event): void {
+  // Prevent the checkbox from flipping visually right now
+  event.preventDefault();
+  event.stopPropagation();
+
+  // Store the data for the modal
+  this.confirmAssignment = { ...assignment };
+  this.confirmAction = assignment.isActive ? 'deactivate' : 'activate';
+
+  // Open the confirmation modal manually
+  const confirmModalEl = document.getElementById('confirmStatusModal');
+  if (confirmModalEl) {
+    const modal = new (window as any).bootstrap.Modal(confirmModalEl);
+    modal.show();
   }
+}
 
   /**
    * Confirm status change
    */
-  confirmStatusChange(): void {
-    if (!this.confirmAssignment) return;
-    
-    const newStatus = !this.confirmAssignment.isActive;
-    
-    this.assignPackageService.changeAssignmentStatus(this.confirmAssignment.hospitalPackageId!, newStatus).subscribe({
+ confirmStatusChange(): void {
+  if (!this.confirmAssignment) return;
+
+  const newStatus = !this.confirmAssignment.isActive;
+
+  this.assignPackageService
+    .changeAssignmentStatus(this.confirmAssignment.hospitalPackageId!, newStatus)
+    .subscribe({
       next: (response) => {
-        if(response.isSuccess){
+        if (response.isSuccess) {
           this.confirmAssignment!.isActive = newStatus;
-          this.toast.success(`Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+          this.toast.success(
+            `Assignment ${newStatus ? 'activated' : 'deactivated'} successfully!`
+          );
           this.closeModal('confirmStatusModal');
           this.confirmAssignment = null;
           this.loadAssignments();
-        }
-        else{
+        } else {
+          // API returned 200 but isSuccess = false
           this.toast.error(response.message);
         }
-
       },
       error: (err) => {
-        console.error('Error changing status:', err);
-        this.toast.error('Failed to change status. Please try again.');
+        // ✅ ALWAYS read API message first
+        const apiMessage =
+          err?.error?.message ||   // structured API response
+          err?.error ||            // plain string response
+          'Failed to change status. Please try again.';
+
+        this.toast.error(apiMessage);
         this.closeModal('confirmStatusModal');
         this.confirmAssignment = null;
       }
     });
-  }
+}
 
   /**
    * Cancel status change
