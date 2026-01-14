@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  private userSubject = new BehaviorSubject<any>(null);
+  private userSubject = new BehaviorSubject<any>(this.getUser());
   user$ = this.userSubject.asObservable();
   private api = inject(ApiService);
   private router = inject(Router);
