@@ -34,10 +34,9 @@
           <div class="search-box position-relative">
             <input type="text" class="form-control" placeholder="Search Package..." 
                    [(ngModel)]="searchTerm">
-            <i class="feather feather-search search-icon"></i>
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
           </div>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal"
-                  (click)="openAddModal()">
+          <button class="btn btn-primary" (click)="openAddModal()">
             + Add Package
           </button>
         </div>
@@ -58,6 +57,7 @@
                     <th>Price</th>
                     <th>Duration</th>
                     <th>Status</th>
+                    <th>Edit</th>
                   </tr>
                 </thead>
 
@@ -76,7 +76,7 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="avatar avatar-sm bg-light-primary rounded-circle me-3">
-                          <i class="feather feather-package text-primary"></i>
+                          <i class="fa-solid fa-box text-primary"></i>
                         </div>
                         <div>
                           <h6 class="mb-0">{{ package.packageName }}</h6>
@@ -94,6 +94,14 @@
                                (change)="toggleStatus(package, $event)">
                         <span class="toggle-slider"></span>
                       </label>
+                    </td>
+                     <td>
+                      <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-outline-secondary icon-btn" (click)="openEditModal(package)"
+                          title="Edit">
+                          <i class="fa-solid fa-pencil"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
 
@@ -181,7 +189,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editPackageModalLabel">
-          <i class="feather feather-edit me-2"></i>Edit Package
+          <i class="fa-solid fa-pen-to-square me-2"></i>Edit Package
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -240,7 +248,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary" [disabled]="loading">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            <i *ngIf="!loading" class="feather feather-save me-1"></i>
+            <i *ngIf="!loading" class="fa-solid fa-floppy-disk me-1"></i>
             Update Package
           </button>
         </div>
@@ -259,7 +267,7 @@
       <div class="modal-body text-center pt-0">
         <div class="mb-3">
           <div class="avatar avatar-lg bg-warning-light rounded-circle mx-auto mb-3">
-            <i class="feather feather-alert-circle text-warning" style="font-size: 2rem;"></i>
+            <i class="fa-solid fa-triangle-exclamation text-warning" style="font-size: 2rem;"></i>
           </div>
           <h4 class="mb-2">Confirm Status Change</h4>
           <p class="text-muted mb-0">
@@ -283,7 +291,7 @@
         </button>
         <button type="button" class="btn btn-warning px-4" 
                 (click)="confirmStatusChange()">
-          <i class="feather feather-check me-1"></i>
+          <i class="fa-solid fa-check me-1"></i>
           Yes, {{ confirmAction }}
         </button>
       </div>

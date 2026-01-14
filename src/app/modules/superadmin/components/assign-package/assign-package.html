@@ -17,9 +17,8 @@
       <div class="col-md-3">
         <div class="dataTables_length">
           <label class="d-flex align-items-center">
-            Show 
-            <select class="form-select form-select-sm mx-2"  
-                    [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
+            Show
+            <select class="form-select form-select-sm mx-2" [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
               <option [value]="10">10</option>
               <option [value]="25">25</option>
               <option [value]="50">50</option>
@@ -32,12 +31,11 @@
       <div class="col-md-9">
         <div class="d-flex justify-content-end gap-2">
           <div class="search-box position-relative">
-            <input type="text" class="form-control" placeholder="Search Assignment..." 
-                   [(ngModel)]="searchTerm">
+            <input type="text" class="form-control" placeholder="Search Assignment..." [(ngModel)]="searchTerm">
             <i class="feather feather-search search-icon"></i>
           </div>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignPackageModal"
-                  (click)="openAssignModal()">
+            (click)="openAssignModal()">
             + Assign Package
           </button>
         </div>
@@ -59,7 +57,7 @@
                     <th>End Date</th>
                     <th>Price</th>
                     <th>Status</th>
-                    <td>Action</td>
+                    <!-- <td>Action</td> -->
                   </tr>
                 </thead>
 
@@ -89,7 +87,8 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <i class="feather feather-package text-primary me-2"></i>
-                        <span><strong>{{ assignment.packageName }}</strong> ({{ assignment.durationInDays }} days)</span>
+                        <span><strong>{{ assignment.packageName }}</strong> ({{ assignment.durationInDays }}
+                          days)</span>
                       </div>
                     </td>
                     <td>{{ formatDate(assignment.startDate) }}</td>
@@ -97,32 +96,21 @@
                     <td><strong>₹{{ assignment.fee | number:'1.0-0' }}</strong></td>
                     <td>
                       <label class="toggle-switch">
-                        <input type="checkbox" 
-                               [checked]="assignment.isActive"
-                               (change)="toggleStatus(assignment, $event)">
+                        <input type="checkbox" [checked]="assignment.isActive"
+                          (change)="toggleStatus(assignment, $event)">
                         <span class="toggle-slider"></span>
                       </label>
                     </td>
-                    <td>
-                      <div class="d-flex gap-2">
-  <button
-    class="btn btn-sm btn-outline-warning icon-btn"
-    (click)="openEditModal(assignment)"
-    title="Edit"
-  >
-    <i class="fa-solid fa-pen"></i>
-  </button>
+                    <!-- <td>
+                      <div class="d-flex align-items-center">
 
-  <button
-    class="btn btn-sm btn-outline-danger icon-btn"
-    (click)="deleteAssignment(assignment)"
-    title="Delete"
-  >
-    <i class="fa-solid fa-trash"></i>
-  </button>
-</div>
+                        <button class="btn btn-sm btn-outline-danger icon-btn" (click)="deleteAssignment(assignment)"
+                          title="Delete">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
 
-                    </td>
+                    </td> -->
                   </tr>
 
                   <!-- Empty State -->
@@ -143,7 +131,8 @@
 </div>
 
 <!-- Assign Package Modal -->
-<div class="modal fade" id="assignPackageModal" tabindex="-1" aria-labelledby="assignPackageModalLabel" aria-hidden="true">
+<div class="modal fade" id="assignPackageModal" tabindex="-1" aria-labelledby="assignPackageModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
@@ -158,13 +147,14 @@
             <div class="col-md-3 mb-3">
               <label class="form-label">Select Hospital <span class="text-danger">*</span></label>
               <select class="form-select" formControlName="hospitalId"
-                      [class.is-invalid]="assignForm.get('hospitalId')?.invalid && assignForm.get('hospitalId')?.touched">
+                [class.is-invalid]="assignForm.get('hospitalId')?.invalid && assignForm.get('hospitalId')?.touched">
                 <option value="">-- Select Hospital --</option>
                 <option *ngFor="let hospital of hospitals" [value]="hospital.id">
                   {{ hospital.name }}
                 </option>
               </select>
-              <div class="invalid-feedback" *ngIf="assignForm.get('hospitalId')?.invalid && assignForm.get('hospitalId')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="assignForm.get('hospitalId')?.invalid && assignForm.get('hospitalId')?.touched">
                 Hospital selection is required
               </div>
             </div>
@@ -172,23 +162,25 @@
             <div class="col-md-3 mb-3">
               <label class="form-label">Select Package <span class="text-danger">*</span></label>
               <select class="form-select" formControlName="packageId"
-                      [class.is-invalid]="assignForm.get('packageId')?.invalid && assignForm.get('packageId')?.touched">
+                [class.is-invalid]="assignForm.get('packageId')?.invalid && assignForm.get('packageId')?.touched">
                 <option value="">-- Select Package --</option>
                 <option *ngFor="let package of packages" [value]="package.id">
-                  {{ package.name }}<span *ngIf="package.price"> - ₹{{ package.price | number:'1.0-0' }}</span><span *ngIf="package.durationInDays"> ({{ package.durationInDays }} days)</span>
+                  {{ package.name }}<span *ngIf="package.price"> - ₹{{ package.price | number:'1.0-0' }}</span><span
+                    *ngIf="package.durationInDays"> ({{ package.durationInDays }} days)</span>
                 </option>
               </select>
-              <div class="invalid-feedback" *ngIf="assignForm.get('packageId')?.invalid && assignForm.get('packageId')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="assignForm.get('packageId')?.invalid && assignForm.get('packageId')?.touched">
                 Package selection is required
               </div>
             </div>
 
             <div class="col-md-2 mb-3">
               <label class="form-label">Start Date <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" formControlName="startDate"
-                     [min]="minDate"
-                     [class.is-invalid]="assignForm.get('startDate')?.invalid && assignForm.get('startDate')?.touched">
-              <div class="invalid-feedback" *ngIf="assignForm.get('startDate')?.invalid && assignForm.get('startDate')?.touched">
+              <input type="date" class="form-control" formControlName="startDate" [min]="minDate"
+                [class.is-invalid]="assignForm.get('startDate')?.invalid && assignForm.get('startDate')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="assignForm.get('startDate')?.invalid && assignForm.get('startDate')?.touched">
                 Start date is required
               </div>
             </div>
@@ -197,7 +189,7 @@
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary" [disabled]="loading">
             <span *ngIf="loading" class="spinner-border "></span>
-            
+
             Assign Package
           </button>
         </div>
@@ -207,7 +199,8 @@
 </div>
 
 <!-- Edit Assignment Modal -->
-<div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-labelledby="editAssignmentModalLabel" aria-hidden="true">
+<div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-labelledby="editAssignmentModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -231,18 +224,17 @@
 
             <div class="col-md-6 mb-3">
               <label class="form-label">Start Date <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" formControlName="startDate"
-                     [min]="minDate"
-                     [class.is-invalid]="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched">
-              <div class="invalid-feedback" *ngIf="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched">
+              <input type="date" class="form-control" formControlName="startDate" [min]="minDate"
+                [class.is-invalid]="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched">
+              <div class="invalid-feedback"
+                *ngIf="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched">
                 Start date is required
               </div>
             </div>
 
             <div class="col-md-6 mb-3">
               <label class="form-label">End Date</label>
-              <input type="date" class="form-control" formControlName="endDate"
-                     [min]="minDate">
+              <input type="date" class="form-control" formControlName="endDate" [min]="minDate">
               <small class="text-muted">Leave empty for ongoing subscription</small>
             </div>
 
@@ -272,7 +264,8 @@
 </div>
 
 <!-- Status Change Confirmation Modal -->
-<div class="modal fade" id="confirmStatusModal" tabindex="-1" aria-labelledby="confirmStatusModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmStatusModal" tabindex="-1" aria-labelledby="confirmStatusModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0 pb-0">
@@ -285,7 +278,7 @@
           </div>
           <h4 class="mb-2">Confirm Status Change</h4>
           <p class="text-muted mb-0">
-            Are you sure you want to <strong>{{ confirmAction }}</strong> the assignment for 
+            Are you sure you want to <strong>{{ confirmAction }}</strong> the assignment for
             <strong>"{{ confirmAssignment?.hospitalName }}"</strong>?
           </p>
           <p class="text-muted small mt-2">
@@ -299,12 +292,10 @@
         </div>
       </div>
       <div class="modal-footer border-0 justify-content-center pt-0">
-        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" 
-                (click)="cancelStatusChange()">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" (click)="cancelStatusChange()">
           Cancel
         </button>
-        <button type="button" class="btn btn-warning px-4" 
-                (click)="confirmStatusChange()">
+        <button type="button" class="btn btn-warning px-4" (click)="confirmStatusChange()">
           <i class="feather feather-check me-1"></i>
           Yes, {{ confirmAction }}
         </button>

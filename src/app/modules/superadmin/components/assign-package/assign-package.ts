@@ -319,7 +319,7 @@ export class AssignPackage implements OnInit {
       },
       error: (err) => {
         console.error('Error changing status:', err);
-        this.toast.error('Failed to change status. Please try again.');
+        this.toast.error(err.message || 'Failed to change status. Please try again.');
         this.closeModal('confirmStatusModal');
         this.confirmAssignment = null;
       }
