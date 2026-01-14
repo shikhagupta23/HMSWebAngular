@@ -40,19 +40,27 @@ export class ViewAllPatients implements OnInit {
     return (this.datePipe.transform(date, 'dd MMM yyyy') || '').toUpperCase();
   }
 
-ngOnInit() {
-  this.loadPatients();
-   this.signalRService.connect().then(() => {
+  ngOnInit() {
+    this.patientForm = this.fb.group({
+      fullName: ['', Validators.required, Validators.pattern(/^[A-Za-z\s]+$/)],
+      gender: ['', Validators.required],
+      dob: ['', Validators.required],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      address: ['', Validators.required],
+      abhaId: ['']
+    });
+    this.loadPatients();
+    this.signalRService.connect().then(() => {
 
-  this.subscriptions.push(
-    this.signalRService.onUserAdd().subscribe(() => {
-      this.onPatientAddSignalR();      
-    })
-  );
+    this.subscriptions.push(
+      this.signalRService.onUserAdd().subscribe(() => {
+        this.onPatientAddSignalR();      
+      })
+    );
 
-  this.subscriptions.push(
-    this.signalRService.onReceiveCheckIn().subscribe(() => {
-      this.onPatientAddSignalR();
+    this.subscriptions.push(
+      this.signalRService.onReceiveCheckIn().subscribe(() => {
+        this.onPatientAddSignalR();
     })
   );
 
@@ -63,14 +71,6 @@ ngOnInit() {
   );
 
 });
-  this.patientForm = this.fb.group({
-    fullName: ['', Validators.required, Validators.pattern(/^[A-Za-z\s]+$/)],
-    gender: ['', Validators.required],
-    dob: ['', Validators.required],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    address: ['', Validators.required],
-    abhaId: ['']
-  });
 }
  ngAfterViewInit(): void {
     const modalEl = document.getElementById('addPatientModal');
@@ -182,8 +182,8 @@ loadPatients() {
           next: (res) => {
             if (res.isSuccess) {
             this.toast.success("Patient Saved Successfully");
-            this.closeModal();
             this.loadPatients();
+            this.closeModal();
           }
           else {
             this.toast.error(res.message || "Failed to saved patient");

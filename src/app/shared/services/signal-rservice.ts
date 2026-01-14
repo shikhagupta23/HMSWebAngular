@@ -44,6 +44,20 @@ export class SignalRService {
   }
 }
 
+private getHospitalIdFromToken(): string | null {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload['HospitalId'] || null; // must match backend claim name
+  } catch (err) {
+    console.error('Invalid JWT token', err);
+    return null;
+  }
+}
+
+
 
   /* ================================
      CONNECT TO SIGNALR
@@ -54,15 +68,21 @@ export class SignalRService {
     }
 
     const role = this.getRoleFromToken();
+    const hospitalId = this.getHospitalIdFromToken();
+
     if (!role) {
       console.warn('Role not found, SignalR not connected');
       return;
     }
     
-    const hubUrlWithRole = `${this.hubUrl}?role=${encodeURIComponent(role)}`;
+    let hubUrlWithParams  = `${this.hubUrl}?role=${encodeURIComponent(role)}`;
+      // ✅ Attach hospitalId only for non-superadmin users
+      if (role !== 'SuperAdmin' && hospitalId) {
+        hubUrlWithParams += `&hospitalId=${encodeURIComponent(hospitalId)}`;
+      }
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(hubUrlWithRole, {
+      .withUrl(hubUrlWithParams , {
         accessTokenFactory: () => localStorage.getItem('auth_token') || '',
         withCredentials: false
       })
@@ -74,7 +94,7 @@ export class SignalRService {
     this.registerHubEvents();
 
     try {
-      console.log('Connecting to SignalR:', hubUrlWithRole);
+      console.log('Connecting to SignalR:', hubUrlWithParams);
       await this.hubConnection.start();
       console.log('✅ SignalR connected');
     } catch (err) {
