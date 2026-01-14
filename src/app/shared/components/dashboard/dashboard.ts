@@ -1,6 +1,8 @@
 import { Component, inject, OnInit} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { DashboardService } from './Service/dashboard-service';
+import { AuthService } from '../../../modules/auth/services/auth-service';
+import { FeatureAccessKeys } from '../../constants/feature-access-keys';
 
 interface DashboardSummary {
   appointments: number;
@@ -38,6 +40,7 @@ export class Dashboard implements OnInit{
   
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
+  private authService = inject(AuthService);
 
   // Dashboard card shortcut routes
   dashboardShortcuts = {
@@ -52,6 +55,57 @@ export class Dashboard implements OnInit{
 
   constructor() {}
 
+  dashboardCards = [
+    {
+      title: 'Appointments',
+      value: () => this.totalAppointments,
+      icon: 'fa-calendar-day',
+      click: () => this.navigateByCard('appointments'),
+      featureKey: FeatureAccessKeys.Appointments
+    },
+    {
+      title: 'Scheduled Appointments',
+      value: () => this.scheduledAppointments,
+      icon: 'fa-calendar-plus',
+      click: () => this.navigateByCard('scheduled'),
+      featureKey: FeatureAccessKeys.ScheduledAppointments
+    },
+    {
+      title: 'Completed Appointments',
+      value: () => this.completedAppointments,
+      icon: 'fa-circle-check',
+      click: () => this.navigateByCard('completed'),
+      featureKey: FeatureAccessKeys.CompletedAppointments
+    },
+    {
+      title: 'Ongoing Appointments',
+      value: () => this.pendingAppointments,
+      icon: 'fa-clock',
+      click: () => this.navigateByCard('ongoing'),
+      featureKey: FeatureAccessKeys.OngoingAppointments
+    },
+    {
+      title: 'Cancelled Appointments',
+      value: () => this.cancelledAppointments,
+      icon: 'fa-calendar-xmark',
+      click: () => this.navigateByCard('cancelled'),
+      featureKey: FeatureAccessKeys.CancelledAppointments
+    },
+    {
+      title: 'Patients',
+      value: () => this.totalPatients,
+      icon: 'fa-user-plus',
+      click: () => this.navigateByCard('patients'),
+      featureKey: FeatureAccessKeys.Patients
+    },
+    {
+      title: 'Revenue',
+      value: () => this.totalRevenue,
+      icon: 'fa-chart-line',
+      featureKey: FeatureAccessKeys.Revenue
+    }
+  ];
+
   ngOnInit(): void {
     this.today = this.getTodayDate();
     this.loadDashboardData(true);
@@ -61,8 +115,6 @@ export class Dashboard implements OnInit{
         // this.loadFullData();
       }
     });
-
-
   }
 
   getTodayDate(): string {

@@ -37,17 +37,17 @@
       <tr>
         <th>SR. NO.</th>
         <th>Feature Name</th>
-        <th>Hospital Name</th>
+        <th *ngIf="isSuperAdmin">Hospital Name</th>
         <th>User Name</th>
         <th *ngIf="isSuperAdmin">Is Extend</th>
-        <th>Actions</th>
+        <th class="d-none">Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let f of dataList; let i = index">
         <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
         <td>{{ f.featureName || f.FeatureName || f.feature?.name }}</td>
-        <td>{{ f.hospitalName || f.HospitalName || f.hospital?.name || f.hospitalNameDisplay }}</td>
+        <td *ngIf="isSuperAdmin">{{ f.hospitalName || f.HospitalName || f.hospital?.name || f.hospitalNameDisplay }}</td>
         <td>
           {{
             f.userName ||
@@ -66,19 +66,19 @@
             />
           </div>
         </td>
-     <td class="text-center">
-<button  (click)="openWhatsAppModal(f)"
-  *ngIf="f.featureName === 'whatsapp'; else noConfig"
-  class="btn btn-sm btn-outline-success"
->
-  <i class="fa-brands fa-whatsapp"></i> Configure
-</button>
+     <td class=" d-none text-center">
+        <button  (click)="openWhatsAppModal(f)"
+          *ngIf="f.featureName === 'whatsapp'; else noConfig"
+          class="btn btn-sm btn-outline-success"
+        >
+          <i class="fa-brands fa-whatsapp"></i> Configure
+        </button>
 
 
-  <ng-template #noConfig>
-    <span class="text-muted">—</span>
-  </ng-template>
-</td>
+          <ng-template #noConfig>
+            <span class="text-muted">—</span>
+          </ng-template>
+      </td>
 
 
       </tr>
@@ -119,6 +119,10 @@
                   {{ ft.text }}
                 </option>
               </select>
+              <div class="text-danger small"
+                  *ngIf="assignForm.get('featureId')?.touched && assignForm.get('featureId')?.errors?.['required']">
+                Feature is required
+              </div>
             </div>
             <div class="col-md-6"  *ngIf="isSuperAdmin">
               <label class="form-label small fw-semibold"
@@ -133,6 +137,10 @@
                   {{ h.name || h.hospitalName || h.HospitalName }}
                 </option>
               </select>
+              <div class="text-danger small"
+                  *ngIf="assignForm.get('hospitalId')?.touched && assignForm.get('hospitalId')?.errors?.['required']">
+                Hospital is required
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold"
@@ -144,6 +152,10 @@
                   {{ u.text }}
                 </option>
               </select>
+              <div class="text-danger small"
+                  *ngIf="assignForm.get('userId')?.touched && assignForm.get('userId')?.errors?.['required']">
+                User is required
+              </div>
             </div>
             <div class="col-md-6" *ngIf="isSuperAdmin">
               <div class="form-check mt-2">

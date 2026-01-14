@@ -10,15 +10,19 @@ import { Router } from '@angular/router';
   styleUrl: './header.scss',
 })
 export class Header {
- private auth = inject(AuthService);
- private router = inject(Router);
- showProfileMenu = false;
-role: string | null = null;
-user:any
-ngOnInit(): void {
- this.role= this.auth.getUserRole();
-  this.user=this.auth.getUser();
-}
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  showProfileMenu = false;
+  role: string | null = null;
+  user:any
+
+  ngOnInit(): void {
+    this.role= this.auth.getUserRole();
+    this.auth.user$.subscribe(user => {
+      this.user = user;
+      this.role = this.auth.getUserRole();
+    });
+  }
 
   toggleProfileMenu() {
     this.showProfileMenu = !this.showProfileMenu;

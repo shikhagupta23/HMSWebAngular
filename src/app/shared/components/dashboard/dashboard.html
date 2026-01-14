@@ -14,102 +14,36 @@
 </ul>
 
 <div class="row mb-4">
-	<div class="col-12">
-		<h5 class="mb-3 fw-bold">  {{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}
-</h5>
-	</div>
+  <div class="col-12">
+    <h5 class="mb-3 fw-bold">
+      {{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}
+    </h5>
+  </div>
 
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('appointments')">
-			<div class="dashboard-content-info">
-				<h6>Appointments</h6>
-				<h4>{{ totalAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-calendar-day"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('scheduled')">
-			<div class="dashboard-content-info">
-				<h6>Scheduled Appointments</h6>
-				<h4>{{ scheduledAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-calendar-plus"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('completed')">
-			<div class="dashboard-content-info">
-				<h6>Completed Appointments</h6>
-				<h4>{{ completedAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-circle-check"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('ongoing')">
-			<div class="dashboard-content-info">
-				<h6>OnGoing Appointments</h6>
-				<h4>{{ pendingAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-clock"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('cancelled')">
-			<div class="dashboard-content-info">
-				<h6>Cancelled Appointments</h6>
-				<h4>{{ cancelledAppointments }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-calendar-xmark"></i>
-				</span>
-			</div>
-		</div>
-	</div>
+  <ng-container *ngFor="let card of dashboardCards">
+    <div
+      class="col-xl-3 col-md-6 mb-3"
+      *ngIf="authService.hasFeature(card.featureKey)"
+    >
+      <div
+        class="dashboard-widget-box"
+        [class.cursor]="card.click"
+        (click)="card.click && card.click()"
+      >
+        <div class="dashboard-content-info">
+          <h6>{{ card.title }}</h6>
+          <h4>
+            {{ card.title === 'Revenue' ? '₹' : '' }}{{ card.value() }}
+          </h4>
+        </div>
 
-	<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box cursor" (click)="navigateByCard('patients')">
-			<div class="dashboard-content-info">
-				<h6>Patients</h6>
-				<h4>{{ totalPatients}}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-user-plus"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-		<div class="col-xl-3 col-md-6 mb-3">
-		<div class="dashboard-widget-box">
-			<div class="dashboard-content-info">
-				<h6>Revenue</h6>
-				<h4>₹{{ totalRevenue }}</h4>
-			</div>
-			<div class="dashboard-widget-icon">
-				<span class="dash-icon-box appointment-info">
-					<i class="fa-solid fa-chart-line"></i>
-				</span>
-			</div>
-		</div>
-	</div>
+        <div class="dashboard-widget-icon">
+          <span class="dash-icon-box appointment-info">
+            <i class="fa-solid" [ngClass]="card.icon"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>
+

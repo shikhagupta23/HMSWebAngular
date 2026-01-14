@@ -24,6 +24,17 @@ export class Asidebar {
     this.role = this.authService.getUserRole() ?? '';
     this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
     this.loadDoctorDetails();
+
+    this.asidebarService.doctorDetails$.subscribe(data => {
+      if (data) {
+        this.doctorDetails = data;
+      }
+    });
+
+    if (this.role.toLowerCase() === 'doctor') {
+      const doctorId = this.authService.getLoggedInUserId();
+      this.asidebarService.loadDoctorDetails(doctorId);
+    }
   }
 
   loadDoctorDetails(){

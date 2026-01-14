@@ -35,7 +35,7 @@ private authService = inject(AuthService);
       id: [''],
       hospitalId: [''],
       userName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.email]],
       phoneNumber: ['', [Validators.required]],
       address: ['', [Validators.required]],
       dateOfBirth: [''],
@@ -217,6 +217,16 @@ submit() {
             return;
           }
           this.toast.success(res?.message || 'Doctor profile updated successfully');
+          
+          // sidebar ui update instantly
+          this.asidebarService.updateDoctorDetails({
+            doctorName: doctorPayload.doctorName,
+            doctorDegree: doctorPayload.doctorDegree,
+            doctorSpeciality: doctorPayload.doctorSpeciality,
+          });
+
+          this.authService.updateUserName(this.form.value.userName);
+
           this.saving = false;
         },
         error: (err) => {
@@ -240,6 +250,7 @@ submit() {
             return;
           }
           this.toast.success(res?.message || 'Profile updated successfully');
+          this.authService.updateUserName(this.form.value.userName);
           this.saving = false;
         },
         error: (err) => {
