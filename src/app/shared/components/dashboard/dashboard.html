@@ -1,319 +1,47 @@
-<!-- Dashboard Tabs -->
-<ul class="nav nav-pills mb-4 dashboard-tabs">
-	<li class="nav-item">
-		<button class="nav-link" [class.active]="activeTab === 'today'" (click)="onTabChange('today')">
-			Today
-		</button>
-	</li>
+  <!-- Dashboard Tabs -->
+  <ul class="nav nav-pills mb-4 dashboard-tabs">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab === 'today'" (click)="onTabChange('today')">
+        Today
+      </button>
+    </li>
 
-	<li class="nav-item">
-		<button class="nav-link" [class.active]="activeTab === 'overall'" (click)="onTabChange('overall')">
-			Overall
-		</button>
-	</li>
-</ul>
-
-<div class="row mb-4">
-	<div class="col-12">
-		<h5 class="mb-3 fw-bold">{{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}</h5>
-	</div>
-</div>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab === 'overall'" (click)="onTabChange('overall')">
+        Overall
+      </button>
+    </li>
+  </ul>
   <div class="col-12">
     <h5 class="mb-3 fw-bold">
       {{ activeTab === 'today' ? "Today's Overview" : 'Overall Overview' }}
     </h5>
   </div>
 
-<!-- Main Content Row with Two Columns -->
-<div class="row">
-	<!-- Left Column - Statistics Cards (2 columns, 4 rows) -->
-	<div class="col-xl-5 col-lg-5 mb-4">
-		<div class="row g-3">
-			<!-- Row 1 -->
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('appointments')">
-					<div class="dashboard-content-info">
-						<h6>Appointments</h6>
-						<h4>{{ totalAppointments }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-calendar-day"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('scheduled')">
-					<div class="dashboard-content-info">
-						<h6>Scheduled Appointments</h6>
-						<h4>{{ scheduledAppointments }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-calendar-plus"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Row 2 -->
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('completed')">
-					<div class="dashboard-content-info">
-						<h6>Completed Appointments</h6>
-						<h4>{{ completedAppointments }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-circle-check"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('ongoing')">
-					<div class="dashboard-content-info">
-						<h6>OnGoing Appointments</h6>
-						<h4>{{ pendingAppointments }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-clock"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Row 3 -->
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('cancelled')">
-					<div class="dashboard-content-info">
-						<h6>Cancelled Appointments</h6>
-						<h4>{{ cancelledAppointments }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-calendar-xmark"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-			<div class="col-6">
-				<div class="dashboard-widget-box cursor" (click)="navigateByCard('patients')">
-					<div class="dashboard-content-info">
-						<h6>Patients</h6>
-						<h4>{{ totalPatients}}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-user-plus"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Row 4 -->
-			<div class="col-12">
-				<div class="dashboard-widget-box">
-					<div class="dashboard-content-info">
-						<h6>Revenue</h6>
-						<h4>₹{{ totalRevenue }}</h4>
-					</div>
-					<div class="dashboard-widget-icon">
-						<span class="dash-icon-box appointment-info">
-							<i class="fa-solid fa-chart-line"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-  <ng-container *ngFor="let card of dashboardCards">
-    <div
-      class="col-xl-3 col-md-6 mb-3"
-      *ngIf="authService.hasFeature(card.featureKey)"
-    >
+  <div class="row">
+    <ng-container *ngFor="let card of dashboardCards">
       <div
-        class="dashboard-widget-box"
-        [class.cursor]="card.click"
-        (click)="card.click && card.click()"
+        class="col-xl-3 col-md-6 mb-3"
+        *ngIf="authService.hasFeature(card.featureKey)"
       >
-        <div class="dashboard-content-info">
-          <h6>{{ card.title }}</h6>
-          <h4>
-            {{ card.title === 'Revenue' ? '₹' : '' }}{{ card.value() }}
-          </h4>
-        </div>
+        <div
+          class="dashboard-widget-box"
+          [class.cursor]="card.click"
+          (click)="card.click && card.click()"
+        >
+          <div class="dashboard-content-info">
+            <h6>{{ card.title }}</h6>
+            <h4>
+              {{ card.title === 'Revenue' ? '₹' : '' }}{{ card.value() }}
+            </h4>
+          </div>
 
-        <div class="dashboard-widget-icon">
-          <span class="dash-icon-box appointment-info">
-            <i class="fa-solid" [ngClass]="card.icon"></i>
-          </span>
+          <div class="dashboard-widget-icon">
+            <span class="dash-icon-box appointment-info">
+              <i class="fa-solid" [ngClass]="card.icon"></i>
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-  </ng-container>
-</div>
-
-
-	<!-- Right Column - Appointments Table -->
-	<div class="col-xl-7 col-lg-7">
-		<div class="dashboard-card w-100">
-			<div class="dashboard-card-head">
-				<div class="header-title">
-					<h5>Appointment</h5>
-				</div>
-				<div class="dropdown header-dropdown">
-					<a class="dropdown-toggle nav-tog" data-bs-toggle="dropdown" href="javascript:void(0);">
-						Last 7 Days
-					</a>
-					<div class="dropdown-menu dropdown-menu-end">
-						<a href="javascript:void(0);" class="dropdown-item">
-							Today
-						</a>
-						<a href="javascript:void(0);" class="dropdown-item">
-							This Month
-						</a>
-						<a href="javascript:void(0);" class="dropdown-item">
-							Last 7 Days
-						</a>
-					</div>
-				</div>
-			</div>
-			<div class="dashboard-card-body">
-				<div class="table-responsive">
-					<table class="table dashboard-table appoint-table">
-						<tbody>
-							<tr>
-								<td>
-									<div class="patient-info-profile">
-										<a href="appointments.html" class="table-avatar">
-											<img src="assets/img/doctors-dashboard/profile-01.jpg" alt="Img">
-										</a>
-										<div class="patient-name-info">
-											<span>#Apt0001</span>
-											<h5><a href="appointments.html">Adrian Marshall</a></h5>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="appointment-date-created">
-										<h6>11 Nov 2024 10.45 AM</h6>
-										<span class="badge table-badge">General</span>
-									</div>
-								</td>
-								<td>
-									<div class="apponiment-actions d-flex align-items-center">
-										<a href="#" class="text-success-icon me-2"><i class="fa-solid fa-check"></i></a>
-										<a href="#" class="text-danger-icon"><i class="fa-solid fa-xmark"></i></a>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div class="patient-info-profile">
-										<a href="appointments.html" class="table-avatar">
-											<img src="assets/img/doctors-dashboard/profile-02.jpg" alt="Img">
-										</a>
-										<div class="patient-name-info">
-											<span>#Apt0002</span>
-											<h5><a href="appointments.html">Kelly Stevens</a></h5>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="appointment-date-created">
-										<h6>10 Nov 2024 11.00 AM</h6>
-										<span class="badge table-badge">Clinic Consulting</span>
-									</div>
-								</td>
-								<td>
-									<div class="apponiment-actions d-flex align-items-center">
-										<a href="#" class="text-success-icon me-2"><i class="fa-solid fa-check"></i></a>
-										<a href="#" class="text-danger-icon"><i class="fa-solid fa-xmark"></i></a>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div class="patient-info-profile">
-										<a href="appointments.html" class="table-avatar">
-											<img src="assets/img/doctors-dashboard/profile-03.jpg" alt="Img">
-										</a>
-										<div class="patient-name-info">
-											<span>#Apt0003</span>
-											<h5><a href="appointments.html">Samuel Anderson</a></h5>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="appointment-date-created">
-										<h6>03 Nov 2024 02.00 PM</h6>
-										<span class="badge table-badge">General</span>
-									</div>
-								</td>
-								<td>
-									<div class="apponiment-actions d-flex align-items-center">
-										<a href="#" class="text-success-icon me-2"><i class="fa-solid fa-check"></i></a>
-										<a href="#" class="text-danger-icon"><i class="fa-solid fa-xmark"></i></a>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div class="patient-info-profile">
-										<a href="appointments.html" class="table-avatar">
-											<img src="assets/img/doctors-dashboard/profile-04.jpg" alt="Img">
-										</a>
-										<div class="patient-name-info">
-											<span>#Apt0004</span>
-											<h5><a href="appointments.html">Catherine Griffin</a></h5>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="appointment-date-created">
-										<h6>01 Nov 2024 04.00 PM</h6>
-										<span class="badge table-badge">Clinic Consulting</span>
-									</div>
-								</td>
-								<td>
-									<div class="apponiment-actions d-flex align-items-center">
-										<a href="#" class="text-success-icon me-2"><i class="fa-solid fa-check"></i></a>
-										<a href="#" class="text-danger-icon"><i class="fa-solid fa-xmark"></i></a>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<div class="patient-info-profile">
-										<a href="appointments.html" class="table-avatar">
-											<img src="assets/img/doctors-dashboard/profile-05.jpg" alt="Img">
-										</a>
-										<div class="patient-name-info">
-											<span>#Apt0005</span>
-											<h5><a href="appointments.html">Robert Hutchinson</a></h5>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="appointment-date-created">
-										<h6>28 Oct 2024 05.30 PM</h6>
-										<span class="badge table-badge">General</span>
-									</div>
-								</td>
-								<td>
-									<div class="apponiment-actions d-flex align-items-center">
-										<a href="#" class="text-success-icon me-2"><i class="fa-solid fa-check"></i></a>
-										<a href="#" class="text-danger-icon"><i class="fa-solid fa-xmark"></i></a>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+    </ng-container>
+  </div>
