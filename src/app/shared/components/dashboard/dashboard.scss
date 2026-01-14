@@ -1,0 +1,181 @@
+
+/* Dashboard Card Styles */
+.dashboard-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.dashboard-card-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.dashboard-card-head .header-title h5 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
+.header-dropdown .nav-tog {
+	color: #666;
+	text-decoration: none;
+	font-size: 14px;
+	padding: 6px 12px;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.header-dropdown .nav-tog:hover {
+	background: #f8f9fa;
+}
+
+.dashboard-card-body {
+	padding: 20px;
+}
+
+/* Table Styles */
+.dashboard-table {
+	margin: 0;
+}
+
+.dashboard-table tbody tr {
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-table tbody tr:last-child {
+	border-bottom: none;
+}
+
+.dashboard-table td {
+	padding: 16px 8px;
+	vertical-align: middle;
+	border: none;
+}
+
+/* Patient Info */
+.patient-info-profile {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.table-avatar {
+	width: 45px;
+	height: 45px;
+	border-radius: 50%;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.table-avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.patient-name-info span {
+	color: #2196F3;
+	font-size: 13px;
+	font-weight: 500;
+	display: block;
+	margin-bottom: 4px;
+}
+
+.patient-name-info h5 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.patient-name-info h5 a {
+	color: #333;
+	text-decoration: none;
+}
+
+.patient-name-info h5 a:hover {
+	color: #2196F3;
+}
+
+/* Appointment Date */
+.appointment-date-created h6 {
+	margin: 0 0 8px 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: #666;
+}
+
+.table-badge {
+	font-size: 12px;
+	padding: 4px 10px;
+	font-weight: 500;
+	background: #e8f5e9;
+	color: #4caf50;
+	border: none;
+}
+
+/* Action Icons */
+.apponiment-actions {
+	justify-content: flex-end;
+}
+
+.text-success-icon,
+.text-danger-icon {
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.text-success-icon {
+	background: #e8f5e9;
+	color: #4caf50;
+}
+
+.text-success-icon:hover {
+	background: #4caf50;
+	color: #fff;
+}
+
+.text-danger-icon {
+	background: #ffebee;
+	color: #f44336;
+}
+
+.text-danger-icon:hover {
+	background: #f44336;
+	color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+	.dashboard-card-head {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+	
+	.dashboard-table td {
+		padding: 12px 4px;
+		font-size: 13px;
+	}
+	
+	.patient-name-info h5 {
+		font-size: 14px;
+	}
+	
+	.table-avatar {
+		width: 40px;
+		height: 40px;
+	}
+}
