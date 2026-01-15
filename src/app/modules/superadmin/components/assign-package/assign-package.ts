@@ -239,8 +239,8 @@ export class AssignPackage implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error assigning package:', err);
-        this.toast.error('Failed to assign package. Please try again.');
+        const apiMessage = err.error;
+        this.toast.error(apiMessage);
         this.loading = false;
       }
     });
