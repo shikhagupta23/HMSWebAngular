@@ -113,7 +113,7 @@
               <label class="form-label small fw-semibold"
                 >Feature <span class="text-danger">*</span></label
               >
-              <select class="form-select" appSelect2 formControlName="featureId">
+              <select class="form-select" appSelect2 placeholder="Select Feature" formControlName="featureId">
                 <option [ngValue]="null">Select Feature</option>
                 <option *ngFor="let ft of featureList" [value]="ft.value">
                   {{ ft.text }}
@@ -128,7 +128,7 @@
               <label class="form-label small fw-semibold"
                 >Hospital <span class="text-danger">*</span></label
               >
-              <select class="form-select" appSelect2 formControlName="hospitalId">
+              <select class="form-select" appSelect2 placeholder="Select Hospital" formControlName="hospitalId">
                 <option [ngValue]="null">Select Hospital</option>
                 <option
                   *ngFor="let h of hospitalList"
@@ -146,7 +146,7 @@
               <label class="form-label small fw-semibold"
                 >User <span class="text-danger">*</span></label
               >
-              <select class="form-select" appSelect2 formControlName="userId">
+              <select class="form-select" appSelect2 placeholder="Select User" formControlName="userId">
                 <option [ngValue]="null">Select User</option>
                 <option *ngFor="let u of userList" [value]="u.value">
                   {{ u.text }}
@@ -158,7 +158,10 @@
               </div>
             </div>
             <div class="col-md-6" *ngIf="isSuperAdmin">
-              <div class="form-check mt-2">
+              <label class="form-label small fw-semibold d-block">
+                &nbsp;
+              </label>
+              <div class="form-check d-flex align-items-center">
                 <input
                   class="form-check-input"
                   type="checkbox"

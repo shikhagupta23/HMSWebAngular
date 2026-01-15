@@ -574,6 +574,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
 
   openAddAppointmentModal() {
     const modal = new bootstrap.Modal(document.getElementById('addAppointmentModal'));
+    this.resetAddAppointmentForm();
     modal.show();
   }
 

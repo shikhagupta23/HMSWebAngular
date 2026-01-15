@@ -43,7 +43,8 @@ export class Select2Directive
       theme: 'bootstrap-5',
       width: '100%',
       placeholder: this.placeholder,
-      allowClear: true
+      allowClear: true,
+      dropdownParent: $(element).closest('.modal')
     });
 
     // 🔥 OBSERVE OPTION CHANGES

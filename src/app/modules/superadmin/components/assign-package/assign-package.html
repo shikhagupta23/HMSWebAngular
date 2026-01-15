@@ -31,7 +31,7 @@
       <div class="col-md-9">
         <div class="d-flex justify-content-end gap-2">
           <div class="search-box position-relative">
-            <input type="text" class="form-control" placeholder="Search Assignment..." [(ngModel)]="searchTerm">
+            <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm">
             <i class="feather feather-search search-icon"></i>
           </div>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignPackageModal"
@@ -146,7 +146,7 @@
           <div class="row">
             <div class="col-md-3 mb-3">
               <label class="form-label">Select Hospital <span class="text-danger">*</span></label>
-              <select class="form-select" appSelect2 formControlName="hospitalId"
+              <select class="form-select" appSelect2 placeholder="Select Hospital" formControlName="hospitalId"
                 [class.is-invalid]="assignForm.get('hospitalId')?.invalid && assignForm.get('hospitalId')?.touched">
                 <option value="">-- Select Hospital --</option>
                 <option *ngFor="let hospital of hospitals" [value]="hospital.id">
@@ -161,7 +161,7 @@
 
             <div class="col-md-3 mb-3">
               <label class="form-label">Select Package <span class="text-danger">*</span></label>
-              <select class="form-select" appSelect2 formControlName="packageId"
+              <select class="form-select" appSelect2 placeholder="Select Package" formControlName="packageId"
                 [class.is-invalid]="assignForm.get('packageId')?.invalid && assignForm.get('packageId')?.touched">
                 <option value="">-- Select Package --</option>
                 <option *ngFor="let package of packages" [value]="package.id">
