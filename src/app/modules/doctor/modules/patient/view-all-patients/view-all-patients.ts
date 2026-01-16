@@ -6,6 +6,7 @@ import { ToastService } from '../../../../../shared/services/toast-service';
 import { DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../../../../shared/services/signal-rservice';
+import { noFutureDateValidator } from '../../../../../shared/constants/no-future-date.validator';
 declare var bootstrap: any;
 
 @Component({
@@ -36,15 +37,23 @@ export class ViewAllPatients implements OnInit {
   totalPages = 0;
   selectedGender: string = '';
 
-  formatDate(date: string): string {
-    return (this.datePipe.transform(date, 'dd MMM yyyy') || '').toUpperCase();
+  formatDate(date: string | null): string {
+    if (!date) return 'Not Provided';
+
+    const parsedDate = new Date(date);
+
+    //Handle 0001-01-01 (DateTime.MinValue)
+    if (parsedDate.getFullYear() === 1) return 'Not Provided';
+
+    return (this.datePipe.transform(parsedDate, 'dd MMM yyyy') || 'Not Provided').toUpperCase();
   }
+
 
   ngOnInit() {
     this.patientForm = this.fb.group({
       fullName: ['', Validators.required, Validators.pattern(/^[A-Za-z\s]+$/)],
       gender: ['', Validators.required],
-      dob: ['', Validators.required],
+      dob: ['', [noFutureDateValidator]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       address: ['', Validators.required],
       abhaId: ['']
@@ -171,7 +180,7 @@ loadPatients() {
 
         const payload = {
           fullName: this.patientForm.value.fullName,
-          dateOfBirth: this.patientForm.value.dob,
+          dateOfBirth: this.patientForm.value.dob || null,
           gender: this.patientForm.value.gender,
           phoneNumber: this.patientForm.value.phoneNumber,
           address: this.patientForm.value.address,
@@ -221,7 +230,7 @@ openAddPatientModal() {
 }
 
 calculateAge(dob: string): string {
-  if (!dob) return '-';
+  if (!dob) return 'Not Provided';
 
   const birthDate = new Date(dob.replace(' ', 'T'));
   const today = new Date();
