@@ -1,0 +1,111 @@
+/* notification-prompt.component.scss */
+.notification-prompt {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  max-width: 380px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.prompt-content {
+  padding: 20px;
+}
+
+.prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+}
+
+.bell-icon {
+  color: #007bff;
+  flex-shrink: 0;
+}
+
+.prompt-content p {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-enable,
+.btn-dismiss {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-enable {
+  background: #007bff;
+  color: white;
+
+  &:hover {
+    background: #0056b3;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  }
+}
+
+.btn-dismiss {
+  background: #f0f0f0;
+  color: #333;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 480px) {
+  .notification-prompt {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .prompt-actions {
+    flex-direction: column;
+  }
+}

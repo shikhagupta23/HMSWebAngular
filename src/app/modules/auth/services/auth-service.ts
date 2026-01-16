@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { ApiEndpoints } from '../../../shared/constants/api-endpoints';
 import { ApiService } from '../../../shared/services/api-service';
 import { AuthResponse } from '../models/auth.model';
@@ -12,6 +12,11 @@ import { Router } from '@angular/router';
 export class AuthService {
   private userSubject = new BehaviorSubject<any>(this.getUser());
   user$ = this.userSubject.asObservable();
+  
+  // Logout event subject for browser close detection
+  private logoutSubject = new Subject<void>();
+  public logoutEvent$ = this.logoutSubject.asObservable();
+  
   private api = inject(ApiService);
   private router = inject(Router);
   private TOKEN_KEY = 'auth_token';
@@ -30,23 +35,22 @@ export class AuthService {
   }
 
   /** Save Auth Data */
-saveAuth(res: AuthResponse): void {
-  const user = {
-    userId: res.data.userId,
-    userName: res.data.userName,
-    hospitalId: res.data.hospitalId,
-    hospitalName: res.data.hospitalName,
-    hospitalImage: res.data.hospitalImage,
-    featureList: res.data.featureList,
-  };
+  saveAuth(res: AuthResponse): void {
+    const user = {
+      userId: res.data.userId,
+      userName: res.data.userName,
+      hospitalId: res.data.hospitalId,
+      hospitalName: res.data.hospitalName,
+      hospitalImage: res.data.hospitalImage,
+      featureList: res.data.featureList,
+    };
 
-  safeStorage.set(this.TOKEN_KEY, res.data.token);
-  safeStorage.set(this.REFRESH_KEY, res.data.refreshToken);
+    safeStorage.set(this.TOKEN_KEY, res.data.token);
+    safeStorage.set(this.REFRESH_KEY, res.data.refreshToken);
 
-  // 🔥 IMPORTANT
-  this.setUser(user);
-}
-
+    // 🔥 IMPORTANT
+    this.setUser(user);
+  }
 
   /** Get Stored Token */
   getToken(): string | null {
@@ -76,14 +80,58 @@ saveAuth(res: AuthResponse): void {
   }
 
   logout(): void {
+    // Emit logout event before clearing data
+    this.logoutSubject.next();
+    
     safeStorage.remove(this.TOKEN_KEY);
     safeStorage.remove(this.REFRESH_KEY);
     safeStorage.remove(this.USER_KEY);
+    
+    // Clear browser close flags
+    safeStorage.remove('closedWithoutLogout');
+    safeStorage.remove('closeTime');
+    
     this.router.navigate(['/auth']);
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  /** Alias method for compatibility */
+  isAuthenticated(): boolean {
+    return this.isLoggedIn();
+  }
+
+  /** 
+   * Notify backend when browser closes without logout
+   * Currently disabled - enable when backend endpoint is ready
+   */
+  notifyBrowserClose(): void {
+    // Currently not logging to backend
+    // Uncomment below when backend endpoint is ready
+    
+    /*
+    const token = this.getToken();
+    const user = this.getUser();
+    
+    if (token && user) {
+      const data = JSON.stringify({ 
+        userId: user.userId,
+        userName: user.userName,
+        hospitalId: user.hospitalId,
+        token: token,
+        action: 'browser_closed',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Use sendBeacon for reliability - it works even when page is closing
+      navigator.sendBeacon(
+        `${window.location.origin}/api/Auth/browser-close`, 
+        new Blob([data], { type: 'application/json' })
+      );
+    }
+    */
   }
 
   getUserRole(): string | null {
@@ -111,7 +159,7 @@ saveAuth(res: AuthResponse): void {
     }
   }
 
-    /** Get Logged-in User ID */
+  /** Get Logged-in User ID */
   getUserId(): string | null {
     const token = this.getToken();
     if (!token) return null;
@@ -210,6 +258,4 @@ saveAuth(res: AuthResponse): void {
       (f: any) => f.isAccess === true && f.isExtend === true
     );
   }
-
-
 }

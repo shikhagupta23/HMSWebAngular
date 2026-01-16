@@ -1,0 +1,17 @@
+<!-- notification-prompt.component.html -->
+<div *ngIf="showPrompt" class="notification-prompt">
+  <div class="prompt-content">
+    <div class="prompt-header">
+      <svg class="bell-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+      <h3>Enable Notifications</h3>
+    </div>
+    <p>Allow notifications to get security alerts when you close the browser without logging out.</p>
+    <div class="prompt-actions">
+      <button (click)="enableNotifications()" class="btn-enable">Enable Notifications</button>
+      <button (click)="dismissPrompt()" class="btn-dismiss">Not Now</button>
+    </div>
+  </div>
+</div>

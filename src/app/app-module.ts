@@ -14,6 +14,8 @@ import { loaderInterceptor } from './shared/interceptors/loader.interceptor';
 import { Loader } from './shared/components/loader/loader';
 import { Dashboard } from './shared/components/dashboard/dashboard';
 import { Adminlayout } from './Layout/adminlayout/adminlayout';
+import { NotificationPromptComponent } from '../../src/app/shared/components/notification-prompt/notification-prompt';
+import { NotificationService } from './shared/services/notification-service';
 @NgModule({
   declarations: [
     App,
@@ -21,7 +23,8 @@ import { Adminlayout } from './Layout/adminlayout/adminlayout';
     MainLayout,
     Loader,
     Dashboard,
-    Adminlayout
+    Adminlayout,
+    NotificationPromptComponent 
   ],
   imports: [
     BrowserModule,
@@ -30,6 +33,7 @@ import { Adminlayout } from './Layout/adminlayout/adminlayout';
     FormsModule
   ],
   providers: [
+    NotificationService,
      provideHttpClient(
     withInterceptors([authInterceptor,loaderInterceptor])
   ),
