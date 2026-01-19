@@ -117,11 +117,16 @@ export const ApiEndpoints = {
 
   PRESCRIPTION: {
     GET_MASTER: `${API_BASE_URL}/SelectAPI/getPrescriptionHelperMaster`,
-    GET_VALUES: `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/`, // + masterId
+    GET_VALUES: (masterId: string) =>
+      `${API_BASE_URL}/PrescriptionApi/getPrescriptionHelperValues/${masterId}`,
     SAVE: `${API_BASE_URL}/PrescriptionApi/savePrescription`,
     PRINT_HTML: (appointmentId: string) =>`${API_BASE_URL}/PrescriptionApi/print/html/${appointmentId}`,
     SAVE_PRESCRIPTION_HELPER_VALUES: `${API_BASE_URL}/PrescriptionApi/savePrescriptionHelperValues`,
+    UPDATE_PRESCRIPTION_HELPER_VALUES:
+      `${API_BASE_URL}/PrescriptionApi/prescription-update`,
 
+    DELETE_PRESCRIPTION_HELPER_VALUES: (id: string) =>
+      `${API_BASE_URL}/PrescriptionApi/prescription-helper/${id}`,
   },
   FEATURE: {
     GET: (page: number, pageSize: number, search?: string) =>
@@ -129,7 +134,9 @@ export const ApiEndpoints = {
         search ? '&searchTerm=' + encodeURIComponent(search) : ''
       }`,
     SAVE: `${API_BASE_URL}/FeatureAPI/save`,
-    UPDATE: `${API_BASE_URL}/FeatureAPI/updateFeature`
+    UPDATE: `${API_BASE_URL}/FeatureAPI/updateFeature`,
+    DELETE: (featureId: string) =>
+      `${API_BASE_URL}/FeatureAPI/deleteFeature?featureId=${featureId}`,
   },
   FEATURE_ACCESS: {
     GET: (page: number, pageSize: number, search?: string) =>

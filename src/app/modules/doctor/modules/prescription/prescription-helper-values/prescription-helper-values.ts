@@ -18,14 +18,45 @@ export class PrescriptionHelperValues implements OnInit{
   activeTab!: { name: string; masterId: string };
   listData: any[] = [];
   inputValue = '';
+  pageNumber = 1;
+  pageSize = 10;
+  totalPages = 0;
+  totalCount = 0;
+  pages: number[] = [];
+  searchTerm = '';
+  selectedItem: any = null;
+  isEditMode = false;
 
   ngOnInit(): void {
     this.loadPrescriptionMasterValues();
+
+    const modalEl = document.getElementById('addHelperModal');
+    modalEl?.addEventListener('hidden.bs.modal', () => {
+      this.isEditMode = false;
+      this.selectedItem = null;
+      this.inputValue = '';
+    });
   }
 
   onTabClick(tab: any) {
     this.activeTab = tab;
+    this.pageNumber = 1;
+
+    this.isEditMode = false;
+    this.selectedItem = null;
+    this.inputValue = '';
+
     this.getListByMasterId();
+  }
+
+  openEditPopup(item: any) {
+    this.isEditMode = true;
+    this.selectedItem = item;
+    this.inputValue = item.value;
+
+    new bootstrap.Modal(
+      document.getElementById('addHelperModal')!
+    ).show();
   }
 
   openAddPopup() {
@@ -42,42 +73,69 @@ export class PrescriptionHelperValues implements OnInit{
     }
 
     const payload = {
+      id: this.isEditMode ? this.selectedItem.id : undefined,
       prescriptionHelperMasterId: this.activeTab.masterId,
       value: this.inputValue
     };
 
-    this.prescService.savePrescriptionHeleprValue(payload).subscribe({
+    const apiCall = this.isEditMode
+      ? this.prescService.updatePrescriptionHelperValue(payload)
+      : this.prescService.savePrescriptionHeleprValue(payload);
+
+    apiCall.subscribe({
       next: (res: any) => {
-        this.toast.success(
-          res?.message || 'Helper value saved successfully!'
-        );
+        this.toast.success(res?.message || 'Saved successfully');
 
         bootstrap.Modal
           .getInstance(document.getElementById('addHelperModal')!)
           ?.hide();
 
         this.inputValue = '';
+        this.isEditMode = false;
+        this.selectedItem = null;
+
         this.getListByMasterId();
       },
       error: (err) => {
-        this.toast.error(
-          err?.error?.message || 'Failed to save helper value'
-        );
+        this.toast.error(err?.error?.message || 'Operation failed');
       }
     });
   }
 
   getListByMasterId() {
     this.prescService
-      .getHelperValuesByPrescMasterIdList(this.activeTab.masterId)
-      .subscribe(res => {
-        if(res.isSuccess){
-          this.listData = res.dataList || [];
+      .getHelperValuesByPrescMasterIdList(
+        this.activeTab.masterId,
+        this.pageNumber,
+        this.pageSize,
+        this.searchTerm || ''
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res?.isSuccess) {
+
+            this.listData = res.dataList ?? [];
+
+            this.pageNumber = res.pageNumber ?? 1;
+            this.pageSize = res.pageSize ?? this.pageSize;
+            this.totalPages = res.totalPages ?? 0;
+            this.totalCount = res.totalCount ?? 0;
+
+            this.pages = Array.from(
+              { length: this.totalPages },
+              (_, i) => i + 1
+            );
+
+          } else {
+            this.listData = [];
+            this.pages = [];
+            this.toast.error(res?.message || 'Data not found');
+          }
+        },
+        error: () => {
+          this.toast.error('Failed to load helper values');
         }
-        else{
-          this.toast.error(res.message || 'Data Not Found!')
-        }
-    });
+      });
   }
 
   loadPrescriptionMasterValues() {
@@ -102,4 +160,37 @@ export class PrescriptionHelperValues implements OnInit{
     });
   }
 
+  goToPage(page: number) {
+    if (page === this.pageNumber) return;
+    this.pageNumber = page;
+    this.getListByMasterId();
+  }
+
+  nextPage() {
+    if (this.pageNumber < this.totalPages) {
+      this.pageNumber++;
+      this.getListByMasterId();
+    }
+  }
+
+  previousPage() {
+    if (this.pageNumber > 1) {
+      this.pageNumber--;
+      this.getListByMasterId();
+    }
+  }
+
+  deleteItem(item: any) {
+    this.prescService
+      .deletePrescriptionHelperValue(item.id)
+      .subscribe({
+        next: (res: any) => {
+          this.toast.success(res?.message || 'Deleted successfully');
+          this.getListByMasterId();
+        },
+        error: () => {
+          this.toast.error('Failed to delete helper value');
+        }
+      });
+  }
 }

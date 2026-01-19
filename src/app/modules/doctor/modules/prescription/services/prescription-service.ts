@@ -16,16 +16,38 @@ export class PrescriptionService {
     return this.api.get(`${ApiEndpoints.PRESCRIPTION.GET_MASTER}`);
    }
 
-    getHelperValuesByPrescMasterIdList(masterId: string): Observable<any> {
-      return this.api.get(
-        `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`
-      );
+getHelperValuesByPrescMasterIdList(
+  masterId: string,
+  page: number,
+  pageSize: number,
+  searchTerm: string = ''
+) {
+  return this.api.get(
+    ApiEndpoints.PRESCRIPTION.GET_VALUES(masterId),
+    {
+      page,
+      pageSize,
+      searchTerm
     }
+  );
+}
 
-    savePrescriptionHeleprValue(payload: any): Observable<any> {
+savePrescriptionHeleprValue(payload: any): Observable<any> {
       return this.api.post(`${ApiEndpoints.PRESCRIPTION.SAVE_PRESCRIPTION_HELPER_VALUES}`, payload);
     }
 
+updatePrescriptionHelperValue(payload: any): Observable<any> {
+  return this.api.put(
+    ApiEndpoints.PRESCRIPTION.UPDATE_PRESCRIPTION_HELPER_VALUES,
+    payload
+  );
+}
+
+deletePrescriptionHelperValue(id: string): Observable<any> {
+  return this.api.delete(
+    ApiEndpoints.PRESCRIPTION.DELETE_PRESCRIPTION_HELPER_VALUES(id)
+  );
+}
 
 getPatientAsPerDoctor(page: number, pageSize: number, search: string) {
   const params = {

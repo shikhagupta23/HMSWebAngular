@@ -210,4 +210,21 @@ afterSave() {
 private onFeatureAddSignalR(): void{
   this.loadFeatures();
 }
+
+  deleteFeature(f: any) {
+    this.api.deleteFeature(f.id).subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess) {
+          this.toast.success(res.message || ' Feature deleted successfully');
+          this.loadFeatures();
+        } else {
+          this.toast.error(res?.message || 'Delete failed');
+        }
+      },
+      error: () => {
+        this.toast.error('Failed to delete test');
+      }
+    });
+}
+
 }

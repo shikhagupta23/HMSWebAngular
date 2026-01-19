@@ -19,4 +19,8 @@ export class FeatureService {
    updateFeature(body: any): Observable<any> {
     return this.api.post(ApiEndpoints.FEATURE.UPDATE, body);
   }
+  
+  deleteFeature(featureId: string) {
+    return this.api.delete(ApiEndpoints.FEATURE.DELETE(featureId));
+  }
 }

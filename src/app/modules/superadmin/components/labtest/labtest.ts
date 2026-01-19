@@ -143,7 +143,6 @@ export class LabtestComponent implements OnInit, OnDestroy {
   }
 
   deleteTest(test: any) {
-  if (confirm(`Are you sure you want to delete "${test.testName}"?`)) {
     this.labTestService.deleteLabTest(test.labTestId).subscribe({
       next: (res: any) => {
         if (res?.isSuccess) {
@@ -163,7 +162,6 @@ export class LabtestComponent implements OnInit, OnDestroy {
         this.toast.error('Failed to delete test');
       }
     });
-  }
 }
 
   closeModal() {
