@@ -11,7 +11,6 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
-// Listen for messages from the main app
 self.addEventListener('message', (event) => {
   console.log('📩 Service Worker received message:', event.data);
   
