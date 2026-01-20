@@ -6,6 +6,9 @@ import { Subject, Observable } from 'rxjs';
   providedIn: 'root' // ✅ singleton
 })
 export class SignalRService {
+  startConnection() {
+    throw new Error('Method not implemented.');
+  }
 
   private hubConnection!: signalR.HubConnection;
 
@@ -19,6 +22,9 @@ export class SignalRService {
   private featureAssigned$ = new Subject<any>();
   private packageAdded$ = new Subject<any>();
   private packageAssigned$ = new Subject<any>();
+  
+  // ✅ ADD THIS - Notification Subject
+  private receiveNotification$ = new Subject<any>();
 
 
   // 🔗 Hub URL
@@ -32,32 +38,30 @@ export class SignalRService {
      JWT → ROLE EXTRACTION
   ================================= */
   private getRoleFromToken(): string | null {
-  const token = localStorage.getItem('auth_token');
-  if (!token) return null;
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
 
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
-  } catch (err) {
-    console.error('Invalid JWT token', err);
-    return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+    } catch (err) {
+      console.error('Invalid JWT token', err);
+      return null;
+    }
   }
-}
 
-private getHospitalIdFromToken(): string | null {
-  const token = localStorage.getItem('auth_token');
-  if (!token) return null;
+  private getHospitalIdFromToken(): string | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
 
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload['HospitalId'] || null; // must match backend claim name
-  } catch (err) {
-    console.error('Invalid JWT token', err);
-    return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload['HospitalId'] || null; // must match backend claim name
+    } catch (err) {
+      console.error('Invalid JWT token', err);
+      return null;
+    }
   }
-}
-
-
 
   /* ================================
      CONNECT TO SIGNALR
@@ -75,14 +79,15 @@ private getHospitalIdFromToken(): string | null {
       return;
     }
     
-    let hubUrlWithParams  = `${this.hubUrl}?role=${encodeURIComponent(role)}`;
-      // ✅ Attach hospitalId only for non-superadmin users
-      if (role !== 'SuperAdmin' && hospitalId) {
-        hubUrlWithParams += `&hospitalId=${encodeURIComponent(hospitalId)}`;
-      }
+    let hubUrlWithParams = `${this.hubUrl}?role=${encodeURIComponent(role)}`;
+    
+    // ✅ Attach hospitalId only for non-superadmin users
+    if (role !== 'SuperAdmin' && hospitalId) {
+      hubUrlWithParams += `&hospitalId=${encodeURIComponent(hospitalId)}`;
+    }
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(hubUrlWithParams , {
+      .withUrl(hubUrlWithParams, {
         accessTokenFactory: () => localStorage.getItem('auth_token') || '',
         withCredentials: false
       })
@@ -129,7 +134,7 @@ private getHospitalIdFromToken(): string | null {
     });
 
     this.hubConnection.on('AppointmentBooked', data => {
-      console.log('AppointmentBooked received' );
+      console.log('AppointmentBooked received');
       this.appointmentBooked$.next(data);
     });
 
@@ -156,9 +161,15 @@ private getHospitalIdFromToken(): string | null {
     this.hubConnection.on('PackageAssigned', data => {
       this.packageAssigned$.next(data);
     });
+
+    // ✅ ADD THIS - Register Notification Event
+    this.hubConnection.on('ReceiveNotification', data => {
+      console.log('ReceiveNotification received:', data);
+      this.receiveNotification$.next(data);
+    });
   }
 
-  
+  // Existing observables
   onReceiveCompleted(): Observable<any> {
     return this.receiveCompleted$.asObservable();
   }
@@ -193,6 +204,11 @@ private getHospitalIdFromToken(): string | null {
 
   onPackageAssigned(): Observable<any> {
     return this.packageAssigned$.asObservable();
+  }
+
+  // ✅ ADD THIS - Notification Observable
+  onReceiveNotification(): Observable<any> {
+    return this.receiveNotification$.asObservable();
   }
 
   /* ================================
