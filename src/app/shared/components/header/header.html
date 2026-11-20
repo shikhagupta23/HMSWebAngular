@@ -1,55 +1,87 @@
-<!-- Breadcrumb -->
-  <div class="breadcrumb-bar-two">
-    <div class="container">
-     <div class="row align-items-center inner-banner justify-content-between">
-
-  <!-- Left: Logo -->
-  <div class="col-md-2 col-6">
-    <a (click)="navigateByRole()" class="menu-logo">
-      <img src="assets/img/Medipilot360.png" 
-           class="img-fluid-header"
-           alt="Logo" />
+<header class="mp-topbar">
+  <div class="mp-topbar__left">
+    <a (click)="navigateByRole()" class="mp-topbar__brand d-md-none" href="javascript:void(0)">
+      <img src="assets/img/Medipilot360.png" alt="MediPilot360" class="mp-topbar__logo" />
     </a>
-  </div>
-
-  <!-- Right: Profile Menu -->
-  <div class=" col-6 d-flex justify-content-end">
-	<div class="d-flex justify-content-end">
-  <div class="topbar-profile">
-
-  <div class="profile-avatar">
-    <i class="feather feather-user"></i>
-  </div>
-
-  <div class="profile-info d-none d-md-block" *ngIf="user$ | async as user">
-	  <div class="hospitalName">{{user.hospitalName}}</div>
-    <div class="name">{{ user.userName }}</div>
-    <div class="status">{{ role }}</div>
-  </div>
-
-  <i class="fa fa-chevron-down ms-2"></i>
-
-  <!-- Dropdown -->
-  <div class="profile-dropdown">
-    <a routerLink="/superadmin/change-password">
-      <i class="fa-solid fa-lock"></i> Change Password
-    </a>
-    <a routerLink="/superadmin/profile-setting">
-      <i class="fa fa-user-cog"></i> Profile Settings
-    </a>
-    <a (click)="logout()">
-      <i class="fa fa-sign-out-alt"></i> Logout
-    </a>
-  </div>
-
-</div>
-	</div>
-  
-
-  </div>
-
-</div>
-
+    <div class="mp-topbar__welcome" *ngIf="user$ | async as user">
+      <p class="mp-topbar__eyebrow">MediPilot360</p>
+      <h1>Welcome back, {{ user.userName }}</h1>
+      <p class="mp-topbar__sub">{{ welcomeSubtitle }}</p>
     </div>
   </div>
-  <!-- /Breadcrumb -->
+
+  <div class="mp-topbar__right">
+    <div class="mp-topbar__date" [attr.title]="todayLabel">
+      <span class="mp-topbar__date-icon"><i class="fa-regular fa-calendar"></i></span>
+      <span class="mp-topbar__date-text">{{ todayLabel }}</span>
+    </div>
+
+    <div
+      class="topbar-profile"
+      [class.is-open]="showProfileMenu"
+      *ngIf="user$ | async as user"
+    >
+      <button
+        type="button"
+        class="profile-avatar-btn"
+        (click)="toggleProfileMenu($event)"
+        [attr.aria-expanded]="showProfileMenu"
+        aria-label="Open profile menu"
+      >
+        <span class="profile-avatar" *ngIf="avatarUrl(user); else initialsOrDefault">
+          <img [src]="avatarUrl(user)!" alt="" (error)="onAvatarError($event)" />
+        </span>
+        <ng-template #initialsOrDefault>
+          <span class="profile-avatar profile-avatar--initials" *ngIf="user.userName; else defaultImg">
+            {{ initials(user) }}
+          </span>
+          <ng-template #defaultImg>
+            <span class="profile-avatar profile-avatar--default">
+              <img [src]="defaultAvatar" alt="" />
+            </span>
+          </ng-template>
+        </ng-template>
+      </button>
+
+      <div class="profile-dropdown" *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
+        <div class="profile-dropdown__head">
+          <div class="profile-dropdown__avatar">
+            <img
+              *ngIf="avatarUrl(user); else dropInitials"
+              [src]="avatarUrl(user)!"
+              alt=""
+              (error)="onAvatarError($event)"
+            />
+            <ng-template #dropInitials>
+              <span>{{ initials(user) }}</span>
+            </ng-template>
+          </div>
+          <div class="profile-dropdown__meta">
+            <div class="profile-dropdown__name">{{ user.userName }}</div>
+            <div class="profile-dropdown__role">{{ role }}</div>
+            <div class="profile-dropdown__hospital" *ngIf="user.hospitalName">
+              {{ user.hospitalName }}
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-dropdown__divider"></div>
+
+        <nav class="profile-dropdown__menu">
+          <a routerLink="/superadmin/profile-setting" (click)="closeProfileMenu()">
+            <span class="profile-dropdown__icon"><i class="fa fa-user-cog"></i></span>
+            <span>Profile Settings</span>
+          </a>
+          <a routerLink="/superadmin/change-password" (click)="closeProfileMenu()">
+            <span class="profile-dropdown__icon"><i class="fa-solid fa-lock"></i></span>
+            <span>Change Password</span>
+          </a>
+          <a class="profile-dropdown__logout" (click)="logout()">
+            <span class="profile-dropdown__icon"><i class="fa fa-sign-out-alt"></i></span>
+            <span>Logout</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>

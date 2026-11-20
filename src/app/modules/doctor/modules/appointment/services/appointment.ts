@@ -143,7 +143,7 @@ getPrescriptionMaster(): Observable<any> {
 
 // GET VALUE LIST USING MASTER ID
 getPrescriptionValues(masterId: string): Observable<any> {
-  const url = `${ApiEndpoints.PRESCRIPTION.GET_VALUES}${masterId}`;
+  const url = ApiEndpoints.PRESCRIPTION.GET_VALUES(masterId);
   return this.api.get(url);
 }
 

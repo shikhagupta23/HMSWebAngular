@@ -1,45 +1,29 @@
-<!-- .............................................................................................
- ADMIN & superadmin Layout
- .............................................................................................. -->
-<!-- Main Wrapper -->
- @if(isAdminOrSuperadmin){
-    <app-adminlayout></app-adminlayout>
- }
-
-<!-- /Main Wrapper -->
-<!-- ...........................................................................................
-ADMIN & superadmin Layout 
-...........................................................................................-->
-
-<!-- ...........................................................................................
- Doctor & Receptionist Layout
- ........................................................................................... -->
-
-<!-- Main Wrapper -->
- @if(isDoctorOrReceptionist){
-<div class="main-wrapper">
-  <div class="menu-header"></div>
-  <app-header-common></app-header-common>
-
-  <!-- Page Content -->
-  <div class="content">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-4 col-xl-3 theiaStickySidebar">
-          <app-asidebar class="h-100"></app-asidebar>
-        </div>
-        <div class="col-lg-8 col-xl-9">
-          <router-outlet></router-outlet>
-        </div>
+@if (isAdminOrSuperadmin) {
+  <div class="mp-shell main-wrapper">
+    <aside class="mp-sidebar">
+      <app-admin-sidebar></app-admin-sidebar>
+    </aside>
+    <div class="mp-main">
+      <app-header-common></app-header-common>
+      <div class="mp-content">
+        <router-outlet></router-outlet>
       </div>
     </div>
   </div>
-  <!-- /Page Content -->
-</div>
- }
-<!-- /Main Wrapper -->
+}
 
-<!-- ..........................................................................................................
-        Doctor & Receptionist Layout
-     ...................................................................................................    -->
+@if (isDoctorOrReceptionist) {
+  <div class="mp-shell main-wrapper">
+    <aside class="mp-sidebar">
+      <app-asidebar></app-asidebar>
+    </aside>
+    <div class="mp-main">
+      <app-header-common></app-header-common>
+      <div class="mp-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+}
+
 <app-footer></app-footer>

@@ -26,19 +26,17 @@ export class DashboardService {
   private api = inject(ApiService);
       getDahBoardData(IsToday: boolean): Observable<any> {
       const param : any = {
-        IsToday: IsToday
+        IsToday: String(IsToday)
       }
        return this.api.get(ApiEndpoints.DASHBOARD.GETDASHBOARDDATA, param);
     }
      getDashboardSummary(isToday?: boolean, date?: string): Observable<any> {
   const params: any = {};
 
-  // ✅ add IsToday ONLY if defined (true / false)
   if (isToday !== undefined && isToday !== null) {
-    params.IsToday = isToday;
+    params.IsToday = String(isToday);
   }
 
-  // ✅ add date ONLY if value exists
   if (date) {
     params.date = date;
   }

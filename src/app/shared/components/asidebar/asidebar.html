@@ -1,59 +1,68 @@
-<!-- Profile Sidebar -->
-<div class="profile-sidebar doctor-sidebar profile-sidebar-new">
-  <div class="widget-profile pro-widget-content" *ngIf="doctorDetails">
-    <div class="profile-info-widget">
-      <div class="profile-det-info">
-        <h3>{{ doctorDetails.doctorName }}</h3>
+<div class="mp-nav">
+  <div class="mp-nav__brand">
+    <div class="mp-nav__brand-mark">
+      <img src="assets/img/Medipilot360.png" alt="MediPilot360" />
+    </div>
+    <div class="mp-nav__brand-text">
+      <strong>MediPilot360</strong>
+      <small>360° Healthcare Platform</small>
+    </div>
+  </div>
 
-        <div class="patient-details">
-          <h5 class="mb-0">{{ doctorDetails.doctorDegree }}</h5>
-        </div>
-@if(doctorDetails?.doctorSpeciality){
-        <span class="badge doctor-role-badge">
-          <i class="fa-solid fa-circle"></i>
-          {{ doctorDetails.doctorSpeciality }}
-        </span>
-      }
+  <div class="mp-nav__section-label">Main menu</div>
+
+  <nav class="mp-nav__menu">
+    <ul>
+      <li
+        *ngFor="let item of menu"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: isExactRoute(item) }"
+        [class.is-expanded]="item.expanded"
+      >
+        <a
+          *ngIf="!item.children && item.route"
+          [routerLink]="resolveRoute(item)"
+          routerLinkActive="active"
+        >
+          <span class="mp-nav__ico"><i [class]="item.icon"></i></span>
+          <span class="mp-nav__label">{{ item.label }}</span>
+        </a>
+
+        <a
+          *ngIf="item.children"
+          href="javascript:void(0)"
+          class="mp-nav__parent"
+          (click)="item.expanded = !item.expanded"
+        >
+          <span class="mp-nav__ico"><i [class]="item.icon"></i></span>
+          <span class="mp-nav__label">{{ item.label }}</span>
+          <i class="fa fa-chevron-down mp-nav__chevron" [class.is-open]="item.expanded"></i>
+        </a>
+
+        <ul *ngIf="item.children && item.expanded" class="submenu">
+          <li *ngFor="let child of item.children" routerLinkActive="active">
+            <a [routerLink]="resolveRoute(child)">
+              <span class="mp-nav__ico mp-nav__ico--sm"><i [class]="child.icon"></i></span>
+              <span class="mp-nav__label">{{ child.label }}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="mp-nav__user" *ngIf="role">
+    <div class="mp-nav__avatar" aria-hidden="true">
+      {{ userInitials }}
+    </div>
+    <div class="mp-nav__user-text">
+      <div class="mp-nav__name">
+        {{ doctorDetails?.doctorName || userName || role }}
+      </div>
+      <div class="mp-nav__meta">
+        <span class="mp-nav__status"></span>
+        {{ doctorDetails?.doctorSpeciality || role }}
       </div>
     </div>
   </div>
-  <div class="dashboard-widget">
-    <nav class="dashboard-menu">
-  <ul>
-    <li *ngFor="let item of menu"  routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: isExactRoute(item) }">
-
-      <!-- NORMAL MENU (no children) -->
-      <a *ngIf="!item.children && item.route"
-         [routerLink]="resolveRoute(item)"
-         routerLinkActive="active">
-        <i [class]="item.icon"></i>
-        <span>&nbsp; {{ item.label }}</span>
-      </a>
-
-      <!-- DRUG DROPDOWN -->
-      <a *ngIf="item.children"
-         href="javascript:void(0)"
-         (click)="item.expanded = !item.expanded">
-        <i [class]="item.icon"></i>
-        <span>&nbsp; {{ item.label }}</span>
-        <i class="fa fa-chevron-down float-end"></i>
-      </a>
-
-      <!-- SUB MENU -->
-      <ul *ngIf="item.children && item.expanded" class="submenu">
-        <li *ngFor="let child of item.children" routerLinkActive="active">
-          <a [routerLink]="resolveRoute(child)">
-            <i [class]="child.icon"></i>
-            <span>&nbsp; {{ child.label }}</span>
-          </a>
-        </li>
-      </ul>
-
-    </li>
-  </ul>
-</nav>
-
-  </div>
 </div>
-<!-- /Profile Sidebar -->

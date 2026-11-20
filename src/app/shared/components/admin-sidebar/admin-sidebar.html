@@ -1,64 +1,73 @@
-<!-- Sidebar -->
-<div class="app-sidebar">
+<div class="mp-nav">
+  <div class="mp-nav__brand">
+    <div class="mp-nav__brand-mark">
+      <img src="assets/img/Medipilot360.png" alt="MediPilot360" />
+    </div>
+    <div class="mp-nav__brand-text">
+      <strong>MediPilot360</strong>
+      <small>360° Healthcare Platform</small>
+    </div>
+  </div>
 
-  <!-- Main Section -->
-  <div class="sidebar-section">
+  <div class="mp-nav__section-label">Main menu</div>
 
-    <ul class="sidebar-menu">
-
-      <li *ngFor="let item of menu">
-
-        <!-- =========================
-             NORMAL MENU (NO CHILDREN)
-        ========================== -->
-        <a *ngIf="!item.children && item.route"
-           [routerLink]="resolveRoute(item)"
-           routerLinkActive="active"
-           [routerLinkActiveOptions]="{ exact: true }">
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
+  <div class="mp-nav__menu">
+    <ul>
+      <li *ngFor="let item of menu" [class.is-expanded]="item.expanded">
+        <a
+          *ngIf="!item.children && item.route"
+          [routerLink]="resolveRoute(item)"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="mp-nav__ico"><i [class]="item.icon"></i></span>
+          <span class="mp-nav__label">{{ item.label }}</span>
         </a>
 
-        <!-- =========================
-             ACTION MENU
-        ========================== -->
-        <a *ngIf="!item.children && item.action"
-           (click)="handleMenuAction(item.action)">
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
+        <a
+          *ngIf="!item.children && item.action"
+          href="javascript:void(0)"
+          (click)="handleMenuAction(item.action)"
+        >
+          <span class="mp-nav__ico"><i [class]="item.icon"></i></span>
+          <span class="mp-nav__label">{{ item.label }}</span>
         </a>
 
-        <!-- =========================
-             PARENT MENU (WITH CHILDREN)
-        ========================== -->
-        <a *ngIf="item.children"
-           href="javascript:void(0)"
-           (click)="item.expanded = !item.expanded">
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
-          <i class="fa fa-chevron-down float-end"
-             [class.rotate]="item.expanded"></i>
+        <a
+          *ngIf="item.children"
+          href="javascript:void(0)"
+          class="mp-nav__parent"
+          (click)="item.expanded = !item.expanded"
+        >
+          <span class="mp-nav__ico"><i [class]="item.icon"></i></span>
+          <span class="mp-nav__label">{{ item.label }}</span>
+          <i class="fa fa-chevron-down mp-nav__chevron" [class.is-open]="item.expanded"></i>
         </a>
 
-        <!-- =========================
-             SUB MENU
-        ========================== -->
-        <ul *ngIf="item.children && item.expanded"
-            class="submenu">
-          <li *ngFor="let child of item.children"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }">
+        <ul *ngIf="item.children && item.expanded" class="submenu">
+          <li
+            *ngFor="let child of item.children"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
             <a [routerLink]="resolveRoute(child)">
-              <i [class]="child.icon"></i>
-              <span>{{ child.label }}</span>
+              <span class="mp-nav__ico mp-nav__ico--sm"><i [class]="child.icon"></i></span>
+              <span class="mp-nav__label">{{ child.label }}</span>
             </a>
           </li>
         </ul>
-
       </li>
-
     </ul>
   </div>
 
+  <div class="mp-nav__user" *ngIf="role">
+    <div class="mp-nav__avatar" aria-hidden="true">{{ userInitials }}</div>
+    <div class="mp-nav__user-text">
+      <div class="mp-nav__name">{{ userName || role }}</div>
+      <div class="mp-nav__meta">
+        <span class="mp-nav__status"></span>
+        {{ role }}
+      </div>
+    </div>
+  </div>
 </div>
-<!-- /Sidebar -->

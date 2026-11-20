@@ -18,8 +18,18 @@ export class AdminSidebar {
   doctorDetails: any = null;
   menu:MenuItem[] = [];
   role: string='';
+  userName = '';
+
+  get userInitials(): string {
+    const name = (this.userName || this.role || 'U').trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
+
   ngOnInit(): void {
     this.role = this.authService.getUserRole() ?? '';
+    this.userName = this.authService.currentUser?.userName ?? '';
     this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
     this.loadDoctorDetails();
   }

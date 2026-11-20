@@ -10,24 +10,30 @@ import { AuthService } from '../../modules/auth/services/auth-service';
 export class MainLayout {
   private auth = inject(AuthService);
   role: string | null = null;
-  isAdminOrSuperadmin: boolean = false;
-  isDoctorOrReceptionist: boolean = false;
- showProfileMenu = false;
-user:any
+  isAdminOrSuperadmin = false;
+  isDoctorOrReceptionist = false;
+  showProfileMenu = false;
+  user: any;
+
+  constructor() {
+    this.resolveRoleLayout();
+  }
 
   ngOnInit(): void {
+    this.resolveRoleLayout();
+    this.user = this.auth.getUser();
+  }
+
+  private resolveRoleLayout(): void {
     try {
       this.role = this.auth.getUserRole();
-    } catch (e) {
+    } catch {
       this.role = null;
     }
     const r = (this.role || '').toLowerCase();
     this.isAdminOrSuperadmin = r === 'admin' || r === 'superadmin';
     this.isDoctorOrReceptionist = r === 'doctor' || r === 'receptionist';
-     this.user=this.auth.getUser();
   }
-
- 
 
   toggleProfileMenu() {
     this.showProfileMenu = !this.showProfileMenu;

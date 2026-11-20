@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../../shared/services/toast-service';
 import { AuthService } from '../../services/auth-service';
+import { FcmService } from '../../../../shared/services/fcm.service';
 
 type AuthStep = 'login' | 'forgot' | 'otp';
 
@@ -26,6 +27,8 @@ export class Login implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private fcmService = inject(FcmService);
+
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -56,12 +59,15 @@ export class Login implements OnInit {
     };
 
     this.authService.login(payload).subscribe({
-      next: (res: any) => {
+      next: async (res: any) => {
         if (!res?.isSuccess) {
           this.toast.error(res?.message || 'Login failed');
           return;
         }
         this.authService.saveAuth(res);
+        await this.fcmService.requestPermission();
+        this.fcmService.listen();
+
         this.toast.success('Login successful');
         this.handleRoleNavigation(res.data?.userRole);
       },

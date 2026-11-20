@@ -14,6 +14,10 @@ import { loaderInterceptor } from './shared/interceptors/loader.interceptor';
 import { Loader } from './shared/components/loader/loader';
 import { Dashboard } from './shared/components/dashboard/dashboard';
 import { Adminlayout } from './Layout/adminlayout/adminlayout';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideMessaging, getMessaging } from '@angular/fire/messaging';
+import { environment } from '../environment/environment';
+
 @NgModule({
   declarations: [
     App,
@@ -21,7 +25,7 @@ import { Adminlayout } from './Layout/adminlayout/adminlayout';
     MainLayout,
     Loader,
     Dashboard,
-    Adminlayout
+    Adminlayout,
   ],
   imports: [
     BrowserModule,
@@ -40,6 +44,8 @@ import { Adminlayout } from './Layout/adminlayout/adminlayout';
       position: 'bottom-right',  // add config to verify toast loads
       duration: 3000
     }),
+        provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideMessaging(() => getMessaging()),
   ],
   bootstrap: [App]
 })

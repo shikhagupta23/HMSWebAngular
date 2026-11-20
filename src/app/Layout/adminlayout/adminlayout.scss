@@ -1,45 +1,53 @@
-/* Full height layout */
-html, body {
-  height: 100%;
-  overflow: hidden;
+/* Keep in sync with main-layout shell (used if Adminlayout is rendered elsewhere) */
+.mp-shell.main-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--mp-bg);
 }
 
-/* Main wrapper full height */
-.main-wrapper {
+.mp-sidebar {
+  width: 260px;
+  flex: 0 0 260px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-right: 1px solid var(--mp-border);
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.03);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  z-index: 2;
+}
+
+.mp-main {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  background: var(--mp-bg);
 }
 
-/* Breadcrumb fixed height */
-.breadcrumb-bar-two {
-  flex-shrink: 0;
-}
-
-/* Layout row takes remaining space */
-.main-layout-row {
-  height: calc(100vh - 110px); /* adjust if header height changes */
-}
-
-/* Sidebar fixed & scroll disabled */
-.sidebar-fixed {
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Content area */
-.content-wrapper {
-  height: 100%;
-}
-
-/* ONLY router outlet scrolls */
-.router-scroll {
-  height: 100%;
+.mp-content {
+  padding: 20px 24px 32px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  padding: 20px;
 }
 
-/* Smooth scrolling */
-.router-scroll {
-  scrollbar-width: thin;
+@media (max-width: 991px) {
+  .mp-shell.main-wrapper {
+    flex-direction: column !important;
+  }
+
+  .mp-sidebar {
+    width: 100%;
+    flex: 0 0 auto;
+    height: auto;
+    max-height: none;
+    position: relative;
+  }
 }

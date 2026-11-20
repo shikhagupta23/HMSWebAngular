@@ -5,6 +5,7 @@ import { ApiService } from '../../../shared/services/api-service';
 import { AuthResponse } from '../models/auth.model';
 import { safeStorage } from '../../../shared/utils/storage.util';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class AuthService {
   user$ = this.userSubject.asObservable();
   private api = inject(ApiService);
   private router = inject(Router);
+  private http = inject(HttpClient);
   private TOKEN_KEY = 'auth_token';
   private REFRESH_KEY = 'refresh_token';
   private USER_KEY = 'auth_user';
@@ -76,10 +78,17 @@ saveAuth(res: AuthResponse): void {
   }
 
   logout(): void {
-    safeStorage.remove(this.TOKEN_KEY);
-    safeStorage.remove(this.REFRESH_KEY);
-    safeStorage.remove(this.USER_KEY);
-    this.router.navigate(['/auth']);
+    // safeStorage.remove(this.TOKEN_KEY);
+    // safeStorage.remove(this.REFRESH_KEY);
+    // safeStorage.remove(this.USER_KEY);
+    const deviceToken = localStorage.getItem('fcmToken');
+
+    this.http.post(ApiEndpoints.USER_DEVICE.LOGOUT, {
+      deviceToken: deviceToken
+    }).subscribe(() => {
+      localStorage.clear();
+      this.router.navigate(['/auth']);
+    });
   }
 
   isLoggedIn(): boolean {

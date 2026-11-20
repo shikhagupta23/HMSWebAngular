@@ -23,7 +23,8 @@ export class SignalRService {
 
   // 🔗 Hub URL
   private readonly hubUrl =
-    'https://api-clinicmanagement.rsdemoprojects.in/patientHub';
+    // 'https://api-clinicmanagement.rsdemoprojects.in/patientHub';
+    'https://api.medipilot360.com/patientHub';
     // 'https://localhost:7220/patientHub';
 
   constructor() {}

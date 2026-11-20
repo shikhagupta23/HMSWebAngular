@@ -87,8 +87,10 @@ paginatedDoctors: any[] = [];
   loadDashboardData(isToday: boolean) {
     this.dashboardService.getDashboardSummary(isToday).subscribe({
       next: (res) => {
-
-        const d = res || {};
+        const d =
+          res?.data && typeof res.data === 'object' && !Array.isArray(res.data)
+            ? res.data
+            : res || {};
 
         this.totalHospitals = d.totalHospitals || 0;
         this.totalAppointments = d.totalAppointments || 0;
@@ -105,8 +107,6 @@ paginatedDoctors: any[] = [];
         this.doctorsList = d.doctors || [];
         this.doctorsCurrentPage = 1;
         this.updatePaginatedDoctors();
-
-        
       },
       error: (err) => {
         console.error('Error loading dashboard data', err);

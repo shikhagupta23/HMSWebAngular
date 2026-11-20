@@ -30,6 +30,8 @@
             "assets": [
               "src/assets/img/Medipilot360.png",
               "src/assets",
+              "src/favicon.ico",
+              "src/firebase-messaging-sw.js",
               {
                 "glob": "**/*",
                 "input": "public"
