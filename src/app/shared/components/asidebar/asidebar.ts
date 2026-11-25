@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../modules/auth/services/auth-service';
 import { AsidebarService } from './services/asidebar-service';
 import { MENU_ITEMS, MenuItem } from '../../constants/menu.config';
 import { MenuService } from '../../services/menu-service';
+import { ClinicalFormsAccessService } from '../../../modules/doctor/modules/clinical-forms/services/clinical-forms-access-service';
 
 @Component({
   selector: 'app-asidebar',
@@ -14,7 +16,10 @@ export class Asidebar {
   private authService = inject(AuthService);
   private asidebarService = inject(AsidebarService);
   private menuService = inject(MenuService);
-  
+  private clinicalFormsAccess = inject(ClinicalFormsAccessService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+
   activeMenu: string | null = null;
   doctorDetails: any = null;
   menu:MenuItem[] = [];
@@ -33,6 +38,12 @@ export class Asidebar {
     this.userName = this.authService.currentUser?.userName ?? '';
     this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
     this.loadDoctorDetails();
+
+    // Clinical Forms visibility is verified by the server; refresh the menu once it is known.
+    this.clinicalFormsAccess.load().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.menu = this.menuService.getFilteredMenu(MENU_ITEMS);
+      this.cdr.markForCheck();
+    });
 
     this.asidebarService.doctorDetails$.subscribe(data => {
       if (data) {

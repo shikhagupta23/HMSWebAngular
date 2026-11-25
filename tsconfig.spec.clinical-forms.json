@@ -1,0 +1,18 @@
+// Test configuration for the Clinical Forms feature only.
+// The application-wide tsconfig.spec.json currently cannot compile because of pre-existing errors in
+// unrelated files (two stale scaffolded specs and two unused imports of the Node 'console' module).
+// Usage: ng test --ts-config=tsconfig.spec.clinical-forms.json --include=<clinical-forms spec glob>
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec-clinical-forms",
+    "types": [
+      "jasmine"
+    ]
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/modules/doctor/modules/clinical-forms/**/*.spec.ts",
+    "src/app/modules/superadmin/form-builder/**/*.spec.ts"
+  ]
+}

@@ -9,6 +9,10 @@ export interface MenuItem {
   expanded?: boolean;
   children?: MenuItem[]; 
   featureKey?: string; 
+  /** Shown only when the server's Clinical Forms access check (getAccess) reports the feature enabled. */
+  requiresClinicalForms?: boolean;
+  /** Additionally requires this server-reported Clinical Forms permission (e.g. 'ManageHospitalTemplates'). */
+  clinicalFormsPermission?: string;
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -61,6 +65,21 @@ export const MENU_ITEMS: MenuItem[] = [
     roles: ["Admin", "Receptionist", "Doctor"],
     featureKey: FeatureAccessKeys.UpcomingFollowUp
   },  
+  {
+    label: "Clinical Forms",
+    icon: "fa-solid fa-file-waveform",
+    route: "/clinical-forms",
+    roles: ["Doctor", "Receptionist", "Admin"],
+    requiresClinicalForms: true
+  },
+  {
+    label: "Clinical Forms Configuration",
+    icon: "fa-solid fa-sliders",
+    route: "/clinical-forms/configuration",
+    roles: ["Admin"],
+    requiresClinicalForms: true,
+    clinicalFormsPermission: "ManageHospitalTemplates"
+  },
   {
     label: "Invoice",
     icon: "fa-solid fa-receipt",
@@ -145,6 +164,12 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Package Management",
     icon: "fa-solid fa-kit-medical",
     route: "/superadmin/package",
+    roles: ["SuperAdmin"]
+  },
+  {
+    label: "Form Builder",
+    icon: "fa-solid fa-pen-ruler",
+    route: "/superadmin/clinical-forms",
     roles: ["SuperAdmin"]
   },
   {

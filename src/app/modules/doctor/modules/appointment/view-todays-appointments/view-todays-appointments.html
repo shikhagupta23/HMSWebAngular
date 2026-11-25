@@ -126,6 +126,17 @@
                 Start Now
               </a>
 
+              <a
+                class="appointment-action"
+                *ngIf="clinicalFormsAccess.isEnabled() && item.appointmentStatus != 4 && item.patientId && item.appointmentId"
+                [routerLink]="['/clinical-forms/patients', item.patientId]"
+                [queryParams]="{ appointmentId: item.appointmentId }"
+                title="Clinical forms"
+                data-test="appointment-clinical-forms"
+              >
+                <i class="fa-regular fa-file-lines"></i>
+              </a>
+
               <!-- </ng-container> -->
             </div>
           </div>

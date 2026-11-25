@@ -10,6 +10,7 @@ import { DrugTypeComponent } from '../../shared/components/drugmanagement/drugty
 import { DrugDurationComponent } from '../../shared/components/drugmanagement/drugduration/drugduration';
 import { DrugComponent } from '../../shared/components/drugmanagement/drug/drug';
 import { Invoice } from '../../shared/components/invoice/invoice';
+import { clinicalFormsGuard } from './modules/clinical-forms/guards/clinical-forms.guard';
 const routes: Routes = [
   {path: 'dashboard', component: Dashboard},
   {path: 'invoice', component: Invoice},
@@ -28,6 +29,11 @@ const routes: Routes = [
   {path: 'labtest',
     loadChildren: () =>
     import('../doctor/modules/labtest/labtest-module').then(m => m.LabtestModule),
+  },
+  {path: 'clinical-forms',
+    canActivate: [clinicalFormsGuard],
+    loadChildren: () =>
+    import('../doctor/modules/clinical-forms/clinical-forms-module').then(m => m.ClinicalFormsModule),
   },
    {path: 'prescription',
     loadChildren: () =>

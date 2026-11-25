@@ -27,6 +27,8 @@ const routes: Routes = [
   { path: 'print-setting', component: PrintSettingComponent },
   { path: 'package', component: Package},
   { path: 'assign-package', component: AssignPackage},
+  // Clinical Forms global template builder (SuperAdmin; the server authorizes every call).
+  { path: 'clinical-forms', loadChildren: () => import('./form-builder/form-builder-module').then((m) => m.FormBuilderModule) },
   {path: 'hospital-details/:hospitalName', component: HospitalDetails}
 ];
 

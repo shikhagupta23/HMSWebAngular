@@ -1,0 +1,287 @@
+<div class="container-fluid py-3 fb-builder">
+  @if (template(); as t) {
+    <a [routerLink]="['/superadmin/clinical-forms', t.id]" class="small text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>{{ t.formName }}</a>
+  }
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading form…</div>
+  } @else if (loadError(); as e) {
+    <div class="alert alert-danger mt-2">{{ e }} <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button></div>
+  } @else if (version(); as v) {
+    @if (definition; as def) {
+      <!-- Header -->
+      <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mt-1 mb-3">
+        <div>
+          <h3 class="mb-0">{{ template()?.formName }} <span class="text-muted fw-normal">· Version {{ v.versionNumber }}</span></h3>
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+            @switch (v.status) {
+              @case (Status.Draft) { <span class="badge bg-warning text-dark" data-test="status">Draft</span> }
+              @case (Status.Published) { <span class="badge bg-success" data-test="status">Published</span> }
+              @case (Status.Archived) { <span class="badge bg-secondary" data-test="status">Archived</span> }
+            }
+            @if (!readOnly) {
+              <input type="text" class="form-control form-control-sm fb-label-input" [(ngModel)]="versionLabel" maxlength="100" placeholder="Version note (optional), e.g. Added X-ray section" aria-label="Version note" />
+              @if (hasUnsavedChanges()) { <span class="small text-warning" data-test="unsaved"><i class="fa-solid fa-circle fa-2xs me-1"></i>Unsaved changes</span> }
+            } @else {
+              <span class="small text-muted">@if (v.versionLabel) { {{ v.versionLabel }} · }Read only — published versions never change. Create a new version to make changes.</span>
+            }
+          </div>
+        </div>
+        @if (!readOnly) {
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteDraft()" [disabled]="busy()" data-test="delete-draft"><i class="fa-solid fa-trash me-1"></i>Delete draft</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="save()" [disabled]="busy()" data-test="save"><i class="fa-solid fa-floppy-disk me-1"></i>Save draft</button>
+            <button type="button" class="btn btn-success btn-sm" (click)="publish()" [disabled]="busy()" data-test="publish"><i class="fa-solid fa-upload me-1"></i>Publish</button>
+          </div>
+        }
+      </div>
+
+      @if (message(); as m) { <div class="alert alert-success py-2" data-test="message">{{ m }}</div> }
+      @if (actionError(); as e) { <div class="alert alert-danger py-2" data-test="action-error">{{ e }}</div> }
+
+      @if (!readOnly && issues().length > 0) {
+        <div class="alert alert-warning py-2" data-test="issues">
+          <div class="fw-semibold mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>{{ issues().length }} problem(s) must be fixed before publishing (as of the last save):</div>
+          <ul class="mb-0 small">
+            @for (issue of issues(); track $index) {
+              <li><a href="javascript:void(0)" (click)="goToIssue(issue)">{{ issueText(issue) }}</a>: {{ issue.message }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item"><button type="button" class="nav-link" [class.active]="tab() === 'structure'" (click)="setTab('structure')" data-test="tab-structure">Sections &amp; fields</button></li>
+        <li class="nav-item"><button type="button" class="nav-link" [class.active]="tab() === 'consents'" (click)="setTab('consents')" data-test="tab-consents">Consents</button></li>
+        <li class="nav-item"><button type="button" class="nav-link" [class.active]="tab() === 'optionSets'" (click)="setTab('optionSets')" data-test="tab-option-sets">Shared option lists</button></li>
+        <li class="nav-item"><button type="button" class="nav-link" [class.active]="tab() === 'preview'" (click)="setTab('preview')" data-test="tab-preview"><i class="fa-regular fa-eye me-1"></i>Preview</button></li>
+        <li class="nav-item ms-auto"><button type="button" class="nav-link small" [class.active]="tab() === 'json'" (click)="setTab('json')" data-test="tab-json">Advanced (JSON)</button></li>
+      </ul>
+
+      @switch (tab()) {
+        <!-- ============================================================ structure -->
+        @case ('structure') {
+          <div class="row g-3">
+            <div class="col-lg-3">
+              <div class="list-group" data-test="section-list">
+                @for (s of def.sections; track s; let i = $index; let first = $first; let last = $last) {
+                  <div class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2" [class.active]="i === selectedSection" role="button" (click)="selectSection(i)" data-test="section-item">
+                    <span class="text-muted small">{{ i + 1 }}</span>
+                    <span class="flex-grow-1 text-truncate">{{ s.title || '(untitled)' }}
+                      <span class="d-block small" [class.text-muted]="i !== selectedSection">{{ s.fields.length }} field(s)@if (s.clinical) { · clinical }</span>
+                    </span>
+                    @if (!readOnly) {
+                      <div class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
+                        <button type="button" class="btn btn-light border" (click)="moveSection(i, -1)" [disabled]="first" aria-label="Move section up"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button type="button" class="btn btn-light border" (click)="moveSection(i, 1)" [disabled]="last" aria-label="Move section down"><i class="fa-solid fa-arrow-down"></i></button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              @if (!readOnly) {
+                <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2" (click)="addSection()" data-test="add-section"><i class="fa-solid fa-plus me-1"></i>Add section</button>
+              }
+            </div>
+
+            <div class="col-lg-9">
+              @if (section; as s) {
+                <div class="card mb-3">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Section settings</h5>
+                    @if (!readOnly) {
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSection(selectedSection)" data-test="remove-section"><i class="fa-solid fa-trash me-1"></i>Remove section</button>
+                    }
+                  </div>
+                  <div class="card-body">
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <label class="form-label small mb-1" for="fb-sec-title">Title <span class="text-danger">*</span></label>
+                        <input id="fb-sec-title" type="text" class="form-control form-control-sm" [value]="s.title" (input)="setSectionTitle(s, $any($event.target).value)" [disabled]="readOnly" maxlength="200" data-test="section-title" />
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label small mb-1" for="fb-sec-key">Key</label>
+                        <input id="fb-sec-key" type="text" class="form-control form-control-sm font-monospace" [value]="s.key" (change)="setSectionKey(s, $any($event.target).value)"
+                          [disabled]="readOnly || sectionKeyFixed(s)" [class.is-invalid]="!!sectionKeyError(s)"
+                          [attr.title]="sectionKeyFixed(s) ? 'Fixed: earlier versions store answers under this key' : null" />
+                        @if (sectionKeyError(s); as e) { <div class="invalid-feedback">{{ e }}</div> }
+                      </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+                      <span class="small fw-semibold">Who can fill it in</span>
+                      @for (r of roles; track r) {
+                        <div class="form-check form-check-inline mb-0">
+                          <input class="form-check-input" type="checkbox" [id]="'fb-role-' + r" [checked]="hasRole(s, r)" [disabled]="readOnly" (change)="toggleRole(s, r, $any($event.target).checked)" />
+                          <label class="form-check-label small" [for]="'fb-role-' + r">{{ r }}</label>
+                        </div>
+                      }
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 mt-1">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="fb-sec-clinical" [checked]="!!s.clinical" [disabled]="readOnly" (change)="setSectionFlag(s, 'clinical', $any($event.target).checked)" />
+                        <label class="form-check-label small" for="fb-sec-clinical">Clinical section (only clinicians can edit: examination, diagnosis, plan…)</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="fb-sec-required" [checked]="!!s.required" [disabled]="readOnly" (change)="setSectionFlag(s, 'required', $any($event.target).checked)" />
+                        <label class="form-check-label small" for="fb-sec-required">Hospitals cannot switch this section off</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header"><h5 class="mb-0">Fields</h5></div>
+                  <div class="card-body">
+                    @if (s.fields.length === 0) { <div class="text-muted small mb-2">No fields yet. A section needs at least one field.</div> }
+                    @for (f of s.fields; track f; let i = $index; let first = $first; let last = $last) {
+                      <div class="border rounded mb-2 fb-field" [class.fb-field-open]="expandedField === f" data-test="field-row">
+                        <div class="d-flex align-items-center gap-2 px-2 py-2">
+                          <button type="button" class="btn btn-link text-decoration-none text-body p-0 flex-grow-1 text-start" (click)="toggleField(f)" [attr.aria-expanded]="expandedField === f" data-test="field-toggle">
+                            <i class="fa-solid me-1 text-muted" [class.fa-chevron-down]="expandedField === f" [class.fa-chevron-right]="expandedField !== f"></i>
+                            <i class="fa-solid {{ typeInfo(f.type)?.icon }} text-primary me-1"></i>
+                            <span class="fw-semibold">{{ f.label || '(no label)' }}</span>
+                            <span class="text-muted small ms-1">{{ typeInfo(f.type)?.label }}</span>
+                            @for (b of fieldBadges(f); track b) { <span class="badge bg-light text-secondary border ms-1">{{ b }}</span> }
+                          </button>
+                          @if (!readOnly) {
+                            <div class="btn-group btn-group-sm">
+                              <button type="button" class="btn btn-outline-secondary" (click)="moveField(i, -1)" [disabled]="first" title="Move up" aria-label="Move up"><i class="fa-solid fa-arrow-up"></i></button>
+                              <button type="button" class="btn btn-outline-secondary" (click)="moveField(i, 1)" [disabled]="last" title="Move down" aria-label="Move down"><i class="fa-solid fa-arrow-down"></i></button>
+                              <button type="button" class="btn btn-outline-secondary" (click)="duplicateField(i)" title="Duplicate" aria-label="Duplicate"><i class="fa-regular fa-copy"></i></button>
+                              <button type="button" class="btn btn-outline-danger" (click)="removeField(i)" title="Remove" aria-label="Remove" data-test="remove-field"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                          }
+                        </div>
+                        @if (expandedField === f) {
+                          <div class="px-3 pb-3 pt-1 border-top">
+                            <app-fb-field-editor [field]="f" [siblings]="s.fields" [definition]="def" [sectionKey]="s.key" [readOnly]="readOnly"
+                              [optionsFromCandidates]="optionFields(s)" [published]="publishedField(s.key, f.key)" />
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (!readOnly) {
+                      @if (showPalette) {
+                        <div class="fb-palette border rounded p-2 bg-light" data-test="palette">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">Choose the type of answer</span>
+                            <button type="button" class="btn-close" (click)="showPalette = false" aria-label="Close"></button>
+                          </div>
+                          <div class="fb-palette-grid">
+                            @for (t of fieldTypes; track t.type) {
+                              <button type="button" class="btn btn-light border text-start" (click)="addField(t.type)" [attr.data-type]="t.type" data-test="palette-type">
+                                <i class="fa-solid {{ t.icon }} text-primary me-1"></i><span class="fw-semibold">{{ t.label }}</span>
+                                <span class="d-block small text-muted">{{ t.description }}</span>
+                              </button>
+                            }
+                          </div>
+                        </div>
+                      } @else {
+                        <button type="button" class="btn btn-primary btn-sm" (click)="showPalette = true" data-test="add-field"><i class="fa-solid fa-plus me-1"></i>Add field</button>
+                      }
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="text-muted py-5 text-center">This form has no sections yet. Add one to start.</div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ============================================================ consents -->
+        @case ('consents') {
+          <p class="small text-muted">Consent texts the patient accepts and signs. A Consent field in a section shows one of them.
+            When you change the wording of a published consent, also change its version (e.g. 1.0 → 1.1) so records show which text was signed.
+            Hospitals can still use their own wording (e.g. in Hindi) from their Configuration screen.</p>
+          @for (c of consents(); track c; let i = $index) {
+            <div class="card mb-3" data-test="consent-card">
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-md-5">
+                    <label class="form-label small mb-1" [for]="'fb-ct-' + i">Consent key</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" [id]="'fb-ct-' + i" [value]="c.consentType" (change)="setConsentType(c, $any($event.target).value)"
+                      [disabled]="readOnly || consentFixed(c)" [class.is-invalid]="!consentTypeValid(c)" />
+                    @if (!consentTypeValid(c)) { <div class="invalid-feedback">Lower-case words separated by "-", e.g. dental-treatment.</div> }
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1" [for]="'fb-cv-' + i">Version</label>
+                    <input type="text" class="form-control form-control-sm" [id]="'fb-cv-' + i" [(ngModel)]="c.consentVersion" [disabled]="readOnly" maxlength="50" [class.is-invalid]="consentNeedsNewVersion(c)" />
+                  </div>
+                  <div class="col-md-5 d-flex align-items-end justify-content-end">
+                    <span class="small text-muted me-2">Used by {{ consentUsage(c) }} field(s)</span>
+                    @if (!readOnly) { <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeConsent(i)"><i class="fa-solid fa-trash me-1"></i>Remove</button> }
+                  </div>
+                </div>
+                @if (consentNeedsNewVersion(c)) { <div class="text-danger small mt-1">The wording changed: please give it a new version.</div> }
+                <label class="form-label small mb-1 mt-2" [for]="'fb-ctext-' + i">Wording</label>
+                <textarea class="form-control" rows="4" [id]="'fb-ctext-' + i" [(ngModel)]="c.text" [disabled]="readOnly" maxlength="20000"></textarea>
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                  @for (flag of [['required', 'Must be accepted before submitting'], ['requireSignature', 'Signature required'], ['allowGuardian', 'A guardian may sign'], ['witnessOptional', 'Witness name can be recorded']]; track flag[0]) {
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" [id]="'fb-cf-' + i + flag[0]" [checked]="!!$any(c)[flag[0]]" [disabled]="readOnly" (change)="setConsentFlag(c, $any(flag[0]), $any($event.target).checked)" />
+                      <label class="form-check-label small" [for]="'fb-cf-' + i + flag[0]">{{ flag[1] }}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          @if (consents().length === 0) { <div class="text-muted small mb-2">No consents in this form.</div> }
+          @if (!readOnly) { <button type="button" class="btn btn-outline-primary btn-sm" (click)="addConsent()" data-test="add-consent"><i class="fa-solid fa-plus me-1"></i>Add consent</button> }
+        }
+
+        <!-- ============================================================ option sets -->
+        @case ('optionSets') {
+          <p class="small text-muted">Lists of options used by several fields (e.g. Mild / Moderate / Severe). Built-in lists:
+            @for (b of builtInSets | keyvalue; track b.key) { <span class="badge bg-light text-dark border me-1">{{ b.value }}</span> }</p>
+          @for (name of optionSetNames(); track name) {
+            <div class="card mb-3" data-test="option-set-card">
+              <div class="card-body">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <label class="small mb-0" [for]="'fb-os-' + name">List name</label>
+                  <input type="text" class="form-control form-control-sm font-monospace w-auto" [id]="'fb-os-' + name" [value]="name" (change)="renameOptionSet(name, $any($event.target).value)"
+                    [disabled]="readOnly" [class.is-invalid]="!optionSetNameValid(name)" />
+                  <span class="small text-muted">Used by {{ optionSetUsage(name) }} field(s)</span>
+                  @if (!readOnly) { <button type="button" class="btn btn-sm btn-outline-danger ms-auto" (click)="removeOptionSet(name)"><i class="fa-solid fa-trash me-1"></i>Remove list</button> }
+                </div>
+                <app-fb-options-editor [options]="optionSetRows(name)" [readOnly]="readOnly" />
+              </div>
+            </div>
+          }
+          @if (optionSetNames().length === 0) { <div class="text-muted small mb-2">No shared lists yet.</div> }
+          @if (!readOnly) { <button type="button" class="btn btn-outline-primary btn-sm" (click)="addOptionSet()" data-test="add-option-set"><i class="fa-solid fa-plus me-1"></i>Add shared list</button> }
+        }
+
+        <!-- ============================================================ preview -->
+        @case ('preview') {
+          @if (busy()) {
+            <div class="text-muted py-4 text-center"><div class="spinner-border spinner-border-sm me-2"></div>Saving and checking…</div>
+          } @else if (previewDefinition; as p) {
+            <div class="alert alert-info py-2 small">This is how the form looks to staff (as of the last save). Answers typed here are not saved.</div>
+            <app-clinical-form-renderer [definition]="p" />
+          } @else {
+            <div class="alert alert-warning">The preview is shown once the draft has no problems. Fix the problems listed above, then open the preview again.</div>
+          }
+        }
+
+        <!-- ============================================================ JSON -->
+        @case ('json') {
+          <p class="small text-muted">For advanced users: the complete form definition. Changes here replace the builder's content when applied; save the draft to check them.</p>
+          <textarea class="form-control font-monospace small" rows="24" [(ngModel)]="jsonText" [readonly]="readOnly" aria-label="Form definition JSON" data-test="json"></textarea>
+          @if (jsonError) { <div class="text-danger small mt-1">{{ jsonError }}</div> }
+          @if (!readOnly) { <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="applyJson()" data-test="apply-json">Apply JSON</button> }
+        }
+      }
+
+      @if (!readOnly && tab() !== 'preview') {
+        <div class="d-flex flex-wrap gap-2 justify-content-end border-top pt-3 mt-3">
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="save()" [disabled]="busy()"><i class="fa-solid fa-floppy-disk me-1"></i>Save draft</button>
+          <button type="button" class="btn btn-success btn-sm" (click)="publish()" [disabled]="busy()"><i class="fa-solid fa-upload me-1"></i>Publish</button>
+        </div>
+      }
+    }
+  }
+</div>

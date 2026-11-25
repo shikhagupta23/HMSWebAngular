@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { PatientService } from '../services/patient-service'; // adjust path
+import { ClinicalFormsAccessService } from '../../clinical-forms/services/clinical-forms-access-service';
 
 @Component({
   selector: 'app-patient-details',
@@ -23,6 +24,8 @@ export class PatientDetails implements OnInit {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private patientService = inject(PatientService);
+  /** Clinical Forms entry point: shown only when the server reports the feature enabled for this user. */
+  readonly clinicalFormsAccess = inject(ClinicalFormsAccessService);
 
   ngOnInit(): void {
 
@@ -32,6 +35,7 @@ export class PatientDetails implements OnInit {
     }
     this.patientId = this.patient.userId;
     this.loadPatientAppointmentLists();
+    this.clinicalFormsAccess.load().subscribe();
   }
 
 loadPatientAppointmentLists() {

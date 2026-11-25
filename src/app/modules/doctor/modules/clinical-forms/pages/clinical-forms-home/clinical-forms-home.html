@@ -1,0 +1,48 @@
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Clinical Forms</h3>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5" data-test="loading">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading forms…
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger d-flex justify-content-between align-items-center" data-test="error">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="load()">Retry</button>
+    </div>
+  } @else if (forms().length === 0) {
+    <div class="text-center text-muted py-5" data-test="empty">
+      <i class="fa-regular fa-file-lines fa-2x mb-2 d-block"></i>
+      No clinical forms are enabled for your hospital yet.
+    </div>
+  } @else {
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Form</th>
+              <th scope="col">Specialty</th>
+              <th scope="col">Version</th>
+              <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (form of forms(); track form.templateId) {
+              <tr data-test="form-row">
+                <td class="fw-medium">{{ form.formName }}</td>
+                <td class="text-capitalize">{{ form.specialty }}</td>
+                <td>v{{ form.versionNumber }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" [routerLink]="['forms', form.templateId, 'preview']">Preview</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

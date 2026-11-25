@@ -1,0 +1,111 @@
+<div class="container-fluid py-3">
+  <a routerLink="/superadmin/clinical-forms" class="small text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Form Builder</a>
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading…</div>
+  } @else if (loadError(); as e) {
+    <div class="alert alert-danger mt-2">{{ e }} <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button></div>
+  } @else if (template(); as t) {
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mt-1 mb-3">
+      <div>
+        <h3 class="mb-0">{{ t.formName }}</h3>
+        <div class="small text-muted"><span class="font-monospace">{{ t.formKey }}</span> · <span class="text-capitalize">{{ t.specialty }}</span>@if (t.description) { · {{ t.description }} }</div>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        @if (t.isActive) { <span class="badge bg-success">Active</span> } @else { <span class="badge bg-secondary">Inactive</span> }
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startEdit()" [disabled]="busy()">Edit details</button>
+        @if (t.isActive) {
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="setActive(false)" [disabled]="busy()">Deactivate</button>
+        } @else {
+          <button type="button" class="btn btn-sm btn-outline-success" (click)="setActive(true)" [disabled]="busy()">Activate</button>
+        }
+      </div>
+    </div>
+
+    @if (message(); as m) { <div class="alert alert-success py-2">{{ m }}</div> }
+    @if (actionError(); as e) { <div class="alert alert-danger py-2">{{ e }}</div> }
+
+    @if (editing) {
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-5">
+              <label class="form-label small mb-1" for="fb-edit-name">Form name</label>
+              <input id="fb-edit-name" type="text" class="form-control" [(ngModel)]="formName" maxlength="200" />
+            </div>
+            <div class="col-md-7">
+              <label class="form-label small mb-1" for="fb-edit-desc">Description</label>
+              <input id="fb-edit-desc" type="text" class="form-control" [(ngModel)]="description" maxlength="1000" />
+            </div>
+          </div>
+          <div class="small text-muted mt-1">The name shown inside each version comes from that version; new versions pick up this name.</div>
+          <div class="d-flex gap-2 justify-content-end mt-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="editing = false">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" (click)="saveDetails()" [disabled]="busy() || !formName.trim()">Save</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Make changes -->
+    <div class="card mb-3 border-primary-subtle">
+      <div class="card-body">
+        @if (draft(); as d) {
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div><span class="fw-semibold">Version {{ d.versionNumber }} is being edited (draft).</span>
+              <span class="small text-muted d-block">Open it to continue, then publish when it is ready.</span></div>
+            <a class="btn btn-primary" [routerLink]="['/superadmin/clinical-forms', t.id, 'versions', d.id]" data-test="open-draft"><i class="fa-solid fa-pen-ruler me-1"></i>Continue editing</a>
+          </div>
+        } @else {
+          <div class="fw-semibold mb-2">Make changes to this form</div>
+          <div class="d-flex flex-wrap align-items-end gap-2">
+            <div>
+              <label class="form-label small mb-1" for="fb-copy">Start from</label>
+              <select id="fb-copy" class="form-select form-select-sm" [(ngModel)]="copyFrom">
+                @for (v of t.versions; track v.id) { <option [value]="v.id">Version {{ v.versionNumber }}@if (v.versionLabel) { – {{ v.versionLabel }} }@if (v.status === Status.Archived) { (archived) }</option> }
+              </select>
+            </div>
+            <div class="flex-grow-1" style="min-width: 14rem">
+              <label class="form-label small mb-1" for="fb-new-label">Version note (optional)</label>
+              <input id="fb-new-label" type="text" class="form-control form-control-sm" [(ngModel)]="newLabel" maxlength="100" placeholder="What will change?" />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" (click)="createVersion()" [disabled]="busy()" data-test="new-version"><i class="fa-solid fa-plus me-1"></i>Create new version</button>
+          </div>
+          <div class="small text-muted mt-1">The new version is a copy you can change freely. Hospitals keep using the current version until you publish.</div>
+        }
+      </div>
+    </div>
+
+    <!-- Versions -->
+    <div class="card">
+      <div class="card-header"><h5 class="mb-0">Versions</h5></div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light"><tr><th>Version</th><th>Note</th><th>Status</th><th>Published</th><th class="text-end"></th></tr></thead>
+          <tbody>
+            @for (v of t.versions; track v.id) {
+              <tr data-test="version-row">
+                <td class="fw-semibold">{{ v.versionNumber }}</td>
+                <td>{{ v.versionLabel || '—' }}</td>
+                <td>
+                  @switch (v.status) {
+                    @case (Status.Draft) { <span class="badge bg-warning text-dark">Draft</span> }
+                    @case (Status.Published) { <span class="badge bg-success">Published</span>@if (v.id === latestPublished()?.id) { <span class="small text-muted ms-1">in use for new forms</span> } }
+                    @case (Status.Archived) { <span class="badge bg-secondary">Archived</span> }
+                  }
+                </td>
+                <td>{{ v.publishedAt ? (v.publishedAt | date: 'dd MMM yyyy, HH:mm') : '—' }}</td>
+                <td class="text-end text-nowrap">
+                  <a class="btn btn-sm btn-outline-primary" [routerLink]="['/superadmin/clinical-forms', t.id, 'versions', v.id]">{{ v.status === Status.Draft ? 'Edit' : 'View' }}</a>
+                  @if (v.status === Status.Published && v.id !== latestPublished()?.id) {
+                    <button type="button" class="btn btn-sm btn-outline-secondary ms-1" (click)="archive(v)" [disabled]="busy()">Archive</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

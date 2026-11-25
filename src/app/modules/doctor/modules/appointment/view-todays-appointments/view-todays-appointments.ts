@@ -10,6 +10,7 @@ import { SignalRService } from '../../../../../shared/services/signal-rservice';
 import { OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Console } from 'console';
+import { ClinicalFormsAccessService } from '../../clinical-forms/services/clinical-forms-access-service';
 
 declare var bootstrap: any;
 
@@ -70,6 +71,8 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   private signalRService = inject(SignalRService);
   private subscriptions: Subscription[] = [];
   private route = inject(ActivatedRoute);
+  /** Clinical Forms entry point: shown only when the server reports the feature enabled for this user. */
+  readonly clinicalFormsAccess = inject(ClinicalFormsAccessService);
 
   @ViewChild('printFrame') printFrame!: any;
 
@@ -160,6 +163,7 @@ export class ViewTodaysAppointments implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this.clinicalFormsAccess.load().subscribe();
     this.addAppointmentForm = this.fb.group({
       patientId: [''],
       fullName: ['', Validators.required],

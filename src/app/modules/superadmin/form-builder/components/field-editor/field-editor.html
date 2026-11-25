@@ -1,0 +1,267 @@
+<div class="fb-field-editor" data-test="field-editor">
+  <!-- Basics -->
+  <div class="row g-2">
+    <div class="col-md-5">
+      <label class="form-label small mb-1" [for]="uid + '-label'">Question / label <span class="text-danger">*</span></label>
+      <input type="text" class="form-control form-control-sm" [id]="uid + '-label'" [value]="field.label" (input)="setLabel($any($event.target).value)"
+        [disabled]="readOnly" maxlength="200" [class.is-invalid]="!field.label.trim()" data-test="field-label" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small mb-1" [for]="uid + '-type'">Answer type</label>
+      <select class="form-select form-select-sm" [id]="uid + '-type'" [value]="field.type" [disabled]="readOnly" (change)="setType($any($event.target).value)" data-test="field-type">
+        @for (t of types; track t.type) { <option [value]="t.type">{{ t.label }}</option> }
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small mb-1" [for]="uid + '-key'">Key
+        <i class="fa-regular fa-circle-question text-muted" title="Internal name used to store the answer. Filled in automatically."></i>
+      </label>
+      <input type="text" class="form-control form-control-sm font-monospace" [id]="uid + '-key'" [value]="field.key" (change)="setKey($any($event.target).value)"
+        [disabled]="readOnly || keyFixed()" [class.is-invalid]="!!keyError()"
+        [attr.title]="keyFixed() ? 'Fixed: earlier versions store answers under this key' : null" data-test="field-key" />
+      @if (keyError(); as e) { <div class="invalid-feedback">{{ e }}</div> }
+    </div>
+  </div>
+  <div class="small text-muted mt-1">{{ info()?.description }}</div>
+
+  <div class="d-flex flex-wrap gap-3 mt-2">
+    @if (field.type !== 'patientBinding') {
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" [id]="uid + '-req'" [checked]="!!field.required" [disabled]="readOnly" (change)="setRequired($any($event.target).checked)" data-test="field-required" />
+        <label class="form-check-label small" [for]="uid + '-req'">Required</label>
+      </div>
+    }
+    @if (!nested) {
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" [id]="uid + '-alert'" [checked]="!!field.alert" [disabled]="readOnly" (change)="setFlag('alert', $any($event.target).checked)" />
+        <label class="form-check-label small" [for]="uid + '-alert'" title="Highlight as medically important">Medical alert</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" [id]="uid + '-sens'" [checked]="!!field.sensitive" [disabled]="readOnly" (change)="setFlag('sensitive', $any($event.target).checked)" />
+        <label class="form-check-label small" [for]="uid + '-sens'" title="Sensitive information, may be masked in lists">Sensitive</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" [id]="uid + '-lock'" [checked]="!!field.locked" [disabled]="readOnly" (change)="setFlag('locked', $any($event.target).checked)" />
+        <label class="form-check-label small" [for]="uid + '-lock'" title="Hospitals cannot hide or rename this field">Hospitals cannot change</label>
+      </div>
+    }
+  </div>
+
+  <details class="mt-2">
+    <summary class="small text-primary" role="button">Help text &amp; placeholder</summary>
+    <div class="row g-2 mt-1">
+      <div class="col-md-7">
+        <input type="text" class="form-control form-control-sm" [value]="field.helpText ?? ''" (input)="setText('helpText', $any($event.target).value)"
+          [disabled]="readOnly" maxlength="1000" placeholder="Help text shown under the field" aria-label="Help text" />
+      </div>
+      <div class="col-md-5">
+        <input type="text" class="form-control form-control-sm" [value]="field.placeholder ?? ''" (input)="setText('placeholder', $any($event.target).value)"
+          [disabled]="readOnly" maxlength="200" placeholder="Placeholder inside the box" aria-label="Placeholder" />
+      </div>
+    </div>
+  </details>
+
+  <!-- Options -->
+  @if (isOptionType()) {
+    <div class="fb-block mt-2">
+      <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
+        <span class="small fw-semibold">Options</span>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" [name]="uid + '-src'" [id]="uid + '-src-own'" [checked]="optionSource() === 'own'" [disabled]="readOnly" (change)="setOptionSource('own')" />
+          <label class="form-check-label small" [for]="uid + '-src-own'">Own list</label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" [name]="uid + '-src'" [id]="uid + '-src-shared'" [checked]="optionSource() === 'shared'" [disabled]="readOnly" (change)="setOptionSource('shared')" />
+          <label class="form-check-label small" [for]="uid + '-src-shared'">Shared list</label>
+        </div>
+        @if (nested && optionsFromCandidates.length > 0) {
+          <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="radio" [name]="uid + '-src'" [id]="uid + '-src-from'" [checked]="optionSource() === 'from'" [disabled]="readOnly" (change)="setOptionSource('from')" />
+            <label class="form-check-label small" [for]="uid + '-src-from'">Same as another field</label>
+          </div>
+        }
+      </div>
+      @switch (optionSource()) {
+        @case ('own') {
+          <app-fb-options-editor [options]="field.options!" [readOnly]="readOnly" [fixedValues]="fixedOptionValues()" />
+        }
+        @case ('shared') {
+          <select class="form-select form-select-sm w-auto" [value]="field.optionSet" [disabled]="readOnly" (change)="field.optionSet = $any($event.target).value" aria-label="Shared list">
+            @for (s of sharedSets(); track s.name) { <option [value]="s.name">{{ s.label }}</option> }
+          </select>
+          <div class="small text-muted mt-1">Shared lists are managed in the "Shared option lists" tab.</div>
+        }
+        @case ('from') {
+          <select class="form-select form-select-sm w-auto" [value]="field.optionsFrom" [disabled]="readOnly" (change)="field.optionsFrom = $any($event.target).value" aria-label="Copy options from">
+            @for (c of optionsFromCandidates; track c.key) { <option [value]="c.key">{{ c.label }}</option> }
+          </select>
+        }
+      }
+      @if (field.type === 'checkboxGroup' && currentOptions().length > 0) {
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <label class="small mb-0" [for]="uid + '-excl'">Option that clears the others (e.g. "None")</label>
+          <select class="form-select form-select-sm w-auto" [id]="uid + '-excl'" [value]="field.exclusiveOption ?? ''" [disabled]="readOnly" (change)="setExclusive($any($event.target).value)">
+            <option value="">— none —</option>
+            @for (o of currentOptions(); track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+          </select>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Validation rules -->
+  @if (textTypes.has(field.type)) {
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      <span class="small">Length</span>
+      <input type="number" min="1" class="form-control form-control-sm fb-num" [value]="rule('minLength')" (change)="setRule('minLength', $any($event.target).value)" [disabled]="readOnly" placeholder="min" aria-label="Minimum length" />
+      <input type="number" min="1" class="form-control form-control-sm fb-num" [value]="rule('maxLength')" (change)="setRule('maxLength', $any($event.target).value)" [disabled]="readOnly" placeholder="max" aria-label="Maximum length" />
+      <span class="small ms-2">Pattern</span>
+      <input type="text" class="form-control form-control-sm font-monospace w-auto" [value]="rule('pattern')" (change)="setRule('pattern', $any($event.target).value)" [disabled]="readOnly"
+        placeholder="e.g. ^[0-9]{10}$" aria-label="Pattern" title="Optional regular expression the answer must match" />
+    </div>
+  }
+  @if (field.type === 'number') {
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      <span class="small">Allowed range</span>
+      <input type="number" class="form-control form-control-sm fb-num" [value]="rule('min')" (change)="setRule('min', $any($event.target).value)" [disabled]="readOnly" placeholder="min" aria-label="Minimum" />
+      <input type="number" class="form-control form-control-sm fb-num" [value]="rule('max')" (change)="setRule('max', $any($event.target).value)" [disabled]="readOnly" placeholder="max" aria-label="Maximum" />
+    </div>
+  }
+  @if (field.type === 'date') {
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      @for (r of ['minDate', 'maxDate']; track r) {
+        <span class="small">{{ r === 'minDate' ? 'Earliest' : 'Latest' }}</span>
+        <select class="form-select form-select-sm w-auto" [value]="dateMode($any(r))" [disabled]="readOnly" (change)="setDateMode($any(r), $any($event.target).value)" [attr.aria-label]="r">
+          <option value="none">any</option>
+          <option value="today">today</option>
+          <option value="date">a date</option>
+        </select>
+        @if (dateMode($any(r)) === 'date') {
+          <input type="date" class="form-control form-control-sm w-auto" [value]="rule($any(r))" (change)="setRule($any(r), $any($event.target).value)" [disabled]="readOnly" />
+        }
+      }
+    </div>
+  }
+
+  <!-- Patient detail -->
+  @if (field.type === 'patientBinding') {
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      <span class="small">Show</span>
+      <select class="form-select form-select-sm w-auto" [value]="field.binding" [disabled]="readOnly" (change)="field.binding = $any($event.target).value" aria-label="Patient detail">
+        @for (b of patientBindings; track b.value) { <option [value]="b.value">{{ b.label }}</option> }
+      </select>
+      <span class="small text-muted">from the patient record (not typed again).</span>
+    </div>
+  }
+
+  <!-- Checklist -->
+  @if (field.type === 'conditionList') {
+    <div class="fb-block mt-2">
+      <div class="small fw-semibold mb-1">Items</div>
+      <app-fb-options-editor [options]="$any(field.items!)" valueProp="key" noun="item" [readOnly]="readOnly" [fixedValues]="fixedItemKeys()" />
+
+      <div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+        <span class="small fw-semibold">Each item is answered with</span>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" [name]="uid + '-ans'" [id]="uid + '-ans-tick'" [checked]="answerStyle() === 'tick'" [disabled]="readOnly" (change)="setAnswerStyle('tick')" />
+          <label class="form-check-label small" [for]="uid + '-ans-tick'">a tick box (compact, like paper)</label>
+        </div>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" [name]="uid + '-ans'" [id]="uid + '-ans-yn'" [checked]="answerStyle() === 'yesNo'" [disabled]="readOnly" (change)="setAnswerStyle('yesNo')" />
+          <label class="form-check-label small" [for]="uid + '-ans-yn'">Yes / No / Unknown</label>
+        </div>
+      </div>
+      <div class="small text-muted">With tick boxes, add an item with key <code>none</code> to get a "None" box that clears the others.</div>
+
+      <div class="small fw-semibold mt-2 mb-1">Details asked for each item</div>
+      <ng-container [ngTemplateOutlet]="nestedList" [ngTemplateOutletContext]="{ list: itemFieldsList(), kind: 'itemFields' }" />
+    </div>
+  }
+
+  <!-- Table -->
+  @if (field.type === 'repeater') {
+    <div class="fb-block mt-2">
+      <div class="small fw-semibold mb-1">Columns</div>
+      <ng-container [ngTemplateOutlet]="nestedList" [ngTemplateOutletContext]="{ list: field.columns!, kind: 'columns' }" />
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <label class="small mb-0" [for]="uid + '-rows'">Maximum rows</label>
+        <input type="number" min="1" max="500" class="form-control form-control-sm fb-num" [id]="uid + '-rows'" [value]="field.maxRows ?? ''" (change)="setNumber('maxRows', $any($event.target).value)" [disabled]="readOnly" />
+      </div>
+    </div>
+  }
+
+  <!-- Consent -->
+  @if (field.type === 'consent') {
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      <span class="small">Consent text</span>
+      <select class="form-select form-select-sm w-auto" [value]="field.consentType" [disabled]="readOnly" (change)="field.consentType = $any($event.target).value" aria-label="Consent">
+        @for (c of definition.consents ?? []; track c.consentType) { <option [value]="c.consentType">{{ c.consentType }} (v{{ c.consentVersion }})</option> }
+      </select>
+      <span class="small text-muted">Wording is edited in the "Consents" tab.</span>
+    </div>
+  }
+
+  <!-- Attachments -->
+  @if (field.type === 'attachmentList') {
+    <div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+      <span class="small">Allowed files</span>
+      @for (t of attachmentTypes; track t.value) {
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="checkbox" [id]="uid + '-at-' + t.value" [checked]="hasAttachmentType(t.value)" [disabled]="readOnly" (change)="toggleAttachmentType(t.value, $any($event.target).checked)" />
+          <label class="form-check-label small" [for]="uid + '-at-' + t.value">{{ t.label }}</label>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Conditions -->
+  @if (!nested) {
+    <div class="fb-block mt-2">
+      <app-fb-condition-editor [owner]="field" prop="visibleWhen" [definition]="definition" [sectionKey]="sectionKey" [readOnly]="readOnly" />
+      @if (!field.required && field.type !== 'patientBinding') {
+        <app-fb-condition-editor class="d-block mt-1" [owner]="field" prop="requiredWhen" title="Make required only when…" [definition]="definition" [sectionKey]="sectionKey" [readOnly]="readOnly" />
+      }
+    </div>
+  }
+  @if (itemField) {
+    <div class="form-check mt-2">
+      <input class="form-check-input" type="checkbox" [id]="uid + '-ticked'" [checked]="onlyWhenTicked(field)" [disabled]="readOnly" (change)="setOnlyWhenTicked(field, $any($event.target).checked)" />
+      <label class="form-check-label small" [for]="uid + '-ticked'">Ask only when the item is ticked / answered Yes</label>
+    </div>
+  }
+</div>
+
+<ng-template #nestedList let-list="list" let-kind="kind">
+  @for (f of list; track f; let i = $index; let first = $first; let last = $last) {
+    <div class="border rounded mb-1 bg-white">
+      <div class="d-flex align-items-center gap-2 px-2 py-1">
+        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 flex-grow-1 text-start" (click)="toggleNested(f)" [attr.aria-expanded]="expanded.has(f)">
+          <i class="fa-solid me-1" [class.fa-chevron-down]="expanded.has(f)" [class.fa-chevron-right]="!expanded.has(f)"></i>
+          <i class="fa-solid {{ info(f.type)?.icon }} text-muted me-1"></i>{{ f.label || '(no label)' }}
+          <span class="text-muted small ms-1">{{ info(f.type)?.label }}@if (f.required) { · required }@if (kind === 'itemFields' && onlyWhenTicked(f)) { · when ticked }</span>
+        </button>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-outline-secondary" (click)="moveNested(list, i, -1)" [disabled]="readOnly || first" aria-label="Move up"><i class="fa-solid fa-arrow-up"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="moveNested(list, i, 1)" [disabled]="readOnly || last" aria-label="Move down"><i class="fa-solid fa-arrow-down"></i></button>
+          <button type="button" class="btn btn-outline-danger" (click)="removeNested(list, i)" [disabled]="readOnly" aria-label="Remove"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      @if (expanded.has(f)) {
+        <div class="px-2 pb-2">
+          <app-fb-field-editor [field]="f" [siblings]="list" [definition]="definition" [sectionKey]="sectionKey" [nested]="true"
+            [itemField]="kind === 'itemFields'" [optionsFromCandidates]="kind === 'columns' ? optionsFromCandidates : []"
+            [readOnly]="readOnly" [published]="publishedNested(kind, f.key)" />
+        </div>
+      }
+    </div>
+  }
+  @if (list.length === 0) { <div class="small text-muted mb-1">None yet.</div> }
+  @if (!readOnly) {
+    <div class="dropdown d-inline-block">
+      <select class="form-select form-select-sm w-auto d-inline-block" (change)="addNested(list, $any($event.target).value); $any($event.target).value = ''" aria-label="Add">
+        <option value="">+ Add {{ kind === 'columns' ? 'column' : 'detail' }}…</option>
+        @for (t of types; track t.type) { <option [value]="t.type">{{ t.label }}</option> }
+      </select>
+    </div>
+  }
+</ng-template>

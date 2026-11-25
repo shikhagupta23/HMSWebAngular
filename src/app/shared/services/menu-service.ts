@@ -1,9 +1,13 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { AuthService } from "../../modules/auth/services/auth-service";
 import { MenuItem } from "../constants/menu.config";
+import { ClinicalFormsAccessService } from "../../modules/doctor/modules/clinical-forms/services/clinical-forms-access-service";
+import { ClinicalFormPermission } from "../../modules/doctor/modules/clinical-forms/models/clinical-forms.models";
 
 @Injectable({ providedIn: 'root' })
 export class MenuService {
+  private clinicalForms = inject(ClinicalFormsAccessService);
+
   constructor(private auth: AuthService) {}
 
   getFilteredMenu(menu: MenuItem[]): MenuItem[] {
@@ -39,6 +43,14 @@ private canShow(item: MenuItem): boolean {
 
   // Feature-based filtering
   if (item.featureKey && !this.auth.hasFeature(item.featureKey)) {
+    return false;
+  }
+
+  // Clinical Forms: server-verified access (getAccess), not the JWT feature list
+  if (item.requiresClinicalForms && !this.clinicalForms.isEnabled()) {
+    return false;
+  }
+  if (item.clinicalFormsPermission && !this.clinicalForms.has(item.clinicalFormsPermission as ClinicalFormPermission)) {
     return false;
   }
 

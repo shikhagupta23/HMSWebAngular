@@ -49,6 +49,12 @@
       </ng-template>
     </div>
 
+    @if (clinicalFormsAccess.isEnabled()) {
+      <a class="btn btn-outline-primary btn-sm" [routerLink]="['/clinical-forms/patients', patient.userId]" data-test="patient-clinical-forms">
+        <i class="fa-regular fa-file-lines me-1"></i> Clinical forms
+      </a>
+    }
+
   </div>
 
   <div class="tab-content pt-0">
@@ -86,6 +92,9 @@
                   <span title="Appointment Status" class="badge status-badge" [ngClass]="getStatusClass(appt.appointmentStatus)">
                     {{ getStatusText(appt.appointmentStatus) }}
                   </span>
+                  @if (clinicalFormsAccess.isEnabled() && appt.appointmentStatus != 4) {
+                    <a class="d-block small mt-1" [routerLink]="['/clinical-forms/patients', patient.userId]" [queryParams]="{ appointmentId: appt.appointmentId }" data-test="appointment-clinical-forms">Clinical forms</a>
+                  }
                   </div>
 
 

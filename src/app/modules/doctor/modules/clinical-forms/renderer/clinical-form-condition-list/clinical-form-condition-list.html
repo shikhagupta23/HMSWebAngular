@@ -1,0 +1,81 @@
+<fieldset class="cf-condition-list" [attr.data-field]="basePath">
+  <legend class="form-label fw-semibold fs-6">
+    {{ field.label }}
+    @if (isRequired) { <span class="text-danger" aria-hidden="true">*</span> }
+  </legend>
+
+  @if (tickMode) {
+    <div class="d-flex flex-wrap gap-2 cf-ticks" role="group" [attr.aria-label]="field.label" data-test="tick-list">
+      @for (item of field.items ?? []; track item.key) {
+        @if (itemVisible(item)) {
+          <div class="form-check form-check-inline m-0 border rounded px-4 py-1" [class.border-primary]="isTicked(item)"
+            [class.bg-primary-subtle]="isTicked(item)" [attr.data-item]="item.key">
+            <input class="form-check-input" type="checkbox" [id]="id(item, 'tick')" [checked]="isTicked(item)"
+              [disabled]="!status(item) || status(item).disabled" (change)="toggle(item, $any($event.target).checked)" />
+            <label class="form-check-label" [attr.for]="id(item, 'tick')">
+              {{ item.label }}
+              @if (item.alert && isTicked(item)) { <i class="fa-solid fa-triangle-exclamation text-warning ms-1" title="Alert"></i> }
+            </label>
+          </div>
+        }
+      }
+    </div>
+
+    @for (item of ticked(); track item.key) {
+      @if (hasDetails(item)) {
+        <div class="row g-2 align-items-end mt-1" [attr.data-item-details]="item.key">
+          <div class="col-md-2 small fw-semibold pb-2">{{ item.label }}</div>
+          @for (itemField of field.itemFields ?? []; track itemField.key) {
+            @if (itemFieldVisible(item, itemField)) {
+              <div class="col-md">
+                <app-clinical-form-field [model]="model" [section]="section" [field]="itemField"
+                  [control]="itemControl(item, itemField)" [path]="basePath + '.' + item.key + '.' + itemField.key" />
+              </div>
+            }
+          }
+        </div>
+      }
+    }
+  } @else {
+  <div class="list-group">
+    @for (item of field.items ?? []; track item.key) {
+      @if (itemVisible(item)) {
+        <div class="list-group-item" [attr.data-item]="item.key">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="fw-medium">
+              {{ item.label }}
+              @if (item.alert) { <span class="badge bg-warning-subtle text-warning-emphasis ms-1">Alert</span> }
+            </span>
+            <div class="d-flex gap-3" role="radiogroup" [attr.aria-label]="item.label">
+              @for (option of statusOptions; track option.value) {
+                <div class="form-check form-check-inline m-0">
+                  <input class="form-check-input" type="radio" [id]="id(item, option.value)" [name]="id(item, 'status')"
+                    [value]="option.value" [formControl]="status(item)" />
+                  <label class="form-check-label" [attr.for]="id(item, option.value)">{{ option.label }}</label>
+                </div>
+              }
+            </div>
+          </div>
+
+          @for (error of statusErrors(item); track error) {
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          }
+
+          @if ((field.itemFields ?? []).length > 0) {
+            <div class="row g-2 mt-1">
+              @for (itemField of field.itemFields ?? []; track itemField.key) {
+                @if (itemFieldVisible(item, itemField)) {
+                  <div class="col-md-4">
+                    <app-clinical-form-field [model]="model" [section]="section" [field]="itemField"
+                      [control]="itemControl(item, itemField)" [path]="basePath + '.' + item.key + '.' + itemField.key" />
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+  }
+</fieldset>

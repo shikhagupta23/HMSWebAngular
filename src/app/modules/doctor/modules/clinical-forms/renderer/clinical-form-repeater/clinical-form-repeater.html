@@ -1,0 +1,51 @@
+<fieldset class="cf-repeater" [attr.data-field]="basePath">
+  <legend class="form-label fw-semibold fs-6">
+    {{ field.label }}
+    @if (isRequired) { <span class="text-danger" aria-hidden="true">*</span> }
+  </legend>
+
+  @if (rows.length === 0) {
+    <p class="text-muted small mb-2" data-test="no-rows">No entries.</p>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-2">
+        <thead>
+          <tr>
+            @for (column of field.columns ?? []; track column.key) {
+              <th scope="col">{{ column.label }} @if (column.required) { <span class="text-danger">*</span> }</th>
+            }
+            @if (editable) { <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows.controls; track row; let i = $index) {
+            <tr [attr.data-row]="i">
+              @for (column of field.columns ?? []; track column.key) {
+                <td>
+                  <app-clinical-form-field [model]="model" [section]="section" [field]="column" [control]="row.get(column.key)"
+                    [path]="basePath + '.' + i + '.' + column.key" [required]="!!column.required" [compact]="true" />
+                </td>
+              }
+              @if (editable) {
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="remove(i)" [attr.aria-label]="'Remove row ' + (i + 1)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (canAdd) {
+    <button type="button" class="btn btn-sm btn-outline-primary" (click)="add()" data-test="add-row">
+      <i class="fa-solid fa-plus me-1"></i> Add row
+    </button>
+  }
+  @for (error of errors; track error) {
+    <div class="invalid-feedback d-block">{{ error }}</div>
+  }
+</fieldset>

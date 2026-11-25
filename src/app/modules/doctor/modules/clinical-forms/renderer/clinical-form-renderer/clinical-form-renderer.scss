@@ -1,0 +1,15 @@
+.cf-section .card-header {
+  background: var(--bs-light, #f8f9fa);
+}
+
+.cf-section .card-body {
+  display: grid;
+  gap: 1rem 1.25rem;
+  // Paper-form layout: short answers sit side by side; wide fields span the whole row.
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  align-items: start;
+}
+
+.cf-section .card-body > .cf-wide {
+  grid-column: 1 / -1;
+}

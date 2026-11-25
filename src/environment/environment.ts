@@ -1,12 +1,14 @@
 export const environment = {
     
     // baseUrl:  "https://api-clinicmanagement.rsdemoprojects.in/api",
-    // baseUrl:  "https://localhost:7220/api",
+    baseUrl:  "https://localhost:7220/api",
     // baseUrl:'https://0fa65a8cfc06.ngrok-free.app/api'
     // baseUrlLocal : "https://api-clinicmanagement.rsdemoprojects.in/api",
     // hospitalLogoPath: `https://api-clinicmanagement.rsdemoprojects.in/hospitalLogo/`,
-    baseUrl:'https://www.api.medipilot360.com/api',
-    hospitalLogoPath: `https://www.api.medipilot360.com/hospitalLogo/`,
+    // baseUrl:'https://www.api.medipilot360.com/api',
+    // hospitalLogoPath: `https://www.api.medipilot360.com/hospitalLogo/`,
+    // baseUrl: 'http://localhost:5111/api',
+    hospitalLogoPath: `http://localhost:7220/hospitalLogo/`,
       firebase: {
         apiKey: "AIzaSyAXSz2NPNb59c3-ova9q8qn7pkH2Sq61T8",
         authDomain: "hospital-app-fc76d.firebaseapp.com",

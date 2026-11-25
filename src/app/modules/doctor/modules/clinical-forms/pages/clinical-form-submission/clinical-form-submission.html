@@ -1,0 +1,468 @@
+<div class="container-fluid py-3">
+  @if (submission(); as s) {
+    <a [routerLink]="['/clinical-forms/patients', s.patientId]" [queryParams]="{ appointmentId: s.appointmentId ?? null }"
+      class="small text-decoration-none" data-test="back-to-patient"><i class="fa-solid fa-arrow-left me-1"></i>Patient forms</a>
+  } @else {
+    <a routerLink="/clinical-forms" class="small text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Clinical forms</a>
+  }
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5" data-test="loading">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading…
+    </div>
+  } @else if (loadError(); as e) {
+    <div class="alert mt-3" [class.alert-warning]="e.kind === 'notFound' || e.kind === 'forbidden'" [class.alert-danger]="e.kind !== 'notFound' && e.kind !== 'forbidden'" data-test="load-error">
+      {{ e.message }}
+      @if (e.kind === 'server' || e.kind === 'network') {
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button>
+      }
+    </div>
+  } @else if (submission(); as s) {
+    <!-- Header: form, status workflow, actions -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 my-3">
+      <div>
+        <h3 class="mb-1">{{ s.formName }}</h3>
+        <small class="text-muted">
+          Version {{ s.versionNumber }} ·
+          @switch (s.status) {
+            @case (Status.Draft) { <span class="badge bg-secondary" data-test="status">Draft</span> }
+            @case (Status.Submitted) { <span class="badge bg-success" data-test="status">Submitted</span> }
+            @case (Status.Amended) { <span class="badge bg-info text-dark" data-test="status">Amended (revision {{ s.currentRevisionNumber }})</span> }
+            @case (Status.Voided) { <span class="badge bg-danger" data-test="status">Voided</span> }
+          }
+        </small>
+        <ol class="list-inline small text-muted mb-0 mt-1" aria-label="Workflow" data-test="workflow">
+          <li class="list-inline-item" [class.fw-semibold]="s.status === Status.Draft" [class.text-dark]="s.status === Status.Draft">1. Draft</li>
+          <li class="list-inline-item">›</li>
+          <li class="list-inline-item" [class.fw-semibold]="s.status === Status.Submitted" [class.text-dark]="s.status === Status.Submitted">2. Submitted</li>
+          <li class="list-inline-item">›</li>
+          <li class="list-inline-item" [class.fw-semibold]="s.status === Status.Amended" [class.text-dark]="s.status === Status.Amended">3. Amended</li>
+          @if (s.status === Status.Voided) {
+            <li class="list-inline-item">·</li>
+            <li class="list-inline-item fw-semibold text-danger">Voided</li>
+          }
+        </ol>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2" data-test="actions-top">
+        <ng-container [ngTemplateOutlet]="actionButtons" />
+      </div>
+    </div>
+
+    <!-- Context: the patient and appointment held by the server for this submission -->
+    <div class="card mb-3" data-test="context">
+      <div class="card-body py-2 d-flex flex-wrap gap-4 small">
+        <div>
+          <div class="text-muted">Patient</div>
+          <div class="fw-semibold" data-test="context-patient">{{ patientName() ?? 'Patient details unavailable' }}</div>
+          @if (s.patientSnapshot) { <div class="text-muted">As recorded at submission</div> }
+        </div>
+        <div>
+          <div class="text-muted">Appointment</div>
+          @if (!s.appointmentId) {
+            <div data-test="context-appointment">Not linked to an appointment</div>
+          } @else if (appointment(); as a) {
+            <div class="fw-semibold" data-test="context-appointment">#{{ a.appointmentViewId }} · {{ a.appointmentDate | date: 'dd MMM yyyy, HH:mm' }}</div>
+            <div class="text-muted">@if (a.doctorName) {Dr. {{ a.doctorName }} · }{{ appointmentStatusText(a.status) }}</div>
+          } @else {
+            <div data-test="context-appointment">Linked appointment</div>
+          }
+        </div>
+        <div>
+          <div class="text-muted">Your access</div>
+          <div class="d-flex flex-wrap gap-1" data-test="section-access">
+            @for (section of sectionAccess(); track section.key) {
+              <span class="badge border" [class.bg-light]="!section.canEdit || readOnly()" [class.text-secondary]="!section.canEdit || readOnly()"
+                [class.bg-primary-subtle]="section.canEdit && !readOnly()" [class.text-primary]="section.canEdit && !readOnly()"
+                [attr.title]="section.canEdit && !readOnly() ? 'You can edit this section' : 'Read only'">
+                @if (!section.canEdit || readOnly()) { <i class="fa-solid fa-lock me-1"></i> }{{ section.title }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (fileError(); as fe) {
+      <div class="alert alert-danger d-flex flex-wrap gap-2 justify-content-between align-items-center" data-test="file-error">
+        <span>{{ fe.message }}</span>
+        <span class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="fe.retry()" data-test="file-retry">Retry</button>
+          <button type="button" class="btn btn-sm btn-link" (click)="fileError.set(null)">Dismiss</button>
+        </span>
+      </div>
+    }
+    @if (viewer(); as v) {
+      <div class="card mb-3 border-secondary" data-test="file-viewer">
+        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <h5 class="mb-0 text-break">{{ v.title }}</h5>
+          <span class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="saveViewed()" data-test="viewer-download"><i class="fa-solid fa-download me-1"></i>Download</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeViewer()" data-test="viewer-close">Close</button>
+          </span>
+        </div>
+        <div class="card-body p-2 text-center bg-light">
+          @if (v.kind === 'pdf') {
+            <iframe [src]="v.url" title="{{ v.title }}" class="w-100 border-0" style="height: 75vh; min-height: 420px" data-test="viewer-pdf"></iframe>
+          } @else {
+            <img [src]="v.url" alt="{{ v.title }}" class="img-fluid" style="max-height: 75vh" data-test="viewer-image" />
+          }
+        </div>
+      </div>
+    }
+
+    @if (contextMismatch()) {
+      <div class="alert alert-danger" data-test="context-mismatch">{{ contextMismatch() }}</div>
+    }
+    @if (conflict()) {
+      <div class="alert alert-warning d-flex flex-wrap gap-2 justify-content-between align-items-center" data-test="conflict">
+        <span>This form was changed by someone else since you opened it. Your changes were not saved. Reload to see the latest version before making further changes.</span>
+        <button type="button" class="btn btn-sm btn-warning" (click)="load()" data-test="reload">Reload</button>
+      </div>
+    }
+    @if (s.status === Status.Voided && s.voidReason) {
+      <div class="alert alert-secondary" data-test="void-reason">Voided: {{ s.voidReason }}</div>
+    }
+    @if (actionError()) {
+      <div class="alert alert-danger" data-test="action-error">{{ actionError() }}</div>
+    }
+    @if (checkResult(); as c) {
+      @if (c.ready) {
+        <div class="alert alert-success" data-test="check-ready">The form is complete and ready to submit.</div>
+      } @else if (!c.serverChecked && issues().length === 0) {
+        <div class="alert alert-secondary" data-test="check-partial">No problems found on this screen; the server check could not be completed.</div>
+      }
+    }
+    @if (issues().length > 0) {
+      <div class="alert alert-warning" data-test="issues">
+        <strong>{{ issues().length }} problem(s) need attention:</strong>
+        <ul class="mb-0">
+          @for (issue of issues(); track $index) { <li>{{ issue.label }}: {{ issue.message }}</li> }
+        </ul>
+        @if (checkResult()?.serverChecked) {
+          <small class="d-block mt-1 text-muted">The server checks the last saved draft; save to include recent changes.</small>
+        }
+      </div>
+    }
+
+    @if (amending()) {
+      <div class="card border-primary mb-3" data-test="amend-panel">
+        <div class="card-body">
+          <p class="small text-muted mb-2">Edit the sections you are allowed to change below, then save. The previous version is kept in the history.</p>
+          <label class="form-label fw-semibold" for="cf-amend-reason">Reason for amendment <span class="text-danger">*</span></label>
+          <input id="cf-amend-reason" class="form-control mb-2" maxlength="1000" [(ngModel)]="amendReason" />
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" (click)="amend()" [disabled]="busy() || blocked()" data-test="save-amendment">Save amendment</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelAmendment()" [disabled]="busy()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (voiding()) {
+      <div class="card border-danger mb-3" data-test="void-panel">
+        <div class="card-body">
+          <p class="small mb-2">
+            @if (s.status === Status.Draft) { Discarding removes this draft from the patient's active forms. It is kept for audit. }
+            @else { Voiding marks this submission as invalid (for example, recorded for the wrong patient). It is kept for audit. }
+          </p>
+          <label class="form-label fw-semibold" for="cf-void-reason">Reason <span class="text-danger">*</span></label>
+          <input id="cf-void-reason" class="form-control mb-2" maxlength="500" [(ngModel)]="voidReason" />
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-danger" (click)="voidSubmission()" [disabled]="busy() || blocked()" data-test="confirm-void">
+              {{ s.status === Status.Draft ? 'Discard draft' : 'Void submission' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="voiding.set(false)" [disabled]="busy()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <app-clinical-form-renderer [definition]="s.definition" [answers]="s.answers" [sectionAccess]="s.sections"
+      [readOnly]="readOnly()" [patient]="patient()" [attachmentHandler]="attachmentHandler" [hideConsentSections]="true" (modelReady)="onModelReady($event)" />
+
+    <!-- Attachments: private files streamed through the authorized endpoint only -->
+    <div class="card mt-3" data-test="attachments-panel">
+      <div class="card-header"><h5 class="mb-0">Attachments</h5></div>
+      <div class="card-body">
+        @if (attachmentsError()) {
+          <div class="alert alert-danger py-2">{{ attachmentsError() }} <button type="button" class="btn btn-sm btn-link" (click)="loadAttachments()">Retry</button></div>
+        }
+        @if (fileAttachments().length === 0) {
+          <p class="text-muted mb-2" data-test="no-files">No files attached.</p>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>File</th><th>Type</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
+              <tbody>
+                @for (a of fileAttachments(); track a.id) {
+                  <tr data-test="file-row">
+                    <td class="text-break">{{ a.fileName }}
+                      @if (a.isReferenced) { <span class="badge bg-light text-dark border ms-1" title="Used in the form">In form</span> }
+                      @if (a.description) { <div class="small text-muted">{{ a.description }}</div> }
+                    </td>
+                    <td>{{ attachmentLabels[a.attachmentType] }}</td>
+                    <td>{{ a.fileSize < 1048576 ? (a.fileSize / 1024 | number: '1.0-0') + ' KB' : (a.fileSize / 1048576 | number: '1.1-1') + ' MB' }}</td>
+                    <td>{{ a.uploadedAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                    <td class="text-end text-nowrap">
+                      <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="viewAttachment(a)" [disabled]="!!fileLoading()" data-test="file-view">View</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="downloadAttachment(a)" [disabled]="!!fileLoading()" aria-label="Download" data-test="file-download"><i class="fa-solid fa-download"></i></button>
+                      @if (canChangeAttachments() && !a.isReferenced && deletingId() !== a.id) {
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="startDelete(a)" data-test="file-delete">Remove</button>
+                      }
+                    </td>
+                  </tr>
+                  @if (deletingId() === a.id) {
+                    <tr data-test="delete-row">
+                      <td colspan="5">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                          <input class="form-control form-control-sm" style="max-width: 360px" maxlength="500" placeholder="Reason for removing (required)"
+                            [(ngModel)]="deleteReason" aria-label="Reason for removing the file" data-test="delete-reason" />
+                          <button type="button" class="btn btn-sm btn-danger" (click)="confirmDelete(a)" [disabled]="busy()" data-test="confirm-delete">Remove file</button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deletingId.set(null)">Cancel</button>
+                        </div>
+                        @if (deleteError()) { <div class="text-danger small mt-1" data-test="delete-error">{{ deleteError() }}</div> }
+                        <div class="small text-muted mt-1">The file is kept in the audit history.</div>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (canChangeAttachments()) {
+          <div class="d-flex flex-wrap gap-2 align-items-center" data-test="panel-upload">
+            <select class="form-select form-select-sm w-auto" [(ngModel)]="uploadType" aria-label="File type" data-test="panel-upload-type">
+              @for (t of uploadTypes; track t) { <option [ngValue]="t">{{ attachmentLabels[t] }}</option> }
+            </select>
+            <input class="form-control form-control-sm" style="max-width: 260px" maxlength="500" placeholder="Description (optional)" [(ngModel)]="uploadDescription" aria-label="Description" />
+            <label class="btn btn-sm btn-outline-primary mb-0" [class.disabled]="uploadProgress() !== null">
+              <i class="fa-solid fa-upload me-1"></i> Upload file
+              <input #panelFile type="file" class="d-none" [accept]="attachmentAccept" [disabled]="uploadProgress() !== null"
+                (change)="onPanelFile(panelFile)" data-test="panel-upload-input" />
+            </label>
+            <small class="text-muted">PDF, JPEG or PNG, up to 10 MB.</small>
+          </div>
+          @if (uploadProgress() !== null) {
+            <div class="progress mt-2" style="height: 6px" role="progressbar" [attr.aria-valuenow]="uploadProgress()" aria-valuemin="0" aria-valuemax="100" data-test="panel-upload-progress">
+              <div class="progress-bar" [style.width.%]="uploadProgress()"></div>
+            </div>
+          }
+          @if (uploadError()) { <div class="text-danger small mt-1" data-test="panel-upload-error">{{ uploadError() }}</div> }
+        }
+      </div>
+    </div>
+
+    <!-- Consent: wording and version come from the server, exactly as pinned for this submission -->
+    @if (consents(); as c) {
+      @if (c.status.length > 0) {
+        <div class="card mt-3" data-test="consent-panel">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Consent</h5>
+            @if (c.records.length > 0) {
+              <button type="button" class="btn btn-sm btn-link" (click)="showConsentHistory.set(!showConsentHistory())" data-test="consent-history-toggle">
+                {{ showConsentHistory() ? 'Hide' : 'Show' }} history ({{ c.records.length }})
+              </button>
+            }
+          </div>
+          <div class="card-body">
+            @for (consent of c.status; track consent.consentType) {
+              <div class="mb-3" [attr.data-consent]="consent.consentType">
+                <p class="small text-muted mb-1" data-test="consent-version">Version {{ consent.consentVersion }}@if (consent.required) { · required }</p>
+                <blockquote class="border-start border-3 ps-3 mb-2" style="white-space: pre-line" data-test="consent-text">{{ consent.consentText }}</blockquote>
+
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  @if (consent.satisfied) {
+                    <span class="badge bg-success" data-test="consent-satisfied">Accepted</span>
+                  } @else if (currentRecord(consent.consentType)?.isAccepted === false) {
+                    <span class="badge bg-danger" data-test="consent-refused">Refused</span>
+                  } @else {
+                    <span class="badge bg-warning text-dark" data-test="consent-missing">Not yet accepted</span>
+                  }
+                  @if (currentRecord(consent.consentType); as r) {
+                    <small class="text-muted" data-test="consent-current">
+                      {{ r.isAccepted ? 'Accepted' : 'Refused' }} by
+                      {{ r.signerType === SignerType.Guardian ? (r.guardianName + ' (' + r.guardianRelationship + ', guardian)') : r.patientNameSnapshot }}
+                      on {{ r.respondedAt | date: 'dd MMM yyyy, HH:mm' }}@if (r.consentVersion !== consent.consentVersion) { · earlier wording v{{ r.consentVersion }}}
+                    </small>
+                    @if (r.hasSignature) {
+                      <span class="badge bg-light text-dark border" data-test="consent-signed"><i class="fa-solid fa-signature me-1"></i>Signed</span>
+                      <button type="button" class="btn btn-sm btn-link p-0" (click)="viewSignature(r)" data-test="view-signature">View signature</button>
+                    } @else if (r.isAccepted && consent.requiresSignature) {
+                      <span class="badge bg-warning text-dark" data-test="consent-unsigned">Signature missing</span>
+                    }
+                  }
+                </div>
+
+                @if (canRecordConsent()) {
+                  @let cap = capture(consent.consentType);
+                  @let def = consentDefinition(consent.consentType);
+                  <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-3">
+                      <label class="form-label small mb-1" [for]="'cf-signer-' + consent.consentType">Responding</label>
+                      <select class="form-select form-select-sm" [id]="'cf-signer-' + consent.consentType" [value]="cap.signerType"
+                        (change)="updateCapture(consent.consentType, { signerType: +$any($event.target).value })" data-test="signer">
+                        <option [value]="SignerType.Patient">Patient</option>
+                        @if (def?.allowGuardian) { <option [value]="SignerType.Guardian">Guardian</option> }
+                      </select>
+                    </div>
+                    @if (cap.signerType === SignerType.Guardian) {
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small mb-1" [for]="'cf-guardian-' + consent.consentType">Guardian name <span class="text-danger">*</span></label>
+                        <input class="form-control form-control-sm" [id]="'cf-guardian-' + consent.consentType" maxlength="200" [value]="cap.guardianName"
+                          (input)="updateCapture(consent.consentType, { guardianName: $any($event.target).value })" data-test="guardian-name" />
+                      </div>
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small mb-1" [for]="'cf-relationship-' + consent.consentType">Relationship <span class="text-danger">*</span></label>
+                        <input class="form-control form-control-sm" [id]="'cf-relationship-' + consent.consentType" maxlength="100" [value]="cap.guardianRelationship"
+                          (input)="updateCapture(consent.consentType, { guardianRelationship: $any($event.target).value })" data-test="guardian-relationship" />
+                      </div>
+                    }
+                    @if (def?.witnessOptional) {
+                      <div class="col-12 col-md-3">
+                        <label class="form-label small mb-1" [for]="'cf-witness-' + consent.consentType">Witness (optional)</label>
+                        <input class="form-control form-control-sm" [id]="'cf-witness-' + consent.consentType" maxlength="200" [value]="cap.witnessName"
+                          (input)="updateCapture(consent.consentType, { witnessName: $any($event.target).value })" data-test="witness-name" />
+                      </div>
+                    }
+                  </div>
+                  @if (consent.requiresSignature || def?.requireSignature) {
+                    <div class="mt-2" style="max-width: 560px" data-test="signature-area">
+                      <app-clinical-signature-pad [label]="signerLabel(consent.consentType)" [required]="true" [disabled]="busy()"
+                        [resetToken]="padResets()[consent.consentType]" (signatureChange)="onSignature(consent.consentType, $event)" />
+                      <small class="text-muted d-block">Required to accept. A refusal can be recorded without a signature.</small>
+                    </div>
+                  }
+                  <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button type="button" class="btn btn-sm btn-outline-success" (click)="recordConsent(consent.consentType, true)" [disabled]="busy()" data-test="consent-accept">Accepts</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="recordConsent(consent.consentType, false)" [disabled]="busy()" data-test="consent-refuse">Refuses</button>
+                  </div>
+                  @if (consentErrors()[consent.consentType]) {
+                    <div class="text-danger small mt-1" data-test="consent-error">{{ consentErrors()[consent.consentType] }}</div>
+                  }
+                }
+              </div>
+            }
+
+            @if (showConsentHistory()) {
+              <div class="table-responsive" data-test="consent-history">
+                <table class="table table-sm small mb-0">
+                  <thead><tr><th>Consent</th><th>Version</th><th>Response</th><th>By</th><th>When</th><th>Signature</th></tr></thead>
+                  <tbody>
+                    @for (r of c.records; track r.id) {
+                      <tr [class.text-muted]="!r.isCurrent">
+                        <td>{{ r.consentType }}</td>
+                        <td>v{{ r.consentVersion }}</td>
+                        <td>{{ r.isAccepted ? 'Accepted' : 'Refused' }}@if (r.isCurrent) { <span class="badge bg-light text-dark border ms-1">current</span> }</td>
+                        <td>{{ r.signerType === SignerType.Guardian ? r.guardianName + ' (guardian)' : r.patientNameSnapshot }}@if (r.witnessName) { · witness {{ r.witnessName }}}</td>
+                        <td>{{ r.respondedAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                        <td>
+                          @if (r.hasSignature) {
+                            <button type="button" class="btn btn-sm btn-link p-0" (click)="viewSignature(r)">View</button>
+                          } @else { — }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Same actions repeated at the end of the form so long forms do not need scrolling back up -->
+    @if (actionError()) {
+      <div class="alert alert-danger mt-3 mb-0">{{ actionError() }}</div>
+    }
+    @if (issues().length > 0) {
+      <div class="alert alert-warning mt-3 mb-0">{{ issues().length }} problem(s) need attention. See the list at the top of the form.</div>
+    }
+    <div class="d-flex flex-wrap gap-2 justify-content-end border-top pt-3 mt-3" data-test="actions-bottom">
+      <ng-container [ngTemplateOutlet]="actionButtons" />
+    </div>
+
+    <ng-template #actionButtons>
+        @if (canSaveDraft()) {
+          <button type="button" class="btn btn-outline-primary" (click)="saveDraft()" [disabled]="busy() || blocked()" data-test="save-draft">Save draft</button>
+        }
+        @if (s.status === Status.Draft && (canSaveDraft() || canSubmit())) {
+          <button type="button" class="btn btn-outline-secondary" (click)="checkCompleteness()" [disabled]="busy() || blocked()" data-test="check">Check completeness</button>
+        }
+        @if (canSubmit()) {
+          <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="busy() || blocked()" data-test="submit">Submit</button>
+        }
+        @if (canAmend() && !amending()) {
+          <button type="button" class="btn btn-outline-primary" (click)="startAmendment()" [disabled]="busy() || blocked()" data-test="amend">Amend</button>
+        }
+        @if (canVoid() && !voiding()) {
+          <button type="button" class="btn btn-outline-danger" (click)="startVoid()" [disabled]="busy() || blocked()" data-test="void">
+            {{ s.status === Status.Draft ? 'Discard draft' : 'Void' }}
+          </button>
+        }
+        @if (s.status !== Status.Draft) {
+          <button type="button" class="btn btn-outline-secondary" (click)="previewPdf()" [disabled]="!!fileLoading()" data-test="pdf-preview">
+            @if (fileLoading() === pdfFileName()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <i class="fa-regular fa-file-pdf me-1"></i>PDF
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="downloadPdf()" [disabled]="!!fileLoading()" data-test="pdf-download"
+            aria-label="Download PDF"><i class="fa-solid fa-download"></i></button>
+        }
+    </ng-template>
+
+    <!-- Revision history (submitted records) -->
+    @if (s.status !== Status.Draft) {
+      <div class="card mt-3" data-test="revisions">
+        <div class="card-header"><h5 class="mb-0">History</h5></div>
+        <div class="card-body">
+          @if (revisionsError()) {
+            <div class="alert alert-danger py-2">{{ revisionsError() }} <button type="button" class="btn btn-sm btn-link" (click)="loadRevisions()">Retry</button></div>
+          }
+          @if (revisions(); as list) {
+            @if (list.length === 0) {
+              <p class="text-muted mb-0">No revisions recorded.</p>
+            } @else {
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th>Revision</th><th>Change</th><th>Reason</th><th>When</th><th></th></tr></thead>
+                  <tbody>
+                    @for (r of list; track r.revisionNumber) {
+                      <tr data-test="revision-row">
+                        <td>{{ r.revisionNumber }}</td>
+                        <td>{{ changeTypes[r.changeType] ?? 'Change' }}</td>
+                        <td>{{ r.changeReason || '—' }}</td>
+                        <td>{{ r.changedAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                        <td class="text-end">
+                          <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="viewRevision(r.revisionNumber)" data-test="view-revision">View</button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="previewPdf(r.revisionNumber)" [disabled]="!!fileLoading()" data-test="revision-pdf">PDF</button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadPdf(r.revisionNumber)" [disabled]="!!fileLoading()" aria-label="Download revision PDF" data-test="revision-pdf-download"><i class="fa-solid fa-download"></i></button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          } @else if (!revisionsError()) {
+            <div class="text-muted small"><span class="spinner-border spinner-border-sm me-1"></span>Loading history…</div>
+          }
+        </div>
+      </div>
+
+      @if (viewedRevision(); as rev) {
+        <div class="card border-secondary mt-3" data-test="revision-view">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Revision {{ rev.revisionNumber }} · {{ changeTypes[rev.changeType] ?? 'Change' }} · {{ rev.changedAt | date: 'dd MMM yyyy, HH:mm' }}</h5>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="viewedRevision.set(null)">Close</button>
+          </div>
+          <div class="card-body">
+            <app-clinical-form-renderer [definition]="s.definition" [answers]="rev.answers" [readOnly]="true" [patient]="revisionPatient(rev)" [attachmentHandler]="attachmentHandler" />
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

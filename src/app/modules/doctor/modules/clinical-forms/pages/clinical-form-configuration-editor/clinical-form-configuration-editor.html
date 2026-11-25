@@ -1,0 +1,236 @@
+<div class="container-fluid py-3">
+  <a routerLink="/clinical-forms/configuration" class="small text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Clinical Forms Configuration</a>
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5" data-test="loading">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading configuration…
+    </div>
+  } @else if (loadError(); as e) {
+    <div class="alert mt-3" [class.alert-warning]="e.kind === 'notFound' || e.kind === 'forbidden'" [class.alert-danger]="e.kind !== 'notFound' && e.kind !== 'forbidden'" data-test="load-error">
+      @if (e.kind === 'forbidden') { You do not have permission to manage clinical forms for this hospital. } @else { {{ e.message }} }
+      @if (e.kind === 'server' || e.kind === 'network') {
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button>
+      }
+    </div>
+  } @else if (form(); as f) {
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 my-3">
+      <div>
+        <h3 class="mb-0">{{ f.formName }}</h3>
+        <small class="text-muted text-capitalize">{{ f.specialty }}</small>
+        @if (state()?.isEnabled === false) { <span class="badge bg-secondary ms-2" data-test="disabled-badge">Disabled</span> }
+      </div>
+      <div style="min-width: 14rem">
+        <label class="form-label small fw-semibold mb-1" for="cf-version">Form version</label>
+        <select id="cf-version" class="form-select form-select-sm" [value]="versionId()" (change)="changeVersion($any($event.target).value)"
+          [disabled]="versionLoading() || saving()" data-test="version">
+          @for (v of versions(); track v.id) {
+            <option [value]="v.id" [selected]="v.id === versionId()">v{{ v.versionNumber }}{{ v.versionLabel ? ' · ' + v.versionLabel : '' }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="alert alert-light border small" data-test="scope-note">
+      Changes apply to forms started after saving. Forms already started keep the version and wording they were created with.
+      The form's questions and logic are managed by the platform administrator and cannot be changed here.
+    </div>
+
+    @if (conflict()) {
+      <div class="alert alert-warning d-flex flex-wrap gap-2 justify-content-between align-items-center" data-test="conflict">
+        <span>Someone else changed this configuration since you opened it. Your changes were not saved. Reload to see the latest version.</span>
+        <button type="button" class="btn btn-sm btn-warning" (click)="load()" data-test="reload">Reload</button>
+      </div>
+    }
+    @if (generalErrors().length > 0) {
+      <div class="alert alert-danger" data-test="general-errors">
+        @for (message of generalErrors(); track $index) { <div>{{ message }}</div> }
+      </div>
+    }
+
+    @if (versionLoading()) {
+      <div class="text-muted small mb-2"><span class="spinner-border spinner-border-sm me-1"></span>Loading version…</div>
+    }
+
+    @if (base(); as b) {
+      <!-- Sections and fields -->
+      @for (section of b.sections; track section.key) {
+        <div class="card mb-2" [attr.data-config-section]="section.key">
+          <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+              <div class="col-12 col-md-4">
+                <div class="fw-semibold">{{ section.title }}</div>
+                @if (section.clinical) { <small class="text-muted">Clinical section</small> }
+              </div>
+              <div class="col-12 col-md-4">
+                <input type="text" class="form-control form-control-sm" [attr.maxlength]="maxLabel" [placeholder]="'Title: ' + section.title"
+                  [value]="sectionTitle(section)" (input)="setSectionTitle(section, $any($event.target).value)"
+                  [class.is-invalid]="errorsFor('section:' + section.key + ':title').length > 0"
+                  [attr.aria-label]="'Hospital title for ' + section.title" data-test="section-title" />
+                @for (m of errorsFor('section:' + section.key + ':title'); track $index) { <div class="invalid-feedback d-block">{{ m }}</div> }
+              </div>
+              <div class="col-12 col-md-4 d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                <div class="form-check form-switch mb-0" [title]="disableBlocker(section) ?? ''">
+                  <input class="form-check-input" type="checkbox" [id]="'cf-sec-' + section.key" [checked]="sectionEnabled(section)"
+                    [disabled]="!!disableBlocker(section) && sectionEnabled(section)" (change)="setSectionEnabled(section, $any($event.target).checked)"
+                    data-test="section-enabled" />
+                  <label class="form-check-label small" [for]="'cf-sec-' + section.key">{{ sectionEnabled(section) ? 'In use' : 'Not used' }}</label>
+                </div>
+                @if (sectionEnabled(section)) {
+                  <button type="button" class="btn btn-sm btn-link" (click)="toggleExpanded(section.key)" data-test="toggle-fields">
+                    {{ isExpanded(section.key) ? 'Hide fields' : 'Fields' }}@if (customizedCount(section) > 0) { ({{ customizedCount(section) }} changed) }
+                  </button>
+                }
+              </div>
+            </div>
+            @if (disableBlocker(section) && sectionEnabled(section)) {
+              <small class="text-muted d-block">Always used: {{ disableBlocker(section) }}</small>
+            }
+            @for (m of errorsFor('section:' + section.key + ':enabled'); track $index) { <div class="text-danger small">{{ m }}</div> }
+            @for (m of errorsFor('section:' + section.key); track $index) { <div class="text-danger small">{{ m }}</div> }
+
+            @if (sectionEnabled(section) && isExpanded(section.key)) {
+              <div class="table-responsive mt-2">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th>Field</th><th style="min-width: 14rem">Hospital label</th><th>Hide</th><th>Mandatory</th><th>Options</th></tr></thead>
+                  <tbody>
+                    @for (field of section.fields; track field.key) {
+                      @let caps = capabilities(section, field);
+                      @let o = fieldOverride(section, field);
+                      @let fk = 'field:' + fieldKey(section, field);
+                      <tr [attr.data-config-field]="fieldKey(section, field)">
+                        <td>
+                          {{ field.label }}
+                          @if (caps.locked) { <span class="badge bg-light text-secondary border ms-1" title="Locked by the form"><i class="fa-solid fa-lock"></i></span> }
+                          @if (caps.alreadyRequired) { <span class="text-danger" title="Mandatory">*</span> }
+                        </td>
+                        <td>
+                          @if (caps.canRelabel) {
+                            <input type="text" class="form-control form-control-sm" [attr.maxlength]="maxLabel" [placeholder]="field.label" [value]="o.label ?? ''"
+                              (input)="setFieldLabel(section, field, $any($event.target).value)" [class.is-invalid]="errorsFor(fk + ':label').length > 0"
+                              [attr.aria-label]="'Hospital label for ' + field.label" data-test="field-label" />
+                            @for (m of errorsFor(fk + ':label'); track $index) { <div class="invalid-feedback d-block">{{ m }}</div> }
+                          } @else { <span class="text-muted small">Locked</span> }
+                        </td>
+                        <td>
+                          <input class="form-check-input" type="checkbox" [checked]="!!o.hidden" [disabled]="!!caps.hideBlocker && !o.hidden"
+                            [title]="caps.hideBlocker ?? 'Hide this optional field'" (change)="setFieldHidden(section, field, $any($event.target).checked)"
+                            [attr.aria-label]="'Hide ' + field.label" data-test="field-hidden" />
+                          @for (m of errorsFor(fk + ':hidden'); track $index) { <div class="text-danger small">{{ m }}</div> }
+                        </td>
+                        <td>
+                          @if (caps.alreadyRequired) { <span class="small text-muted">Always</span> }
+                          @else {
+                            <input class="form-check-input" type="checkbox" [checked]="!!o.required" [disabled]="(!!caps.requireBlocker || !!o.hidden) && !o.required"
+                              [title]="caps.requireBlocker ?? 'Make this field mandatory'" (change)="setFieldRequired(section, field, $any($event.target).checked)"
+                              [attr.aria-label]="'Make ' + field.label + ' mandatory'" data-test="field-required" />
+                          }
+                          @for (m of errorsFor(fk + ':required'); track $index) { <div class="text-danger small">{{ m }}</div> }
+                        </td>
+                        <td>
+                          @if (caps.hideableOptions.length > 0) {
+                            <details>
+                              <summary class="small">{{ (o.hiddenOptions?.length ?? 0) > 0 ? (o.hiddenOptions!.length + ' hidden') : 'All shown' }}</summary>
+                              <div class="mt-1" style="max-height: 12rem; overflow: auto">
+                                @for (option of caps.hideableOptions; track option.value) {
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" [id]="'cf-opt-' + fieldKey(section, field) + '-' + option.value"
+                                      [checked]="!isOptionHidden(section, field, option.value)"
+                                      (change)="setOptionHidden(section, field, option.value, !$any($event.target).checked)" data-test="option-shown" />
+                                    <label class="form-check-label small" [for]="'cf-opt-' + fieldKey(section, field) + '-' + option.value">{{ option.label }}</label>
+                                  </div>
+                                }
+                              </div>
+                            </details>
+                          } @else { <span class="text-muted small">—</span> }
+                          @for (m of errorsFor(fk + ':hiddenOptions'); track $index) { <div class="text-danger small">{{ m }}</div> }
+                        </td>
+                      </tr>
+                      @if (errorsFor(fk).length > 0) {
+                        <tr><td colspan="5" class="text-danger small py-0">@for (m of errorsFor(fk); track $index) { <div>{{ m }}</div> }</td></tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Consent wording -->
+      @if ((b.consents ?? []).length > 0) {
+        <div class="card mt-3" data-test="consent-config">
+          <div class="card-header"><h5 class="mb-0">Consent wording</h5></div>
+          <div class="card-body">
+            @for (consent of b.consents ?? []; track consent.consentType) {
+              @let custom = consentOverride(consent);
+              @let ck = 'consent:' + consent.consentType;
+              <div class="mb-3" [attr.data-config-consent]="consent.consentType">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <span class="fw-semibold">{{ consent.consentType }}</span>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" [id]="'cf-consent-' + consent.consentType" [checked]="!!custom"
+                      (change)="setConsentCustomized(consent, $any($event.target).checked)" data-test="consent-customized" />
+                    <label class="form-check-label small" [for]="'cf-consent-' + consent.consentType">Use hospital-specific wording</label>
+                  </div>
+                </div>
+                <p class="small text-muted mb-1">Standard wording (version {{ consent.consentVersion }}):</p>
+                <blockquote class="border-start border-3 ps-3 small" style="white-space: pre-line">{{ consent.text }}</blockquote>
+                @if (custom) {
+                  <div class="row g-2">
+                    <div class="col-12 col-md-3">
+                      <label class="form-label small mb-1" [for]="'cf-cv-' + consent.consentType">Your wording version <span class="text-danger">*</span></label>
+                      <input class="form-control form-control-sm" [id]="'cf-cv-' + consent.consentType" [attr.maxlength]="maxConsentVersion" [value]="custom.consentVersion"
+                        (input)="setConsentValue(consent, 'consentVersion', $any($event.target).value)" [class.is-invalid]="errorsFor(ck + ':consentVersion').length > 0"
+                        data-test="consent-version" />
+                      @for (m of errorsFor(ck + ':consentVersion'); track $index) { <div class="invalid-feedback d-block">{{ m }}</div> }
+                    </div>
+                    <div class="col-12 col-md-9">
+                      <label class="form-label small mb-1" [for]="'cf-ct-' + consent.consentType">Your wording <span class="text-danger">*</span></label>
+                      <textarea class="form-control form-control-sm" rows="5" [id]="'cf-ct-' + consent.consentType" [attr.maxlength]="maxConsentText" [value]="custom.text"
+                        (input)="setConsentValue(consent, 'text', $any($event.target).value)" [class.is-invalid]="errorsFor(ck + ':text').length > 0"
+                        data-test="consent-text"></textarea>
+                      @for (m of errorsFor(ck + ':text'); track $index) { <div class="invalid-feedback d-block">{{ m }}</div> }
+                    </div>
+                  </div>
+                  <small class="text-muted">Patients see and sign exactly this wording. Each change should get a new version so signed consents stay traceable.</small>
+                }
+                @for (m of errorsFor(ck).concat(errorsFor(ck + ':consentType')); track $index) { <div class="text-danger small">{{ m }}</div> }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="d-flex flex-wrap gap-2 align-items-center mt-3 py-2 bg-white border-top" style="position: sticky; bottom: 0">
+        <button type="button" class="btn btn-primary" (click)="save()" [disabled]="!dirty() || saving() || versionLoading()" data-test="save">
+          @if (saving()) { <span class="spinner-border spinner-border-sm me-1"></span> } Save configuration
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="previewChanges()" [disabled]="previewing() || versionLoading()" data-test="preview-changes">
+          @if (previewing()) { <span class="spinner-border spinner-border-sm me-1"></span> } Preview
+        </button>
+        @if (dirty()) {
+          <button type="button" class="btn btn-link" (click)="discardChanges()" [disabled]="saving()" data-test="discard">Discard changes</button>
+          <span class="small text-warning" data-test="unsaved">Unsaved changes</span>
+        }
+        <button type="button" class="btn btn-outline-secondary ms-auto" (click)="cancel()" [disabled]="saving()" data-test="cancel">Back</button>
+      </div>
+
+      @if (preview(); as p) {
+        <div class="card mt-3 border-info" data-test="preview-panel">
+          <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center bg-info-subtle">
+            <div>
+              <h5 class="mb-0">{{ p.saved ? 'Saved configuration' : 'Preview of unsaved changes' }} · v{{ p.versionNumber }}</h5>
+              <small class="text-muted">Read only — nothing is saved and no patient record is created.</small>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="preview.set(null)" data-test="close-preview">Close preview</button>
+          </div>
+          <div class="card-body">
+            <app-clinical-form-renderer [definition]="p.definition" [readOnly]="true" />
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,33 @@
+<div class="fb-options" data-test="options-editor">
+  @if (options.length === 0) {
+    <div class="text-muted small mb-1">No {{ noun }}s yet.</div>
+  }
+  @for (row of options; track $index; let i = $index; let first = $first; let last = $last) {
+    <div class="d-flex gap-1 align-items-center mb-1" data-test="option-row">
+      <input type="text" class="form-control form-control-sm" [value]="row.label" (input)="setLabel(row, $any($event.target).value)"
+        [disabled]="readOnly" placeholder="Label shown to users" [attr.aria-label]="noun + ' ' + (i + 1) + ' label'" data-test="option-label" />
+      <input type="text" class="form-control form-control-sm font-monospace fb-value" [value]="valueOf(row)" (change)="setValue(row, $any($event.target).value)"
+        [disabled]="readOnly || isFixed(row)" [class.is-invalid]="duplicateValues().has(valueOf(row))"
+        [attr.title]="isFixed(row) ? 'Fixed: saved answers in earlier versions use this value' : 'Stored value (filled in automatically)'"
+        [attr.aria-label]="noun + ' ' + (i + 1) + ' stored value'" data-test="option-value" />
+      <div class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-outline-secondary" (click)="move(i, -1)" [disabled]="readOnly || first" title="Move up" aria-label="Move up"><i class="fa-solid fa-arrow-up"></i></button>
+        <button type="button" class="btn btn-outline-secondary" (click)="move(i, 1)" [disabled]="readOnly || last" title="Move down" aria-label="Move down"><i class="fa-solid fa-arrow-down"></i></button>
+        <button type="button" class="btn btn-outline-danger" (click)="remove(i)" [disabled]="readOnly" title="Remove" aria-label="Remove" data-test="option-remove"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  }
+  @if (duplicateValues().size > 0) {
+    <div class="text-danger small">Two {{ noun }}s have the same stored value. Change one of them.</div>
+  }
+  @if (!readOnly) {
+    <div class="d-flex flex-wrap gap-2 mt-1">
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="add()" data-test="option-add"><i class="fa-solid fa-plus me-1"></i>Add {{ noun }}</button>
+      <details class="small">
+        <summary class="text-primary" role="button">Add many at once</summary>
+        <textarea #bulk class="form-control form-control-sm mt-1" rows="3" placeholder="One per line"></textarea>
+        <button type="button" class="btn btn-sm btn-outline-primary mt-1" (click)="addMany(bulk.value); bulk.value = ''">Add these</button>
+      </details>
+    </div>
+  }
+</div>

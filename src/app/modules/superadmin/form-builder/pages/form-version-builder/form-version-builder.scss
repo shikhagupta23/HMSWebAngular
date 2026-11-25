@@ -1,0 +1,35 @@
+.fb-label-input {
+  width: 22rem;
+  max-width: 100%;
+}
+
+.fb-field-open {
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 0 0 1px var(--bs-primary-border-subtle);
+}
+
+.fb-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 0.5rem;
+}
+
+:host ::ng-deep {
+  .fb-block {
+    background: var(--bs-light);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .fb-num {
+    width: 6rem;
+  }
+
+  .fb-value {
+    max-width: 12rem;
+  }
+
+  .fb-cond-field {
+    max-width: 20rem;
+  }
+}

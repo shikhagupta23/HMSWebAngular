@@ -238,4 +238,53 @@ export const ApiEndpoints = {
 
   },
 
+  // Clinical Forms global templates (SuperAdmin form builder; platform-level, never hospital-scoped).
+  CLINICAL_FORM_TEMPLATES: {
+    TEMPLATES: `${API_BASE_URL}/ClinicalFormTemplateAPI/getTemplates`,
+    TEMPLATE: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/getTemplate/${encodeURIComponent(id)}`,
+    CREATE_TEMPLATE: `${API_BASE_URL}/ClinicalFormTemplateAPI/createTemplate`,
+    UPDATE_TEMPLATE: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/updateTemplate/${encodeURIComponent(id)}`,
+    SET_TEMPLATE_STATUS: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/setTemplateStatus/${encodeURIComponent(id)}`,
+    VERSION: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/getVersion/${encodeURIComponent(id)}`,
+    CREATE_DRAFT_VERSION: (templateId: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/createDraftVersion/${encodeURIComponent(templateId)}`,
+    UPDATE_DRAFT_VERSION: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/updateDraftVersion/${encodeURIComponent(id)}`,
+    DELETE_DRAFT_VERSION: (id: string, rowVersion: string) =>
+      `${API_BASE_URL}/ClinicalFormTemplateAPI/deleteDraftVersion/${encodeURIComponent(id)}?rowVersion=${encodeURIComponent(rowVersion)}`,
+    PUBLISH_VERSION: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/publishVersion/${encodeURIComponent(id)}`,
+    ARCHIVE_VERSION: (id: string) => `${API_BASE_URL}/ClinicalFormTemplateAPI/archiveVersion/${encodeURIComponent(id)}`,
+  },
+
+  // Clinical Forms (hospital/user context always comes from the JWT; no hospitalId is ever sent).
+  CLINICAL_FORMS: {
+    ACCESS: `${API_BASE_URL}/ClinicalFormAccessAPI/getAccess`,
+
+    ENABLED_FORMS: `${API_BASE_URL}/HospitalClinicalFormAPI/getEnabledForms`,
+    EFFECTIVE_FORM: (templateId: string) => `${API_BASE_URL}/HospitalClinicalFormAPI/getEffectiveForm/${encodeURIComponent(templateId)}`,
+    AVAILABLE_FORMS: `${API_BASE_URL}/HospitalClinicalFormAPI/getAvailableForms`,
+    ENABLE_FORM: `${API_BASE_URL}/HospitalClinicalFormAPI/enableForm`,
+    DISABLE_FORM: (templateId: string) => `${API_BASE_URL}/HospitalClinicalFormAPI/disableForm/${encodeURIComponent(templateId)}`,
+    UPDATE_CONFIGURATION: (templateId: string) => `${API_BASE_URL}/HospitalClinicalFormAPI/updateConfiguration/${encodeURIComponent(templateId)}`,
+    PREVIEW_CONFIGURATION: (templateId: string) => `${API_BASE_URL}/HospitalClinicalFormAPI/previewConfiguration/${encodeURIComponent(templateId)}`,
+
+    CREATE_DRAFT: (patientId: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/createDraft/${encodeURIComponent(patientId)}`,
+    SUBMISSION: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/getSubmission/${encodeURIComponent(id)}`,
+    SAVE_DRAFT: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/saveDraft/${encodeURIComponent(id)}`,
+    CHECK_SUBMISSION: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/checkSubmission/${encodeURIComponent(id)}`,
+    SUBMIT: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/submit/${encodeURIComponent(id)}`,
+    AMEND: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/amend/${encodeURIComponent(id)}`,
+    VOID: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/void/${encodeURIComponent(id)}`,
+    PATIENT_SUBMISSIONS: (patientId: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/getPatientSubmissions/${encodeURIComponent(patientId)}`,
+    REVISIONS: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/getRevisions/${encodeURIComponent(id)}`,
+    REVISION: (id: string, revisionNumber: number) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/getRevision/${encodeURIComponent(id)}/${revisionNumber}`,
+    RECORD_CONSENT: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/recordConsent/${encodeURIComponent(id)}`,
+    CONSENTS: (id: string) => `${API_BASE_URL}/ClinicalFormSubmissionAPI/getConsents/${encodeURIComponent(id)}`,
+
+    UPLOAD_ATTACHMENT: (submissionId: string) => `${API_BASE_URL}/ClinicalFormAttachmentAPI/upload/${encodeURIComponent(submissionId)}`,
+    ATTACHMENTS: (submissionId: string) => `${API_BASE_URL}/ClinicalFormAttachmentAPI/getAttachments/${encodeURIComponent(submissionId)}`,
+    DOWNLOAD_ATTACHMENT: (attachmentId: string) => `${API_BASE_URL}/ClinicalFormAttachmentAPI/download/${encodeURIComponent(attachmentId)}`,
+    DELETE_ATTACHMENT: (attachmentId: string) => `${API_BASE_URL}/ClinicalFormAttachmentAPI/delete/${encodeURIComponent(attachmentId)}`,
+    PDF: (submissionId: string) => `${API_BASE_URL}/ClinicalFormPdfAPI/submission/${encodeURIComponent(submissionId)}`,
+    REVISION_PDF: (submissionId: string, revisionNumber: number) => `${API_BASE_URL}/ClinicalFormPdfAPI/submission/${encodeURIComponent(submissionId)}/revision/${revisionNumber}`,
+  },
+
 };

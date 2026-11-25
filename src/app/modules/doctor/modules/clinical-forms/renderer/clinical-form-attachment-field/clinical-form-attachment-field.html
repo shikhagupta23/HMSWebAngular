@@ -1,0 +1,54 @@
+<div [id]="inputId" data-test="attachment-field">
+  @if (ids.length === 0) {
+    <div class="text-muted small" data-test="no-attachments">No files attached.</div>
+  } @else {
+    <ul class="list-group mb-2">
+      @for (id of ids; track id) {
+        <li class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-2 py-2" data-test="attached-file">
+          @if (attachment(id); as a) {
+            <span class="text-break">
+              <i class="fa-regular me-1" [class.fa-file-pdf]="a.contentType === 'application/pdf'" [class.fa-file-image]="a.contentType !== 'application/pdf'"></i>
+              {{ a.fileName }} <small class="text-muted">· {{ labels[a.attachmentType] }}</small>
+            </span>
+            <span class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="open(id)" data-test="view-attachment">View</button>
+              @if (editable) {
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="remove(id)" data-test="remove-attachment">Remove</button>
+              }
+            </span>
+          } @else {
+            <span class="text-muted small">File unavailable</span>
+            @if (editable) {
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="remove(id)" data-test="remove-attachment">Remove</button>
+            }
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (editable) {
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      @if (types.length > 1) {
+        <select class="form-select form-select-sm w-auto" [(ngModel)]="selectedType" [ngModelOptions]="{ standalone: true }"
+          [attr.aria-label]="field.label + ' file type'" data-test="attachment-type">
+          @for (t of types; track t) { <option [ngValue]="t">{{ labels[t] }}</option> }
+        </select>
+      }
+      <label class="btn btn-sm btn-outline-primary mb-0" [class.disabled]="progress() !== null">
+        <i class="fa-solid fa-upload me-1"></i> Add file
+        <input #fileInput type="file" class="d-none" [accept]="accept" [disabled]="progress() !== null"
+          (change)="onFileSelected(fileInput)" data-test="attachment-input" />
+      </label>
+      <small class="text-muted">PDF, JPEG or PNG, up to 10 MB.</small>
+    </div>
+    @if (progress() !== null) {
+      <div class="progress mt-2" style="height: 6px" role="progressbar" [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100" data-test="upload-progress">
+        <div class="progress-bar" [style.width.%]="progress()"></div>
+      </div>
+    }
+  }
+  @if (error()) {
+    <div class="text-danger small mt-1" data-test="attachment-error">{{ error() }}</div>
+  }
+</div>

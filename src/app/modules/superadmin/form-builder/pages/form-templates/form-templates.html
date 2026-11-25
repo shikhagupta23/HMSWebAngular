@@ -1,0 +1,88 @@
+<div class="container-fluid py-3">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h3 class="mb-0">Form Builder</h3>
+      <small class="text-muted">Design the clinical forms hospitals use. Changes go into a new version, which you publish when ready.</small>
+    </div>
+    <div class="d-flex gap-2">
+      <input type="search" class="form-control" style="min-width: 14rem" placeholder="Search forms" aria-label="Search forms" [value]="search()" (input)="search.set($any($event.target).value)" />
+      <button type="button" class="btn btn-primary text-nowrap" (click)="startCreate()" data-test="new-form"><i class="fa-solid fa-plus me-1"></i>New form</button>
+    </div>
+  </div>
+
+  @if (creating()) {
+    <div class="card mb-3 border-primary" data-test="create-card">
+      <div class="card-header"><h5 class="mb-0">New form</h5></div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-5">
+            <label class="form-label small mb-1" for="fb-new-name">Form name <span class="text-danger">*</span></label>
+            <input id="fb-new-name" type="text" class="form-control" [value]="formName" (input)="setName($any($event.target).value)" maxlength="200" placeholder="e.g. Dermatology Intake" data-test="new-name" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1" for="fb-new-key">Form key <span class="text-danger">*</span></label>
+            <input id="fb-new-key" type="text" class="form-control font-monospace" [value]="formKey" (change)="setKey($any($event.target).value)" [class.is-invalid]="!!formKey && !keyValid()" data-test="new-key" />
+            <div class="form-text">Permanent identifier, e.g. dermatology-intake. Cannot be changed later.</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1" for="fb-new-spec">Specialty <span class="text-danger">*</span></label>
+            <input id="fb-new-spec" type="text" class="form-control" [(ngModel)]="specialty" list="fb-specialties" placeholder="e.g. dental" [class.is-invalid]="!!specialty && !specialtyValid()" data-test="new-specialty" />
+            <datalist id="fb-specialties">
+              <option value="dental"></option><option value="dermatology"></option><option value="general"></option>
+              <option value="physiotherapy"></option><option value="ophthalmology"></option><option value="gynaecology"></option>
+            </datalist>
+            <div class="form-text">Lower-case, e.g. dental.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label small mb-1" for="fb-new-desc">Description</label>
+            <input id="fb-new-desc" type="text" class="form-control" [(ngModel)]="description" maxlength="1000" />
+          </div>
+        </div>
+        @if (createError(); as e) { <div class="alert alert-danger py-2 mt-2 mb-0">{{ e }}</div> }
+        <div class="d-flex gap-2 justify-content-end mt-3">
+          <button type="button" class="btn btn-outline-secondary" (click)="creating.set(false)" [disabled]="createBusy()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="create()" [disabled]="createBusy() || !formName.trim() || !keyValid() || !specialtyValid()" data-test="create">
+            Create and open builder
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Loading forms…</div>
+  } @else if (loadError(); as e) {
+    <div class="alert alert-danger">{{ e }} <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button></div>
+  } @else if (filtered().length === 0) {
+    <div class="text-center text-muted py-5"><i class="fa-regular fa-file-lines fa-2x mb-2 d-block"></i>No forms yet. Click "New form" to create one.</div>
+  } @else {
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th>Form</th><th>Specialty</th><th>Published</th><th>Status</th><th class="text-end"></th></tr></thead>
+          <tbody>
+            @for (t of filtered(); track t.id) {
+              <tr data-test="template-row">
+                <td>
+                  <div class="fw-semibold">{{ t.formName }}</div>
+                  <div class="small text-muted font-monospace">{{ t.formKey }}</div>
+                </td>
+                <td class="text-capitalize">{{ t.specialty }}</td>
+                <td>
+                  @if (t.latestPublishedVersionNumber) { Version {{ t.latestPublishedVersionNumber }} } @else { <span class="text-muted">Not yet</span> }
+                  @if (t.hasDraft) { <span class="badge bg-warning text-dark ms-1">Draft open</span> }
+                </td>
+                <td>
+                  @if (t.isActive) { <span class="badge bg-success">Active</span> } @else { <span class="badge bg-secondary">Inactive</span> }
+                </td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" [routerLink]="['/superadmin/clinical-forms', t.id]" data-test="open">Open</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

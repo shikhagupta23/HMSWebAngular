@@ -1,0 +1,28 @@
+@if (model(); as m) {
+  <div class="cf-renderer">
+    @for (section of m.sections; track section.key) {
+      @if (shown(section)) {
+      <section class="card cf-section mb-3" [attr.data-section]="section.key">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{{ section.title }}</h5>
+          @if (!m.canEditSection(section.key)) {
+            <span class="badge bg-light text-secondary border" data-test="read-only-badge">Read only</span>
+          }
+        </div>
+        <div class="card-body">
+          @if (m.serverErrorsFor(section.key).length > 0) {
+            <div class="alert alert-danger py-2 small cf-wide" data-test="section-errors">
+              @for (error of m.serverErrorsFor(section.key); track $index) { <div>{{ error }}</div> }
+            </div>
+          }
+          @for (field of section.fields; track field.key) {
+            @if (visible(m, section, field)) {
+              <app-clinical-form-field [class.cf-wide]="wide(field)" [model]="m" [section]="section" [field]="field" [attachmentHandler]="attachmentHandler" />
+            }
+          }
+        </div>
+      </section>
+      }
+    }
+  </div>
+}

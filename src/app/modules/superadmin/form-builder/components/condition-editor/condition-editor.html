@@ -1,0 +1,63 @@
+<div class="fb-condition" data-test="condition-editor">
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" [id]="'fb-cond-' + prop + '-' + owner.key" [checked]="enabled" [disabled]="readOnly"
+      (change)="toggle($any($event.target).checked)" data-test="condition-toggle" />
+    <label class="form-check-label small" [for]="'fb-cond-' + prop + '-' + owner.key">{{ title }}</label>
+  </div>
+
+  @if (condition; as c) {
+    <div class="d-flex flex-wrap gap-2 align-items-start mt-1 ms-4">
+      <select class="form-select form-select-sm w-auto" [value]="c.source === 'patient' ? 'patient' : 'answers'" [disabled]="readOnly"
+        (change)="setSource($any($event.target).value)" aria-label="Condition based on">
+        <option value="answers">another answer</option>
+        <option value="patient">the patient</option>
+      </select>
+
+      @if (c.source === 'patient') {
+        <select class="form-select form-select-sm w-auto" [value]="c.field" [disabled]="readOnly" (change)="setField($any($event.target).value)" aria-label="Patient detail">
+          <option value="gender">gender</option>
+          <option value="ageYears">age (years)</option>
+        </select>
+      } @else {
+        <select class="form-select form-select-sm w-auto fb-cond-field" [value]="c.field" [disabled]="readOnly" (change)="setField($any($event.target).value)" aria-label="Answer" data-test="condition-field">
+          @for (t of targets(); track t.ref) { <option [value]="t.ref">{{ t.label }}</option> }
+        </select>
+      }
+
+      <select class="form-select form-select-sm w-auto" [value]="c.op" [disabled]="readOnly" (change)="setOp($any($event.target).value)" aria-label="Operator" data-test="condition-op">
+        @for (o of operators(); track o.op) { <option [value]="o.op">{{ o.label }}</option> }
+      </select>
+
+      @if (c.op !== 'notEmpty') {
+        @if (c.source === 'patient' && c.field === 'gender') {
+          @for (g of genders; track g) {
+            <div class="form-check form-check-inline mt-1">
+              <input class="form-check-input" type="checkbox" [id]="'fb-g-' + owner.key + g" [checked]="hasGender(g)" [disabled]="readOnly" (change)="toggleGender(g, $any($event.target).checked)" />
+              <label class="form-check-label small" [for]="'fb-g-' + owner.key + g">{{ g }}</label>
+            </div>
+          }
+        } @else if (isMulti() && valueOptions(); as opts) {
+          <div class="d-flex flex-wrap gap-2 mt-1">
+            @for (o of opts; track o.value) {
+              <div class="form-check form-check-inline me-0">
+                <input class="form-check-input" type="checkbox" [id]="'fb-v-' + prop + owner.key + o.value" [checked]="hasValue(o.value)" [disabled]="readOnly"
+                  (change)="toggleValue(o.value, $any($event.target).checked)" />
+                <label class="form-check-label small" [for]="'fb-v-' + prop + owner.key + o.value">{{ o.label }}</label>
+              </div>
+            }
+          </div>
+        } @else if (valueOptions(); as opts) {
+          <select class="form-select form-select-sm w-auto" [value]="scalarValue()" [disabled]="readOnly" (change)="setScalar($any($event.target).value)" aria-label="Value" data-test="condition-value">
+            @for (o of opts; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+          </select>
+        } @else {
+          <input [type]="isNumeric() ? 'number' : 'text'" class="form-control form-control-sm w-auto" [value]="scalarValue()" [disabled]="readOnly"
+            (input)="setScalar($any($event.target).value)" aria-label="Value" data-test="condition-value" />
+        }
+      }
+    </div>
+    @if (c.source !== 'patient' && targets().length === 0) {
+      <div class="text-danger small ms-4">There is no other answer in the form to depend on yet.</div>
+    }
+  }
+</div>

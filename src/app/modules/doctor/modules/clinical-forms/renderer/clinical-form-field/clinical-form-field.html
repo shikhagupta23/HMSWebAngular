@@ -1,0 +1,120 @@
+<div class="cf-field" [attr.data-field]="fieldPath" [attr.data-type]="field.type">
+  @if (!compact && field.type !== 'conditionList' && field.type !== 'repeater') {
+    <label class="form-label fw-semibold" [attr.for]="inputId">
+      {{ field.label }}
+      @if (isRequired) { <span class="text-danger" aria-hidden="true">*</span> }
+    </label>
+  }
+
+  @switch (field.type) {
+    @case ('text') {
+      <input type="text" class="form-control" [id]="inputId" [formControl]="formControl" [attr.placeholder]="field.placeholder || null"
+        [attr.maxlength]="maxLength" [class.is-invalid]="showErrors" [attr.aria-label]="compact ? field.label : null" />
+    }
+    @case ('email') {
+      <input type="email" class="form-control" [id]="inputId" [formControl]="formControl" [attr.placeholder]="field.placeholder || null"
+        [class.is-invalid]="showErrors" [attr.aria-label]="compact ? field.label : null" />
+    }
+    @case ('phone') {
+      <input type="tel" class="form-control" [id]="inputId" [formControl]="formControl" [attr.placeholder]="field.placeholder || null"
+        [class.is-invalid]="showErrors" [attr.aria-label]="compact ? field.label : null" />
+    }
+    @case ('textarea') {
+      <textarea class="form-control" rows="3" [id]="inputId" [formControl]="formControl" [attr.placeholder]="field.placeholder || null"
+        [attr.maxlength]="maxLength" [class.is-invalid]="showErrors"></textarea>
+    }
+    @case ('number') {
+      <input type="number" class="form-control" [id]="inputId" [formControl]="formControl" [attr.min]="field.validation?.min ?? null"
+        [attr.max]="field.validation?.max ?? null" [class.is-invalid]="showErrors" [attr.aria-label]="compact ? field.label : null" />
+    }
+    @case ('date') {
+      <input type="date" class="form-control" [id]="inputId" [formControl]="formControl" [class.is-invalid]="showErrors"
+        [attr.aria-label]="compact ? field.label : null" />
+    }
+    @case ('select') {
+      <select class="form-select" [id]="inputId" [formControl]="formControl" [class.is-invalid]="showErrors" [attr.aria-label]="compact ? field.label : null">
+        <option [ngValue]="null">Select…</option>
+        @for (option of options; track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    }
+    @case ('radio') {
+      <div class="d-flex flex-wrap gap-3" role="radiogroup" [attr.aria-label]="field.label">
+        @for (option of options; track option.value) {
+          <div class="form-check">
+            <input class="form-check-input" type="radio" [id]="inputId + '-' + option.value" [name]="inputId" [value]="option.value" [formControl]="formControl" />
+            <label class="form-check-label" [attr.for]="inputId + '-' + option.value">{{ option.label }}</label>
+          </div>
+        }
+      </div>
+    }
+    @case ('yesNoUnknown') {
+      <div class="d-flex flex-wrap gap-3" role="radiogroup" [attr.aria-label]="field.label">
+        @for (option of options; track option.value) {
+          <div class="form-check">
+            <input class="form-check-input" type="radio" [id]="inputId + '-' + option.value" [name]="inputId" [value]="option.value" [formControl]="formControl" />
+            <label class="form-check-label" [attr.for]="inputId + '-' + option.value">{{ option.label }}</label>
+          </div>
+        }
+      </div>
+    }
+    @case ('checkboxGroup') {
+      <div class="d-flex flex-wrap gap-3" role="group" [attr.aria-label]="field.label">
+        @for (option of options; track option.value) {
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="inputId + '-' + option.value" [checked]="isChecked(option.value)"
+              [disabled]="disabled" (change)="toggle(option.value, $any($event.target).checked)" />
+            <label class="form-check-label" [attr.for]="inputId + '-' + option.value">{{ option.label }}</label>
+          </div>
+        }
+      </div>
+    }
+    @case ('boolean') {
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" [id]="inputId" [formControl]="formControl" />
+        <label class="form-check-label" [attr.for]="inputId">Yes</label>
+      </div>
+    }
+    @case ('patientBinding') {
+      <div class="form-control-plaintext border-bottom" [id]="inputId" data-test="patient-value">{{ patientValue ?? '—' }}</div>
+      <small class="text-muted">From the patient record</small>
+    }
+    @case ('consent') {
+      <div class="alert alert-light border mb-0" [id]="inputId">
+        @if (consent; as c) {
+          <p class="mb-1 small text-muted">Consent version {{ c.consentVersion }}</p>
+          <p class="mb-0" style="white-space: pre-line">{{ c.text }}</p>
+        }
+        <small class="text-muted d-block mt-2">The patient's response is recorded in the consent panel.</small>
+      </div>
+    }
+    @case ('attachmentList') {
+      <app-clinical-form-attachment-field [model]="model" [section]="section" [field]="field" [control]="formControl"
+        [handler]="attachmentHandler" [inputId]="inputId" />
+    }
+    @case ('conditionList') {
+      <app-clinical-form-condition-list [model]="model" [section]="section" [field]="field" />
+    }
+    @case ('repeater') {
+      <app-clinical-form-repeater [model]="model" [section]="section" [field]="field" />
+    }
+    @default {
+      <div class="text-danger small">Unsupported field type: {{ field.type }}</div>
+    }
+  }
+
+  @if (field.helpText && !compact) {
+    <small class="form-text text-muted d-block">{{ field.helpText }}</small>
+  }
+  @if (showErrors) {
+    <div class="invalid-feedback d-block" data-test="field-errors">
+      @for (error of errors; track error) { <div>{{ error }}</div> }
+    </div>
+  }
+  @if (serverErrors.length > 0) {
+    <div class="invalid-feedback d-block" data-test="server-errors">
+      @for (error of serverErrors; track $index) { <div>{{ error }}</div> }
+    </div>
+  }
+</div>
