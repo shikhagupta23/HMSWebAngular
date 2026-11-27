@@ -96,6 +96,16 @@
 				<div class="col-12 col-lg-2">
 					<div class="d-flex align-items-center gap-2">
 
+						<!-- Clinical forms for this visit (first, so it lines up on every row). -->
+						<a class="appointment-action cursor"
+						  *ngIf="clinicalFormsAccess.isEnabled() && item.appointmentStatus != 4 && item.patientId && item.appointmentId"
+						  [routerLink]="['/clinical-forms/patients', item.patientId]"
+						  [queryParams]="{ appointmentId: item.appointmentId }"
+						  title="Clinical forms (fill or view)" aria-label="Clinical forms"
+						  data-test="appointment-clinical-forms">
+						  <i class="fa-solid fa-file-medical"></i>
+						</a>
+
 						<!-- Eye icon when appointmentStatus = 2 -->
 						<a (click)="openPrescriptionModal(item, 'view')" *ngIf="item.appointmentStatus == 2 && (isDoctor || isReceptionist || isAdmin)" class="appointment-action">
 							<i class="fa-solid fa-eye"></i>
@@ -107,6 +117,7 @@
 							<a (click)="openPrescriptionModal(item, 'start')" *ngIf="(item.appointmentStatus == 0 || item.appointmentStatus == 1) && isDoctor" class="d-none appointment-start start-link date-tag">
 								Start Now
 							</a>
+
 
 						<!-- </ng-container> -->
 

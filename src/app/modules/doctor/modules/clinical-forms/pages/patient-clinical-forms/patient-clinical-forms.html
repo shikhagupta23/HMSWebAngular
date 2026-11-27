@@ -22,7 +22,7 @@
     <div class="card my-3" data-test="patient-card">
       <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
-          <h3 class="mb-1">Clinical forms</h3>
+          <h3 class="mb-1" data-test="page-title">{{ visitMode() ? 'Visit forms' : 'Form history' }}</h3>
           @if (patient(); as p) {
             <div class="text-muted" data-test="patient-name">
               @if (p.patientViewId) { <span class="me-2">#{{ p.patientViewId }}</span> }
@@ -33,78 +33,84 @@
             <div class="text-muted small">Patient details are unavailable; forms remain linked to this patient.</div>
           }
         </div>
-
-        <div class="cf-appointment" style="min-width: 16rem; max-width: 100%">
-          <label class="form-label small fw-semibold mb-1" for="cf-appointment">Appointment</label>
-          <select id="cf-appointment" class="form-select" [value]="selectedAppointmentId() ?? ''"
-            (change)="selectAppointment($any($event.target).value)" data-test="appointment-select">
-            <option value="">No appointment</option>
-            @for (a of selectableAppointments(); track a.appointmentId) {
-              <option [value]="a.appointmentId" [selected]="a.appointmentId === selectedAppointmentId()">
-                #{{ a.appointmentViewId }} · {{ a.appointmentDate | date: 'dd MMM yyyy, HH:mm' }} · {{ statusText(a.status) }}
-              </option>
-            }
-          </select>
-        </div>
+        @if (visitMode()) {
+          <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/clinical-forms/patients', patientId()]" data-test="history-link">
+            <i class="fa-solid fa-clock-rotate-left me-1"></i>Form history
+          </a>
+        }
       </div>
     </div>
 
     @if (contextError()) {
       <div class="alert alert-warning" data-test="context-error">{{ contextError() }}</div>
     }
+
     @if (selectedAppointment(); as a) {
-      <div class="alert alert-light border small" data-test="appointment-context">
-        Forms started here are linked to appointment <strong>#{{ a.appointmentViewId }}</strong>
-        ({{ a.appointmentDate | date: 'dd MMM yyyy, HH:mm' }}@if (a.doctorName) {, Dr. {{ a.doctorName }}}).
+      <div class="alert alert-light border small d-flex flex-wrap justify-content-between align-items-center gap-2" data-test="appointment-context">
+        <span>
+          Visit <strong>#{{ a.appointmentViewId }}</strong>
+          ({{ a.appointmentDate | date: 'dd MMM yyyy, HH:mm' }}@if (a.doctorName) {, Dr. {{ a.doctorName }}}) ·
+          {{ statusText(a.status) }}. Forms filled here are linked to this visit.
+        </span>
+        <a class="small text-decoration-none" [routerLink]="appointmentsLink()"><i class="fa-solid fa-arrow-left me-1"></i>Back to appointments</a>
+      </div>
+
+      <!-- Fill a form for this visit -->
+      <div class="card mb-3">
+        <div class="card-header"><h5 class="mb-0">Forms for this visit</h5></div>
+        <div class="card-body">
+          @if (createError()) {
+            <div class="alert alert-warning" data-test="create-error">{{ createError() }}</div>
+          }
+          @if (forms().length === 0) {
+            <p class="text-muted mb-0" data-test="no-forms">No clinical forms are enabled for your hospital.</p>
+          } @else {
+            <div class="row g-3">
+              @for (form of forms(); track form.templateId) {
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="border rounded p-3 h-100 d-flex flex-column gap-2" [attr.data-form]="form.formKey">
+                    <div>
+                      <div class="fw-semibold">{{ form.formName }}</div>
+                      <small class="text-muted text-capitalize">{{ form.specialty }} · v{{ form.versionNumber }}</small>
+                    </div>
+                    @if (activeForAppointment(form.templateId); as existing) {
+                      <div class="small text-muted" data-test="existing-for-appointment">
+                        {{ existing.status === Status.Draft ? 'Started, not yet submitted.' : 'Filled for this visit.' }}
+                      </div>
+                      <button type="button" class="btn mt-auto" [class.btn-primary]="existing.status === Status.Draft"
+                        [class.btn-outline-primary]="existing.status !== Status.Draft" (click)="open(existing)" data-test="open-existing">
+                        {{ existing.status === Status.Draft ? 'Continue filling' : 'View form' }}
+                      </button>
+                    } @else if (canStart()) {
+                      <button type="button" class="btn btn-primary mt-auto" (click)="start(form)" [disabled]="!!creating()" data-test="start">
+                        @if (creating() === form.templateId) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                        Fill {{ form.formName }}
+                      </button>
+                    } @else {
+                      <div class="small text-muted mt-auto" data-test="cannot-start">Your role can view but not fill forms.</div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="alert alert-light border small" data-test="history-hint">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        New forms are filled from <a routerLink="/appointment/todayappointments">Today's Appointments</a> or
+        <a routerLink="/appointment/allappointments">All Appointments</a> (the <strong>Forms</strong> button on each visit).
+        @if (visitDraftCount() > 0) {
+          <span data-test="visit-drafts">{{ visitDraftCount() }} form(s) started for a visit are not submitted yet.</span>
+        }
       </div>
     }
 
-    <!-- Start a form -->
+    <!-- Submitted forms (history) / this visit's forms -->
     <div class="card mb-3">
-      <div class="card-header"><h5 class="mb-0">Start a form</h5></div>
-      <div class="card-body">
-        @if (createError()) {
-          <div class="alert alert-warning" data-test="create-error">{{ createError() }}</div>
-        }
-        @if (forms().length === 0) {
-          <p class="text-muted mb-0" data-test="no-forms">No clinical forms are enabled for your hospital.</p>
-        } @else {
-          <div class="row g-3">
-            @for (form of forms(); track form.templateId) {
-              <div class="col-12 col-md-6 col-xl-4">
-                <div class="border rounded p-3 h-100 d-flex flex-column gap-2" [attr.data-form]="form.formKey">
-                  <div>
-                    <div class="fw-semibold">{{ form.formName }}</div>
-                    <small class="text-muted text-capitalize">{{ form.specialty }} · v{{ form.versionNumber }}</small>
-                  </div>
-                  @if (activeForAppointment(form.templateId); as existing) {
-                    <div class="small text-muted" data-test="existing-for-appointment">Already started for this appointment.</div>
-                    <button type="button" class="btn btn-outline-primary mt-auto" (click)="open(existing)" data-test="open-existing">
-                      Open {{ existing.status === Status.Draft ? 'draft' : 'submission' }}
-                    </button>
-                  } @else if (canStart()) {
-                    @if (!selectedAppointmentId() && openDraftsWithoutAppointment(form.templateId).length > 0) {
-                      <div class="small text-warning" data-test="unlinked-draft-hint">This patient already has a draft of this form without an appointment.</div>
-                    }
-                    <button type="button" class="btn btn-primary mt-auto" (click)="start(form)" [disabled]="!!creating()" data-test="start">
-                      @if (creating() === form.templateId) { <span class="spinner-border spinner-border-sm me-1"></span> }
-                      Start {{ form.formName }}
-                    </button>
-                  } @else {
-                    <div class="small text-muted mt-auto" data-test="cannot-start">Your role can view but not start forms.</div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Existing submissions -->
-    <div class="card">
       <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <h5 class="mb-0">Submissions</h5>
+        <h5 class="mb-0">{{ visitMode() ? 'Records for this visit' : 'Submitted forms' }}</h5>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="cf-include-voided" [checked]="includeVoided()"
             (change)="includeVoided.set($any($event.target).checked)" />
@@ -112,7 +118,9 @@
         </div>
       </div>
       @if (visibleSubmissions().length === 0) {
-        <div class="card-body text-center text-muted py-4" data-test="no-submissions">No clinical forms recorded for this patient yet.</div>
+        <div class="card-body text-center text-muted py-4" data-test="no-submissions">
+          {{ visitMode() ? 'No forms filled for this visit yet.' : 'No submitted forms for this patient yet.' }}
+        </div>
       } @else {
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -120,15 +128,14 @@
               <tr>
                 <th scope="col">Form</th>
                 <th scope="col">Status</th>
-                <th scope="col">Appointment</th>
-                <th scope="col">Created</th>
+                <th scope="col">Visit</th>
                 <th scope="col">Submitted</th>
                 <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th>
               </tr>
             </thead>
             <tbody>
               @for (s of visibleSubmissions(); track s.id) {
-                <tr data-test="submission-row" [class.table-active]="s.appointmentId && s.appointmentId === selectedAppointmentId()">
+                <tr data-test="submission-row">
                   <td>{{ s.formName }} <small class="text-muted">v{{ s.versionNumber }}</small></td>
                   <td>
                     @switch (s.status) {
@@ -138,8 +145,13 @@
                       @case (Status.Voided) { <span class="badge bg-danger">Voided</span> }
                     }
                   </td>
-                  <td>{{ appointmentLabel(s.appointmentId) }}</td>
-                  <td>{{ s.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                  <td>
+                    @if (appointmentOf(s.appointmentId); as a) {
+                      #{{ a.appointmentViewId }} · {{ a.appointmentDate | date: 'dd MMM yyyy' }}
+                    } @else {
+                      {{ s.appointmentId ? 'Visit' : 'No visit' }}
+                    }
+                  </td>
                   <td>{{ s.submittedAt ? (s.submittedAt | date: 'dd MMM yyyy, HH:mm') : '—' }}</td>
                   <td class="text-end">
                     <button type="button" class="btn btn-sm btn-outline-primary" (click)="open(s)" data-test="open">
@@ -153,5 +165,20 @@
         </div>
       }
     </div>
+
+    @if (!visitMode() && unlinkedDrafts().length > 0) {
+      <!-- Older drafts started without a visit: only reachable here. -->
+      <div class="card" data-test="unlinked-drafts">
+        <div class="card-header"><h6 class="mb-0">Unfinished forms not linked to a visit</h6></div>
+        <ul class="list-group list-group-flush">
+          @for (s of unlinkedDrafts(); track s.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ s.formName }} <small class="text-muted">started {{ s.createdAt | date: 'dd MMM yyyy' }}</small></span>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="open(s)" data-test="open-draft">Continue</button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
   }
 </div>

@@ -17,9 +17,11 @@ import {
 import { ClinicalFormSubmissionSummary, EnabledClinicalForm, SubmissionStatus } from '../../models/clinical-forms.models';
 
 /**
- * Patient workspace for clinical forms (route: /clinical-forms/patients/:patientId?appointmentId=…).
- * Entry point from the existing patient details and appointment screens: lists the patient's
- * submissions and starts a form for the patient, optionally linked to one of the patient's appointments.
+ * Patient clinical forms (route: /clinical-forms/patients/:patientId?appointmentId=…), in two modes:
+ * - Visit (opened from Today's / All Appointments with an appointmentId): forms are filled here, always
+ *   linked to that appointment.
+ * - Form history (opened from the patient page, no appointment): read-only list of the patient's
+ *   submitted forms. New forms are not started here; drafts not linked to a visit can still be finished.
  *
  * The patient is authorized by the server (getPatientSubmissions returns 404 for a patient outside the
  * user's hospital); duplicates per appointment + form are rejected by the server (409) and surfaced here.
@@ -57,9 +59,16 @@ export class PatientClinicalForms implements OnInit {
   readonly createError = signal<string | null>(null);
 
   readonly canStart = computed(() => this.accessService.access().permissions.includes('FillPatientForms'));
-  readonly selectableAppointments = computed(() => this.appointments().filter((a) => a.status !== APPOINTMENT_CANCELLED));
+  /** Opened for a visit: forms are filled for this appointment only. */
+  readonly visitMode = computed(() => !!this.selectedAppointmentId());
   readonly selectedAppointment = computed(() =>
     this.appointments().find((a) => sameId(a.appointmentId, this.selectedAppointmentId())) ?? null);
+  /** Where "back" goes in visit mode: today's list for today's visits, otherwise all appointments. */
+  readonly appointmentsLink = computed(() => {
+    const date = this.selectedAppointment()?.appointmentDate;
+    const isToday = !!date && new Date(date).toDateString() === new Date().toDateString();
+    return isToday ? '/appointment/todayappointments' : '/appointment/allappointments';
+  });
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -115,20 +124,27 @@ export class PatientClinicalForms implements OnInit {
     }
   }
 
-  selectAppointment(appointmentId: string): void {
-    this.contextError.set(null);
-    this.createError.set(null);
-    this.selectedAppointmentId.set(appointmentId || null);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { appointmentId: appointmentId || null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
+  /**
+   * Visit mode: every form of this appointment (drafts included).
+   * History mode: completed forms only (submitted / amended, voided on request); drafts are listed separately.
+   */
+  visibleSubmissions(): ClinicalFormSubmissionSummary[] {
+    const appointmentId = this.selectedAppointmentId();
+    return this.submissions().filter((s) => {
+      if (s.status === SubmissionStatus.Voided && !this.includeVoided()) return false;
+      if (appointmentId) return sameId(s.appointmentId, appointmentId);
+      return s.status !== SubmissionStatus.Draft;
     });
   }
 
-  visibleSubmissions(): ClinicalFormSubmissionSummary[] {
-    return this.includeVoided() ? this.submissions() : this.submissions().filter((s) => s.status !== SubmissionStatus.Voided);
+  /** History mode: drafts not linked to a visit (older records) can only be reached from here. */
+  unlinkedDrafts(): ClinicalFormSubmissionSummary[] {
+    return this.submissions().filter((s) => s.status === SubmissionStatus.Draft && !s.appointmentId);
+  }
+
+  /** History mode: drafts started for a visit are finished from the appointment lists. */
+  visitDraftCount(): number {
+    return this.submissions().filter((s) => s.status === SubmissionStatus.Draft && !!s.appointmentId).length;
   }
 
   /** The active (non-voided) submission of this form for the selected appointment, if any. */
@@ -139,19 +155,14 @@ export class PatientClinicalForms implements OnInit {
       && sameId(s.appointmentId, appointmentId)) ?? null;
   }
 
-  /** Drafts of this form for the patient that are not tied to an appointment. */
-  openDraftsWithoutAppointment(templateId: string): ClinicalFormSubmissionSummary[] {
-    return this.submissions().filter((s) => s.templateId === templateId && s.status === SubmissionStatus.Draft && !s.appointmentId);
-  }
-
-  appointmentLabel(appointmentId: string | null | undefined): string {
-    if (!appointmentId) return 'No appointment';
-    const appointment = this.appointments().find((a) => sameId(a.appointmentId, appointmentId));
-    return appointment?.appointmentViewId ? `#${appointment.appointmentViewId}` : 'Appointment';
+  appointmentOf(appointmentId: string | null | undefined): ClinicalFormsAppointment | null {
+    if (!appointmentId) return null;
+    return this.appointments().find((a) => sameId(a.appointmentId, appointmentId)) ?? null;
   }
 
   start(form: EnabledClinicalForm): void {
-    if (this.creating()) return;
+    // Forms are only started for a visit.
+    if (this.creating() || !this.selectedAppointmentId()) return;
     const existing = this.activeForAppointment(form.templateId);
     if (existing) {
       this.open(existing);

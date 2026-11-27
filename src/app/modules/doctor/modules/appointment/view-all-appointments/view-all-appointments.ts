@@ -9,6 +9,7 @@ import { AuthService } from '../../../../auth/services/auth-service';
 import { OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../../../../shared/services/signal-rservice';
+import { ClinicalFormsAccessService } from '../../clinical-forms/services/clinical-forms-access-service';
 declare var bootstrap: any;
 
 interface PrescriptionMedicine {
@@ -63,6 +64,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   private signalRService = inject(SignalRService);
   private subscriptions: Subscription[] = [];
   private route = inject(ActivatedRoute);
+  readonly clinicalFormsAccess = inject(ClinicalFormsAccessService);
 
   // isViewMode: boolean = false;
   isEditMode: boolean = false;
@@ -155,6 +157,7 @@ export class ViewAllAppointments implements OnInit,OnDestroy  {
   };
 
   ngOnInit(): void {
+    this.clinicalFormsAccess.load().subscribe();
 
     this.addAppointmentForm = this.fb.group({
       patientId: [''],

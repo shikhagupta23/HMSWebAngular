@@ -102,20 +102,34 @@ describe('PatientClinicalForms (entry point)', () => {
     fixture.detectChanges();
   }
 
-  it('shows the patient, the enabled forms and the patient\'s submissions', async () => {
+  it('opened from the patient page: shows the form history read-only, without starting forms', async () => {
     await render({ submissions: [summary('s-1', SubmissionStatus.Submitted, APPT), summary('s-2', SubmissionStatus.Voided, null)] });
     expect(api.getPatientSubmissions).toHaveBeenCalledWith(PATIENT, { includeVoided: true });
+    expect(q('page-title')?.textContent).toContain('Form history');
     expect(q('patient-name')?.textContent).toContain('Asha Verma');
-    expect(el().querySelector('[data-form="dental-intake"]')?.textContent).toContain('Dental Patient Intake');
+    expect(el().querySelector('[data-form="dental-intake"]')).toBeNull();
+    expect(q('start')).toBeNull();
+    expect(q('history-hint')?.textContent).toContain('All Appointments');
     expect(el().querySelectorAll('[data-test="submission-row"]').length).toBe(1); // voided hidden by default
+    expect(el().querySelector('[data-test="submission-row"]')?.textContent).toContain('#501');
 
     el().querySelector<HTMLInputElement>('#cf-include-voided')!.click();
     await settle();
     expect(el().querySelectorAll('[data-test="submission-row"]').length).toBe(2);
   });
 
+  it('history leaves visit drafts to the appointment lists and offers older unlinked drafts', async () => {
+    await render({ submissions: [summary('s-visit', SubmissionStatus.Draft, APPT), summary('s-old', SubmissionStatus.Draft, null)] });
+    expect(el().querySelectorAll('[data-test="submission-row"]').length).toBe(0);
+    expect(q('visit-drafts')?.textContent).toContain('1 form(s)');
+    q('open-draft')!.click();
+    await settle();
+    expect(router.navigate).toHaveBeenCalledWith(['/clinical-forms/submissions', 's-old'], { queryParams: { patientId: PATIENT, appointmentId: null } });
+  });
+
   it('starts Dental Intake for the appointment it was opened from', async () => {
     await render({ query: { appointmentId: APPT } });
+    expect(q('page-title')?.textContent).toContain('Visit forms');
     expect(q('appointment-context')?.textContent).toContain('#501');
     api.createDraft.and.returnValue(of({ id: 's-new' } as ClinicalFormSubmissionDetail));
 
@@ -126,35 +140,31 @@ describe('PatientClinicalForms (entry point)', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/clinical-forms/submissions', 's-new'], { queryParams: { patientId: PATIENT, appointmentId: APPT } });
   });
 
-  it('starts a form without an appointment when none is selected', async () => {
-    await render();
-    api.createDraft.and.returnValue(of({ id: 's-new' } as ClinicalFormSubmissionDetail));
-    q('start')!.click();
-    await settle();
-    expect(api.createDraft).toHaveBeenCalledWith(PATIENT, { templateId: 't-dental', appointmentId: null });
+  it('shows a submitted form of the visit as "View form" instead of starting another', async () => {
+    await render({ query: { appointmentId: APPT }, submissions: [summary('s-1', SubmissionStatus.Submitted, APPT)] });
+    expect(q('start')).toBeNull();
+    expect(q('open-existing')?.textContent).toContain('View form');
   });
 
   it('rejects an appointment that does not belong to the patient', async () => {
     await render({ query: { appointmentId: OTHER_PATIENT_APPT } });
     expect(q('context-error')?.textContent).toContain('does not belong to this patient');
     expect(q('appointment-context')).toBeNull();
-    api.createDraft.and.returnValue(of({ id: 's-new' } as ClinicalFormSubmissionDetail));
-    q('start')!.click();
-    await settle();
-    expect(api.createDraft.calls.mostRecent().args[1].appointmentId).toBeNull();
+    expect(q('start')).toBeNull();
+    expect(api.createDraft).not.toHaveBeenCalled();
   });
 
   it('does not allow a cancelled appointment', async () => {
     await render({ query: { appointmentId: CANCELLED_APPT } });
     expect(q('context-error')?.textContent).toContain('cancelled');
-    const options = Array.from(el().querySelectorAll<HTMLOptionElement>('[data-test="appointment-select"] option')).map((o) => o.value);
-    expect(options).not.toContain(CANCELLED_APPT);
+    expect(q('start')).toBeNull();
   });
 
   it('opens the existing submission instead of creating a duplicate for the same appointment', async () => {
     await render({ query: { appointmentId: APPT }, submissions: [summary('s-1', SubmissionStatus.Draft, APPT)] });
     expect(q('start')).toBeNull();
     expect(q('existing-for-appointment')).toBeTruthy();
+    expect(q('open-existing')?.textContent).toContain('Continue filling');
 
     q('open-existing')!.click();
     await settle();
@@ -190,7 +200,7 @@ describe('PatientClinicalForms (entry point)', () => {
   });
 
   it('does not offer to start forms to roles that can only view', async () => {
-    await render({ permissions: ['ViewPatientForms'] });
+    await render({ query: { appointmentId: APPT }, permissions: ['ViewPatientForms'] });
     expect(q('start')).toBeNull();
     expect(q('cannot-start')).toBeTruthy();
   });

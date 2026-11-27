@@ -49,14 +49,12 @@ describe('Clinical Forms entry points: patient details', () => {
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  it('links to the patient\'s clinical forms and to each bookable appointment', async () => {
+  it('links to the patient\'s form history only; forms are filled from the appointment lists', async () => {
     await render(true);
     const patientLink = el().querySelector<HTMLAnchorElement>('[data-test="patient-clinical-forms"]')!;
     expect(patientLink.getAttribute('href')).toBe(`/clinical-forms/patients/${PATIENT}`);
-
-    const appointmentLinks = Array.from(el().querySelectorAll<HTMLAnchorElement>('[data-test="appointment-clinical-forms"]'));
-    expect(appointmentLinks.length).toBe(1); // the cancelled appointment gets no entry point
-    expect(appointmentLinks[0].getAttribute('href')).toBe(`/clinical-forms/patients/${PATIENT}?appointmentId=appt-1`);
+    expect(patientLink.textContent).toContain('Form history');
+    expect(el().querySelector('[data-test="appointment-clinical-forms"]')).toBeNull();
   });
 
   it('hides the entry points when the hospital does not have Clinical Forms', async () => {
