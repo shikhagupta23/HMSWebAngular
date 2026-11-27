@@ -31,6 +31,14 @@ export class ClinicalFormConditionList {
     return this.statusOptions.length === 1;
   }
 
+  /**
+   * Tick lists whose items are sentences (e.g. "Eating quickly (less than 10 minutes)") read badly as
+   * wrapped chips, so they are laid out as an aligned checklist with the details beside each ticked item.
+   */
+  get statementMode(): boolean {
+    return (this.field.items ?? []).some((item) => item.label.length > STATEMENT_LABEL_LENGTH);
+  }
+
   /** In tick mode an item keyed "none" excludes the others (and vice versa), like the paper "None" box. */
   static readonly NONE_KEY = 'none';
 
@@ -109,3 +117,5 @@ export class ClinicalFormConditionList {
     return `cf-${this.basePath}-${item.key}-${suffix}`.replace(/[^A-Za-z0-9_-]/g, '-');
   }
 }
+
+const STATEMENT_LABEL_LENGTH = 40;

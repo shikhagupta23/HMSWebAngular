@@ -10,6 +10,9 @@
           }
         </div>
         <div class="card-body">
+          @if (section.description) {
+            <p class="text-muted small cf-wide mb-0" style="white-space: pre-line" data-test="section-description">{{ section.description }}</p>
+          }
           @if (m.serverErrorsFor(section.key).length > 0) {
             <div class="alert alert-danger py-2 small cf-wide" data-test="section-errors">
               @for (error of m.serverErrorsFor(section.key); track $index) { <div>{{ error }}</div> }

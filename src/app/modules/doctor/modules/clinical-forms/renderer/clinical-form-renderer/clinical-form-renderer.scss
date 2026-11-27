@@ -7,9 +7,29 @@
   gap: 1rem 1.25rem;
   // Paper-form layout: short answers sit side by side; wide fields span the whole row.
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
-  align-items: start;
+  align-items: stretch;
 }
 
 .cf-section .card-body > .cf-wide {
   grid-column: 1 / -1;
+}
+
+// Questions sharing a row have labels of different lengths; let the label take the spare height so
+// the answer boxes line up along the row instead of starting at different heights.
+.cf-section .card-body > app-clinical-form-field:not(.cf-wide) {
+  display: flex;
+  flex-direction: column;
+
+  ::ng-deep > .cf-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+
+    > .form-label {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: flex-end; // keep the label text next to its box
+      gap: 0.25rem;
+    }
+  }
 }

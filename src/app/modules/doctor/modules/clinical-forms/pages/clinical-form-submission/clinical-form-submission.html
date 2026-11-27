@@ -270,6 +270,7 @@
           <div class="card-body">
             @for (consent of c.status; track consent.consentType) {
               <div class="mb-3" [attr.data-consent]="consent.consentType">
+                <h6 class="fw-semibold mb-1" data-test="consent-title">{{ consentTitle(consent.consentType) }}</h6>
                 <p class="small text-muted mb-1" data-test="consent-version">Version {{ consent.consentVersion }}@if (consent.required) { · required }</p>
                 <blockquote class="border-start border-3 ps-3 mb-2" style="white-space: pre-line" data-test="consent-text">{{ consent.consentText }}</blockquote>
 
@@ -353,7 +354,7 @@
                   <tbody>
                     @for (r of c.records; track r.id) {
                       <tr [class.text-muted]="!r.isCurrent">
-                        <td>{{ r.consentType }}</td>
+                        <td>{{ consentTitle(r.consentType) }}</td>
                         <td>v{{ r.consentVersion }}</td>
                         <td>{{ r.isAccepted ? 'Accepted' : 'Refused' }}@if (r.isCurrent) { <span class="badge bg-light text-dark border ms-1">current</span> }</td>
                         <td>{{ r.signerType === SignerType.Guardian ? r.guardianName + ' (guardian)' : r.patientNameSnapshot }}@if (r.witnessName) { · witness {{ r.witnessName }}}</td>

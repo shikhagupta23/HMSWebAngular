@@ -399,6 +399,15 @@ export class ClinicalFormSubmission implements OnInit, OnDestroy {
     return this.submission()?.definition.consents?.find((c) => c.consentType === consentType);
   }
 
+  /** Heading for a consent: the label of the form's consent field (forms may ask for several signed consents). */
+  consentTitle(consentType: string): string {
+    for (const section of this.submission()?.definition.sections ?? []) {
+      const field = section.fields.find((f) => f.type === 'consent' && f.consentType === consentType);
+      if (field?.label) return field.label;
+    }
+    return consentType;
+  }
+
   capture(consentType: string): ConsentCapture {
     return this.consentCapture()[consentType] ?? { signerType: ConsentSignerType.Patient, guardianName: '', guardianRelationship: '', witnessName: '' };
   }

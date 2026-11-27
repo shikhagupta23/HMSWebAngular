@@ -117,6 +117,8 @@ export interface FieldDefinition {
 export interface SectionDefinition {
   key: string;
   title: string;
+  /** Optional instructions shown above the section's questions. */
+  description?: string;
   order?: number;
   required?: boolean;
   editableBy?: string[];

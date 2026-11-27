@@ -10,6 +10,7 @@ import { ApiService } from '../../../../../../shared/services/api-service';
 import { ApiEndpoints } from '../../../../../../shared/constants/api-endpoints';
 import { ToastService } from '../../../../../../shared/services/toast-service';
 import { testDefinition } from '../../testing/test-definition';
+import { HAIR_TRANSPLANTATION_CONSENT_V1 } from '../../testing/hair-transplantation-consent-v1.definition';
 import {
   AttachmentUploadEvent,
   ClinicalAttachmentType,
@@ -214,6 +215,19 @@ describe('ClinicalFormSubmission page', () => {
       expect(q('consent-text')?.textContent?.trim()).toBe('I agree to the assessment.');
       expect(q('consent-version')?.textContent).toContain('Version 1.0');
       expect(q('consent-missing')).toBeTruthy();
+    });
+
+    it('lists each consent of a form under its own heading with its own signature pad', async () => {
+      const hair = structuredClone(HAIR_TRANSPLANTATION_CONSENT_V1);
+      await render(submission(RECEPTIONIST, SubmissionStatus.Draft, { definition: hair, sections: [] }), {
+        submissionId: 's-1', records: [],
+        status: hair.consents!.map((c) => ({ consentType: c.consentType, consentVersion: c.consentVersion, consentText: c.text, required: true, requiresSignature: true, satisfied: false })),
+      });
+      const titles = Array.from(el().querySelectorAll('[data-test="consent-title"]')).map((t) => t.textContent?.trim());
+      expect(titles).toEqual(['Hair Transplantation Consent and Declaration', 'Hairline Design Acknowledgement']);
+      expect(el().querySelectorAll('[data-test="signature-area"]').length).toBe(2);
+      expect(el().querySelector('[data-consent="hair-transplant-procedure"] [data-test="consent-text"]')?.textContent).toContain('10. I have been given sufficient time');
+      expect(el().querySelector('[data-consent="hair-transplant-procedure"] [data-test="signer"] option[value="2"]')).toBeNull(); // no guardian on this form
     });
 
     it('records a patient acceptance without guardian details', async () => {

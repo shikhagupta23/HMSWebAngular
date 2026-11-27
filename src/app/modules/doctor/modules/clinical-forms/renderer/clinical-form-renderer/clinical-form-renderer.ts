@@ -75,9 +75,14 @@ export class ClinicalFormRenderer implements OnChanges {
    */
   wide(field: FieldDefinition): boolean {
     if (WIDE_TYPES.has(field.type)) return true;
-    if (field.type === 'radio' || field.type === 'yesNoUnknown') return (field.options?.length ?? (field.optionSet ? 4 : 3)) > 3;
+    if (field.type === 'radio' || field.type === 'yesNoUnknown') {
+      if ((field.options?.length ?? (field.optionSet ? 4 : 3)) > 3) return true;
+      // Descriptive choices ("Sedentary (sitting most of day)") would stack in a narrow cell.
+      return (field.options ?? []).reduce((total, o) => total + o.label.length, 0) > LONG_CHOICES_LENGTH;
+    }
     return false;
   }
 }
 
-const WIDE_TYPES = new Set(['textarea', 'checkboxGroup', 'conditionList', 'repeater', 'consent', 'attachmentList']);
+const LONG_CHOICES_LENGTH = 40;
+const WIDE_TYPES =new Set(['textarea', 'checkboxGroup', 'conditionList', 'repeater', 'consent', 'attachmentList']);

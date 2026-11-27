@@ -4,7 +4,37 @@
     @if (isRequired) { <span class="text-danger" aria-hidden="true">*</span> }
   </legend>
 
-  @if (tickMode) {
+  @if (tickMode && statementMode) {
+    <div class="row g-2 cf-statements" role="group" [attr.aria-label]="field.label" data-test="tick-list">
+      @for (item of field.items ?? []; track item.key) {
+        @if (itemVisible(item)) {
+          <div class="col-12 col-xl-6">
+            <div class="cf-statement h-100 border rounded px-3 py-2" [class.border-primary]="isTicked(item)"
+              [class.bg-primary-subtle]="isTicked(item)" [attr.data-item]="item.key">
+              <div class="form-check m-0">
+                <input class="form-check-input" type="checkbox" [id]="id(item, 'tick')" [checked]="isTicked(item)"
+                  [disabled]="!status(item) || status(item).disabled" (change)="toggle(item, $any($event.target).checked)" />
+                <label class="form-check-label" [attr.for]="id(item, 'tick')">
+                  {{ item.label }}
+                  @if (item.alert && isTicked(item)) { <i class="fa-solid fa-triangle-exclamation text-warning ms-1" title="Alert"></i> }
+                </label>
+              </div>
+              @if (isTicked(item) && hasDetails(item)) {
+                <div class="mt-2 ms-4" [attr.data-item-details]="item.key">
+                  @for (itemField of field.itemFields ?? []; track itemField.key) {
+                    @if (itemFieldVisible(item, itemField)) {
+                      <app-clinical-form-field [model]="model" [section]="section" [field]="itemField" [compact]="true"
+                        [control]="itemControl(item, itemField)" [path]="basePath + '.' + item.key + '.' + itemField.key" />
+                    }
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  } @else if (tickMode) {
     <div class="d-flex flex-wrap gap-2 cf-ticks" role="group" [attr.aria-label]="field.label" data-test="tick-list">
       @for (item of field.items ?? []; track item.key) {
         @if (itemVisible(item)) {

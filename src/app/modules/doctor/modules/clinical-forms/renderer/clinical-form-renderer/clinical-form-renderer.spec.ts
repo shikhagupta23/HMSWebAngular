@@ -4,6 +4,8 @@ import { ClinicalFormRendererModule } from '../clinical-form-renderer-module';
 import { ClinicalFormRenderer } from './clinical-form-renderer';
 import { ClinicalFormModel } from '../../engine/clinical-form-model';
 import { testDefinition } from '../../testing/test-definition';
+import { WEIGHT_MANAGEMENT_INTAKE_V1 } from '../../testing/weight-management-intake-v1.definition';
+import { HAIR_TRANSPLANTATION_CONSENT_V1 } from '../../testing/hair-transplantation-consent-v1.definition';
 import { EffectiveSectionAccess, FormAnswers, FormDefinition, PatientFormContext } from '../../models/clinical-forms.models';
 
 describe('ClinicalFormRenderer', () => {
@@ -53,6 +55,78 @@ describe('ClinicalFormRenderer', () => {
     await render({ hideConsentSections: true });
     const sections = Array.from(el().querySelectorAll('[data-section]')).map((s) => s.getAttribute('data-section'));
     expect(sections).toEqual(['intake', 'assessment']);
+  });
+
+  it('shows section instructions above the questions', async () => {
+    const definition = testDefinition();
+    definition.sections[0].description = 'In the past 7 days\nScale: 0 = Not at all';
+    await render({ definition });
+    const description = el().querySelector('[data-section="intake"] [data-test="section-description"]');
+    expect(description?.textContent).toContain('Scale: 0 = Not at all');
+    expect(el().querySelector('[data-section="assessment"] [data-test="section-description"]')).toBeNull();
+  });
+
+  it('renders the Medical Weight Management Intake with its follow-ups and patient-based questions', async () => {
+    await render({ definition: structuredClone(WEIGHT_MANAGEMENT_INTAKE_V1), patient: { gender: 'Male', bindings: { 'patient.fullName': 'Ravi Kumar' } } });
+    expect(el().querySelectorAll('[data-section]').length).toBe(25);
+    expect(el().querySelector('[data-section="phq9"] [data-test="section-description"]')?.textContent).toContain('3 = Nearly every day');
+    expect(field('phq9.thoughtsOfSelfHarm')).toBeTruthy();
+
+    // BEDS-7: B is asked only after A is answered "yes".
+    expect(field('beds7.distressed')).toBeNull();
+    el().querySelector<HTMLInputElement>('[data-field="beds7.overeatingEpisodes"] input[id$="-yes"]')!.click();
+    await settle();
+    expect(field('beds7.distressed')).toBeTruthy();
+
+    // Women-only review-of-systems questions are not shown for a male patient.
+    const ros = el().querySelector('[data-field="reviewOfSystems.systems"]')!;
+    expect(ros.querySelector('[data-item="gerd"]')).toBeTruthy();
+    expect(ros.querySelector('[data-item="irregularPeriodsPcos"]')).toBeNull();
+  });
+
+  it('lays sentence-length tick items out as an aligned checklist with details inside the ticked item', async () => {
+    await render({ definition: structuredClone(WEIGHT_MANAGEMENT_INTAKE_V1) });
+    const list = el().querySelector('[data-field="eatingBehaviour.issues"]')!;
+    expect(list.querySelector('.cf-statements')).toBeTruthy();
+    const snacking = list.querySelector<HTMLElement>('[data-item="snacking"]')!;
+    expect(snacking.querySelector('[data-field="eatingBehaviour.issues.snacking.details"]')).toBeNull();
+
+    snacking.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click();
+    await settle();
+    const details = snacking.querySelector('[data-field="eatingBehaviour.issues.snacking.details"] input')!;
+    expect(details).toBeTruthy(); // shown inside the ticked item, not in a separate list below
+    expect(details.getAttribute('placeholder')).toBe('Details');
+    expect(model.answers()['eatingBehaviour']['issues']).toEqual({ snacking: { status: 'yes' } });
+  });
+
+  it('renders the Hair Transplantation Consent Form with Yes/No follow-ups and its consents', async () => {
+    await render({ definition: structuredClone(HAIR_TRANSPLANTATION_CONSENT_V1), patient: { gender: 'Male', bindings: { 'patient.fullName': 'Ravi Kumar' } } });
+    expect(Array.from(el().querySelectorAll('[data-section]')).map((s) => s.getAttribute('data-section'))).toEqual([
+      'patientInformation', 'procedureConsent', 'educationAcknowledgement', 'medicalHistoryQuestionnaire', 'consent',
+    ]);
+    expect(field('patientInformation.fullName')?.querySelector('[data-test="patient-value"]')?.textContent).toContain('Ravi Kumar');
+    expect(el().querySelector('[data-section="procedureConsent"] [data-test="section-description"]')?.textContent).toContain('FUE');
+    expect(el().querySelectorAll('[data-section="medicalHistoryQuestionnaire"] [data-type="radio"]').length).toBe(16); // the 17th follows "yes"
+
+    expect(field('medicalHistoryQuestionnaire.medicineAllergyDetails')).toBeNull();
+    el().querySelector<HTMLInputElement>('[data-field="medicalHistoryQuestionnaire.medicineAllergy"] input[id$="-yes"]')!.click();
+    await settle();
+    expect(field('medicalHistoryQuestionnaire.medicineAllergyDetails')!.querySelector('.text-danger')?.textContent).toContain('*');
+
+    el().querySelector<HTMLInputElement>('[data-field="medicalHistoryQuestionnaire.woundWithStitches"] input[id$="-yes"]')!.click();
+    await settle();
+    expect(field('medicalHistoryQuestionnaire.stitchesProblem')).toBeTruthy();
+
+    // Both consents are listed; signing happens in the page's consent panel.
+    expect(el().textContent).toContain('A strip of skin will be removed');
+    expect(el().textContent).toContain('My hairline design has been made on my scalp');
+  });
+
+  it('gives descriptive single-choice questions the full row', async () => {
+    await render({ definition: structuredClone(WEIGHT_MANAGEMENT_INTAKE_V1) });
+    const host = (path: string) => field(path)!.closest('app-clinical-form-field')!;
+    expect(host('physicalActivity.dailyActivity').classList).toContain('cf-wide');
+    expect(host('physicalActivity.exerciseDaysPerWeek').classList).not.toContain('cf-wide');
   });
 
   it('shows a conditional field only when its condition is met', async () => {
